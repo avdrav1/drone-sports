@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/assists/act3.tres" id="9_act3"]
 [ext_resource type="Resource" path="res://data/assists/act4.tres" id="10_act4"]
 [ext_resource type="Resource" path="res://data/assists/act5.tres" id="11_act5"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="12_rig"]
 
 [sub_resource type="BoxShape3D" id="ground_shape"]
 size = Vector3(400, 1, 400)
@@ -105,8 +106,10 @@ script = ExtResource("5_input")
 
 [node name="FreeCamera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 6, 14)
-current = true
 script = ExtResource("2_cam")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("12_rig")]
+target = NodePath("../Drone")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

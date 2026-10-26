@@ -1,6 +1,6 @@
 extends Node3D
 # Debug flight sandbox. Every story is played by hand here.
-# F1 toggles the readout, F2 cycles the act presets.
+# F1 toggles the readout, F2 cycles the act presets, C cycles camera views.
 
 @export var presets: Array[AssistStack] = []
 
@@ -9,8 +9,10 @@ var preset_index := 0
 @onready var readout: Label = $HUD/Readout
 @onready var drone: Drone = $Drone
 @onready var expert_toggle: CheckBox = $HUD/Expert
+@onready var camera_rig: CameraRig = $CameraRig
 
 func _ready() -> void:
+	camera_rig.camera.make_current()
 	expert_toggle.button_pressed = GameSettings.expert_all_assists_off
 	expert_toggle.toggled.connect(_on_expert_toggled)
 	apply_preset()
