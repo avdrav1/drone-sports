@@ -110,7 +110,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.
 
-- [ ] **2.1 Job resource and lifecycle**
+- [x] **2.1 Job resource and lifecycle**
   - Goal: A `Job` resource (id, title, client, required assist stack, time limit, pay) and a `JobRunner` node moving through Briefing, Countdown, Live, Complete, Failed.
   - Context: Every job type in Epics 3, 4, 6 plugs into this runner. `scripts/jobs/job.gd`, `scripts/jobs/job_runner.gd`.
   - Acceptance: Runner emits `state_changed` on each transition. Time limit ends the job as Failed. A test job with no objectives completes when `complete()` is called. Required assist stack is applied to the drone on Briefing.

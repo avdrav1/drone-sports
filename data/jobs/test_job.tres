@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act2.tres" id="2_act2"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"test_job"
+title = "Test flight"
+client = "Debug Co."
+faction = &"league"
+required_assists = ExtResource("2_act2")
+pay = 100
+countdown = 3.0
+default_view = 1
