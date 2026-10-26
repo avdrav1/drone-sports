@@ -10,3 +10,7 @@ extends Node
 ## Override. Called every physics frame while enabled, in pipeline order.
 func apply(_intent: Intent, _drone: Drone, _delta: float) -> void:
 	pass
+
+## Override to forget held state when the drone resets.
+func reset() -> void:
+	pass

@@ -14,6 +14,10 @@ func run(intent: Intent, drone: Drone, delta: float) -> void:
 		if a.enabled:
 			a.apply(intent, drone, delta)
 
+func reset() -> void:
+	for a in assists():
+		a.reset()
+
 ## True if an assist with this id is present and on.
 func is_enabled(id: StringName) -> bool:
 	for a in assists():

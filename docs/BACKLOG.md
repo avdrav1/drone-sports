@@ -100,6 +100,12 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: With no assists, a full-stick flip from hover completes in at most 0.8 s and loses less than 3 m (was 1.5 s and 8 m). All earlier flight and assist tests still pass unchanged.
   - Out of scope: Per-pilot rates, rate curves.
 
+- [x] **1.11 Reset in the debug scene**
+  - Goal: The `reset_drone` action (R, or Start on a gamepad) puts the drone back at its spawn point, at rest, with a full battery.
+  - Context: Playtest request. `Drone.reset()` also clears held state in assists (altitude hold target) and the intent source (latched throttle).
+  - Acceptance: After a flight that leaves the drone moved, tilted, moving, and low on battery, pressing R restores the spawn transform, zero velocity, and a full battery, and the drone then hovers in place under the Act 1 preset.
+  - Out of scope: Checkpoints, resetting jobs.
+
 ## Epic 2: Job framework, grading, and payout
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.

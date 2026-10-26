@@ -64,6 +64,20 @@ func gravity() -> float:
 func hover_thrust() -> float:
 	return mass * gravity() / MOTOR_COUNT
 
+## Puts the drone back at `xform`, at rest, with a full battery. Assists and the
+## intent source forget anything they were holding.
+func reset(xform: Transform3D) -> void:
+	global_transform = xform
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	motor_thrusts = PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
+	battery = 1.0
+	_empty_for = 0.0
+	if assists:
+		assists.reset()
+	if intent_source:
+		intent_source.reset()
+
 func assist_summary() -> String:
 	return assists.summary() if assists else "(none)"
 

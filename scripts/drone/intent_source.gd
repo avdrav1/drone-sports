@@ -5,3 +5,7 @@ extends Node
 
 func read_intent() -> Intent:
 	return Intent.new()
+
+## Override to forget held state (ramps, latched throttle) when the drone resets.
+func reset() -> void:
+	pass

@@ -21,6 +21,9 @@ var _last_frame := -1
 func _init() -> void:
 	assist_id = &"altitude_hold"
 
+func reset() -> void:
+	_holding = false
+
 func apply(intent: Intent, drone: Drone, _delta: float) -> void:
 	var frame := Engine.get_physics_frames()
 	if frame - _last_frame > 1:

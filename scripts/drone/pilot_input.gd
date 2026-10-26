@@ -57,6 +57,11 @@ func shape(keys: Dictionary, pad: Dictionary, delta: float, latch: bool) -> Inte
 		i.throttle = throttle_level if _throttle_from_keys else 0.0
 	return i
 
+func reset() -> void:
+	for axis in _ramped:
+		_ramped[axis] = 0.0
+	_latched = false # re-latches at hover on the next frame
+
 func curve(x: float) -> float:
 	return x * (1.0 - expo) + x * x * x * expo
 
