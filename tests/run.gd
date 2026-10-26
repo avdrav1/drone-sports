@@ -7,6 +7,9 @@ extends SceneTree
 
 var _errors: Array = []
 
+# Tests never touch the player's save.
+const TEST_SAVE := "user://test_run_save.json"
+
 func _initialize() -> void:
 	_run()
 
@@ -14,6 +17,7 @@ func _run() -> void:
 	# Let the root viewport enter the tree before any test adds nodes.
 	await process_frame
 	_install_error_logger()
+	_use_test_save()
 	var passed := 0
 	var failed := 0
 	var dir := DirAccess.open("res://tests")
@@ -46,8 +50,17 @@ func _run() -> void:
 				print("ok    %s::%s" % [file, name])
 		if suite is Node:
 			suite.free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	print("\n%d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
+
+func _use_test_save() -> void:
+	SaveGame.path = TEST_SAVE
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
+	for autoload in ["Wallet", "Reputation"]:
+		var node := root.get_node_or_null(autoload)
+		if node:
+			node.load_saved()
 
 # Godot 4.5+ can route engine errors to a script Logger. Older engines skip this.
 func _install_error_logger() -> void:

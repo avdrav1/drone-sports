@@ -7,6 +7,8 @@ extends Node
 enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 
 signal state_changed(state: State, previous: State)
+## After Complete or Failed, once graded and paid.
+signal finished(result: JobResult)
 
 @export var job: Job
 @export var drone: Drone
@@ -15,6 +17,9 @@ signal state_changed(state: State, previous: State)
 @export var state_label: Label
 ## Start Briefing as soon as the scene is ready.
 @export var auto_begin := true
+## Pay out and move reputation when the job ends.
+@export var pays_out := true
+@export var grade_scale: GradeScale = preload("res://data/jobs/grade_scale.tres")
 
 var state := State.IDLE
 ## Seconds spent in the current state.
@@ -22,6 +27,7 @@ var state_time := 0.0
 ## Seconds spent Live.
 var live_time := 0.0
 var fail_reason := ""
+var result: JobResult
 
 func _ready() -> void:
 	if auto_begin:
@@ -56,11 +62,13 @@ func launch() -> void:
 func complete() -> void:
 	if state == State.LIVE:
 		_set_state(State.COMPLETE)
+		_finish()
 
 func fail(reason := "") -> void:
 	if state in [State.BRIEFING, State.COUNTDOWN, State.LIVE]:
 		fail_reason = reason
 		_set_state(State.FAILED)
+		_finish()
 
 func is_over() -> bool:
 	return state == State.COMPLETE or state == State.FAILED
@@ -84,6 +92,23 @@ func _physics_process(delta: float) -> void:
 			elif job.time_limit > 0.0 and live_time >= job.time_limit:
 				fail("time")
 	_update_label()
+
+## Grade, pay, and announce. A failed job grades F whatever its objectives say.
+func _finish() -> void:
+	if drone:
+		drone.freeze = true
+	result = JobResult.new()
+	result.job = job
+	result.completed = state == State.COMPLETE
+	result.fail_reason = fail_reason
+	var objs := objectives()
+	for o in objs:
+		result.objectives.append({"label": o.label if o.label else String(o.name), "score": clampf(o.score(), 0.0, 1.0), "weight": o.weight})
+	result.score = Grader.total(objs)
+	result.letter = grade_scale.letter(result.score) if result.completed else "F"
+	if pays_out:
+		Payout.settle(result, grade_scale)
+	finished.emit(result)
 
 func _finish_line_reached() -> bool:
 	var any := false

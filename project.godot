@@ -10,6 +10,11 @@ run/main_scene="res://scenes/debug_flight.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Wallet="*res://scripts/economy/wallet.gd"
+Reputation="*res://scripts/economy/reputation.gd"
+
 [rendering]
 
 renderer/rendering_method="forward_plus"

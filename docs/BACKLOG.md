@@ -128,7 +128,7 @@ Done when any scene can declare itself a job, run start to finish, produce a gra
   - Acceptance: Each has a test proving a passing and failing run. `AvoidContact` deducts per collision and floors at 0.
   - Out of scope: Combat objectives.
 
-- [ ] **2.4 Payout and reputation**
+- [x] **2.4 Payout and reputation**
   - Goal: `Wallet` and `Reputation` autoloads. Completing a job pays `pay * grade multiplier` and adds reputation with the client faction.
   - Context: Reputation gates Epic 5. Both are plain numbers saved to `user://save.json`.
   - Acceptance: An A pays 100 percent, a C pays 60 percent, an F pays 0 and costs 5 reputation. Values persist across a save and load.

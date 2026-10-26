@@ -8,3 +8,17 @@ a_min = 0.9
 b_min = 0.75
 c_min = 0.6
 d_min = 0.4
+pay_multiplier = {
+"A": 1.0,
+"B": 0.8,
+"C": 0.6,
+"D": 0.3,
+"F": 0.0
+}
+reputation_change = {
+"A": 10,
+"B": 6,
+"C": 3,
+"D": 1,
+"F": -5
+}
