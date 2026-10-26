@@ -4,8 +4,9 @@ extends RefCounted
 # pitch/roll stick values; never touches physics.
 
 ## PD gains from attitude error (rad) and body rate (rad/s) to stick.
-const KP := 3.6
-const KD := 0.375
+## Scaled by stick authority so the closed loop is the same whatever torque a stick gives.
+const KP := 0.54 / Mixer.STICK_AUTHORITY
+const KD := 0.05625 / Mixer.STICK_AUTHORITY
 const MAX_TILT := deg_to_rad(45.0)
 
 ## Nose-down angle in radians (positive is nose down).

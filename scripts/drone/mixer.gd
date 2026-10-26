@@ -4,7 +4,7 @@ extends RefCounted
 # 0 front-left, 1 front-right, 2 back-left, 3 back-right.
 
 ## Each stick at full deflection moves a motor by this fraction of max thrust.
-const STICK_AUTHORITY := 0.15
+const STICK_AUTHORITY := 0.30
 
 static func mix(intent: Intent, max_thrust: float) -> PackedFloat32Array:
 	var collective := (clampf(intent.throttle, -1.0, 1.0) + 1.0) * 0.5 * max_thrust

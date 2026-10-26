@@ -94,6 +94,12 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: A held key reaches full stick in 0.15 s and returns to center in 0.15 s on release. Gamepad axes pass through with no ramp. Pitch, roll, and yaw use an expo curve that keeps 0 and full deflection. With altitude hold off, W/S nudge a throttle level that holds on release and starts at hover; with altitude hold on, throttle springs back to center as before. Moving the gamepad throttle takes over from the latched level.
   - Out of scope: Rebinding, per-player settings.
 
+- [x] **1.10 Faster rotation**
+  - Goal: Full stick rotates fast enough to flip without falling out of the sky: double the mixer's stick authority.
+  - Context: Playtest of 1.9 in Act 3: a flip at hover throttle took 1.5 s and lost 8 m. Tuning a mixer constant inside the one flight model; assist attitude gains scale with it so assisted flight feels the same.
+  - Acceptance: With no assists, a full-stick flip from hover completes in at most 0.8 s and loses less than 3 m (was 1.5 s and 8 m). All earlier flight and assist tests still pass unchanged.
+  - Out of scope: Per-pilot rates, rate curves.
+
 ## Epic 2: Job framework, grading, and payout
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.

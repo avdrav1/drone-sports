@@ -114,3 +114,20 @@ func test_pilot_input_reads_actions() -> bool:
 		Input.action_release(a)
 	src.free()
 	return i.throttle == 1.0 and i.pitch == 1.0 and i.roll == -1.0 and i.yaw == 1.0
+
+# Story 1.10: faster rotation.
+func test_full_stick_flip_fast_and_low_loss() -> bool:
+	var probe: Drone = DRONE.instantiate()
+	var hover := Mixer.hover_throttle(probe.hover_thrust(), probe.max_thrust)
+	probe.free()
+	var d := _spawn(_intent(hover, 1.0))
+	var turned := 0.0
+	var frames := 0
+	while turned < TAU and frames < 120:
+		await Sim.physics_frames(1)
+		frames += 1
+		turned += -_body_rate(d).x / 60.0
+	var lost := 20.0 - d.global_position.y
+	print("        flip: %.2f s, height lost %.2f m" % [frames / 60.0, lost])
+	d.free()
+	return turned >= TAU and frames <= 48 and lost < 3.0
