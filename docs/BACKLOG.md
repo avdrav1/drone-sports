@@ -70,7 +70,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: Cycling order is chase, FPV, orbit, top-down, chase. FPV forward equals drone forward every frame. Chase camera never ends a frame inside a collider in a scripted wall-hug test. Job default view is honored on Briefing.
   - Out of scope: Replays, free-fly camera outside debug.
 
-- [ ] **1.6a Speed governor**
+- [x] **1.6a Speed governor**
   - Goal: An assist that caps horizontal speed at a configured value and softens throttle response near the cap.
   - Context: Fourth assist in the act table. Rewrites `Intent` only; never touches the mixer.
   - Acceptance: With it on, full stick holds at the cap within 5 percent. With it off, the same input exceeds the cap. Can be disabled live.
