@@ -18,6 +18,11 @@ const MOTOR_COUNT := 4
 ## Yaw torque per newton of motor thrust, N·m/N.
 @export var yaw_torque_per_thrust := 0.05
 
+## Where intent comes from. Null means motor thrusts are set directly.
+@export var intent_source: IntentSource
+
+## The intent the mixer used this frame.
+var intent := Intent.new()
 ## Current thrust per motor in newtons, clamped to [0, max_thrust] when applied.
 var motor_thrusts := PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
 
@@ -50,6 +55,9 @@ func set_motor_thrusts(thrusts: PackedFloat32Array) -> void:
 # Forces are queued here, before the physics step that integrates them, so thrust
 # set on a frame acts on that same frame's step.
 func _physics_process(_delta: float) -> void:
+	if intent_source:
+		intent = intent_source.read_intent()
+		motor_thrusts = Mixer.mix(intent, max_thrust)
 	var basis := global_transform.basis
 	var up := basis.y
 	var yaw := 0.0

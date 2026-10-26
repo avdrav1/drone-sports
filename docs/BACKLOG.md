@@ -40,7 +40,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: With all thrust at hover value the drone holds within 0.1 m of its start height for 10 s of physics ticks. Unequal thrust produces pitch, roll, and yaw in the expected directions. Mass, drag, and max thrust are `@export` variables. A test steps physics and checks hover and each rotation axis.
   - Out of scope: Input, assists, wind, battery.
 
-- [ ] **1.2 Raw stick input**
+- [x] **1.2 Raw stick input**
   - Goal: Gamepad and keyboard input mapped to throttle, pitch, roll, yaw, with a mixer that turns them into four motor thrusts.
   - Context: Builds on 1.1. Input fills an `Intent` resource (`scripts/drone/intent.gd`) so assists can rewrite it before the mixer. Input actions are already defined in `project.godot`.
   - Acceptance: Full throttle climbs, zero throttle falls, sticks map to the correct rotations. Mixer is a pure function and unit tested with known inputs.
