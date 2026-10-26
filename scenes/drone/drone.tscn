@@ -1,0 +1,59 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/drone/drone.gd" id="1_drone"]
+
+[sub_resource type="BoxShape3D" id="body_shape"]
+size = Vector3(0.4, 0.12, 0.4)
+
+[sub_resource type="StandardMaterial3D" id="body_mat"]
+albedo_color = Color(0.15, 0.15, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="body_mesh"]
+material = SubResource("body_mat")
+size = Vector3(0.16, 0.08, 0.24)
+
+[sub_resource type="StandardMaterial3D" id="rotor_mat"]
+albedo_color = Color(0.8, 0.8, 0.85, 1)
+
+[sub_resource type="CylinderMesh" id="rotor_mesh"]
+material = SubResource("rotor_mat")
+top_radius = 0.09
+bottom_radius = 0.09
+height = 0.02
+
+[sub_resource type="StandardMaterial3D" id="nose_mat"]
+albedo_color = Color(0.9, 0.15, 0.1, 1)
+
+[sub_resource type="BoxMesh" id="nose_mesh"]
+material = SubResource("nose_mat")
+size = Vector3(0.06, 0.04, 0.06)
+
+[node name="Drone" type="RigidBody3D"]
+mass = 1.0
+script = ExtResource("1_drone")
+
+[node name="Shape" type="CollisionShape3D" parent="."]
+shape = SubResource("body_shape")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("body_mesh")
+
+[node name="Nose" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.14)
+mesh = SubResource("nose_mesh")
+
+[node name="RotorFL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.05, -0.15)
+mesh = SubResource("rotor_mesh")
+
+[node name="RotorFR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.05, -0.15)
+mesh = SubResource("rotor_mesh")
+
+[node name="RotorBL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.05, 0.15)
+mesh = SubResource("rotor_mesh")
+
+[node name="RotorBR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.05, 0.15)
+mesh = SubResource("rotor_mesh")

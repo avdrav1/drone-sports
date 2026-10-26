@@ -34,7 +34,7 @@ Done when Claude Code can open the repo, read CLAUDE.md, and run tests headless.
 
 Done when a quadcopter flies with real physics in the debug scene and each assist can be switched on or off at runtime without changing the physics code.
 
-- [ ] **1.1 Quadcopter rigid body**
+- [x] **1.1 Quadcopter rigid body**
   - Goal: `scenes/drone/drone.tscn` whose motion comes from four thrust values applied to a RigidBody3D.
   - Context: The only flight model in the game. Every assist sits in front of it, never inside it. Script at `scripts/drone/drone.gd`.
   - Acceptance: With all thrust at hover value the drone holds within 0.1 m of its start height for 10 s of physics ticks. Unequal thrust produces pitch, roll, and yaw in the expected directions. Mass, drag, and max thrust are `@export` variables. A test steps physics and checks hover and each rotation axis.
