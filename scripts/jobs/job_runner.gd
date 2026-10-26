@@ -27,8 +27,18 @@ func _ready() -> void:
 	if auto_begin:
 		begin.call_deferred()
 
+## Child Objective nodes, in order.
+func objectives() -> Array[Objective]:
+	var out: Array[Objective] = []
+	for c in get_children():
+		if c is Objective:
+			out.append(c)
+	return out
+
 ## Enter Briefing: apply the job's assists and camera view; hold the drone still.
 func begin() -> void:
+	for o in objectives():
+		o.bind(self)
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
 	if camera_rig:

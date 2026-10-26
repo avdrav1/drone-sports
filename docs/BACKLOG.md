@@ -116,7 +116,7 @@ Done when any scene can declare itself a job, run start to finish, produce a gra
   - Acceptance: Runner emits `state_changed` on each transition. Time limit ends the job as Failed. A test job with no objectives completes when `complete()` is called. Required assist stack is applied to the drone on Briefing.
   - Out of scope: UI beyond a text state label.
 
-- [ ] **2.2 Objectives and graders**
+- [x] **2.2 Objectives and graders**
   - Goal: An `Objective` base class with `score() -> float` in 0 to 1 and a `weight`, and a `Grader` that combines objectives into a grade A to F.
   - Context: Jobs add objectives as child nodes. Grade thresholds are data (A at 0.9, B at 0.75, C at 0.6, D at 0.4).
   - Acceptance: Two objectives at weights 2 and 1 scoring 1.0 and 0.0 grade to 0.67, a C. Unit tested.

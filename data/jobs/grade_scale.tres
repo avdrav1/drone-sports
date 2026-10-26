@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GradeScale" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/grade_scale.gd" id="1_scale"]
+
+[resource]
+script = ExtResource("1_scale")
+a_min = 0.9
+b_min = 0.75
+c_min = 0.6
+d_min = 0.4
