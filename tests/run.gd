@@ -25,6 +25,10 @@ func _run() -> void:
 		if not (file.begins_with("test_") and file.ends_with(".gd")):
 			continue
 		var script: GDScript = load("res://tests/" + file)
+		if script == null or not script.can_instantiate():
+			failed += 1
+			print("FAIL  %s (does not load)" % file)
+			continue
 		var suite = script.new()
 		for m in suite.get_method_list():
 			var name: String = m.name

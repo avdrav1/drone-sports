@@ -79,9 +79,20 @@ func _physics_process(delta: float) -> void:
 				_set_state(State.LIVE)
 		State.LIVE:
 			live_time += delta
-			if job.time_limit > 0.0 and live_time >= job.time_limit:
+			if _finish_line_reached():
+				complete()
+			elif job.time_limit > 0.0 and live_time >= job.time_limit:
 				fail("time")
 	_update_label()
+
+func _finish_line_reached() -> bool:
+	var any := false
+	for o in objectives():
+		if o.ends_job:
+			any = true
+			if not o.is_done():
+				return false
+	return any
 
 func _set_state(s: State) -> void:
 	var previous := state

@@ -49,3 +49,35 @@ static func drone(with_intent: Intent, position := Vector3(0, 20, 0), stack: Ass
 	d.assists.apply_stack(stack if stack else all_off())
 	d.global_position = position
 	return d
+
+## A job rig: root Node3D with Drone, Rig (CameraRig), and Runner (JobRunner,
+## auto_begin off). The drone starts at (0, 5, 0). Caller frees the root.
+static func job_setup(job: Job, objectives: Array = []) -> Node:
+	var root := Node3D.new()
+	var d: Drone = DRONE.instantiate()
+	d.name = "Drone"
+	root.add_child(d)
+	var rig: CameraRig = load("res://scenes/camera/camera_rig.tscn").instantiate()
+	rig.name = "Rig"
+	rig.target = d
+	root.add_child(rig)
+	var runner := JobRunner.new()
+	runner.name = "Runner"
+	runner.job = job
+	runner.drone = d
+	runner.camera_rig = rig
+	runner.auto_begin = false
+	for o in objectives:
+		runner.add_child(o)
+	root.add_child(runner)
+	add(root)
+	d.global_position = Vector3(0, 5, 0)
+	return root
+
+## Begin, launch, and wait out the countdown.
+static func go_live(root: Node) -> void:
+	var runner: JobRunner = root.get_node("Runner")
+	runner.begin()
+	runner.launch()
+	while runner.state == JobRunner.State.COUNTDOWN:
+		await tree().physics_frame

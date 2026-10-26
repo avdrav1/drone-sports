@@ -9,26 +9,8 @@ class Recorder extends RefCounted:
 	func on_change(s, _prev) -> void:
 		states.append(s)
 
-# A runner wired to a drone and camera rig. Caller frees the returned root.
-func _setup(job: Job, auto := false) -> Node:
-	var root := Node3D.new()
-	var d: Drone = Sim.DRONE.instantiate()
-	d.name = "Drone"
-	root.add_child(d)
-	var rig: CameraRig = load("res://scenes/camera/camera_rig.tscn").instantiate()
-	rig.name = "Rig"
-	rig.target = d
-	root.add_child(rig)
-	var runner := JobRunner.new()
-	runner.name = "Runner"
-	runner.job = job
-	runner.drone = d
-	runner.camera_rig = rig
-	runner.auto_begin = auto
-	root.add_child(runner)
-	Sim.add(root)
-	d.global_position = Vector3(0, 5, 0)
-	return root
+func _setup(job: Job) -> Node:
+	return Sim.job_setup(job)
 
 func _job(time_limit := 0.0, countdown := 0.5) -> Job:
 	var j: Job = load("res://data/jobs/test_job.tres").duplicate()
@@ -106,8 +88,10 @@ func test_drone_held_until_live() -> bool:
 	return ok
 
 func test_auto_begin_and_enter_launches() -> bool:
-	var root := _setup(_job(), true)
+	var root := _setup(_job())
 	var runner: JobRunner = root.get_node("Runner")
+	runner.auto_begin = true
+	runner._ready()
 	await Sim.process_frames(2)
 	var briefing := runner.state == S.BRIEFING
 	var ev := InputEventKey.new()

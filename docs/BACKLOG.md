@@ -122,7 +122,7 @@ Done when any scene can declare itself a job, run start to finish, produce a gra
   - Acceptance: Two objectives at weights 2 and 1 scoring 1.0 and 0.0 grade to 0.67, a C. Unit tested.
   - Out of scope: Any concrete objective.
 
-- [ ] **2.3 Common objectives**
+- [x] **2.3 Common objectives**
   - Goal: Three reusable objectives: `ReachPoint`, `AvoidContact`, `FinishUnderTime`.
   - Context: Enough for a race and a delivery. Hazard objectives come in Epic 4.
   - Acceptance: Each has a test proving a passing and failing run. `AvoidContact` deducts per collision and floors at 0.
