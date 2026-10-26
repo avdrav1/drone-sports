@@ -24,7 +24,7 @@ Done when Claude Code can open the repo, read CLAUDE.md, and run tests headless.
   - Acceptance: `scripts/test.sh` runs all tests and exits nonzero on failure. One trivial passing test exists.
   - Out of scope: CI.
 
-- [ ] **0.3 Debug flight scene**
+- [x] **0.3 Debug flight scene**
   - Goal: A sandbox scene with a flat ground plane, a few boxes, a free camera, and an on-screen readout of position, velocity, and active assists.
   - Context: Every later story is played by hand here. Save as `scenes/debug_flight.tscn` and set it as the main scene in `project.godot`. Keep it ugly and fast.
   - Acceptance: Scene loads headless without errors. Readout node updates every frame. The `toggle_readout` action (F1) toggles readout visibility. A test instantiates the scene and checks the readout node exists.

@@ -1,9 +1,19 @@
 extends SceneTree
 # Minimal test runner. Loads every res://tests/test_*.gd, instantiates it,
 # and calls each method whose name starts with "test_". A method passes
-# unless it returns false. Exit code 1 if anything fails.
+# unless it returns false or the engine logs an error while it runs.
+# Test methods may await (e.g. physics frames); the runner awaits them.
+# Exit code 1 if anything fails.
 
-func _init() -> void:
+var _errors: Array = []
+
+func _initialize() -> void:
+	_run()
+
+func _run() -> void:
+	# Let the root viewport enter the tree before any test adds nodes.
+	await process_frame
+	_install_error_logger()
 	var passed := 0
 	var failed := 0
 	var dir := DirAccess.open("res://tests")
@@ -20,10 +30,13 @@ func _init() -> void:
 			var name: String = m.name
 			if not name.begins_with("test_"):
 				continue
-			var result = suite.call(name)
-			if result == false:
+			_errors.clear()
+			var result = await suite.call(name)
+			if result == false or not _errors.is_empty():
 				failed += 1
 				print("FAIL  %s::%s" % [file, name])
+				for e in _errors:
+					print("        error: %s" % e)
 			else:
 				passed += 1
 				print("ok    %s::%s" % [file, name])
@@ -31,3 +44,11 @@ func _init() -> void:
 			suite.free()
 	print("\n%d passed, %d failed" % [passed, failed])
 	quit(1 if failed > 0 else 0)
+
+# Godot 4.5+ can route engine errors to a script Logger. Older engines skip this.
+func _install_error_logger() -> void:
+	if not ClassDB.class_exists("Logger"):
+		return
+	var logger = load("res://tests/error_logger.gd").new()
+	logger.sink = _errors
+	OS.call("add_logger", logger)
