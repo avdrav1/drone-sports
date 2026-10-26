@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -6,6 +6,11 @@
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="4_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="5_input"]
 [ext_resource type="Resource" path="res://data/wind/debug_breeze.tres" id="6_wind"]
+[ext_resource type="Resource" path="res://data/assists/act1.tres" id="7_act1"]
+[ext_resource type="Resource" path="res://data/assists/act2.tres" id="8_act2"]
+[ext_resource type="Resource" path="res://data/assists/act3.tres" id="9_act3"]
+[ext_resource type="Resource" path="res://data/assists/act4.tres" id="10_act4"]
+[ext_resource type="Resource" path="res://data/assists/act5.tres" id="11_act5"]
 
 [sub_resource type="BoxShape3D" id="ground_shape"]
 size = Vector3(400, 1, 400)
@@ -35,6 +40,7 @@ ambient_light_color = Color(0.6, 0.6, 0.65, 1)
 
 [node name="DebugFlight" type="Node3D"]
 script = ExtResource("1_root")
+presets = Array[Resource]([ExtResource("7_act1"), ExtResource("8_act2"), ExtResource("9_act3"), ExtResource("10_act4"), ExtResource("11_act5")])
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("env")
@@ -108,9 +114,17 @@ script = ExtResource("2_cam")
 offset_left = 12.0
 offset_top = 12.0
 offset_right = 520.0
-offset_bottom = 120.0
+offset_bottom = 160.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 script = ExtResource("3_readout")
 subject = NodePath("../../Drone")
+
+[node name="Expert" type="CheckBox" parent="HUD"]
+offset_left = 12.0
+offset_top = 168.0
+offset_right = 320.0
+offset_bottom = 200.0
+focus_mode = 0
+text = "Expert: all assists off"

@@ -35,10 +35,7 @@ static func intent(throttle := 0.0, pitch := 0.0, roll := 0.0, yaw := 0.0) -> In
 	return i
 
 static func all_off() -> AssistStack:
-	var s := AssistStack.new()
-	for id in AssistStack.IDS:
-		s.set(id, false)
-	return s
+	return AssistStack.new().all_off()
 
 ## Spawns a drone in the tree driven by a FixedSource. Every assist starts off
 ## unless a stack is given. Change the intent via drone.intent_source.value.

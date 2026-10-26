@@ -82,7 +82,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: With the assist off, the drone drifts in wind unless corrected and the battery reaches zero after the configured flight time, after which thrust fades over 3 s. With it on, neither happens.
   - Out of scope: Weather visuals.
 
-- [ ] **1.8 Assist presets by act**
+- [x] **1.8 Assist presets by act**
   - Goal: Five `AssistStack` resources in `data/assists/` matching the table in CLAUDE.md (collision guard, altitude hold, auto-level, speed governor, battery and wind, single-drone view), plus a settings toggle that overrides to all-off.
   - Context: Closes the epic. Epic 5 swaps these; for now the `cycle_preset` action (F2) cycles them in the debug scene.
   - Acceptance: F2 cycles Act 1 to Act 5 presets and the readout shows the change. An "Expert: all assists off" setting overrides the preset. Test loads all five resources and checks each matches the table.

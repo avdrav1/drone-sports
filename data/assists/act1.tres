@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AssistStack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/drone/assist_stack.gd" id="1_stack"]
+
+[resource]
+script = ExtResource("1_stack")
+label = "Act 1"
+collision_guard = true
+altitude_hold = true
+auto_level = true
+speed_governor = true
+battery_wind = true
+single_drone_view = true
