@@ -21,6 +21,9 @@ const MOTOR_COUNT := 4
 ## Where intent comes from. Null means motor thrusts are set directly.
 @export var intent_source: IntentSource
 
+## Assists that rewrite intent before the mixer. Optional.
+@onready var assists: AssistPipeline = get_node_or_null("Assists")
+
 ## The intent the mixer used this frame.
 var intent := Intent.new()
 ## Current thrust per motor in newtons, clamped to [0, max_thrust] when applied.
@@ -49,14 +52,19 @@ func gravity() -> float:
 func hover_thrust() -> float:
 	return mass * gravity() / MOTOR_COUNT
 
+func assist_summary() -> String:
+	return assists.summary() if assists else "(none)"
+
 func set_motor_thrusts(thrusts: PackedFloat32Array) -> void:
 	motor_thrusts = thrusts
 
 # Forces are queued here, before the physics step that integrates them, so thrust
 # set on a frame acts on that same frame's step.
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if intent_source:
 		intent = intent_source.read_intent()
+		if assists:
+			assists.run(intent, self, delta)
 		motor_thrusts = Mixer.mix(intent, max_thrust)
 	var basis := global_transform.basis
 	var up := basis.y

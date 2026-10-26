@@ -46,7 +46,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: Full throttle climbs, zero throttle falls, sticks map to the correct rotations. Mixer is a pure function and unit tested with known inputs.
   - Out of scope: Assists, camera.
 
-- [ ] **1.3 Assist pipeline**
+- [x] **1.3 Assist pipeline**
   - Goal: An ordered list of `Assist` nodes, each able to read drone state and rewrite `Intent` before the mixer, with an `enabled` flag on each.
   - Context: The progression system's hook. `scripts/drone/assist.gd` base class; `AssistStack` resource (`scripts/drone/assist_stack.gd`) lists which assists are on.
   - Acceptance: Pipeline runs assists in order every physics frame. A disabled assist is skipped. Debug readout shows the stack. Test: a stub assist that zeroes pitch is honored when on, ignored when off.
