@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/test.sh *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Read(**)",
+      "Edit(scenes/**)",
+      "Edit(scripts/**)",
+      "Edit(data/**)",
+      "Edit(tests/**)",
+      "Edit(docs/BACKLOG.md)",
+      "Write(scenes/**)",
+      "Write(scripts/**)",
+      "Write(data/**)",
+      "Write(tests/**)"
+    ],
+    "ask": [
+      "Bash(scripts/ship.sh *)",
+      "Bash(npx *)",
+      "Bash(git push *)"
+    ],
+    "deny": [
+      "Edit(export_presets.cfg)",
+      "Edit(web/_headers)",
+      "Bash(rm -rf *)"
+    ]
+  }
+}

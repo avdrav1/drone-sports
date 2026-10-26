@@ -1,0 +1,15 @@
+# Godot
+.godot/
+*.import
+build/
+export_presets.cfg.bak
+
+# Node (wrangler)
+node_modules/
+.wrangler/
+
+# Claude Code local overrides
+.claude/settings.local.json
+
+# OS
+.DS_Store

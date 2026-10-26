@@ -1,0 +1,13 @@
+# Cloudflare Pages headers. Copied into build/web/ by scripts/ship.sh.
+# COOP/COEP give the page cross-origin isolation, which Godot needs for
+# SharedArrayBuffer when thread_support is on. Harmless when it is off.
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.pck
+  Cache-Control: public, max-age=31536000, immutable
