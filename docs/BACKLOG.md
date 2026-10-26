@@ -64,7 +64,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: With both on, releasing all sticks returns the drone to level flight at constant height within 1 s. With auto-level off, bank angle persists. With altitude hold off, centered throttle sinks.
   - Out of scope: Terrain following.
 
-- [ ] **1.6 Camera rig**
+- [x] **1.6 Camera rig**
   - Goal: A `CameraRig` with four views the player cycles with the `cycle_camera` action (C): chase (behind and above, smoothed), FPV (on the nose, no smoothing), orbit (mouse or right stick swings around the drone), top-down (fixed height, follows). Each job can set a default view.
   - Context: The camera is a tool for flying, never a mechanic (CLAUDE.md rule 8). Chase and orbit must not clip through geometry: pull in on a shape cast.
   - Acceptance: Cycling order is chase, FPV, orbit, top-down, chase. FPV forward equals drone forward every frame. Chase camera never ends a frame inside a collider in a scripted wall-hug test. Job default view is honored on Briefing.
