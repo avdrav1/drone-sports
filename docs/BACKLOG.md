@@ -58,7 +58,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: Flying at a wall at 10 m/s stops within 1 m of it with no contact. Does not alter intent when nothing is ahead. Can be disabled live.
   - Out of scope: Pathing around obstacles.
 
-- [ ] **1.5 Altitude hold and auto-level**
+- [x] **1.5 Altitude hold and auto-level**
   - Goal: Two assists: one holds current height when throttle is centered, one levels the drone when pitch and roll sticks are released.
   - Context: Together these make the drone feel like an arcade flyer. Separately toggleable.
   - Acceptance: With both on, releasing all sticks returns the drone to level flight at constant height within 1 s. With auto-level off, bank angle persists. With altitude hold off, centered throttle sinks.

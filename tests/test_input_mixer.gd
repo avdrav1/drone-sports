@@ -24,6 +24,7 @@ func _spawn(intent: Intent, x := 0.0) -> Drone:
 	d.add_child(src)
 	d.intent_source = src
 	Sim.add(d)
+	d.assists.apply_stack(Sim.all_off())
 	d.global_position = Vector3(x, 20, 0)
 	return d
 
