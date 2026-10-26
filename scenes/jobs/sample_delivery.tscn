@@ -1,0 +1,172 @@
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="1_drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="2_input"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="3_rig"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="4_runner"]
+[ext_resource type="Resource" path="res://data/jobs/sample_delivery.tres" id="5_job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/reach_point.gd" id="6_reach"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/avoid_contact.gd" id="7_avoid"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="8_time"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="9_theme"]
+
+[sub_resource type="Environment" id="env"]
+background_mode = 1
+background_color = Color(0.55, 0.68, 0.82, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.6, 0.6, 0.65, 1)
+
+[sub_resource type="BoxShape3D" id="ground_shape"]
+size = Vector3(400, 1, 400)
+
+[sub_resource type="StandardMaterial3D" id="ground_mat"]
+albedo_color = Color(0.32, 0.36, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="ground_mesh"]
+material = SubResource("ground_mat")
+size = Vector3(400, 1, 400)
+
+[sub_resource type="BoxShape3D" id="wall_shape"]
+size = Vector3(16, 8, 2)
+
+[sub_resource type="StandardMaterial3D" id="wall_mat"]
+albedo_color = Color(0.75, 0.45, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="wall_mesh"]
+material = SubResource("wall_mat")
+size = Vector3(16, 8, 2)
+
+[sub_resource type="BoxShape3D" id="post_shape"]
+size = Vector3(3, 12, 3)
+
+[sub_resource type="BoxMesh" id="post_mesh"]
+material = SubResource("wall_mat")
+size = Vector3(3, 12, 3)
+
+[sub_resource type="StandardMaterial3D" id="pad_mat"]
+albedo_color = Color(0.95, 0.85, 0.2, 1)
+
+[sub_resource type="CylinderMesh" id="pad_mesh"]
+material = SubResource("pad_mat")
+top_radius = 2.5
+bottom_radius = 2.5
+height = 0.1
+
+[sub_resource type="StandardMaterial3D" id="beam_mat"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.95, 0.85, 0.2, 0.25)
+
+[sub_resource type="CylinderMesh" id="beam_mesh"]
+material = SubResource("beam_mat")
+top_radius = 0.4
+bottom_radius = 0.4
+height = 30.0
+
+[sub_resource type="BoxShape3D" id="pad_base_shape"]
+size = Vector3(5, 0.1, 5)
+
+[node name="SampleDelivery" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 20, 0)
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("ground_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("ground_mesh")
+
+[node name="Wall" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -25)
+
+[node name="Shape" type="CollisionShape3D" parent="Wall"]
+shape = SubResource("wall_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="Wall"]
+mesh = SubResource("wall_mesh")
+
+[node name="PostLeft" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -45)
+
+[node name="Shape" type="CollisionShape3D" parent="PostLeft"]
+shape = SubResource("post_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="PostLeft"]
+mesh = SubResource("post_mesh")
+
+[node name="PostRight" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, -52)
+
+[node name="Shape" type="CollisionShape3D" parent="PostRight"]
+shape = SubResource("post_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="PostRight"]
+mesh = SubResource("post_mesh")
+
+[node name="DropPad" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -70)
+
+[node name="Shape" type="CollisionShape3D" parent="DropPad"]
+shape = SubResource("pad_base_shape")
+
+[node name="Mesh" type="MeshInstance3D" parent="DropPad"]
+mesh = SubResource("pad_mesh")
+
+[node name="Beam" type="MeshInstance3D" parent="DropPad"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 0)
+mesh = SubResource("beam_mesh")
+
+[node name="Target" type="Marker3D" parent="DropPad"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("1_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Drone"]
+script = ExtResource("2_input")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_rig")]
+target = NodePath("../Drone")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="State" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 700.0
+offset_bottom = 80.0
+theme = ExtResource("9_theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("4_runner")
+job = ExtResource("5_job")
+drone = NodePath("../Drone")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="ReachPad" type="Node" parent="JobRunner" node_paths=PackedStringArray("target")]
+script = ExtResource("6_reach")
+target = NodePath("../../DropPad/Target")
+radius = 2.5
+label = "Reach the drop pad"
+weight = 2.0
+ends_job = true
+
+[node name="NoContact" type="Node" parent="JobRunner"]
+script = ExtResource("7_avoid")
+label = "No contact"
+
+[node name="UnderTime" type="Node" parent="JobRunner"]
+script = ExtResource("8_time")
+target_time = 25.0
+label = "Under 25 s"

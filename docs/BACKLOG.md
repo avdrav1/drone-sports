@@ -134,7 +134,7 @@ Done when any scene can declare itself a job, run start to finish, produce a gra
   - Acceptance: An A pays 100 percent, a C pays 60 percent, an F pays 0 and costs 5 reputation. Values persist across a save and load.
   - Out of scope: Spending, upgrades.
 
-- [ ] **2.5 Results screen**
+- [x] **2.5 Results screen**
   - Goal: A screen after each job listing every objective, its score, the grade, pay, and reputation change, with Retry and Continue.
   - Context: First real UI. One scene, one theme file in `scenes/ui/`.
   - Acceptance: Shows within 1 s of job end. Retry reloads the same job. Continue returns to the debug scene.

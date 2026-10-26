@@ -20,6 +20,10 @@ signal finished(result: JobResult)
 ## Pay out and move reputation when the job ends.
 @export var pays_out := true
 @export var grade_scale: GradeScale = preload("res://data/jobs/grade_scale.tres")
+## Shown over the job when it ends. Null shows nothing.
+@export var results_scene: PackedScene = preload("res://scenes/ui/results.tscn")
+## Seconds between the end of the job and the results screen.
+@export var results_delay := 0.5
 
 var state := State.IDLE
 ## Seconds spent in the current state.
@@ -28,6 +32,7 @@ var state_time := 0.0
 var live_time := 0.0
 var fail_reason := ""
 var result: JobResult
+var results_screen: Control
 
 func _ready() -> void:
 	if auto_begin:
@@ -109,6 +114,18 @@ func _finish() -> void:
 	if pays_out:
 		Payout.settle(result, grade_scale)
 	finished.emit(result)
+	if results_scene and is_inside_tree():
+		get_tree().create_timer(results_delay, true, true).timeout.connect(_show_results)
+
+func _show_results() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 10
+	add_child(layer)
+	results_screen = results_scene.instantiate()
+	layer.add_child(results_screen)
+	var scene_root := owner if owner else get_tree().current_scene
+	results_screen.job_scene = scene_root.scene_file_path if scene_root else ""
+	results_screen.show_result(result)
 
 func _finish_line_reached() -> bool:
 	var any := false

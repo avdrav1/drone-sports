@@ -1,9 +1,10 @@
 extends Node3D
 # Debug flight sandbox. Every story is played by hand here.
 # F1 toggles the readout, F2 cycles the act presets, C cycles camera views,
-# R (or Start) puts the drone back where it started.
+# R (or Start) puts the drone back where it started, J flies the sample job.
 
 @export var presets: Array[AssistStack] = []
+@export_file("*.tscn") var sample_job := "res://scenes/jobs/sample_delivery.tscn"
 
 var preset_index := 0
 var _spawn: Transform3D
@@ -27,6 +28,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		cycle_preset()
 	elif event.is_action_pressed("reset_drone"):
 		reset_drone()
+	elif event.is_action_pressed("start_sample_job"):
+		get_tree().change_scene_to_file(sample_job)
 
 func reset_drone() -> void:
 	drone.reset(_spawn)
