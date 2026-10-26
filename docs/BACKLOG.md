@@ -52,7 +52,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: Pipeline runs assists in order every physics frame. A disabled assist is skipped. Debug readout shows the stack. Test: a stub assist that zeroes pitch is honored when on, ignored when off.
   - Out of scope: Any real assist.
 
-- [ ] **1.4 Collision guard**
+- [x] **1.4 Collision guard**
   - Goal: An assist that stops the drone before it hits something.
   - Context: First assist, the one players lose first. Uses raycasts or a shape cast ahead of the velocity vector.
   - Acceptance: Flying at a wall at 10 m/s stops within 1 m of it with no contact. Does not alter intent when nothing is ahead. Can be disabled live.

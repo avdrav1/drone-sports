@@ -34,14 +34,21 @@ static func intent(throttle := 0.0, pitch := 0.0, roll := 0.0, yaw := 0.0) -> In
 	i.yaw = yaw
 	return i
 
-## Spawns a drone in the tree driven by a FixedSource. Its assists start empty
-## unless you add some; returns the drone. Change the intent via drone.intent_source.value.
-static func drone(with_intent: Intent, position := Vector3(0, 20, 0)) -> Drone:
+static func all_off() -> AssistStack:
+	var s := AssistStack.new()
+	for id in AssistStack.IDS:
+		s.set(id, false)
+	return s
+
+## Spawns a drone in the tree driven by a FixedSource. Every assist starts off
+## unless a stack is given. Change the intent via drone.intent_source.value.
+static func drone(with_intent: Intent, position := Vector3(0, 20, 0), stack: AssistStack = null) -> Drone:
 	var d: Drone = DRONE.instantiate()
 	var src := FixedSource.new()
 	src.value = with_intent
 	d.add_child(src)
 	d.intent_source = src
 	add(d)
+	d.assists.apply_stack(stack if stack else all_off())
 	d.global_position = position
 	return d

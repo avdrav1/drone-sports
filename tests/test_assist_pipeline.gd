@@ -57,7 +57,7 @@ func test_runs_in_order_every_frame() -> bool:
 		set.value = 0.1 * i
 		await Sim.physics_frames(1)
 		ok = ok and is_equal_approx(d.intent.pitch, 0.2 * i)
-	d.assists.move_child(set, 1) # double first, then set: set wins
+	d.assists.move_child(set, -1) # double first, then set: set wins
 	await Sim.physics_frames(1)
 	ok = ok and is_equal_approx(d.intent.pitch, set.value)
 	d.free()

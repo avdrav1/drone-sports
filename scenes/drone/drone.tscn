@@ -1,7 +1,8 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/drone/drone.gd" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/assist_pipeline.gd" id="2_pipeline"]
+[ext_resource type="Script" path="res://scripts/drone/assists/collision_guard.gd" id="3_guard"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
@@ -61,3 +62,6 @@ mesh = SubResource("rotor_mesh")
 
 [node name="Assists" type="Node" parent="."]
 script = ExtResource("2_pipeline")
+
+[node name="CollisionGuard" type="Node" parent="Assists"]
+script = ExtResource("3_guard")
