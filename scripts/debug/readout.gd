@@ -16,6 +16,8 @@ func _process(delta: float) -> void:
 	_last_position = pos
 	text = "pos  %6.2f %6.2f %6.2f\nvel  %6.2f %6.2f %6.2f  (%.1f m/s)\nassists: %s" % [
 		pos.x, pos.y, pos.z, vel.x, vel.y, vel.z, vel.length(), _assists()]
+	if subject is Drone:
+		text += "\nbattery %3d%%  wind %.1f m/s" % [roundi(subject.battery * 100.0), subject.wind_velocity().length()]
 
 func _assists() -> String:
 	if subject.has_method("assist_summary"):

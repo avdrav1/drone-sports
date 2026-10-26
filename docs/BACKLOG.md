@@ -76,7 +76,7 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: With it on, full stick holds at the cap within 5 percent. With it off, the same input exceeds the cap. Can be disabled live.
   - Out of scope: Per-job caps.
 
-- [ ] **1.7 Battery and wind**
+- [x] **1.7 Battery and wind**
   - Goal: An environment assist that, when off, applies a wind vector and drains a battery; when on, both are disabled.
   - Context: Last assist to come off. Wind is a per-scene resource with a base vector and gust amplitude.
   - Acceptance: With the assist off, the drone drifts in wind unless corrected and the battery reaches zero after the configured flight time, after which thrust fades over 3 s. With it on, neither happens.

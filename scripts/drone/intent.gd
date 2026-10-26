@@ -12,6 +12,8 @@ extends Resource
 @export var roll := 0.0
 ## Positive yaws right (clockwise seen from above).
 @export var yaw := 0.0
+## When true the drone feels wind and drains its battery. The battery and wind assist clears it.
+@export var environment_sim := true
 
 func copy() -> Intent:
 	var c := Intent.new()
@@ -19,4 +21,5 @@ func copy() -> Intent:
 	c.pitch = pitch
 	c.roll = roll
 	c.yaw = yaw
+	c.environment_sim = environment_sim
 	return c

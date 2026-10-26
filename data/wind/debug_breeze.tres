@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Wind" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/drone/wind.gd" id="1_wind"]
+
+[resource]
+script = ExtResource("1_wind")
+base = Vector3(3, 0, 1)
+gust_amplitude = 3.0
+gust_period = 6.0

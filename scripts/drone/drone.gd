@@ -18,6 +18,14 @@ const MOTOR_COUNT := 4
 ## Yaw torque per newton of motor thrust, N·m/N.
 @export var yaw_torque_per_thrust := 0.05
 
+## Flight time on a full battery at hover thrust, s.
+@export var battery_flight_time := 300.0
+## Wind this drone flies in. Set by the scene. Null is still air.
+@export var wind: Wind
+
+## Seconds an empty battery takes to fade thrust to zero.
+const BATTERY_FADE_TIME := 3.0
+
 ## Where intent comes from. Null means motor thrusts are set directly.
 @export var intent_source: IntentSource
 
@@ -28,6 +36,10 @@ const MOTOR_COUNT := 4
 var intent := Intent.new()
 ## Current thrust per motor in newtons, clamped to [0, max_thrust] when applied.
 var motor_thrusts := PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
+## Battery charge, 1 full to 0 empty.
+var battery := 1.0
+var _empty_for := 0.0
+var _time := 0.0
 
 func _init() -> void:
 	can_sleep = false
@@ -58,6 +70,24 @@ func assist_summary() -> String:
 func set_motor_thrusts(thrusts: PackedFloat32Array) -> void:
 	motor_thrusts = thrusts
 
+## Fraction of commanded thrust the motors can deliver: 1, fading to 0 after the battery empties.
+func power() -> float:
+	return clampf(1.0 - _empty_for / BATTERY_FADE_TIME, 0.0, 1.0)
+
+func wind_velocity() -> Vector3:
+	return wind.sample(_time) if wind and intent.environment_sim else Vector3.ZERO
+
+func _drain_battery(delta: float) -> void:
+	if not intent.environment_sim:
+		return
+	if battery <= 0.0:
+		_empty_for += delta
+		return
+	var draw := 0.0
+	for t in motor_thrusts:
+		draw += clampf(t, 0.0, max_thrust)
+	battery = maxf(battery - draw / (hover_thrust() * MOTOR_COUNT) * delta / battery_flight_time, 0.0)
+
 # Forces are queued here, before the physics step that integrates them, so thrust
 # set on a frame acts on that same frame's step.
 func _physics_process(delta: float) -> void:
@@ -66,13 +96,16 @@ func _physics_process(delta: float) -> void:
 		if assists:
 			assists.run(intent, self, delta)
 		motor_thrusts = Mixer.mix(intent, max_thrust)
+	_time += delta
+	_drain_battery(delta)
 	var basis := global_transform.basis
 	var up := basis.y
 	var yaw := 0.0
+	var p := power()
 	for i in MOTOR_COUNT:
-		var t := clampf(motor_thrusts[i], 0.0, max_thrust)
+		var t := clampf(motor_thrusts[i], 0.0, max_thrust) * p
 		apply_force(up * t, basis * motor_offset(i, arm_length))
 		yaw += motor_spin(i) * t * yaw_torque_per_thrust
 	apply_torque(up * yaw)
-	apply_central_force(-drag * linear_velocity)
+	apply_central_force(-drag * (linear_velocity - wind_velocity()))
 	apply_torque(-angular_drag * angular_velocity)

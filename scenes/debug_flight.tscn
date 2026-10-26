@@ -1,10 +1,11 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
 [ext_resource type="Script" path="res://scripts/debug/readout.gd" id="3_readout"]
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="4_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="5_input"]
+[ext_resource type="Resource" path="res://data/wind/debug_breeze.tres" id="6_wind"]
 
 [sub_resource type="BoxShape3D" id="ground_shape"]
 size = Vector3(400, 1, 400)
@@ -91,6 +92,7 @@ mesh = SubResource("box_mesh")
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("4_drone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 intent_source = NodePath("PilotInput")
+wind = ExtResource("6_wind")
 
 [node name="PilotInput" type="Node" parent="Drone"]
 script = ExtResource("5_input")
