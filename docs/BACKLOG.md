@@ -88,6 +88,12 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: F2 cycles Act 1 to Act 5 presets and the readout shows the change. An "Expert: all assists off" setting overrides the preset. Test loads all five resources and checks each matches the table.
   - Out of scope: Saving settings.
 
+- [x] **1.9 Keyboard feel**
+  - Goal: Keyboard flying that is controllable: held keys ramp the stick instead of snapping to full, sticks get an expo curve, and once altitude hold is off the keyboard throttle stays where the pilot leaves it.
+  - Context: Added after the first hand playtest of Epic 1. All changes live in `PilotInput`; the flight model, mixer, and assists are untouched (CLAUDE.md rule 1).
+  - Acceptance: A held key reaches full stick in 0.15 s and returns to center in 0.15 s on release. Gamepad axes pass through with no ramp. Pitch, roll, and yaw use an expo curve that keeps 0 and full deflection. With altitude hold off, W/S nudge a throttle level that holds on release and starts at hover; with altitude hold on, throttle springs back to center as before. Moving the gamepad throttle takes over from the latched level.
+  - Out of scope: Rebinding, per-player settings.
+
 ## Epic 2: Job framework, grading, and payout
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.
