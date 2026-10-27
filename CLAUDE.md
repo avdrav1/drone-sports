@@ -6,7 +6,7 @@ A near-future drone-piloting game. You start as a gamer, get scouted by a team, 
 
 - Engine: Godot 4.3+, GDScript, Forward+ on desktop, GL Compatibility on web
 - Tests: `scripts/test.sh` (headless; `tests/run.gd` runs every `tests/test_*.gd`)
-- Deploy: `scripts/ship.sh` exports the Web preset and pushes to Cloudflare Pages
+- Deploy: `scripts/ship.sh` exports the Web preset and pushes it to the `gh-pages` branch (GitHub Pages)
 - No addons unless a story asks for one
 
 ## Layout
@@ -17,7 +17,7 @@ scripts/    .gd files that back scenes, plus shell scripts
 data/       .tres resources: assist stacks, jobs, teams, courses, characters, dialogue, boss
 tests/      test_*.gd, each method starting with test_ returns true or false
 docs/       VISION.md, CHARACTERS.md, BOSS.md, BACKLOG.md
-web/        files copied into the web build (_headers)
+web/        Cloudflare headers (_headers), unused since the move to GitHub Pages
 build/      export output, gitignored
 ```
 
@@ -48,7 +48,7 @@ build/      export output, gitignored
 
 - Stories live in `docs/BACKLOG.md` as checkboxes. Work them in order unless told otherwise.
 - `/next-story` picks the first unchecked story, implements it, runs tests, ticks the box, commits.
-- `/ship-it` runs tests, exports the web build, deploys to Cloudflare Pages.
+- `/ship-it` runs tests, exports the web build, deploys to GitHub Pages.
 - One story per commit. Commit message: `Story X.Y: <title>`.
 - Every story adds or extends a test in `tests/`. A story is not done until `scripts/test.sh` passes.
 - Keep diffs small. Do not refactor outside the story's scope.
