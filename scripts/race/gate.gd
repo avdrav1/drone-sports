@@ -17,6 +17,11 @@ var _glow: StandardMaterial3D
 
 func _ready() -> void:
 	_build()
+	var marker := MapMarker.new()
+	marker.name = "MapMarker"
+	marker.kind = &"gate"
+	marker.label = "Gate %d" % index
+	add_child(marker)
 
 ## Where a segment from `a` to `b` (world) crosses the opening, if it does.
 ## Returns 1 for a forward pass, -1 backward, 0 for no pass.

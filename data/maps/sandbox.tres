@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/nav/map_data.gd" id="1_map"]
+
+[resource]
+script = ExtResource("1_map")
+title = "Sandbox"
+bounds = Rect2(-200, -200, 400, 400)
+cell_size = 50.0
+landmarks = {
+"Spawn": Vector3(0, 0, 0)
+}

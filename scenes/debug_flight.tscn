@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="90_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="91_desert"]
 [ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="92_hud"]
+[ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
+[ext_resource type="Resource" path="res://data/maps/sandbox.tres" id="81_map"]
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 size = Vector3(4, 4, 4)
@@ -89,9 +91,14 @@ target = NodePath("../Drone")
 chase_distance = 1.5
 chase_height = 0.45
 
+[node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("80_gps")
+map = ExtResource("81_map")
+drone = NodePath("../Drone")
+
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("drone")]
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -100,6 +107,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("92_hud")
+gps = NodePath("../../Gps")
 drone = NodePath("../../Drone")
 title = "Sandbox"
 

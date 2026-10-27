@@ -1,13 +1,16 @@
 class_name FlightHud
 extends Control
 # Thin-line flight HUD: compass tape at top, speed and altitude at the sides,
-# job panel at top left, assists at bottom left, battery at bottom right.
+# job panel at top left, assists at bottom left, battery at bottom right,
+# GPS fix above the battery.
 # Reads the drone and an optional JobRunner; draws everything in _draw.
 # Heading: 0 is north (-Z), 90 east (+X), 270 west.
 
 @export var drone: Drone
 ## Optional. When set, the panel shows its job and objectives.
 @export var runner: JobRunner
+## Optional. When set, shows the GPS signal and grid reference.
+@export var gps: Gps
 ## Panel title when there is no runner.
 @export var title := ""
 ## Panel subtitle when there is no runner, e.g. the assist preset.
@@ -76,6 +79,8 @@ func _draw() -> void:
 	_draw_panel(Vector2(28.0, 26.0))
 	_draw_assists(Vector2(28.0, s.y - 34.0))
 	_draw_battery(Vector2(s.x - 28.0, s.y - 34.0))
+	if gps:
+		_draw_gps(Vector2(s.x - 28.0, s.y - 76.0))
 
 func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)
@@ -160,3 +165,13 @@ func _draw_battery(at: Vector2) -> void:
 	_text(Vector2(at.x - 60, at.y - 12), "%d%%" % roundi(pct * 100.0), 15, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 60)
 	draw_rect(Rect2(at.x - w, at.y, w, 4), Color(1, 1, 1, 0.15))
 	draw_rect(Rect2(at.x - w, at.y, w * pct, 4), ACCENT if pct > 0.2 else Color(1, 0.3, 0.2))
+
+## Signal bars, then the grid reference, right-aligned at `at`.
+func _draw_gps(at: Vector2) -> void:
+	var strength := gps.signal_strength()
+	_text(Vector2(at.x - 150, at.y - 12), "GPS", 12, DIM)
+	for i in 4:
+		var h := 4.0 + i * 3.0
+		var lit := strength > i / 4.0
+		draw_rect(Rect2(at.x - 118 + i * 7, at.y - 12 - h, 4, h), ACCENT if lit else Color(1, 1, 1, 0.15))
+	_text(Vector2(at.x - 200, at.y + 8), gps.readout(), 15, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)

@@ -19,6 +19,8 @@
 [ext_resource type="Script" path="res://scripts/ui/race_hud.gd" id="17_racehud"]
 [ext_resource type="Script" path="res://scripts/ui/arcade_bezel.gd" id="18_bezel"]
 [ext_resource type="Resource" path="res://data/framing/act1.tres" id="19_act1frame"]
+[ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
+[ext_resource type="Resource" path="res://data/maps/test_loop.tres" id="81_map"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -72,9 +74,14 @@ target = NodePath("../Drone")
 chase_distance = 1.5
 chase_height = 0.45
 
+[node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("80_gps")
+map = ExtResource("81_map")
+drone = NodePath("../Drone")
+
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("drone", "runner")]
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -83,6 +90,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("8_hud")
+gps = NodePath("../../Gps")
 drone = NodePath("../../Drone")
 runner = NodePath("../../JobRunner")
 

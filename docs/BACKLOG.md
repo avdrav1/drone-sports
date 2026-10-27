@@ -212,7 +212,7 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
 
 Done when the player always knows where they are and where the job wants them: a GPS grid reference, a radar minimap, a full map screen, and a route line to the next objective. Navigation reads the world and draws UI. It never moves a drone and is not an assist (CLAUDE.md rules 1 and 2), and nothing is graded on it (rule 8). Do it after the Epic 3 playtest and before Epic 4, since delivery and hazard jobs lean on it more than the race does.
 
-- [ ] **10.1 Map data and GPS readout**
+- [x] **10.1 Map data and GPS readout**
   - Goal: A `MapData` resource per flying scene (area bounds, grid origin, grid cell size, named landmarks), a `MapMarker` node that any scene object can carry (kind, label, icon, visibility), and a GPS readout on the flight HUD: grid reference and signal strength next to the compass.
   - Context: Data over code (rule 4). Jobs declare their own markers by placing `MapMarker` children on gates, drop points, and hazard zones, so the map holds no job-specific code (rule 3). A marker can be hidden from the map, so jobs like 4.3 can keep a target off it. Map data lives in `data/maps/`.
   - Acceptance: The grid reference matches the drone's world position for a known point and changes cell at the cell boundary. Collecting markers returns every visible `MapMarker` in the scene with its kind and position, and none of the hidden ones. The debug scene, sample delivery, and test race each load a `MapData`.
