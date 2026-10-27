@@ -58,17 +58,20 @@ func _run() -> void:
 func _use_test_save() -> void:
 	SaveGame.path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
-	for autoload in ["Wallet", "Reputation", "Roster"]:
+	for autoload in ["Wallet", "Reputation", "Roster", "Career"]:
 		var node := root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()
 
-## Strikes injure and kill for good, so every test starts with the whole crew alive.
+## Strikes injure and kill for good, and offers and teams stick, so every test
+## starts with the whole crew alive, no flags, no reputation, and no team.
 func _fresh_roster() -> void:
-	SaveGame.write_section("roster", {})
-	var roster := root.get_node_or_null("Roster")
-	if roster:
-		roster.load_saved()
+	for section in ["roster", "career", "flags", "reputation"]:
+		SaveGame.write_section(section, {})
+	for autoload in ["Roster", "Career", "Reputation"]:
+		var node := root.get_node_or_null(autoload)
+		if node:
+			node.load_saved()
 
 # Godot 4.5+ can route engine errors to a script Logger. Older engines skip this.
 func _install_error_logger() -> void:

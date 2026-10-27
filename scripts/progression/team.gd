@@ -13,6 +13,9 @@ const FACTIONS: Array[StringName] = [&"league", &"city", &"salvage"]
 @export var job_types: Array[StringName] = []
 ## Faction reputation at which the team makes an offer.
 @export var reputation_needed := 0
+## A story flag that makes the team ask, e.g. scouted. When set, it replaces
+## the reputation check.
+@export var needs_flag: StringName
 ## The assists the pilot flies with on this team.
 @export var preset: AssistStack
 ## One line for the offer and the job board.

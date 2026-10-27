@@ -72,7 +72,7 @@ func begin() -> void:
 		if job.weights.has(String(o.name)):
 			o.weight = job.weights[String(o.name)]
 	if job.required_assists and drone and drone.assists:
-		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
+		drone.assists.apply_stack(GameSettings.effective_stack(assists_for(job)))
 	_apply_weather()
 	_remove_dead_crew()
 	_arm_hazard_zones()
@@ -82,6 +82,10 @@ func begin() -> void:
 	if drone:
 		drone.freeze = true
 	_set_state(State.BRIEFING)
+
+## The job's assists, with any the pilot's career has taken away also off.
+static func assists_for(j: Job) -> AssistStack:
+	return j.required_assists.intersect(Career.preset())
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
 ## With injured crew in the field it asks first, unless `confirmed`.

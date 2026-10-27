@@ -318,9 +318,9 @@ Done when the player moves from Act 1 to Act 4 by being recruited, each promotio
   - Acceptance: Data loads and validates. Each team references only job types that exist.
   - Out of scope: Rival teams.
 
-- [ ] **5.2 Recruitment**
+- [x] **5.2 Recruitment**
   - Goal: When faction reputation crosses a team's threshold, an offer appears. Accepting sets the current team and applies its preset.
-  - Context: Reads the scout flag from 3.5 for the first offer. Offers are one-shot.
+  - Context: Reads the scout flag from 3.5 for the first offer. Offers are one-shot. A `Career` autoload holds the team and the offers (save section "career"). A team with `needs_flag` (Skyline Juniors: scouted) asks on the flag alone, whatever the race grade. Teams only ask for a later act than the pilot's. Offers appear on the results screen as a dialog naming the assists that come off. Jobs fly with their own assists capped by the career preset (`JobRunner.assists_for`); the HUD's assists header shows act and team.
   - Acceptance: Top three in the Act 1 race produces the first offer. Accepting switches Act 1 to Act 2 and the HUD indicator changes. Declining and re-crossing does not re-offer.
   - Out of scope: Being fired, contracts.
 

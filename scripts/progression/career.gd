@@ -1,0 +1,103 @@
+extends Node
+# Autoload "Career": which team the pilot flies for and which offers they have
+# had. No team is Act 1, the home game. An offer is made once per team, ever:
+# accepting or declining it, the team never asks again.
+
+signal offer_made(team: Team)
+signal team_changed(team: Team)
+
+const TEAMS := "res://data/teams/teams.tres"
+const HOME_PRESET := "res://data/assists/act1.tres"
+
+var teams: TeamList
+## Current team id; empty in Act 1.
+var team_id: StringName = &""
+## Team ids ever offered, accepted or not.
+var offered: Array[StringName] = []
+## Offers made and not yet answered, in order.
+var pending: Array[StringName] = []
+
+func _ready() -> void:
+	teams = load(TEAMS)
+	load_saved()
+
+func team() -> Team:
+	return teams.by_id(team_id) if team_id != &"" else null
+
+## The assists the pilot has earned: the team's preset, or Act 1 at home.
+func preset() -> AssistStack:
+	var t := team()
+	return t.preset if t else load(HOME_PRESET)
+
+## E.g. "Act 2  ·  Skyline Juniors", or "Act 1  ·  Home game".
+func label() -> String:
+	var t := team()
+	return "%s  ·  %s" % [preset().label, t.name if t else "Home game"]
+
+func act() -> int:
+	return int(preset().label.trim_prefix("Act "))
+
+## Would `t` make an offer now? It must never have offered, want a pilot this
+## good (a later act than now), and see the faction reputation it needs, or for
+## a team with `needs_flag`, that story flag.
+func wants(t: Team) -> bool:
+	if t.id in offered or t.id == team_id:
+		return false
+	if int(t.preset.label.trim_prefix("Act ")) <= act():
+		return false
+	# A scout's team asks on the flag alone: they already saw the run.
+	if t.needs_flag != &"":
+		return StoryFlags.is_set(t.needs_flag)
+	return Reputation.of(t.faction) >= t.reputation_needed
+
+## Make every offer now due. Returns the new ones.
+func check_offers() -> Array[Team]:
+	var made: Array[Team] = []
+	for t in teams.teams:
+		if wants(t):
+			offered.append(t.id)
+			pending.append(t.id)
+			made.append(t)
+	if not made.is_empty():
+		save()
+		for t in made:
+			offer_made.emit(t)
+	return made
+
+func pending_offers() -> Array[Team]:
+	var out: Array[Team] = []
+	for id in pending:
+		out.append(teams.by_id(id))
+	return out
+
+## Join the team. Its preset applies from the next drone that flies.
+func accept(id: StringName) -> void:
+	if not id in pending:
+		return
+	pending.erase(id)
+	team_id = id
+	# A team made earlier may now be beneath the pilot.
+	pending = pending.filter(func(p): return wants_still(teams.by_id(p)))
+	save()
+	team_changed.emit(team())
+
+func decline(id: StringName) -> void:
+	pending.erase(id)
+	save()
+
+func wants_still(t: Team) -> bool:
+	return int(t.preset.label.trim_prefix("Act ")) > act()
+
+func save() -> void:
+	SaveGame.write_section("career", {"team": String(team_id),
+		"offered": offered.map(func(s): return String(s)), "pending": pending.map(func(s): return String(s))})
+
+func load_saved() -> void:
+	var saved = SaveGame.read_section("career", {})
+	if not saved is Dictionary:
+		saved = {}
+	team_id = StringName(saved.get("team", ""))
+	if teams and team_id != &"" and teams.by_id(team_id) == null:
+		team_id = &""
+	offered.assign(saved.get("offered", []).map(func(s): return StringName(s)))
+	pending.assign(saved.get("pending", []).map(func(s): return StringName(s)))

@@ -25,6 +25,8 @@ func _ready() -> void:
 	_spawn = drone.global_transform
 	expert_toggle.button_pressed = GameSettings.expert_all_assists_off
 	expert_toggle.toggled.connect(_on_expert_toggled)
+	# Start on the preset the pilot's career has earned.
+	preset_index = clampi(Career.act() - 1, 0, maxi(presets.size() - 1, 0))
 	apply_preset()
 
 func _unhandled_input(event: InputEvent) -> void:

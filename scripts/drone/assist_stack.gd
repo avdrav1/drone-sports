@@ -26,3 +26,20 @@ func all_off() -> AssistStack:
 	for id in IDS:
 		s.set(id, false)
 	return s
+
+## On only where both stacks are on, keeping this label. A job's assists capped
+## by what the pilot's career allows.
+func intersect(other: AssistStack) -> AssistStack:
+	var s := AssistStack.new()
+	s.label = label
+	for id in IDS:
+		s.set(id, is_on(id) and other.is_on(id))
+	return s
+
+## Ids on here and off in `other`: what moving to `other` takes away.
+func removed_by(other: AssistStack) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for id in IDS:
+		if is_on(id) and not other.is_on(id):
+			out.append(id)
+	return out

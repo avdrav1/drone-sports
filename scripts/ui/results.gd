@@ -9,6 +9,7 @@ signal continue_pressed
 ## The scene Retry reloads. Set by whoever shows the results.
 var job_scene := ""
 var result: JobResult
+var offer_dialog: OfferDialog
 
 @onready var title: Label = %Title
 @onready var grade: Label = %Grade
@@ -42,6 +43,15 @@ func show_result(r: JobResult) -> void:
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
+	show_offers()
+
+## Teams that now want the pilot ask here, one dialog at a time.
+func show_offers() -> void:
+	Career.check_offers()
+	if offer_dialog == null:
+		offer_dialog = OfferDialog.new()
+		add_child(offer_dialog)
+	offer_dialog.show_next()
 
 ## One line per struck character, e.g. "Marlo struck 1x".
 static func strike_lines(r: JobResult) -> Array[String]:

@@ -62,6 +62,10 @@ func _state_line() -> String:
 		return "%s  %.1f S" % [name, runner.live_time]
 	return name
 
+## "ASSISTS  ·  ACT 2  ·  SKYLINE JUNIORS": the pilot's standing.
+func assists_header() -> String:
+	return ("ASSISTS  ·  " + Career.label()).to_upper()
+
 ## Assist id -> on, in pipeline order (single-drone view last).
 func assist_states() -> Dictionary:
 	var out := {}
@@ -144,7 +148,7 @@ func _diamond(c: Vector2, r: float, filled: bool) -> void:
 		draw_polyline(pts, LINE, 1.5)
 
 func _draw_assists(at: Vector2) -> void:
-	_text(at + Vector2(0, -24), "ASSISTS", 12, DIM)
+	_text(at + Vector2(0, -24), assists_header(), 12, DIM)
 	var x := at.x
 	var states := assist_states()
 	for id in states:
