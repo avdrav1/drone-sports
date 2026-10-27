@@ -18,6 +18,8 @@ var job_rows := {}
 var crew_rows := {}
 
 var _header: Label
+## Shows SaveGame.warning, once, when the save had to be reset.
+var warning_label: Label
 var _money: Label
 var _jobs_box: VBoxContainer
 var _crew_box: VBoxContainer
@@ -90,6 +92,9 @@ func _job_row(job: Job) -> HBoxContainer:
 	var details := Label.new()
 	details.name = "Details"
 	details.text = "%s  ·  %s  ·  pay %d  ·  %s assists" % [job.client, String(job.job_type).capitalize(), job.pay, preset_label(job)]
+	var done := Career.times_completed(job.id)
+	if done > 0:
+		details.text += "  ·  done %d×" % done
 	details.add_theme_color_override("font_color", DIM)
 	details.add_theme_font_size_override("font_size", 14)
 	text.add_child(details)
@@ -182,6 +187,12 @@ func _build() -> void:
 	_money = Label.new()
 	_money.size_flags_vertical = SIZE_SHRINK_END
 	head.add_child(_money)
+	warning_label = Label.new()
+	warning_label.add_theme_color_override("font_color", HURT)
+	warning_label.text = SaveGame.warning
+	warning_label.visible = SaveGame.warning != ""
+	SaveGame.warning = ""
+	page.add_child(warning_label)
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 24)

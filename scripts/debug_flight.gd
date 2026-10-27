@@ -68,4 +68,5 @@ func apply_preset() -> void:
 
 func _on_expert_toggled(on: bool) -> void:
 	GameSettings.expert_all_assists_off = on
+	GameSettings.save()
 	apply_preset()

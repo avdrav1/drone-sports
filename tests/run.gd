@@ -58,10 +58,7 @@ func _run() -> void:
 func _use_test_save() -> void:
 	SaveGame.path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
-	for autoload in ["Wallet", "Reputation", "Roster", "Career"]:
-		var node := root.get_node_or_null(autoload)
-		if node:
-			node.load_saved()
+	SaveGame.load_all(self)
 
 ## Strikes injure and kill for good, and offers and teams stick, so every test
 ## starts with the whole crew alive, no flags, no reputation, and no team.

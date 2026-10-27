@@ -330,9 +330,9 @@ Done when the player moves from Act 1 to Act 4 by being recruited, each promotio
   - Acceptance: Only the current team's jobs are flyable. Completing a job returns here. Wallet and reputation show in the header. The crew roster from 7.1 shows with status; dead characters are greyed with their memorial line.
   - Out of scope: Map, travel.
 
-- [ ] **5.4 Save game**
+- [x] **5.4 Save game**
   - Goal: One save file holding wallet, reputation, current team, completed jobs, and the expert toggle.
-  - Context: Extends the JSON from 2.4. Saves on job complete and team change.
+  - Context: Extends the JSON from 2.4. Saves on job complete and team change. Completed jobs are counts in the "career" section and show on the board ("done 2×"); the expert toggle is the "settings" section, saved when toggled. A file that will not parse is renamed to `save.json.corrupt` and the board shows a one-time warning. `SaveGame.load_all` re-reads every section, as a launch does.
   - Acceptance: Quit and relaunch restores the job board exactly. A corrupt file falls back to a new game with a warning, not a crash.
   - Out of scope: Multiple slots, cloud.
 

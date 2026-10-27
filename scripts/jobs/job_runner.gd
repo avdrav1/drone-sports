@@ -221,6 +221,8 @@ func _finish() -> void:
 	if pays_out:
 		Payout.settle(result, grade_scale)
 		Roster.job_done(casualties.keys())
+		if result.completed:
+			Career.job_completed(job.id)
 	finished.emit(result)
 	if results_scene and is_inside_tree():
 		get_tree().create_timer(results_delay, true, true).timeout.connect(_show_results)

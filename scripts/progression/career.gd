@@ -16,9 +16,13 @@ var team_id: StringName = &""
 var offered: Array[StringName] = []
 ## Offers made and not yet answered, in order.
 var pending: Array[StringName] = []
+## Job id -> times completed.
+var completed := {}
 
 func _ready() -> void:
 	teams = load(TEAMS)
+	# Settings are a static class with no node of their own; the career brings them in.
+	GameSettings.load_saved()
 	load_saved()
 
 func team() -> Team:
@@ -102,8 +106,19 @@ func unlocked_by(job: Job) -> Array[String]:
 func wants_still(t: Team) -> bool:
 	return int(t.preset.label.trim_prefix("Act ")) > act()
 
+## A job finished as complete; saved at once.
+func job_completed(job_id: StringName) -> void:
+	completed[job_id] = times_completed(job_id) + 1
+	save()
+
+func times_completed(job_id: StringName) -> int:
+	return completed.get(job_id, 0)
+
 func save() -> void:
-	SaveGame.write_section("career", {"team": String(team_id),
+	var done := {}
+	for id in completed:
+		done[String(id)] = completed[id]
+	SaveGame.write_section("career", {"team": String(team_id), "completed": done,
 		"offered": offered.map(func(s): return String(s)), "pending": pending.map(func(s): return String(s))})
 
 func load_saved() -> void:
@@ -113,5 +128,10 @@ func load_saved() -> void:
 	team_id = StringName(saved.get("team", ""))
 	if teams and team_id != &"" and teams.by_id(team_id) == null:
 		team_id = &""
+	completed.clear()
+	var done = saved.get("completed", {})
+	if done is Dictionary:
+		for id in done:
+			completed[StringName(id)] = int(done[id])
 	offered.assign(saved.get("offered", []).map(func(s): return StringName(s)))
 	pending.assign(saved.get("pending", []).map(func(s): return StringName(s)))
