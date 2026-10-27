@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="JobList" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="JobList" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job_list.gd" id="1_list"]
 [ext_resource type="Resource" path="res://data/jobs/test_race.tres" id="j0"]
@@ -6,7 +6,8 @@
 [ext_resource type="Resource" path="res://data/jobs/inspection.tres" id="j2"]
 [ext_resource type="Resource" path="res://data/jobs/demolition.tres" id="j3"]
 [ext_resource type="Resource" path="res://data/jobs/rescue.tres" id="j4"]
+[ext_resource type="Resource" path="res://data/jobs/spotter_drill.tres" id="j5"]
 
 [resource]
 script = ExtResource("1_list")
-jobs = Array[Resource]([ExtResource("j0"), ExtResource("j1"), ExtResource("j2"), ExtResource("j3"), ExtResource("j4")])
+jobs = Array[Resource]([ExtResource("j0"), ExtResource("j1"), ExtResource("j2"), ExtResource("j3"), ExtResource("j4"), ExtResource("j5")])

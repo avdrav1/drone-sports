@@ -32,5 +32,7 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var guidance := Guidance.FULL
 ## Characters at risk on this job; each needs a HazardZone. Empty means nobody can be struck.
 @export var crew_in_field: Array[StringName] = []
+## Characters who must be alive for this job to fly (Story 7.6).
+@export var requires_living: Array[StringName] = []
 ## Fog and wind. Null flies clear and still.
 @export var weather: Weather

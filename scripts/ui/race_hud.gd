@@ -58,8 +58,9 @@ func lap_text() -> String:
 func split_color() -> Color:
 	return AHEAD if split_delta <= 0.0 else BEHIND
 
+## Off for good once the spotter is dead (Story 7.6).
 func split_visible() -> bool:
-	return not is_nan(split_delta) and _split_age < split_hold
+	return not is_nan(split_delta) and _split_age < split_hold and not Consequences.in_effect(&"no_spotter")
 
 func next_gate() -> Gate:
 	var p = course.progress(racer)

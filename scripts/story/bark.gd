@@ -143,6 +143,9 @@ func _on_struck(id: StringName, before: Roster.Status) -> void:
 func _on_gate(who: Node3D, _gate: int) -> void:
 	if runner and who != runner.drone:
 		return
+	# Gates are the spotter's call; without one, nobody makes it (Story 7.6).
+	if Consequences.in_effect(&"no_spotter"):
+		return
 	if _since_gate < gate_gap:
 		return
 	if not say(&"gate_passed").is_empty():

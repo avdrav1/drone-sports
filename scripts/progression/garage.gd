@@ -25,18 +25,19 @@ func upgrade(id: StringName) -> Upgrade:
 func level(id: StringName) -> int:
 	return levels.get(id, 0)
 
-## The next level's price, or -1 at the top level.
+## The next level's price, or -1 at the top level. Marked up once a death
+## carries shop_closed (Story 7.6).
 func price(id: StringName) -> int:
 	var u := upgrade(id)
 	var l := level(id)
-	return u.prices[l] if u and l < u.max_level() else -1
+	return ceili(u.prices[l] * Consequences.price_factor()) if u and l < u.max_level() else -1
 
 func can_buy(id: StringName) -> bool:
 	var p := price(id)
-	return p >= 0 and Wallet.balance >= p
+	return p >= 0 and Wallet.balance >= p and Consequences.shop_closed_jobs() == 0
 
 ## Spend the wallet on the next level. False, and nothing changes, if the pilot
-## cannot afford it or it is maxed.
+## cannot afford it, it is maxed, or the shop is closed.
 func buy(id: StringName) -> bool:
 	if not can_buy(id):
 		return false

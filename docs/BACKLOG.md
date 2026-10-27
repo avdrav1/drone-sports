@@ -404,9 +404,9 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: One strike injures. A second job with a strike on the same injured character kills. Declining the launch dialog returns to the job board. A dead character is removed from `crew_in_field` of every later job and their zone does not spawn.
   - Out of scope: Rookie mode (open question).
 
-- [ ] **7.6 Story consequences**
+- [x] **7.6 Story consequences**
   - Goal: Apply the consequence table from CHARACTERS.md: Marlo's death removes gate callouts and the split-delta HUD; Dot's closes the shop for three jobs and raises prices 25 percent; Bea's locks the salvage faction; Ozzie's locks city services. The job board shows a memorial line per dead character.
-  - Context: Consequences are data on the `Character` resource read by the systems they touch (HUD, shop, team offers). Add one job that requires a specific living character.
+  - Context: Consequences are data on the `Character` resource read by the systems they touch (HUD, shop, team offers). Add one job that requires a specific living character. One static query, `Consequences`, answers whether a `death_consequence` tag is in effect (a dead character carries it), so the HUD, shop, career, and board never name a character. `no_spotter`: `RaceHud.split_visible` is off and `Bark` makes no gate callouts. `shop_closed`: for the dead, the roster's `jobs` counts jobs finished since the death (no new save section; the job they died on does not count), the shop stays shut until three have passed (the board's Shop button is disabled and says how many jobs are left; `Garage.can_buy` and `buy` refuse), and `Garage.price` is 25 percent higher from the death on. `salvage_locked` and `city_locked` lock that faction for good: its teams make no offers, pending ones are withdrawn, and its jobs leave the board. A pilot already on a locked faction's team keeps the team and its assists, also flies the home game's jobs so the career cannot dead-end, and may be signed by a team of the same act. `Job.requires_living` names characters a job needs; the new Spotter drill (league race, Marlo on the radio; `scenes/jobs/spotter_drill.tscn` inherits the test race scene) shows "Closed: needs Marlo" once Marlo is dead. Memorial lines stay in the crew rows from 7.5.
   - Acceptance: A test kills each character and checks its consequence is in effect. The locked faction's jobs do not appear on the board. The memorial line is present.
   - Out of scope: Replacement recruits.
 
@@ -477,4 +477,3 @@ Done when a new player learns who they are and why they fly before the first job
   - Context: Same cutscene player and beat data as 11.1. Plays once, on accepting the first team's offer, before returning to the board. Teams carry a `joining_scene`; only Skyline Juniors has one. Five beats, 31 s (`data/story/recruited.tres`): Rin over the home game, the bezel gone and a real drone on the pad in free flight, the Act 2 card.
   - Acceptance: Accepting the Skyline Juniors offer plays the scene once; declining does not; any key skips; the board afterwards shows Act 2. Lines contain no franchise names.
   - Out of scope: Scenes for later teams.
-

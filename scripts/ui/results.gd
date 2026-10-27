@@ -43,7 +43,14 @@ func show_result(r: JobResult) -> void:
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
+	retry_button.disabled = not can_retry(r.job)
+	retry_button.tooltip_text = "" if can_retry(r.job) else "This job is off the board now."
 	show_offers()
+
+## A death can take a job off the board (its faction locked, or crew it needs
+## gone); Retry must not fly it anyway (Story 7.6).
+static func can_retry(job: Job) -> bool:
+	return job == null or (Consequences.listed(job) and Consequences.missing_crew(job).is_empty())
 
 ## Teams that now want the pilot ask here, one dialog at a time.
 func show_offers() -> void:
@@ -93,6 +100,8 @@ static func _face_row(row_name: String, c: Character, text: String, greyed: bool
 	return row
 
 func retry() -> void:
+	if result and not can_retry(result.job):
+		return
 	retry_pressed.emit()
 	if job_scene:
 		get_tree().change_scene_to_file(job_scene)

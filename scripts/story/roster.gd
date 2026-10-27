@@ -2,6 +2,7 @@ extends Node
 # Autoload "Roster": the cast and their status, kept in the save's "roster" section.
 # Injured benches a character for INJURY_JOBS jobs; a second injury while
 # injured kills. Death is permanent: there is no way back (CLAUDE.md rule 7).
+# For the dead, `jobs` counts the jobs finished since (Story 7.6: the shop).
 
 enum Status { ACTIVE, INJURED, DEAD }
 
@@ -36,6 +37,10 @@ func is_alive(id: StringName) -> bool:
 func jobs_benched(id: StringName) -> int:
 	return _state[id].jobs if status(id) == Status.INJURED else 0
 
+## Jobs finished since this character died; 0 for the living.
+func jobs_since_death(id: StringName) -> int:
+	return _state[id].jobs if status(id) == Status.DEAD else 0
+
 ## First strike injures; a strike while injured kills.
 func injure(id: StringName) -> void:
 	if not _harmable(id):
@@ -50,8 +55,9 @@ func kill(id: StringName) -> void:
 	if _harmable(id) and status(id) != Status.DEAD:
 		_record(id, Status.DEAD, 0)
 
-## A job ended: injured characters count down toward active again. Anyone in
-## `skip` was hurt on that job, so it does not count toward their recovery.
+## A job ended: injured characters count down toward active again, and the
+## dead count the jobs since. Anyone in `skip` was hurt on that job, so it does
+## not count for them.
 func job_done(skip: Array = []) -> void:
 	for id in _state.keys():
 		if _state[id].status == Status.INJURED and not id in skip:
@@ -59,6 +65,8 @@ func job_done(skip: Array = []) -> void:
 			if _state[id].jobs <= 0:
 				_state.erase(id)
 				status_changed.emit(id, Status.ACTIVE)
+		elif _state[id].status == Status.DEAD and not id in skip:
+			_state[id].jobs += 1
 	save()
 
 func _harmable(id: StringName) -> bool:

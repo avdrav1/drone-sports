@@ -45,17 +45,20 @@ func act() -> int:
 ## good (a later act than now), and see the faction reputation it needs, or for
 ## a team with `needs_flag`, that story flag.
 func wants(t: Team) -> bool:
-	if t.id in offered or t.id == team_id:
+	if t.id in offered or t.id == team_id or Consequences.faction_locked(t.faction):
 		return false
-	if int(t.preset.label.trim_prefix("Act ")) <= act():
+	# A pilot whose own faction is locked will take a team of the same act.
+	if int(t.preset.label.trim_prefix("Act ")) < act() + (0 if team_locked() else 1):
 		return false
 	# A scout's team asks on the flag alone: they already saw the run.
 	if t.needs_flag != &"":
 		return StoryFlags.is_set(t.needs_flag)
 	return Reputation.of(t.faction) >= t.reputation_needed
 
-## Make every offer now due. Returns the new ones.
+## Make every offer now due. Returns the new ones. Offers from a faction
+## locked since are withdrawn.
 func check_offers() -> Array[Team]:
+	pending = pending.filter(func(p): return teams.by_id(p) == null or not Consequences.faction_locked(teams.by_id(p).faction))
 	var made: Array[Team] = []
 	for t in teams.teams:
 		if wants(t):
@@ -90,16 +93,28 @@ func decline(id: StringName) -> void:
 	save()
 
 ## Jobs the pilot may fly now: the current team's job types, or the home
-## game's tagged jobs in Act 1.
+## game's tagged jobs in Act 1. Never a locked faction's job or one whose
+## required crew is dead (Story 7.6). A pilot left on a locked faction's team
+## keeps its assists and flies the home game's jobs too, so the career goes on.
 func can_fly(job: Job) -> bool:
+	if not Consequences.listed(job) or not Consequences.missing_crew(job).is_empty():
+		return false
 	var t := team()
-	return job.job_type in t.job_types if t else job.tags.has(&"act1")
+	var home := job.tags.has(&"act1")
+	if t == null:
+		return home
+	return job.job_type in t.job_types or (home and team_locked())
+
+## The pilot's own team is in a faction a death has locked.
+func team_locked() -> bool:
+	var t := team()
+	return t != null and Consequences.faction_locked(t.faction)
 
 ## Names of the teams that fly this kind of job, for a locked job's row.
 func unlocked_by(job: Job) -> Array[String]:
 	var out: Array[String] = []
 	for t in teams.teams:
-		if job.job_type in t.job_types:
+		if job.job_type in t.job_types and not Consequences.faction_locked(t.faction):
 			out.append(t.name)
 	return out
 

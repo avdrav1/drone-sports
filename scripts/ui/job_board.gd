@@ -4,6 +4,8 @@ extends Control
 # pay, and the assists it flies with; Fly on the ones the pilot's team takes,
 # and who unlocks the rest; the crew and their status. Offers ask here too,
 # and the shop and pilot select open from here. A new game picks a pilot first.
+# A locked faction's jobs leave the board, and the shop shows when it is closed
+# (Story 7.6).
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -29,6 +31,7 @@ var _jobs_box: VBoxContainer
 var _crew_box: VBoxContainer
 var _footer: HBoxContainer
 var _pilot_button: Button
+var _shop_button: Button
 
 func _ready() -> void:
 	jobs = load(JOBS)
@@ -68,6 +71,11 @@ func refresh() -> void:
 	_header.text = Career.label()
 	_pilot_button.text = "Pilot: %s" % PlayerProfile.pilot().name
 	_money.text = money_text()
+	var closed := Consequences.shop_closed_jobs()
+	_shop_button.disabled = closed > 0
+	_shop_button.text = "Shop" if closed == 0 else "Shop closed: %d more job%s" % [closed, "" if closed == 1 else "s"]
+	_shop_button.tooltip_text = "" if closed == 0 else "Closed since %s died." % \
+		", ".join(Consequences.causes(&"shop_closed").map(func(c): return c.name))
 	for c in _jobs_box.get_children():
 		c.free()
 	for c in _crew_box.get_children():
@@ -76,6 +84,8 @@ func refresh() -> void:
 	crew_rows.clear()
 	_jobs_box.add_child(_heading("JOBS"))
 	for job in jobs.jobs:
+		if not Consequences.listed(job):
+			continue
 		var row := _job_row(job)
 		job_rows[job.id] = row
 		_jobs_box.add_child(row)
@@ -146,7 +156,11 @@ func _job_row(job: Job) -> HBoxContainer:
 		var lock := Label.new()
 		lock.name = "Locked"
 		var teams := Career.unlocked_by(job)
-		lock.text = "Locked: " + (", ".join(teams) if not teams.is_empty() else "no team yet")
+		var missing := Consequences.missing_crew(job)
+		if not missing.is_empty():
+			lock.text = "Closed: needs " + ", ".join(missing)
+		else:
+			lock.text = "Locked: " + (", ".join(teams) if not teams.is_empty() else "no team yet")
 		lock.add_theme_color_override("font_color", DIM)
 		lock.add_theme_font_size_override("font_size", 14)
 		lock.custom_minimum_size.x = 220
@@ -244,11 +258,11 @@ func _build() -> void:
 	free.text = "Free flight"
 	free.pressed.connect(free_flight)
 	_footer.add_child(free)
-	var shop_button := Button.new()
-	shop_button.name = "Shop"
-	shop_button.text = "Shop"
-	shop_button.pressed.connect(func(): shop.open())
-	_footer.add_child(shop_button)
+	_shop_button = Button.new()
+	_shop_button.name = "Shop"
+	_shop_button.text = "Shop"
+	_shop_button.pressed.connect(func(): shop.open())
+	_footer.add_child(_shop_button)
 	_pilot_button = Button.new()
 	_pilot_button.name = "Pilot"
 	_pilot_button.pressed.connect(func(): pilot_select.open())

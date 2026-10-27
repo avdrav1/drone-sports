@@ -15,7 +15,7 @@ func _flyable(b: JobBoard) -> Array:
 	for id in b.job_rows:
 		if b.fly_button(id):
 			out.append(id)
-	out.sort()
+	out.sort_custom(func(a, b): return String(a) < String(b))  # StringName sort is by pointer, not text
 	return out
 
 func test_reached_at_launch_and_jobs_come_back() -> bool:
@@ -82,7 +82,7 @@ func test_offers_ask_on_the_board() -> bool:
 	var asked: bool = b.offer_dialog.visible and b.offer_dialog.team.id == &"skyline_juniors"
 	b.offer_dialog.confirmed.emit()
 	await Sim.process_frames(1)
-	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"test_race"]
+	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"spotter_drill", &"test_race"]
 	b.free()
 	await Sim.process_frames(1)
 	Sim.tree().unload_current_scene()  # the recruitment scene (Story 11.2)

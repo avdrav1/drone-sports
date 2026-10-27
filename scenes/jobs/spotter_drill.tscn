@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/jobs/test_race.tscn" id="1_race"]
+[ext_resource type="Resource" path="res://data/jobs/spotter_drill.tres" id="2_job"]
+
+[node name="SpotterDrill" instance=ExtResource("1_race")]
+
+[node name="JobRunner" parent="."]
+job = ExtResource("2_job")
