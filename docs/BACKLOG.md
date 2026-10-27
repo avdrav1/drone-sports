@@ -248,6 +248,12 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: Signal strength is a function of distance to the zone edge. At zero signal the route is hidden and the radar shows no markers. Leaving the zone restores everything within a second. Drift is reproducible with a seed.
   - Out of scope: GPS position hold as an assist (it would change the assist table in CLAUDE.md; decide separately), jamming that affects flight.
 
+- [x] **10.6 Target marker**
+  - Goal: The next place the job wants the drone is marked on screen: a diamond over it when in view, an arrow at the screen edge pointing toward it when not, with the distance.
+  - Context: Playtest feedback: pilots lost track of where the pad and targets were. `TargetMarker` reads the job's `RouteSource`, so it shows only what guidance allows and nothing without a GPS fix. Placed on the delivery, inspection, and demolition jobs; the race already marks its next gate, and now shares the same placement and drawing.
+  - Acceptance: On the delivery job the marker sits over the drop pad with the right distance. Facing away, it sits on screen at the edge and points down. It vanishes inside a jammer and returns outside, and shows nothing with guidance off. Every guided job scene has one wired up. Race HUD tests still pass.
+  - Out of scope: Markers in the debug sandbox, waypoint lists.
+
 ## Epic 4: Hazard jobs
 
 Done when the three drone-work jobs exist: demolition run, search and rescue, inspection. Each puts a crew member in the field and uses a camera view as a tool, never as a score.

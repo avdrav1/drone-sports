@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=28 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="2_input"]
@@ -23,6 +23,7 @@
 [ext_resource type="PackedScene" path="res://scenes/nav/jammer.tscn" id="87_jammer"]
 [ext_resource type="Script" path="res://scripts/story/bark.gd" id="88_bark"]
 [ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
+[ext_resource type="Script" path="res://scripts/ui/target_marker.gd" id="95_target"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
 size = Vector3(16, 8, 2)
@@ -249,3 +250,15 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("89_barkbox")
 bark = NodePath("../../Bark")
+
+[node name="TargetMarker" type="Control" parent="HUD" node_paths=PackedStringArray("route", "camera_rig")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("95_target")
+route = NodePath("../../Route")
+camera_rig = NodePath("../../CameraRig")

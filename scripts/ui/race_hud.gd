@@ -63,24 +63,7 @@ func marker() -> Dictionary:
 	var cam := camera_rig.camera if camera_rig else get_viewport().get_camera_3d()
 	if gate == null or cam == null:
 		return {}
-	var rect := get_viewport_rect()
-	var center := rect.size * 0.5
-	var world := gate.global_position
-	var behind := cam.is_position_behind(world)
-	var p := cam.unproject_position(world)
-	if behind:
-		p = center - (p - center) # unproject mirrors points behind the camera
-	var m := margin()
-	var inner := Rect2(Vector2.ONE * m, rect.size - Vector2.ONE * m * 2.0)
-	if not behind and inner.has_point(p):
-		return {"pos": p, "on_screen": true, "angle": 0.0}
-	var dir := (p - center)
-	if dir.length_squared() < 1.0:
-		dir = Vector2.DOWN
-	# Scale the direction until it touches the inner rect.
-	var half := inner.size * 0.5
-	var k := minf(half.x / maxf(absf(dir.x), 0.001), half.y / maxf(absf(dir.y), 0.001))
-	return {"pos": center + dir * k, "on_screen": false, "angle": dir.angle()}
+	return TargetMarker.place(cam, get_viewport_rect(), gate.global_position, edge_margin)
 
 ## Edge margin, shrunk on tiny viewports so the inner rect never inverts.
 func margin() -> float:
@@ -124,16 +107,4 @@ func _draw() -> void:
 	var m := marker()
 	if m.is_empty():
 		return
-	var c: Vector2 = m.pos
-	if m.on_screen:
-		var r := 11.0
-		var pts := PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0), c + Vector2(0, -r)])
-		draw_polyline(pts, ACCENT, 2.0)
-	else:
-		var a: float = m.angle
-		var tip := c + Vector2.from_angle(a) * 14.0
-		var l := c + Vector2.from_angle(a + 2.5) * 12.0
-		var rr := c + Vector2.from_angle(a - 2.5) * 12.0
-		draw_colored_polygon(PackedVector2Array([tip, l, rr]), ACCENT)
-	var dist := racer.global_position.distance_to(next_gate().global_position)
-	_text(c + Vector2(-40, 30), "%d m" % roundi(dist), 12, LINE, HORIZONTAL_ALIGNMENT_CENTER, 80)
+	TargetMarker.draw_marker(self, m, racer.global_position.distance_to(next_gate().global_position), font)
