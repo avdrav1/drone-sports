@@ -1,0 +1,83 @@
+[gd_resource type="Resource" script_class="Cutscene" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
+[ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
+
+[sub_resource type="Resource" id="beat0"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/jobs/test_race.tscn"
+live = true
+camera = 0
+focus = NodePath("Course")
+orbit_radius = 75.0
+orbit_height = 28.0
+orbit_speed = 5.0
+caption = "Drones fly almost everything now.\nThe people who can fly them are stars."
+duration = 8.0
+
+[sub_resource type="Resource" id="beat1"]
+script = ExtResource("2_beat")
+camera = 1
+focus = NodePath("Opponent1")
+offset = Vector3(0, 1.6, 5)
+caption = "The Skyline League. Televised. Sponsored. Bet on by half the planet."
+duration = 8.0
+
+[sub_resource type="Resource" id="beat2"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/jobs/demolition.tscn"
+camera = 0
+focus = NodePath("ShaftPoint")
+orbit_radius = 42.0
+orbit_height = 16.0
+orbit_speed = 8.0
+caption = "Then there's the real work. Old buildings coming down, with someone inside to call it."
+duration = 7.0
+
+[sub_resource type="Resource" id="beat3"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/jobs/rescue.tscn"
+camera = 0
+focus = NodePath("Drone")
+orbit_radius = 5.0
+orbit_height = 1.5
+orbit_speed = 14.0
+caption = "Search and rescue in weather nobody should fly in. Dangerous. Well paid."
+duration = 7.0
+
+[sub_resource type="Resource" id="beat4"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/jobs/test_race.tscn"
+live = true
+camera = 1
+focus = NodePath("Opponent2")
+offset = Vector3(0, 1.4, 4.5)
+bezel = true
+caption = "You fly the home game. Every night, after everyone's asleep.\nYou're good. Maybe better than good."
+duration = 8.0
+
+[sub_resource type="Resource" id="beat5"]
+script = ExtResource("2_beat")
+camera = 1
+focus = NodePath("Opponent2")
+offset = Vector3(0, 1.4, 4.5)
+bezel = true
+portrait = &"rin"
+silhouette = true
+caption = "Somebody has been watching the leaderboards."
+duration = 6.0
+
+[sub_resource type="Resource" id="beat6"]
+script = ExtResource("2_beat")
+camera = 1
+focus = NodePath("Opponent2")
+offset = Vector3(0, 1.4, 4.5)
+title = "DRONE SPORTS"
+caption = "Finish top three. Get noticed."
+duration = 6.0
+
+[resource]
+script = ExtResource("1_cut")
+beats = Array[ExtResource("2_beat")]([SubResource("beat0"), SubResource("beat1"), SubResource("beat2"), SubResource("beat3"), SubResource("beat4"), SubResource("beat5"), SubResource("beat6")])
+next_scene = "res://scenes/ui/job_board.tscn"
+seen_flag = &"intro_seen"

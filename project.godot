@@ -6,7 +6,7 @@ config_version=5
 [application]
 
 config/name="Drone Sports"
-run/main_scene="res://scenes/ui/job_board.tscn"
+run/main_scene="res://scenes/story/intro.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 

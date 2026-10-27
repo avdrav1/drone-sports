@@ -6,7 +6,7 @@ const SCENE := "res://scenes/debug_flight.tscn"
 
 ## Main scene until Story 5.3; now reached from the job board's Free flight button.
 func test_reachable_from_main_scene() -> bool:
-	return ProjectSettings.get_setting("application/run/main_scene") == "res://scenes/ui/job_board.tscn" \
+	return (load("res://data/story/intro.tres") as Cutscene).next_scene == "res://scenes/ui/job_board.tscn" \
 		and JobBoard.FREE_FLIGHT == SCENE
 
 func test_scene_loads_and_has_readout() -> bool:

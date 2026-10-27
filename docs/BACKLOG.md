@@ -461,3 +461,20 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Context: Uses the bark system from 7.3 with a non-character speaker.
   - Acceptance: Every line passes a test that rejects "I", "me", or "my". The portrait density tracks remaining shell units.
   - Out of scope: Voice.
+
+## Epic 11: Story setup
+
+Done when a new player learns who they are and why they fly before the first job, and joining a team feels like the turn of the story, not a dialog box. In-engine scenes over existing backdrops, not video files: the web build stays small and the look matches.
+
+- [x] **11.1 Intro**
+  - Goal: A skippable intro of about a minute on a new game: the world, the league, the real work, the home game, someone watching the leaderboards, the title. Then the job board, with the race marked START HERE.
+  - Context: Beats are data (`data/story/intro.tres`): backdrop scene, camera (orbit, chase, fixed), caption, optional portrait or silhouette, arcade bezel, length. Backdrops reuse the job scenes with their HUDs hidden and nothing paid. The intro is the main scene and forwards to the board once seen; the board's Watch intro button replays it. Seven beats, 50 s: the race course, a racer chase, the cannery, the rescue fog, the home game in its bezel, an unknown viewer (Rin's silhouette), the title.
+  - Acceptance: On a new game the intro plays from its first beat; finishing or any key ends it, sets the `intro_seen` flag, and opens the job board. With the flag set, launching goes straight to the board. Every beat's backdrop loads and its camera focus exists; the beats run 45 to 90 s. The board shows START HERE on the race until a job is completed or a team joined, and Watch intro replays it.
+  - Out of scope: Voice, music, the recruitment scene (11.2).
+
+- [ ] **11.2 Recruitment scene**
+  - Goal: Accepting Coach Rin's offer plays a short scene: she hands over a real drone, the bezel falls away, and the next job is the real thing.
+  - Context: Same cutscene player and beat data as 11.1. Plays once, on accepting the first team's offer, before returning to the board.
+  - Acceptance: Accepting the Skyline Juniors offer plays the scene once; declining does not; any key skips; the board afterwards shows Act 2. Lines contain no franchise names.
+  - Out of scope: Scenes for later teams.
+

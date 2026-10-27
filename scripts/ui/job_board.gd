@@ -7,6 +7,7 @@ extends Control
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
+const INTRO := "res://scenes/story/intro.tscn"
 const ACCENT := Color(1.0, 0.76, 0.25)
 const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
@@ -85,6 +86,19 @@ func fly(job: Job) -> void:
 func free_flight() -> void:
 	get_tree().change_scene_to_file(FREE_FLIGHT)
 
+func watch_intro() -> void:
+	CutscenePlayer.replay = true
+	get_tree().change_scene_to_file(INTRO)
+
+## Before anything is done, the first flyable job is where to start.
+func start_here() -> StringName:
+	if Career.team_id != &"" or not Career.completed.is_empty():
+		return &""
+	for job in jobs.jobs:
+		if Career.can_fly(job):
+			return job.id
+	return &""
+
 func _job_row(job: Job) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = String(job.id)
@@ -94,6 +108,13 @@ func _job_row(job: Job) -> HBoxContainer:
 	var title := Label.new()
 	title.text = job.title
 	text.add_child(title)
+	if job.id == start_here():
+		var tag := Label.new()
+		tag.name = "StartHere"
+		tag.text = "START HERE"
+		tag.add_theme_color_override("font_color", ACCENT)
+		tag.add_theme_font_size_override("font_size", 13)
+		text.add_child(tag)
 	var details := Label.new()
 	details.name = "Details"
 	details.text = "%s  ·  %s  ·  pay %d  ·  %s assists" % [job.client, String(job.job_type).capitalize(), job.pay, preset_label(job)]
@@ -218,6 +239,11 @@ func _build() -> void:
 	shop_button.text = "Shop"
 	shop_button.pressed.connect(func(): shop.open())
 	_footer.add_child(shop_button)
+	var intro := Button.new()
+	intro.name = "WatchIntro"
+	intro.text = "Watch intro"
+	intro.pressed.connect(watch_intro)
+	_footer.add_child(intro)
 
 func _panel(parent: Control, wide: bool) -> VBoxContainer:
 	var panel := PanelContainer.new()

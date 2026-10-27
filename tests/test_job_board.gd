@@ -18,11 +18,12 @@ func _flyable(b: JobBoard) -> Array:
 	out.sort()
 	return out
 
-func test_is_main_scene_and_jobs_come_back() -> bool:
+func test_reached_at_launch_and_jobs_come_back() -> bool:
 	var runner := JobRunner.new()
 	var results: Control = load("res://scenes/ui/results.tscn").instantiate()
-	var ok: bool = ProjectSettings.get_setting("application/run/main_scene") == BOARD \
-		and runner.back_scene == BOARD and results.continue_scene == BOARD
+	# The intro is the main scene and forwards here (Story 11.1).
+	var intro: Cutscene = load("res://data/story/intro.tres")
+	var ok: bool = intro.next_scene == BOARD and runner.back_scene == BOARD and results.continue_scene == BOARD
 	runner.free()
 	results.free()
 	return ok
