@@ -39,6 +39,7 @@ func _run() -> void:
 			if not name.begins_with("test_"):
 				continue
 			_errors.clear()
+			_fresh_roster()
 			var result = await suite.call(name)
 			if result == false or not _errors.is_empty():
 				failed += 1
@@ -61,6 +62,13 @@ func _use_test_save() -> void:
 		var node := root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()
+
+## Strikes injure and kill for good, so every test starts with the whole crew alive.
+func _fresh_roster() -> void:
+	SaveGame.write_section("roster", {})
+	var roster := root.get_node_or_null("Roster")
+	if roster:
+		roster.load_saved()
 
 # Godot 4.5+ can route engine errors to a script Logger. Older engines skip this.
 func _install_error_logger() -> void:

@@ -368,9 +368,9 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: Entering a zone at 10 m/s strikes; at 1 m/s it does not. The warning fires at least 1 s before any strike in a scripted test. A job with no `crew_in_field` can never strike. The results screen lists strikes per character.
   - Out of scope: Crew moving during a job.
 
-- [ ] **7.5 Injury, death, and the launch gate**
+- [x] **7.5 Injury, death, and the launch gate**
   - Goal: Strikes call `Roster.injure`; a strike on a job tagged `lethal` calls `Roster.kill`. Launching a job whose `crew_in_field` includes an injured character shows a confirmation dialog naming the risk.
-  - Context: Builds on 7.1 and 7.4. The results screen shows injury and death with the character's line.
+  - Context: Builds on 7.1 and 7.4. The results screen shows injury and death with the character's line. Done after 7.3 (the lines) and before 5.3 (the board), so declining goes to `JobRunner.back_scene`, the sandbox for now; 5.3 points it at the job board. Injury shows the character's `hurt` line; death shows their `memorial` line from the same file, since the dead never speak. Strikes only hurt the roster when the runner `pays_out`. The injured character's own job does not count toward their recovery. The dialog's default button is Back out.
   - Acceptance: One strike injures. A second job with a strike on the same injured character kills. Declining the launch dialog returns to the job board. A dead character is removed from `crew_in_field` of every later job and their zone does not spawn.
   - Out of scope: Rookie mode (open question).
 

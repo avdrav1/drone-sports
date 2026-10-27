@@ -50,10 +50,11 @@ func kill(id: StringName) -> void:
 	if _harmable(id) and status(id) != Status.DEAD:
 		_record(id, Status.DEAD, 0)
 
-## A job ended: injured characters count down toward active again.
-func job_done() -> void:
+## A job ended: injured characters count down toward active again. Anyone in
+## `skip` was hurt on that job, so it does not count toward their recovery.
+func job_done(skip: Array = []) -> void:
 	for id in _state.keys():
-		if _state[id].status == Status.INJURED:
+		if _state[id].status == Status.INJURED and not id in skip:
 			_state[id].jobs -= 1
 			if _state[id].jobs <= 0:
 				_state.erase(id)

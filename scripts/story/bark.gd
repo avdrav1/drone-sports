@@ -3,7 +3,9 @@ extends Node
 # Crew lines on job events: briefing, gate passed, strike warning, strike,
 # complete, fail, and results. Lines are data (data/dialogue/<id>.json), picked by
 # the speaker's status. The dead never speak, and a line never repeats within a
-# job unless it is the only one. Holds no character or job names.
+# job unless it is the only one. On a strike the line matches how the character
+# was before it, and a strike that kills leaves only a memorial line on the
+# results screen. Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results"]
 
@@ -32,6 +34,7 @@ func _ready() -> void:
 	if runner:
 		runner.state_changed.connect(_on_state)
 		runner.finished.connect(_on_finished)
+		runner.crew_struck.connect(_on_struck)
 		if runner.state == JobRunner.State.BRIEFING:
 			_on_state(runner.state, JobRunner.State.IDLE)
 	if course:
@@ -50,17 +53,19 @@ static func lines_of(id: StringName) -> Dictionary:
 
 ## The lines this character can say on an event right now. None when dead; the
 ## injured variant when injured and one exists.
-static func pool(id: StringName, event: StringName) -> Array:
+## `as_status` reads the lines as if the character had that status (alive only).
+static func pool(id: StringName, event: StringName, as_status := -1) -> Array:
 	if Roster.character(id) == null or not Roster.is_alive(id):
 		return []
 	var e: Dictionary = lines_of(id).get(String(event), {})
-	if Roster.status(id) == Roster.Status.INJURED and e.has("injured"):
+	var status: int = Roster.status(id) if as_status < 0 else as_status
+	if status == Roster.Status.INJURED and e.has("injured"):
 		return e.injured
 	return e.get("active", [])
 
 ## Lines not yet said this job; the whole pool when it holds a single line.
-func available(id: StringName, event: StringName) -> Array:
-	var p := pool(id, event)
+func available(id: StringName, event: StringName, as_status := -1) -> Array:
+	var p := pool(id, event, as_status)
 	if p.size() == 1:
 		return p
 	var said: Array = used.get(id, [])
@@ -74,7 +79,7 @@ func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]
 		out.append(subject)
 		return out
 	if runner and runner.job:
-		for id in runner.job.crew_in_field:
+		for id in runner.crew_in_field():
 			if not id in out:
 				out.append(id)
 	for id in Roster.ids():
@@ -85,15 +90,15 @@ func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]
 
 ## Picks a speaker and an unsaid line. Returns {id, event, text}, or {} when nobody
 ## can. Announces it on `spoke` (the HUD) unless `announce` is false.
-func say(event: StringName, subject: StringName = &"", announce := true) -> Dictionary:
+func say(event: StringName, subject: StringName = &"", announce := true, as_status := -1) -> Dictionary:
 	var who: Array[StringName] = []
 	for id in speakers(event, subject):
-		if not available(id, event).is_empty():
+		if not available(id, event, as_status).is_empty():
 			who.append(id)
 	if who.is_empty():
 		return {}
 	var id := who[_rng.randi() % who.size()]
-	var lines := available(id, event)
+	var lines := available(id, event, as_status)
 	var text: String = lines[_rng.randi() % lines.size()]
 	if not used.has(id):
 		used[id] = []
@@ -109,7 +114,6 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 			for z in runner.hazard_zones():
 				if not z.warning_started.is_connected(_on_warning):
 					z.warning_started.connect(_on_warning)
-					z.struck.connect(_on_struck)
 			say(&"briefing")
 		JobRunner.State.COMPLETE:
 			say(&"complete")
@@ -119,12 +123,22 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 func _on_finished(result: JobResult) -> void:
 	# Shown on the results screen, not the HUD, so the fail or complete line stays up.
 	result.bark = say(&"results", &"", false)
+	# The injured say how they are; the dead get their memorial line.
+	for id in result.casualties:
+		if result.casualties[id] == Roster.Status.DEAD:
+			result.casualty_lines[id] = memorial(id)
+		else:
+			result.casualty_lines[id] = say(&"hurt", id, false).get("text", "")
+
+## A dead character's memorial line, from their line file.
+static func memorial(id: StringName) -> String:
+	return str(lines_of(id).get("memorial", ""))
 
 func _on_warning(id: StringName) -> void:
 	say(&"warning", id)
 
-func _on_struck(id: StringName, _cause: StringName) -> void:
-	say(&"strike", id)
+func _on_struck(id: StringName, before: Roster.Status) -> void:
+	say(&"strike", id, true, before)
 
 func _on_gate(who: Node3D, _gate: int) -> void:
 	if runner and who != runner.drone:

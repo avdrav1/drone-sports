@@ -75,5 +75,13 @@
    "I'll be off my feet a while.",
    "Grade's fine. I'm not, quite."
   ]
- }
+ },
+ "hurt": {
+  "active": [
+   "I set my own splint. Not my best work.",
+   "I'll be off the rescue rota a while.",
+   "Patched up. Try not to need me."
+  ]
+ },
+ "memorial": "Ozzie, medic. Waited in the cold for someone to come."
 }

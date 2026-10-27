@@ -75,5 +75,13 @@
    "Grade's fine. Site safety, not so much.",
    "Paperwork says injured. Paperwork's right."
   ]
- }
+ },
+ "hurt": {
+  "active": [
+   "Leg's in a cast. Site runs without me for a bit.",
+   "I'll be back on the site. Give me time.",
+   "Hurt, not done. Remember that."
+  ]
+ },
+ "memorial": "Bea, demolition foreman. Called the collapse, every time."
 }

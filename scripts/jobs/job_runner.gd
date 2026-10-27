@@ -9,6 +9,12 @@ enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 signal state_changed(state: State, previous: State)
 ## After Complete or Failed, once graded and paid.
 signal finished(result: JobResult)
+## A strike landed and the roster moved: `before` is the status it moved from.
+signal crew_struck(character: StringName, before: Roster.Status)
+## Launch held for a confirmation because injured crew are in the field.
+signal launch_confirm_needed(injured: Array[StringName])
+## The player backed out of a risky launch.
+signal launch_declined
 
 @export var job: Job
 @export var drone: Drone
@@ -17,8 +23,12 @@ signal finished(result: JobResult)
 @export var state_label: Label
 ## Start Briefing as soon as the scene is ready.
 @export var auto_begin := true
-## Pay out and move reputation when the job ends.
+## Pay out, move reputation, and hurt struck crew for good. Off for previews.
 @export var pays_out := true
+## Ask before launching with injured crew in the field.
+@export var confirm_risk := true
+## Where declining a risky launch goes. Empty stays put.
+@export_file("*.tscn") var back_scene := "res://scenes/debug_flight.tscn"
 @export var grade_scale: GradeScale = preload("res://data/jobs/grade_scale.tres")
 ## Shown over the job when it ends. Null shows nothing.
 @export var results_scene: PackedScene = preload("res://scenes/ui/results.tscn")
@@ -35,6 +45,9 @@ var result: JobResult
 var results_screen: Control
 ## Character id -> strikes this job, from the scene's HazardZones.
 var strikes := {}
+## Character id -> status after a strike this job, e.g. injured or dead.
+var casualties := {}
+var launch_dialog: LaunchDialog
 
 func _ready() -> void:
 	if auto_begin:
@@ -57,6 +70,7 @@ func begin() -> void:
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
 	_apply_weather()
+	_remove_dead_crew()
 	_arm_hazard_zones()
 	if camera_rig:
 		camera_rig.default_view = job.default_view
@@ -66,9 +80,47 @@ func begin() -> void:
 	_set_state(State.BRIEFING)
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
-func launch() -> void:
-	if state == State.BRIEFING:
-		_set_state(State.COUNTDOWN)
+## With injured crew in the field it asks first, unless `confirmed`.
+func launch(confirmed := false) -> void:
+	if state != State.BRIEFING:
+		return
+	var hurt := injured_in_field()
+	if confirm_risk and not confirmed and not hurt.is_empty():
+		_ask_launch(hurt)
+		return
+	_set_state(State.COUNTDOWN)
+
+## Back out of a risky launch, to `back_scene`.
+func decline_launch() -> void:
+	if state != State.BRIEFING:
+		return
+	launch_declined.emit()
+	if back_scene and is_inside_tree():
+		get_tree().change_scene_to_file.call_deferred(back_scene)
+
+## The job's crew in the field who are still alive.
+func crew_in_field() -> Array[StringName]:
+	var out: Array[StringName] = []
+	for id in job.crew_in_field if job else []:
+		if Roster.is_alive(id):
+			out.append(id)
+	return out
+
+func injured_in_field() -> Array[StringName]:
+	var out: Array[StringName] = []
+	for id in crew_in_field():
+		if Roster.status(id) == Roster.Status.INJURED:
+			out.append(id)
+	return out
+
+func _ask_launch(hurt: Array[StringName]) -> void:
+	launch_confirm_needed.emit(hurt)
+	if launch_dialog == null:
+		launch_dialog = LaunchDialog.new()
+		launch_dialog.confirmed.connect(launch.bind(true))
+		launch_dialog.canceled.connect(decline_launch)
+		add_child(launch_dialog)
+	launch_dialog.ask(hurt, job.tags.has(&"lethal"))
 
 func complete() -> void:
 	if state == State.LIVE:
@@ -85,6 +137,8 @@ func is_over() -> bool:
 	return state == State.COMPLETE or state == State.FAILED
 
 func _unhandled_input(event: InputEvent) -> void:
+	if launch_dialog and launch_dialog.visible:
+		return
 	if state == State.BRIEFING and event.is_action_pressed("ui_accept"):
 		launch()
 
@@ -113,6 +167,7 @@ func _finish() -> void:
 	result.completed = state == State.COMPLETE
 	result.fail_reason = fail_reason
 	result.strikes = strikes.duplicate()
+	result.casualties = casualties.duplicate()
 	var objs := objectives()
 	for o in objs:
 		result.objectives.append({"label": o.label if o.label else String(o.name), "score": clampf(o.score(), 0.0, 1.0), "weight": o.weight})
@@ -120,6 +175,7 @@ func _finish() -> void:
 	result.letter = grade_scale.letter(result.score) if result.completed else "F"
 	if pays_out:
 		Payout.settle(result, grade_scale)
+		Roster.job_done(casualties.keys())
 	finished.emit(result)
 	if results_scene and is_inside_tree():
 		get_tree().create_timer(results_delay, true, true).timeout.connect(_show_results)
@@ -145,15 +201,36 @@ func hazard_zones() -> Array[HazardZone]:
 		out.append(z)
 	return out
 
+## A dead character's zone and figure never spawn: they are taken out of the scene.
+func _remove_dead_crew() -> void:
+	var scope: Node = owner if owner else get_parent()
+	if scope == null:
+		return
+	for n in scope.find_children("*", "HazardZone", true, false) + scope.find_children("*", "CrewProp", true, false):
+		if Roster.character(n.character) and not Roster.is_alive(n.character):
+			n.get_parent().remove_child(n)
+			n.queue_free()
+
 func _arm_hazard_zones() -> void:
 	strikes.clear()
+	casualties.clear()
 	for z in hazard_zones():
 		z.runner = self
 		if not z.struck.is_connected(_on_struck):
 			z.struck.connect(_on_struck)
 
+## Count the strike; on a real run it injures, or kills on a job tagged lethal.
 func _on_struck(character: StringName, _cause: StringName) -> void:
 	strikes[character] = strikes.get(character, 0) + 1
+	var before := Roster.status(character)
+	if pays_out:
+		if job.tags.has(&"lethal"):
+			Roster.kill(character)
+		else:
+			Roster.injure(character)
+		if Roster.status(character) != before:
+			casualties[character] = Roster.status(character)
+	crew_struck.emit(character, before)
 
 ## Wind into the drone's sim, fog into the scene's WorldEnvironment (a copy, so the
 ## shared Environment resource is untouched). No weather: still air, scene fog as is.

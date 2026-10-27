@@ -75,5 +75,13 @@
    "Grade's fine. My insurance is not.",
    "Let's count what's broken. Including me."
   ]
- }
+ },
+ "hurt": {
+  "active": [
+   "Hand's wrapped. Shop's open, slowly.",
+   "I'll fix the drone. Who fixes me?",
+   "Two jobs off. Don't break anything."
+  ]
+ },
+ "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time."
 }

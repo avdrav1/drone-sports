@@ -1,6 +1,6 @@
 extends Control
 # Results after a job: every objective and its score, crew strikes, the grade,
-# pay, reputation change, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
+# pay, reputation change, who was hurt or killed, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
 
 signal retry_pressed
 signal continue_pressed
@@ -37,6 +37,8 @@ func show_result(r: JobResult) -> void:
 		row.text = line
 		row.add_theme_color_override("font_color", Color(1.0, 0.45, 0.35))
 		rows.add_child(row)
+	for id in r.casualties:
+		rows.add_child(casualty_row(r, id))
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
@@ -51,15 +53,31 @@ static func strike_lines(r: JobResult) -> Array[String]:
 
 ## A portrait beside "Name: line".
 static func bark_row(b: Dictionary) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "Bark"
 	var c: Character = Roster.character(b.id)
+	return _face_row("Bark", c, "%s: %s" % [c.name if c else String(b.id), b.text], false, Color.WHITE)
+
+## "Marlo injured, out for 2 jobs" with their line, or "Marlo died" with the
+## memorial line and a greyed portrait.
+static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
+	var c: Character = Roster.character(id)
+	var who := c.name if c else String(id)
+	var dead: bool = r.casualties[id] == Roster.Status.DEAD
+	var head := "%s died." % who if dead else "%s injured, out for %d jobs." % [who, Roster.INJURY_JOBS]
+	var line: String = r.casualty_lines.get(id, "")
+	var text := head + ("\n" + ("" if dead else who + ": ") + line if line else "")
+	return _face_row("Casualty", c, text, dead, Color(1.0, 0.45, 0.35))
+
+static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = row_name
 	var face := CharacterPortrait.new()
 	face.character = c
+	face.greyed = greyed
 	face.custom_minimum_size = Vector2(48, 48)
 	row.add_child(face)
 	var line := Label.new()
-	line.text = "%s: %s" % [c.name if c else String(b.id), b.text]
+	line.text = text
+	line.add_theme_color_override("font_color", color)
 	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(line)
 	return row

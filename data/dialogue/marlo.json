@@ -79,5 +79,13 @@
    "Grade's fine. My arm is not.",
    "We'll do better when I can stand."
   ]
- }
+ },
+ "hurt": {
+  "active": [
+   "Couple of weeks in a sling. I'll still talk your ear off.",
+   "Benched. Somebody else can stand by the gate for a while.",
+   "I'll live. Fly kinder next time."
+  ]
+ },
+ "memorial": "Marlo, spotter. Called every gate, even the last one."
 }

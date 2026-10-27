@@ -51,7 +51,7 @@ func _ready() -> void:
 ## A live job that lists this character: the only time a strike can land.
 func armed() -> bool:
 	return runner != null and runner.job != null and runner.state == JobRunner.State.LIVE \
-		and character in runner.job.crew_in_field
+		and character in runner.crew_in_field()
 
 func warning() -> bool:
 	return _warning_since >= 0.0
