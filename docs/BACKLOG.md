@@ -472,9 +472,9 @@ Done when a new player learns who they are and why they fly before the first job
   - Acceptance: On a new game the intro plays from its first beat; finishing or any key ends it, sets the `intro_seen` flag, and opens the job board. With the flag set, launching goes straight to the board. Every beat's backdrop loads and its camera focus exists; the beats run 45 to 90 s. The board shows START HERE on the race until a job is completed or a team joined, and Watch intro replays it.
   - Out of scope: Voice, music, the recruitment scene (11.2).
 
-- [ ] **11.2 Recruitment scene**
+- [x] **11.2 Recruitment scene**
   - Goal: Accepting Coach Rin's offer plays a short scene: she hands over a real drone, the bezel falls away, and the next job is the real thing.
-  - Context: Same cutscene player and beat data as 11.1. Plays once, on accepting the first team's offer, before returning to the board.
+  - Context: Same cutscene player and beat data as 11.1. Plays once, on accepting the first team's offer, before returning to the board. Teams carry a `joining_scene`; only Skyline Juniors has one. Five beats, 31 s (`data/story/recruited.tres`): Rin over the home game, the bezel gone and a real drone on the pad in free flight, the Act 2 card.
   - Acceptance: Accepting the Skyline Juniors offer plays the scene once; declining does not; any key skips; the board afterwards shows Act 2. Lines contain no franchise names.
   - Out of scope: Scenes for later teams.
 

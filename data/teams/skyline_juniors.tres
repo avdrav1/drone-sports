@@ -11,5 +11,6 @@ faction = &"league"
 job_types = Array[StringName]([&"race"])
 reputation_needed = 0
 needs_flag = &"scouted"
+joining_scene = "res://scenes/story/recruited.tscn"
 preset = ExtResource("2_preset")
 blurb = "Coach Rin's development squad. Real drones, real gates, training wheels on."

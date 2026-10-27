@@ -84,6 +84,9 @@ func test_offers_ask_on_the_board() -> bool:
 	await Sim.process_frames(1)
 	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"test_race"]
 	b.free()
+	await Sim.process_frames(1)
+	Sim.tree().unload_current_scene()  # the recruitment scene (Story 11.2)
+	await Sim.process_frames(1)
 	return ok
 
 func test_fly_opens_the_job_scene() -> bool:

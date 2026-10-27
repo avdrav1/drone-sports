@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/cutscene_player.gd" id="1_player"]
+[ext_resource type="Resource" path="res://data/story/recruited.tres" id="2_scene"]
+
+[node name="Recruited" type="Node3D"]
+script = ExtResource("1_player")
+cutscene = ExtResource("2_scene")

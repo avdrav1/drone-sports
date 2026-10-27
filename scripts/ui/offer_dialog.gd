@@ -1,7 +1,8 @@
 class_name OfferDialog
 extends ConfirmationDialog
 # A team's offer: who, what they do, and which assists joining takes away.
-# Accept joins; decline closes it for good. One offer per dialog; `show_next`
+# Accept joins, and plays the team's joining scene if it has one; decline
+# closes it for good. One offer per dialog; `show_next`
 # walks the pending ones.
 
 signal answered(team: Team, accepted: bool)
@@ -41,4 +42,8 @@ func _answer(accepted: bool) -> void:
 	else:
 		Career.decline(team.id)
 	answered.emit(team, accepted)
+	# Joining a team with a scene plays it; the board asks any other offers after.
+	if accepted and team.joining_scene != "" and is_inside_tree():
+		get_tree().change_scene_to_file.call_deferred(team.joining_scene)
+		return
 	show_next.call_deferred()

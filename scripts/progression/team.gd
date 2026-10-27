@@ -18,6 +18,8 @@ const FACTIONS: Array[StringName] = [&"league", &"city", &"salvage"]
 @export var needs_flag: StringName
 ## The assists the pilot flies with on this team.
 @export var preset: AssistStack
+## Cutscene played once on joining, e.g. the recruitment scene. Empty for none.
+@export_file("*.tscn") var joining_scene := ""
 ## One line for the offer and the job board.
 @export var blurb := ""
 
