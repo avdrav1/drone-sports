@@ -10,16 +10,7 @@
 [ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="8_time"]
 [ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="9_theme"]
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="90_world"]
-
-[sub_resource type="BoxShape3D" id="ground_shape"]
-size = Vector3(400, 1, 400)
-
-[sub_resource type="StandardMaterial3D" id="ground_mat"]
-albedo_color = Color(0.32, 0.36, 0.3, 1)
-
-[sub_resource type="BoxMesh" id="ground_mesh"]
-material = SubResource("ground_mat")
-size = Vector3(400, 1, 400)
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="91_desert"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
 size = Vector3(16, 8, 2)
@@ -65,14 +56,7 @@ size = Vector3(5, 0.1, 5)
 
 [node name="GoldenHour" parent="." instance=ExtResource("90_world")]
 
-[node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-
-[node name="Shape" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("ground_shape")
-
-[node name="Mesh" type="MeshInstance3D" parent="Ground"]
-mesh = SubResource("ground_mesh")
+[node name="Ground" parent="." instance=ExtResource("91_desert")]
 
 [node name="Wall" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -25)

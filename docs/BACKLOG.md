@@ -150,7 +150,7 @@ Done when every flying scene shares one golden-hour desert look: low warm sun, h
   - Acceptance: The debug scene and the sample job both instance the world scene and contain no other WorldEnvironment. The sun sits under 20 degrees above the horizon and casts shadows. Fog and glow are on. Both scenes load headless with no errors.
   - Out of scope: Time of day, weather.
 
-- [ ] **9.2 Desert terrain**
+- [x] **9.2 Desert terrain**
   - Goal: Sand ground with dune detail and a ring of rocky ridges fading into the haze.
   - Context: Generated from a seeded noise at load. The flight area stays flat so jobs and tests keep their geometry; ridges start outside it and have collision.
   - Acceptance: Inside a 150 m radius the ground is flat at y = 0. Ridge heights are identical for the same seed. Flying into a ridge is a contact. Both scenes load headless with no errors.

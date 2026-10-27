@@ -1,0 +1,24 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/desert_terrain.gd" id="1_terrain"]
+[ext_resource type="Shader" path="res://scenes/world/desert.gdshader" id="2_shader"]
+
+[sub_resource type="FastNoiseLite" id="detail"]
+seed = 3
+frequency = 0.05
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="detail_tex"]
+width = 512
+height = 512
+seamless = true
+generate_mipmaps = true
+noise = SubResource("detail")
+
+[sub_resource type="ShaderMaterial" id="sand"]
+shader = ExtResource("2_shader")
+shader_parameter/detail_noise = SubResource("detail_tex")
+
+[node name="Ground" type="StaticBody3D"]
+script = ExtResource("1_terrain")
+material = SubResource("sand")
