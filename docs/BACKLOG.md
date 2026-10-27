@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; 4, 5, and 7 can run in parallel after 3 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -207,6 +207,40 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
   - Context: The Last Starfighter beat. Text and a border only.
   - Acceptance: Bezel shows only in jobs tagged `act1`. Scout message fires once, on the first top-three, and sets a flag Epic 5 reads.
   - Out of scope: Cutscenes, voice.
+
+## Epic 10: Navigation (GPS and maps)
+
+Done when the player always knows where they are and where the job wants them: a GPS grid reference, a radar minimap, a full map screen, and a route line to the next objective. Navigation reads the world and draws UI. It never moves a drone and is not an assist (CLAUDE.md rules 1 and 2), and nothing is graded on it (rule 8). Do it after the Epic 3 playtest and before Epic 4, since delivery and hazard jobs lean on it more than the race does.
+
+- [ ] **10.1 Map data and GPS readout**
+  - Goal: A `MapData` resource per flying scene (area bounds, grid origin, grid cell size, named landmarks), a `MapMarker` node that any scene object can carry (kind, label, icon, visibility), and a GPS readout on the flight HUD: grid reference and signal strength next to the compass.
+  - Context: Data over code (rule 4). Jobs declare their own markers by placing `MapMarker` children on gates, drop points, and hazard zones, so the map holds no job-specific code (rule 3). A marker can be hidden from the map, so jobs like 4.3 can keep a target off it. Map data lives in `data/maps/`.
+  - Acceptance: The grid reference matches the drone's world position for a known point and changes cell at the cell boundary. Collecting markers returns every visible `MapMarker` in the scene with its kind and position, and none of the hidden ones. The debug scene, sample delivery, and test race each load a `MapData`.
+  - Out of scope: Real-world map data, latitude and longitude.
+
+- [ ] **10.2 Radar minimap**
+  - Goal: A round radar in a HUD corner, heading-up, showing the player, other drones, visible markers, and the next objective, over a terrain image of the area.
+  - Context: Drawn in `_draw` from marker positions, not rendered by a second camera, so it is cheap on the web build and is not a camera view (rule 8). The terrain image is baked once from `DesertTerrain.height_at` and cached like the terrain mesh. Markers beyond the radar range clamp to the rim, pointing their way. Matches the thin-line look from 9.5.
+  - Acceptance: A marker straight ahead of the drone draws straight up on the radar at its scaled distance, whatever the drone's yaw. A marker beyond range draws on the rim at the correct bearing. In the test race the radar shows the three opponents and lights the next gate.
+  - Out of scope: Fog of war, map zoom levels.
+
+- [ ] **10.3 Full map screen**
+  - Goal: The `toggle_map` action (M) opens a north-up chart of the whole area: terrain, grid, landmarks, markers, the player's track so far, and the job's route.
+  - Context: Same marker data and terrain image as 10.2. Opens as an overlay during Live without pausing the job, and from Briefing for route planning. Not the fleet command view: 6.2 has its own top-down camera.
+  - Acceptance: M toggles the map in the debug scene, the delivery job, and the race. A world point maps to the chart and back within one pixel. The job timer keeps running while the map is open. The player's track records only while Live.
+  - Out of scope: Placing waypoints on the map (6.2), fast travel.
+
+- [ ] **10.4 GPS route guidance**
+  - Goal: A route from the drone to the job's next objective, drawn as a dotted line on the radar and the map and as a faint ribbon in the world.
+  - Context: Jobs supply the route through a `RouteSource` on the scene: a race uses the course path the AI flies (3.3), a delivery routes straight to its next `ReachPoint`, and 6.1 waypoints use it later. How much guidance shows (full, next leg only, none) is a per-job display setting in the Job resource, not an assist, so it never touches the assist table.
+  - Acceptance: In the test race the route runs through the remaining gates in order and updates when a gate is passed. In the delivery job the route ends at the active drop point. A job set to no guidance draws no route anywhere.
+  - Out of scope: Pathfinding around obstacles.
+
+- [ ] **10.5 GPS jamming**
+  - Goal: A `JammingZone` that degrades GPS inside its radius: the signal readout drops, the grid reference drifts, the radar fuzzes, and the route line disappears when the signal is lost.
+  - Context: Waits for 4.1, since jamming is hazard-scene data. HUD only: the flight model and assists are untouched, and the drone flies identically with or without signal. Drift is seeded so runs reproduce.
+  - Acceptance: Signal strength is a function of distance to the zone edge. At zero signal the route is hidden and the radar shows no markers. Leaving the zone restores everything within a second. Drift is reproducible with a seed.
+  - Out of scope: GPS position hold as an assist (it would change the assist table in CLAUDE.md; decide separately), jamming that affects flight.
 
 ## Epic 4: Hazard jobs
 
