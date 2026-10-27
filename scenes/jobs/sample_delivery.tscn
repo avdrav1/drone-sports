@@ -9,12 +9,7 @@
 [ext_resource type="Script" path="res://scripts/jobs/objectives/avoid_contact.gd" id="7_avoid"]
 [ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="8_time"]
 [ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="9_theme"]
-
-[sub_resource type="Environment" id="env"]
-background_mode = 1
-background_color = Color(0.55, 0.68, 0.82, 1)
-ambient_light_source = 2
-ambient_light_color = Color(0.6, 0.6, 0.65, 1)
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="90_world"]
 
 [sub_resource type="BoxShape3D" id="ground_shape"]
 size = Vector3(400, 1, 400)
@@ -68,11 +63,7 @@ size = Vector3(5, 0.1, 5)
 
 [node name="SampleDelivery" type="Node3D"]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("env")
-
-[node name="Sun" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 20, 0)
+[node name="GoldenHour" parent="." instance=ExtResource("90_world")]
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)

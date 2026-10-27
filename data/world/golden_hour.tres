@@ -1,0 +1,59 @@
+[gd_resource type="Environment" load_steps=5 format=3]
+
+[ext_resource type="Shader" path="res://scenes/world/golden_sky.gdshader" id="1_sky"]
+
+[sub_resource type="FastNoiseLite" id="cloud_fbm"]
+noise_type = 3
+seed = 7
+frequency = 0.012
+fractal_octaves = 5
+fractal_gain = 0.55
+
+[sub_resource type="NoiseTexture2D" id="cloud_tex"]
+width = 512
+height = 512
+seamless = true
+noise = SubResource("cloud_fbm")
+
+[sub_resource type="ShaderMaterial" id="sky_mat"]
+shader = ExtResource("1_sky")
+shader_parameter/zenith_color = Color(0.2, 0.2, 0.42, 1)
+shader_parameter/horizon_color = Color(1, 0.5, 0.22, 1)
+shader_parameter/horizon_sharpness = 2.5
+shader_parameter/cloud_coverage = 0.5
+shader_parameter/cloud_shadow = Color(0.32, 0.22, 0.34, 1)
+shader_parameter/cloud_lit = Color(1, 0.6, 0.32, 1)
+shader_parameter/cloud_noise = SubResource("cloud_tex")
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_mat")
+
+[resource]
+background_mode = 2
+sky = SubResource("sky")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.6, 0.5, 1)
+ambient_light_sky_contribution = 0.6
+ambient_light_energy = 1.4
+reflected_light_source = 2
+tonemap_mode = 3
+tonemap_exposure = 1.05
+tonemap_white = 8.0
+ssao_enabled = true
+ssao_intensity = 1.5
+glow_enabled = true
+glow_intensity = 0.45
+glow_strength = 1.1
+glow_bloom = 0.02
+glow_blend_mode = 1
+glow_hdr_threshold = 1.2
+fog_enabled = true
+fog_light_color = Color(0.86, 0.55, 0.38, 1)
+fog_light_energy = 1.0
+fog_sun_scatter = 0.6
+fog_density = 0.002
+fog_aerial_perspective = 0.4
+fog_sky_affect = 0.05
+adjustment_enabled = true
+adjustment_contrast = 1.08
+adjustment_saturation = 1.12

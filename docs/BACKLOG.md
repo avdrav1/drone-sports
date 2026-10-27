@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential; 4, 5, and 7 can run in parallel after 3 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; 4, 5, and 7 can run in parallel after 3 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -139,6 +139,40 @@ Done when any scene can declare itself a job, run start to finish, produce a gra
   - Context: First real UI. One scene, one theme file in `scenes/ui/`.
   - Acceptance: Shows within 1 s of job end. Retry reloads the same job. Continue returns to the debug scene.
   - Out of scope: Leaderboards, replays.
+
+## Epic 9: Visual baseline (golden hour)
+
+Done when every flying scene shares one golden-hour desert look: low warm sun, haze, dunes and ridges, a readable drone, speed cues, and a thin-line flight HUD. Inspired by a sunset desert flight reference; no combat elements. Done before Epic 3 so the race is built and playtested in the new look. Visuals only: nothing here touches the flight model, assists, or grading.
+
+- [x] **9.1 Golden-hour sky and light**
+  - Goal: One shared `scenes/world/golden_hour.tscn` (WorldEnvironment + sun) used by the debug scene and every job scene.
+  - Context: Settings live in `data/world/golden_hour.tres` (an Environment). Physical or procedural sky with a low sun, filmic tonemapping, glow, and distance fog tinted toward the sun. Effects that GL Compatibility lacks degrade silently on web.
+  - Acceptance: The debug scene and the sample job both instance the world scene and contain no other WorldEnvironment. The sun sits under 20 degrees above the horizon and casts shadows. Fog and glow are on. Both scenes load headless with no errors.
+  - Out of scope: Time of day, weather.
+
+- [ ] **9.2 Desert terrain**
+  - Goal: Sand ground with dune detail and a ring of rocky ridges fading into the haze.
+  - Context: Generated from a seeded noise at load. The flight area stays flat so jobs and tests keep their geometry; ridges start outside it and have collision.
+  - Acceptance: Inside a 150 m radius the ground is flat at y = 0. Ridge heights are identical for the same seed. Flying into a ridge is a contact. Both scenes load headless with no errors.
+  - Out of scope: Streaming, editable terrain.
+
+- [ ] **9.3 Drone look**
+  - Goal: A dark carbon frame with arms, motors, and props that spin with motor thrust; motor glow that brightens with thrust; white front and red rear lights.
+  - Context: A visual node reads `Drone.motor_thrusts`. Mesh changes only; collision shape and mass are untouched.
+  - Acceptance: Prop spin rate and glow rise with motor thrust and are zero at zero thrust. The drone's collision shape and mass are unchanged. All flight tests still pass unchanged.
+  - Out of scope: Damage visuals, liveries.
+
+- [ ] **9.4 Speed cues**
+  - Goal: The chase and FPV field of view widens with speed; sand dust kicks up under the drone near the ground.
+  - Context: Camera stays a tool (CLAUDE.md rule 8). CPU particles so the web build matches.
+  - Acceptance: FOV at 20 m/s is wider than at rest and returns when the drone stops. Dust emits only within 3 m of the ground with thrust on.
+  - Out of scope: Motion blur, screen shake.
+
+- [ ] **9.5 Flight HUD**
+  - Goal: A thin-line HUD: compass heading tape at top, speed and altitude readouts at the sides, a job and objectives panel at top left, assist stack indicator, battery.
+  - Context: Reuse the theme from 2.5. Jobs feed the panel from `JobRunner`; the debug scene shows the preset instead. Story 3.4 builds the race HUD on top of this.
+  - Acceptance: Heading tape reads the drone's yaw (W at 270). Speed and altitude match the drone within rounding. The objectives panel lists the runner's objectives and state. The assist indicator lists the active assists.
+  - Out of scope: Minimap, race position.
 
 ## Epic 3: Race job
 
