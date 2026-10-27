@@ -362,9 +362,9 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: Each cast member has at least three lines per event. An injured character uses the injured variant. A dead character never speaks. A line does not repeat within one job unless it is the only one.
   - Out of scope: Voice, branching dialogue.
 
-- [ ] **7.4 Hazard zones and strikes**
+- [x] **7.4 Hazard zones and strikes**
   - Goal: Jobs declare `crew_in_field` and place a `HazardZone` per character. A strike fires on drone contact in the zone above a speed threshold, debris landing in the zone, or a rescue timer expiring. The HUD flashes the character's portrait 1 s before a strike can land.
-  - Context: Extends `Job` from 2.1. The warning is mandatory: no strike without a prior warning frame.
+  - Context: Extends `Job` from 2.1. The warning is mandatory: no strike without a prior warning frame. Zones are spheres. Each zone sees threats coming 1.5 s ahead (the drone's line at speed, debris on a ballistic path, or a job calling `threaten()`), and a strike lands only once its warning is at least 1 s old. A threat too sudden to warn for in time does not strike. `JobRunner` arms every zone in its scene on Briefing and counts strikes into `JobResult.strikes`; `CrewWarning` is the HUD. Injury and death are wired in 7.5.
   - Acceptance: Entering a zone at 10 m/s strikes; at 1 m/s it does not. The warning fires at least 1 s before any strike in a scripted test. A job with no `crew_in_field` can never strike. The results screen lists strikes per character.
   - Out of scope: Crew moving during a job.
 

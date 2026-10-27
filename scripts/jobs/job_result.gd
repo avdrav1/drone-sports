@@ -11,3 +11,5 @@ var letter := "F"
 var objectives: Array[Dictionary] = []
 var pay := 0
 var reputation_change := 0
+## Character id -> strikes landed on them this job.
+var strikes := {}

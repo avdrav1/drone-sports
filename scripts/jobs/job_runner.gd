@@ -33,6 +33,8 @@ var live_time := 0.0
 var fail_reason := ""
 var result: JobResult
 var results_screen: Control
+## Character id -> strikes this job, from the scene's HazardZones.
+var strikes := {}
 
 func _ready() -> void:
 	if auto_begin:
@@ -55,6 +57,7 @@ func begin() -> void:
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
 	_apply_weather()
+	_arm_hazard_zones()
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -109,6 +112,7 @@ func _finish() -> void:
 	result.job = job
 	result.completed = state == State.COMPLETE
 	result.fail_reason = fail_reason
+	result.strikes = strikes.duplicate()
 	var objs := objectives()
 	for o in objs:
 		result.objectives.append({"label": o.label if o.label else String(o.name), "score": clampf(o.score(), 0.0, 1.0), "weight": o.weight})
@@ -129,6 +133,27 @@ func _show_results() -> void:
 	var scene_root := owner if owner else get_tree().current_scene
 	results_screen.job_scene = scene_root.scene_file_path if scene_root else ""
 	results_screen.show_result(result)
+
+## Every HazardZone in the scene reports to this runner. Zones only strike on a
+## live job whose crew_in_field lists their character.
+func hazard_zones() -> Array[HazardZone]:
+	var out: Array[HazardZone] = []
+	var scope: Node = owner if owner else get_parent()
+	if scope == null:
+		return out
+	for z in scope.find_children("*", "HazardZone", true, false):
+		out.append(z)
+	return out
+
+func _arm_hazard_zones() -> void:
+	strikes.clear()
+	for z in hazard_zones():
+		z.runner = self
+		if not z.struck.is_connected(_on_struck):
+			z.struck.connect(_on_struck)
+
+func _on_struck(character: StringName, _cause: StringName) -> void:
+	strikes[character] = strikes.get(character, 0) + 1
 
 ## Wind into the drone's sim, fog into the scene's WorldEnvironment (a copy, so the
 ## shared Environment resource is untouched). No weather: still air, scene fog as is.
