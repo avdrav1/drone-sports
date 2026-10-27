@@ -8,6 +8,7 @@ script = ExtResource("1_job")
 id = &"inspection"
 title = "Relay tower inspection"
 client = "Meridian Grid"
+job_type = &"inspection"
 faction = &"city"
 required_assists = ExtResource("2_act2")
 time_limit = 120.0

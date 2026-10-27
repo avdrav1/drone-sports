@@ -8,6 +8,7 @@ script = ExtResource("1_job")
 id = &"sample_delivery"
 title = "Parcel to the pad"
 client = "Harbor Couriers"
+job_type = &"delivery"
 faction = &"city"
 required_assists = ExtResource("2_act1")
 time_limit = 60.0

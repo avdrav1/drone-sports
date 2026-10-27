@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Team" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/team.gd" id="1_team"]
+[ext_resource type="Resource" path="res://data/assists/act4.tres" id="2_preset"]
+
+[resource]
+script = ExtResource("1_team")
+id = &"halcyon_racing"
+name = "Halcyon Racing"
+faction = &"league"
+job_types = Array[StringName]([&"race"])
+reputation_needed = 60
+preset = ExtResource("2_preset")
+blurb = "A top-flight league team. They fly by hand and expect you to."

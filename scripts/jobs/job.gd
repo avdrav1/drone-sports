@@ -9,6 +9,8 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var title := ""
 ## Who is paying, as shown to the player.
 @export var client := ""
+## What kind of job, e.g. race or demolition. Teams take on job types (Epic 5).
+@export var job_type: StringName
 ## Faction whose reputation this job moves.
 @export var faction: StringName
 ## Assists the drone flies with. Expert mode still overrides it.

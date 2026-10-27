@@ -9,6 +9,7 @@ script = ExtResource("1_job")
 id = &"rescue"
 title = "Search and rescue: Ozzie"
 client = "City medical"
+job_type = &"rescue"
 faction = &"city"
 required_assists = ExtResource("2_act4")
 pay = 1000

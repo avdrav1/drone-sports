@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TeamList" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/team_list.gd" id="1_list"]
+[ext_resource type="Resource" path="res://data/teams/skyline_juniors.tres" id="t0"]
+[ext_resource type="Resource" path="res://data/teams/halcyon_racing.tres" id="t1"]
+[ext_resource type="Resource" path="res://data/teams/harbor_couriers.tres" id="t2"]
+[ext_resource type="Resource" path="res://data/teams/city_rescue_air.tres" id="t3"]
+[ext_resource type="Resource" path="res://data/teams/cannery_row.tres" id="t4"]
+[ext_resource type="Resource" path="res://data/teams/deadweight.tres" id="t5"]
+
+[resource]
+script = ExtResource("1_list")
+teams = Array[Resource]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4"), ExtResource("t5")])

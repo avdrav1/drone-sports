@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Team" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/team.gd" id="1_team"]
+[ext_resource type="Resource" path="res://data/assists/act3.tres" id="2_preset"]
+
+[resource]
+script = ExtResource("1_team")
+id = &"cannery_row"
+name = "Cannery Row Salvage"
+faction = &"salvage"
+job_types = Array[StringName]([&"demolition"])
+reputation_needed = 25
+preset = ExtResource("2_preset")
+blurb = "Bea's crew. Old buildings come down; they need eyes inside when they do."

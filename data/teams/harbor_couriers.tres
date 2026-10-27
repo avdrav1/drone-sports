@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Team" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/team.gd" id="1_team"]
+[ext_resource type="Resource" path="res://data/assists/act2.tres" id="2_preset"]
+
+[resource]
+script = ExtResource("1_team")
+id = &"harbor_couriers"
+name = "Harbor Couriers"
+faction = &"city"
+job_types = Array[StringName]([&"delivery", &"inspection"])
+reputation_needed = 10
+preset = ExtResource("2_preset")
+blurb = "Parcels, panels, and tower checks across the harbor district."

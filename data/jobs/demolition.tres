@@ -8,6 +8,7 @@ script = ExtResource("1_job")
 id = &"demolition"
 title = "Demolition run: old cannery"
 client = "Salvage crew"
+job_type = &"demolition"
 faction = &"salvage"
 required_assists = ExtResource("2_act3")
 time_limit = 60.0

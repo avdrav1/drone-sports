@@ -312,9 +312,9 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
 
 Done when the player moves from Act 1 to Act 4 by being recruited, each promotion swaps the assist preset, and the job board shows only what the current team offers.
 
-- [ ] **5.1 Teams and factions**
+- [x] **5.1 Teams and factions**
   - Goal: A `Team` resource (name, faction, job types, reputation needed, assist preset granted) and six teams across three factions in `data/teams/`.
-  - Context: Reputation per faction from 2.4.
+  - Context: Reputation per faction from 2.4. Jobs gained a `job_type` (race, delivery, inspection, demolition, rescue); "exists" means some job in `data/jobs/` has that type, so arena waits for an arena job. Factions are league, city, salvage, two teams each; `data/teams/teams.tres` lists them for exported builds. Skyline Juniors (league, Act 2, needs 0) is the team Coach Rin scouts for, for 5.2.
   - Acceptance: Data loads and validates. Each team references only job types that exist.
   - Out of scope: Rival teams.
 
