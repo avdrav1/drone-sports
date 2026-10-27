@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -477,3 +477,42 @@ Done when a new player learns who they are and why they fly before the first job
   - Context: Same cutscene player and beat data as 11.1. Plays once, on accepting the first team's offer, before returning to the board. Teams carry a `joining_scene`; only Skyline Juniors has one. Five beats, 31 s (`data/story/recruited.tres`): Rin over the home game, the bezel gone and a real drone on the pad in free flight, the Act 2 card.
   - Acceptance: Accepting the Skyline Juniors offer plays the scene once; declining does not; any key skips; the board afterwards shows Act 2. Lines contain no franchise names.
   - Out of scope: Scenes for later teams.
+
+
+## Epic 12: The city
+
+Done when the sandbox is a dense desert city core instead of four orange boxes: a street grid on the flat basin, towers that rise toward downtown, rooftops worth landing on, and a map that shows it all. This is the city the Lattice will hang over in Act 5. Scene content only: buildings are static collision like the ridges, nothing here touches the flight model, assists, or grading (rules 1, 2, 8), and the terrain, golden-hour look, and job scenes are unchanged.
+
+Decisions behind phase 1: the city is a core of about 280 m across inside the terrain's flat radius (150 m), so every building stands on y = 0 and the sandbox map bounds still fit. The street grid and buildings are generated from a seeded `CityLayout` resource (rule 4); landmarks are hand-placed later. Existing jobs keep their own maps for now.
+
+Later phases, not yet stories: districts and landmarks (bridge, stadium, construction block, container yard); free-flight content (rooftop rings, courses with saved best times); life (drone traffic lanes, billboards, crew cameos); the city as the hub that replaces job hotkeys (decide against 5.3 first); the Lattice on the skyline by act, hidden entirely when `lattice.tres` has `enabled` false (rule 9).
+
+- [ ] **12.1 City layout and plan**
+  - Goal: A `CityLayout` resource (`data/city/sandbox_city.tres`) and a pure `CityPlan` generator that turns it into streets and lots: footprint rectangle and height for every building.
+  - Context: No meshes yet; this is the data every later story builds from. Layout fields: seed, core radius, block size, street width, avenue every N blocks (wider), lot subdivision range, height range with a falloff from tall downtown to low edges, and reserved clearings (centre and radius) where no lot may stand. The sandbox layout reserves a spawn plaza of at least 30 m radius at the origin and a clearing for the jammer. Generated like the terrain: deterministic per parameter set and cached.
+  - Acceptance: The same layout gives an identical plan; a different seed gives a different one. No lot overlaps a street, another lot, or a reserved clearing. Every lot lies inside the core radius and inside the terrain's flat radius. Every height is within the layout's range, and the mean height of lots in the inner third of the core is greater than in the outer third.
+  - Out of scope: Meshes, collision, districts, landmarks.
+
+- [ ] **12.2 Buildings**
+  - Goal: A `City` node (`scenes/world/city.tscn`) that builds the plan into box towers with one collision box per lot and a window-grid shader.
+  - Context: Towers render through `MultiMeshInstance3D` (one per mesh kind, not one node per building) so the web build stays cheap. `scenes/world/city.gdshader` draws windows in world space so the grid stays square on any building size, with per-instance tint and a sprinkle of lit windows from instance custom data; roofs read differently from walls. Uses only features GL Compatibility has. Built meshes and shapes are cached per plan, like `DesertTerrain`. Before ticking, export the web build and fly it by hand: it should hold frame rate on the sandbox.
+  - Acceptance: Every lot has exactly one collision box matching its footprint and height. A ray cast down at a lot's centre hits at the lot's height. Flying the drone into a wall registers contact with `AvoidContact`. The city renders through at most 4 `MultiMeshInstance3D` nodes whose instance counts sum to the lot count. Building the same layout twice reuses the cache. The scene loads headless with no errors.
+  - Out of scope: Interiors, enterable buildings, damage, night lighting.
+
+- [ ] **12.3 Streets**
+  - Goal: Asphalt streets with lane markings and sidewalks, and street lights along them.
+  - Context: A flat road mesh just above y = 0 with its own shader for markings; avenues get a centre line. Street lights are a `MultiMeshInstance3D` placed along street edges at a fixed spacing, each with a thin collision shape, since they are real obstacles at low altitude. Lights are unlit for now; night is a separate system.
+  - Acceptance: Every street segment in the plan is covered by road mesh, and no road lies under a lot. Every street light stands on a sidewalk, outside every lot and reserved clearing, and has collision. Placement is identical for the same layout.
+  - Out of scope: Traffic, signals, crosswalk props, night lights.
+
+- [ ] **12.4 Rooftops**
+  - Goal: Rooftop clutter (AC units, water tanks, antennas) and a few rooftop landing pads, all seeded.
+  - Context: Clutter is drawn through `MultiMeshInstance3D`. Anything taller than 1 m gets a collision box; antennas count. Pads go on the flattest tall roofs, carry a `MapMarker` (kind `pad`), and are the first reason to land somewhere other than the plaza.
+  - Acceptance: Every clutter piece sits on its roof (base at the lot's height, inside its footprint, clear of pads). Every piece taller than 1 m has collision. The sandbox has at least three pads, each with a visible map marker. Same layout, same rooftops.
+  - Out of scope: Pad-landing objectives, rings, rooftop crew.
+
+- [ ] **12.5 Sandbox in the city**
+  - Goal: The sandbox flies in the city: the four boxes are gone, the drone spawns on the plaza, the jammer stands in its clearing, and the radar and map draw building footprints.
+  - Context: `scenes/debug_flight.tscn` instances `City` with the sandbox layout. `MapData` landmarks name the plaza and downtown. `TerrainImage` bakes footprints over the terrain so the radar and map show streets and blocks. The recruitment scene (`data/story/recruited.tres`) uses the sandbox as a backdrop and should now show the city; check its camera focus still exists. Sixteen tests load the sandbox; if one needs more room, grow the plaza in the layout rather than changing the test. `test_radar.gd` checks the boxes on the radar; replace that check with the rooftop pads.
+  - Acceptance: The sandbox has no `Boxes` node and contains a `City`. Under the Act 1 preset the drone hovers at spawn for 5 s with no contact. The jammer test passes unchanged. The radar shows the rooftop pads, and the map image is darker under building footprints than over open street. Every existing sandbox test passes. The job hotkeys still launch every job.
+  - Out of scope: Moving jobs into the city, the hub, landmarks.
