@@ -30,6 +30,12 @@ Done when Claude Code can open the repo, read CLAUDE.md, and run tests headless.
   - Acceptance: Scene loads headless without errors. Readout node updates every frame. The `toggle_readout` action (F1) toggles readout visibility. A test instantiates the scene and checks the readout node exists.
   - Out of scope: Art, lighting, menus.
 
+- [x] **0.4 Controls overlay**
+  - Goal: Players can find the keyboard controls: a controls panel that opens with the sandbox, and a one-line key hint during every job briefing.
+  - Context: Playtest feedback: the keys were only written in a code comment. The panel and hint read the InputMap, so a rebound key shows as bound. `toggle_help` (/ or ?) shows and hides the panel anywhere; any flying key closes it.
+  - Acceptance: Every project input action is listed with a key. The sandbox opens with the panel up; W hides it; ? brings it back and hides it again. Each of the five jobs shows the hint while in its briefing and hides it on launch, with the panel closed.
+  - Out of scope: Gamepad glyphs, rebinding, a settings menu.
+
 ## Epic 1: One flight model with a toggleable assist stack
 
 Done when a quadcopter flies with real physics in the debug scene and each assist can be switched on or off at runtime without changing the physics code.
