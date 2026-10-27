@@ -57,7 +57,7 @@ func _run() -> void:
 func _use_test_save() -> void:
 	SaveGame.path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
-	for autoload in ["Wallet", "Reputation"]:
+	for autoload in ["Wallet", "Reputation", "Roster"]:
 		var node := root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()

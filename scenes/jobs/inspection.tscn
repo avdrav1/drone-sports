@@ -288,7 +288,7 @@ shape = SubResource("zone_shape")
 [node name="Marlo" type="Node3D" parent="MarloZone"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
 script = ExtResource("22_crew")
-color = Color(0.95, 0.55, 0.25, 1)
+character = &"marlo"
 
 [node name="MapMarker" type="Node3D" parent="MarloZone"]
 script = ExtResource("15_marker")

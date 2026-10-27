@@ -344,9 +344,9 @@ Do not start until Epics 3 and 4 have been playtested and the fleet-genre questi
 
 Done when the player picks a pilot, the crew talks through every job, crew members can be hurt or killed on jobs that declare the risk, and the game changes when they are. Read `docs/CHARACTERS.md` before every story here.
 
-- [ ] **7.1 Character roster**
+- [x] **7.1 Character roster**
   - Goal: A `Character` resource (id, name, role, portrait, color set, line file, death consequence tag) and the six cast members from CHARACTERS.md in `data/characters/`. A `Roster` autoload tracks status: active, injured (with jobs remaining), dead.
-  - Context: Status lives in the save file from 2.4; extend it. Placeholder portraits are colored shapes drawn in code, readable at 64 px.
+  - Context: Status lives in the save file from 2.4; extend it. Placeholder portraits are colored shapes drawn in code, readable at 64 px (`CharacterPortrait`). The Roster loads `data/characters/cast.tres`, a list, so exported builds find every character. `Roster.job_done()` counts injured characters back toward active; 7.5 calls it when a job ends. Pip (the player) and Rin both have `can_be_harmed` off.
   - Acceptance: All six load and validate. `Roster.injure(id)` sets injured for 2 jobs; a second `injure` while injured sets dead; `Roster.kill(id)` sets dead; `rin` can never be injured or killed. Status survives save and load. No revive method exists.
   - Out of scope: Final art, voice.
 

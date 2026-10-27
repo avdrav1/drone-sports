@@ -2,13 +2,18 @@ class_name CrewProp
 extends Node3D
 # A crew member standing in the field: a simple figure, look only. No collision,
 # so the drone and debris pass through it; the HazardZone around it does the work.
+# Takes its color from the character's data when `character` is set.
 
+## Character id from data/characters/.
+@export var character: StringName
+## Used when no character is set.
 @export var color := Color(0.3, 0.6, 0.9)
 @export var height := 1.75
 
 func _ready() -> void:
+	var c: Character = Roster.character(character) if character else null
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
+	mat.albedo_color = c.colors[0] if c else color
 	var body := CapsuleMesh.new()
 	body.radius = 0.22
 	body.height = height * 0.78
