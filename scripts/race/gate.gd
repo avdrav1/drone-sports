@@ -35,7 +35,7 @@ func crossing(a: Vector3, b: Vector3) -> int:
 ## Lights the gate as the racer's next target.
 func set_highlight(on: bool) -> void:
 	if _glow:
-		_glow.emission_energy_multiplier = 3.0 if on else 0.6
+		_glow.emission_energy_multiplier = 1.8 if on else 0.6
 
 func _build() -> void:
 	var frame := StandardMaterial3D.new()

@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/jobs/objectives/best_split.gd" id="14_split"]
 [ext_resource type="Script" path="res://scripts/race/race.gd" id="15_race"]
 [ext_resource type="Script" path="res://scripts/race/ai_pilot.gd" id="16_ai"]
+[ext_resource type="Script" path="res://scripts/ui/race_hud.gd" id="17_racehud"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -82,6 +83,19 @@ mouse_filter = 2
 script = ExtResource("8_hud")
 drone = NodePath("../../Drone")
 runner = NodePath("../../JobRunner")
+
+[node name="Race" type="Control" parent="HUD" node_paths=PackedStringArray("course", "racer", "camera_rig")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("17_racehud")
+course = NodePath("../../Course")
+racer = NodePath("../../Drone")
+camera_rig = NodePath("../../CameraRig")
 
 [node name="State" type="Label" parent="HUD"]
 anchors_preset = 5

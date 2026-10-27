@@ -196,7 +196,7 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
   - Acceptance: Opponents finish within 10 percent of each other on the test course. They never leave course bounds. Lap times reproducible with a seed.
   - Out of scope: Rubber-banding, aggression.
 
-- [ ] **3.4 Race HUD**
+- [x] **3.4 Race HUD**
   - Goal: Position, lap, split delta, next gate marker, and the assist stack indicator.
   - Context: Reuse the theme from 2.5. The assist indicator stays in every job HUD from here on.
   - Acceptance: Next gate marker stays on screen or at the edge pointing to it. Split delta colors red or green against the best lap.
