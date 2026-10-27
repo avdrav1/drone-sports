@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Weather" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather.gd" id="1_weather"]
+[ext_resource type="Script" path="res://scripts/drone/wind.gd" id="2_wind"]
+
+[sub_resource type="Resource" id="gusts"]
+script = ExtResource("2_wind")
+base = Vector3(4, 0, -2)
+gust_amplitude = 5.0
+gust_period = 4.0
+
+[resource]
+script = ExtResource("1_weather")
+fog_density = 0.05
+wind = SubResource("gusts")

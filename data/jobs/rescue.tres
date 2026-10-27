@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act4.tres" id="2_act4"]
+[ext_resource type="Resource" path="res://data/weather/whiteout.tres" id="3_weather"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"rescue"
+title = "Search and rescue: Ozzie"
+client = "City medical"
+faction = &"city"
+required_assists = ExtResource("2_act4")
+pay = 1000
+countdown = 3.0
+default_view = 0
+weights = {
+"Rescue": 3.0,
+"UnderTime": 1.0
+}
+guidance = 2
+crew_in_field = Array[StringName]([&"ozzie"])
+weather = ExtResource("3_weather")

@@ -260,9 +260,9 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
   - Acceptance: Completable with Act 3 assists. Contact with debris is a strike on Bea. Exiting after the roof timeline fails the job. Grade A requires zero contact.
   - Out of scope: Dust, sound.
 
-- [ ] **4.3 Search and rescue**
+- [x] **4.3 Search and rescue**
   - Goal: Ozzie is somewhere in a fog-covered area with a beacon that pings louder as you close. Find him and hold over him for 3 s before the timer runs out. Wind sim is on (Act 4 preset). Default camera: chase.
-  - Context: The beacon is audio and a HUD arc, not a marker. Ozzie's position is seeded. Timer expiry is a strike on Ozzie.
+  - Context: The beacon is audio and a HUD arc, not a marker. Ozzie's position is seeded. Timer expiry is a strike on Ozzie. `RescueTimer` warns Ozzie's zone for the last 1.5 s, so the expiry strike follows a full warning, then fails the job. The job sets guidance to NONE and places no route or map marker for him. U launches it from the debug scene; weather is `data/weather/whiteout.tres`.
   - Acceptance: Beacon strength is a function of distance. Holding over Ozzie completes. Timer expiry strikes and fails. Reproducible with a seed.
   - Out of scope: Multiple targets.
 

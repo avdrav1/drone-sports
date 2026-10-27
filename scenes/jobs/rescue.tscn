@@ -1,0 +1,182 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="desert"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="input"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="rig"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="runner"]
+[ext_resource type="Resource" path="res://data/jobs/rescue.tres" id="job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/hold_station.gd" id="hold"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="time"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="theme"]
+[ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="hud"]
+[ext_resource type="Script" path="res://scripts/nav/gps.gd" id="gps"]
+[ext_resource type="Resource" path="res://data/maps/rescue_area.tres" id="map"]
+[ext_resource type="Script" path="res://scripts/ui/radar.gd" id="radar"]
+[ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="mapscreen"]
+[ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="zone"]
+[ext_resource type="Script" path="res://scripts/hazard/crew_prop.gd" id="crew"]
+[ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="warn"]
+[ext_resource type="Script" path="res://scripts/rescue/rescue_site.gd" id="site"]
+[ext_resource type="Script" path="res://scripts/rescue/beacon.gd" id="beacon"]
+[ext_resource type="Script" path="res://scripts/rescue/rescue_timer.gd" id="timer"]
+[ext_resource type="Script" path="res://scripts/ui/beacon_hud.gd" id="beaconhud"]
+
+[node name="Rescue" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("world")]
+
+[node name="Ground" parent="." instance=ExtResource("desert")]
+
+[node name="Ozzie" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
+script = ExtResource("site")
+terrain = NodePath("../Ground")
+
+[node name="Zone" type="Area3D" parent="Ozzie"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = ExtResource("zone")
+character = &"ozzie"
+radius = 2.0
+
+[node name="Prop" type="Node3D" parent="Ozzie"]
+script = ExtResource("crew")
+character = &"ozzie"
+
+[node name="Flare" type="OmniLight3D" parent="Ozzie"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+light_color = Color(1, 0.3, 0.2, 1)
+light_energy = 4.0
+omni_range = 12.0
+
+[node name="Beacon" type="Node3D" parent="Ozzie" node_paths=PackedStringArray("listener")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("beacon")
+listener = NodePath("../../Drone")
+
+[node name="HoldPoint" type="Marker3D" parent="Ozzie"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+
+[node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Drone"]
+script = ExtResource("input")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("rig")]
+target = NodePath("../Drone")
+chase_distance = 1.5
+chase_height = 0.45
+
+[node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("gps")
+map = ExtResource("map")
+drone = NodePath("../Drone")
+
+[node name="RescueTimer" type="Node" parent="." node_paths=PackedStringArray("runner", "zone")]
+script = ExtResource("timer")
+runner = NodePath("../JobRunner")
+zone = NodePath("../Ozzie/Zone")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("radar")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("hud")
+gps = NodePath("../../Gps")
+drone = NodePath("../../Drone")
+runner = NodePath("../../JobRunner")
+
+[node name="Beacon" type="Control" parent="HUD" node_paths=PackedStringArray("beacon", "timer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("beaconhud")
+beacon = NodePath("../../Ozzie/Beacon")
+timer = NodePath("../../RescueTimer")
+title = "OZZIE'S BEACON"
+
+[node name="Crew" type="Control" parent="HUD" node_paths=PackedStringArray("runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("warn")
+runner = NodePath("../../JobRunner")
+
+[node name="State" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 96.0
+offset_right = 350.0
+offset_bottom = 166.0
+grow_horizontal = 2
+horizontal_alignment = 1
+theme = ExtResource("theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+
+[node name="MapLayer" type="CanvasLayer" parent="."]
+layer = 12
+
+[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "runner")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("mapscreen")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+runner = NodePath("../../JobRunner")
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("runner")
+job = ExtResource("job")
+drone = NodePath("../Drone")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Rescue" type="Node" parent="JobRunner" node_paths=PackedStringArray("center")]
+script = ExtResource("hold")
+center = NodePath("../../Ozzie/HoldPoint")
+radius = 3.0
+hold_time = 3.0
+label = "Hold over Ozzie for 3 s"
+ends_job = true
+
+[node name="UnderTime" type="Node" parent="JobRunner"]
+script = ExtResource("time")
+target_time = 60.0
+label = "Under 60 s"
