@@ -4,7 +4,7 @@ extends Resource
 
 ## What their death changes; the systems that care read this (Story 7.6).
 const CONSEQUENCES: Array[StringName] = [&"", &"no_spotter", &"shop_closed", &"salvage_locked", &"city_locked"]
-const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", &"ears", &"tall"]
+const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", &"ears", &"tall", &"tuft", &"visor", &"fin"]
 
 @export var id: StringName
 @export var name := ""
@@ -25,6 +25,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var can_be_harmed := true
 ## E.g. pilot (a selectable avatar).
 @export var tags: Array[StringName] = []
+## A pilot avatar's one small stat tweak, applied once like a shop level
+## (Story 7.2). None for the crew, and for Pip, the baseline.
+@export var tweak: Upgrade
 
 ## Problems with this resource; empty when it is valid.
 func validate() -> Array[String]:
@@ -41,4 +44,6 @@ func validate() -> Array[String]:
 		out.append("%s: lines should be data/dialogue/%s.json" % [id, id])
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
+	if tweak and (not tweak.stat in Upgrade.STATS or tweak.step == 0.0):
+		out.append("%s: tweak must change one of %s" % [id, Upgrade.STATS])
 	return out

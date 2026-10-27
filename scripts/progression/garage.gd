@@ -1,6 +1,7 @@
 extends Node
 # Autoload "Garage": upgrade levels bought, kept in the save's "upgrades" section.
-# Buying spends the wallet; `apply` sets the player's drone stats from the levels.
+# Buying spends the wallet; `apply` sets the player's drone stats from the levels
+# and the chosen pilot's tweak (Story 7.2).
 
 signal bought(upgrade: Upgrade, level: int)
 
@@ -47,7 +48,8 @@ func buy(id: StringName) -> bool:
 	bought.emit(upgrade(id), levels[id])
 	return true
 
-## Set the drone's stats from its scene values plus every level bought. Once per drone.
+## Set the drone's stats from its scene values plus every level bought and the
+## chosen pilot's tweak. Once per drone.
 func apply(drone: Drone) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
@@ -55,6 +57,9 @@ func apply(drone: Drone) -> void:
 	for u in upgrades.upgrades:
 		if level(u.id) > 0:
 			drone.set(u.stat, drone.get(u.stat) + u.step * level(u.id))
+	var pilot := PlayerProfile.pilot()
+	if pilot and pilot.tweak:
+		drone.set(pilot.tweak.stat, drone.get(pilot.tweak.stat) + pilot.tweak.step)
 
 func save() -> void:
 	var out := {}

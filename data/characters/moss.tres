@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Character" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
+[ext_resource type="Script" path="res://scripts/progression/upgrade.gd" id="2_up"]
+
+[sub_resource type="Resource" id="tweak"]
+script = ExtResource("2_up")
+id = &"moss_tweak"
+name = "Clean lines"
+stat = &"drag"
+step = -0.015
+unit = "drag"
+
+[resource]
+script = ExtResource("1_char")
+id = &"moss"
+name = "Moss"
+role = "Glide pilot"
+shape = &"fin"
+colors = PackedColorArray(0.6, 0.62, 0.3, 1, 0.98, 0.85, 0.7, 1, 0.25, 0.55, 0.6, 1)
+lines = "res://data/dialogue/moss.json"
+death_consequence = &""
+can_be_harmed = false
+tags = Array[StringName]([&"pilot"])
+tweak = SubResource("tweak")

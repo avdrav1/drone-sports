@@ -1,0 +1,51 @@
+{
+ "briefing": {
+  "active": [
+   "Let the air do the work.",
+   "Quiet sticks today.",
+   "Find the line, keep the line."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Slipped right through.",
+   "Clean.",
+   "Barely touched the air."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Someone's down there. Drifting off.",
+   "Gently. Gently away.",
+   "Too close. Widening out."
+  ]
+ },
+ "strike": {
+  "active": [
+   "That wasn't clean at all.",
+   "I should have seen it. I'm sorry.",
+   "Please be okay."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Settled. Nice.",
+   "That felt like gliding.",
+   "Down soft."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Lost the line.",
+   "Fought the air and the air won.",
+   "Breathe. Find it again."
+  ]
+ },
+ "results": {
+  "active": [
+   "How clean was it?",
+   "Let's see the grade.",
+   "Smooth enough for me."
+  ]
+ }
+}

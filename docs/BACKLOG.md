@@ -380,9 +380,9 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: All six load and validate. `Roster.injure(id)` sets injured for 2 jobs; a second `injure` while injured sets dead; `Roster.kill(id)` sets dead; `rin` can never be injured or killed. Status survives save and load. No revive method exists.
   - Out of scope: Final art, voice.
 
-- [ ] **7.2 Pilot select**
+- [x] **7.2 Pilot select**
   - Goal: A screen to choose the pilot avatar before the first job, defaulting to Pip. The chosen portrait shows in every HUD.
-  - Context: Avatars are characters tagged `pilot`. Each has one small stat tweak (e.g. +5 percent battery) applied as an upgrade, never a flight model change.
+  - Context: Avatars are characters tagged `pilot`. Each has one small stat tweak (e.g. +5 percent battery) applied as an upgrade, never a flight model change. The avatars live in their own list, `data/characters/pilots.tres` (Pip first, then Tally, Fen, and Moss), so the crew Roster stays the six from CHARACTERS.md. The tweak is an `Upgrade` on `Character.tweak` that `Garage.apply` adds once per drone after the shop levels, so AI racers never get it: Tally +15 s flight time (5 percent), Fen +0.15 N thrust per motor, Moss -0.015 drag; Pip has none and is the baseline. The choice is `pilot` in the save's `profile` section (`PlayerProfile`). `PilotSelect` is a full-screen layer on the job board that opens on its own until a pilot is chosen, so a new game picks after the intro and before the first job, and reopens from the board's Pilot button. The race HUD shows the portrait beside the position; the flight HUD shows it top right, off in the race scene where the race HUD has that corner. The new pilots have line files but do not speak yet: barks still come from the Roster, so Pip keeps reacting to the finish.
   - Acceptance: Choice persists in the save. HUD from 3.4 shows the portrait. Changing pilot changes the tweaked stat and nothing else.
   - Out of scope: Unlockable pilots.
 

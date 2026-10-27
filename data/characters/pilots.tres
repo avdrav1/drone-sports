@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Cast" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/cast.gd" id="1_cast"]
+[ext_resource type="Resource" path="res://data/characters/pip.tres" id="2_pip"]
+[ext_resource type="Resource" path="res://data/characters/tally.tres" id="3_tally"]
+[ext_resource type="Resource" path="res://data/characters/fen.tres" id="4_fen"]
+[ext_resource type="Resource" path="res://data/characters/moss.tres" id="5_moss"]
+
+[resource]
+script = ExtResource("1_cast")
+characters = Array[Resource]([ExtResource("2_pip"), ExtResource("3_tally"), ExtResource("4_fen"), ExtResource("5_moss")])

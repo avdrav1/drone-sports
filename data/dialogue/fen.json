@@ -1,0 +1,51 @@
+{
+ "briefing": {
+  "active": [
+   "Let's make this quick.",
+   "Hands on the sticks. Go time.",
+   "I only know one speed."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Gone!",
+   "Next, next, next.",
+   "Too easy."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Whoa, braking!",
+   "People ahead! Off the gas!",
+   "Okay, okay, backing off."
+  ]
+ },
+ "strike": {
+  "active": [
+   "No. I was going way too fast.",
+   "That's my fault. All of it.",
+   "Is everyone okay? Talk to me."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Done already?",
+   "Fastest one yet, right?",
+   "Told you. Quick."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Overcooked it.",
+   "Came in hot. Too hot.",
+   "Fine. Faster this time. Smarter."
+  ]
+ },
+ "results": {
+  "active": [
+   "What was the time?",
+   "Show me the splits.",
+   "I can shave more off that."
+  ]
+ }
+}

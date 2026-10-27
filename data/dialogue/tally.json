@@ -1,0 +1,51 @@
+{
+ "briefing": {
+  "active": [
+   "Plenty in the tank. Let's not waste it.",
+   "Smooth is fast. Smooth is also long.",
+   "I'll pace it. You'll see."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Through, and still sipping.",
+   "Nice and easy.",
+   "One down, lots of charge left."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Easing off. Someone's there.",
+   "Slow down, slow down.",
+   "Not worth it. Pulling wide."
+  ]
+ },
+ "strike": {
+  "active": [
+   "Oh no. I wasn't gentle enough.",
+   "That's on me. I'm sorry.",
+   "Someone tell me they're alright."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Done, with juice to spare.",
+   "Landed. Battery's barely sweating.",
+   "That's how you go the distance."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Too much, too soon.",
+   "I rushed it. I never rush it.",
+   "Okay. Pace. Again."
+  ]
+ },
+ "results": {
+  "active": [
+   "How long did I stay up?",
+   "Numbers, please. The long ones.",
+   "Not flashy. Just steady."
+  ]
+ }
+}

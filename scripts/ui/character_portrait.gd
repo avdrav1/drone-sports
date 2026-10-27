@@ -32,6 +32,9 @@ func _draw() -> void:
 	if character.shape == &"square":
 		# Goggles strap across the eyes.
 		draw_rect(Rect2(center - Vector2(r * 1.08, r * 0.38), Vector2(r * 2.16, r * 0.46)), detail)
+	elif character.shape == &"visor":
+		# Racing visor pushed up on the forehead.
+		draw_rect(Rect2(center - Vector2(r * 0.95, r * 0.82), Vector2(r * 1.9, r * 0.32)), detail)
 	for side in [-1.0, 1.0]:
 		var eye := center + Vector2(side * r * 0.4, -r * 0.15)
 		draw_circle(eye, r * 0.26, Color.WHITE)
@@ -51,6 +54,11 @@ func _draw_feature(center: Vector2, r: float, body: Color, accent: Color, detail
 				draw_circle(center + Vector2(side * r * 0.75, -r * 0.8), r * 0.2, accent)
 		&"tall":
 			draw_rect(Rect2(center - Vector2(r * 0.55, r * 1.55), Vector2(r * 1.1, r * 0.7)), detail)
+		&"tuft":
+			for x in [-0.3, 0.0, 0.3]:
+				draw_circle(center + Vector2(r * x, -r * (1.0 - absf(x) * 0.4)), r * 0.24, detail)
+		&"fin":
+			draw_colored_polygon(PackedVector2Array([center + Vector2(-r * 0.45, -r * 0.7), center + Vector2(r * 0.1, -r * 1.5), center + Vector2(r * 0.5, -r * 0.7)]), detail)
 
 func _tone(col: Color) -> Color:
 	if not greyed:

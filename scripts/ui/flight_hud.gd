@@ -2,7 +2,7 @@ class_name FlightHud
 extends Control
 # Thin-line flight HUD: compass tape at top, speed and altitude at the sides,
 # job panel at top left, assists at bottom left, battery at bottom right,
-# GPS fix above the battery.
+# GPS fix above the battery, the pilot's portrait at top right (Story 7.2).
 # Reads the drone and an optional JobRunner; draws everything in _draw.
 # Heading: 0 is north (-Z), 90 east (+X), 270 west.
 
@@ -15,6 +15,8 @@ extends Control
 @export var title := ""
 ## Panel subtitle when there is no runner, e.g. the assist preset.
 var subtitle := ""
+## Off where another HUD shows the pilot in that corner (the race HUD).
+@export var show_pilot := true
 
 const LINE := Color(1, 1, 1, 0.9)
 const DIM := Color(1, 1, 1, 0.35)
@@ -27,11 +29,20 @@ const ASSIST_NAMES := {
 const TAPE_SPAN := 120.0
 
 var font: Font
+## The chosen pilot avatar's face.
+var pilot_face: CharacterPortrait
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	font = get_theme_default_font()
+	pilot_face = CharacterPortrait.new()
+	pilot_face.name = "Pilot"
+	pilot_face.character = PlayerProfile.pilot()
+	pilot_face.size = Vector2(56, 56)
+	pilot_face.mouse_filter = MOUSE_FILTER_IGNORE
+	pilot_face.visible = show_pilot
+	add_child(pilot_face)
 
 func _process(_delta: float) -> void:
 	queue_redraw()
@@ -85,6 +96,10 @@ func _draw() -> void:
 	_draw_battery(Vector2(s.x - 28.0, s.y - 34.0))
 	if gps:
 		_draw_gps(Vector2(s.x - 28.0, s.y - 76.0))
+	if pilot_face.visible:
+		pilot_face.position = Vector2(s.x - 28.0 - pilot_face.size.x, 22.0)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 46.0), "PILOT", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 190)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 66.0), pilot_face.character.name.to_upper(), 17, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 190)
 
 func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)

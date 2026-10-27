@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Character" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
+[ext_resource type="Script" path="res://scripts/progression/upgrade.gd" id="2_up"]
+
+[sub_resource type="Resource" id="tweak"]
+script = ExtResource("2_up")
+id = &"tally_tweak"
+name = "Easy on the cells"
+stat = &"battery_flight_time"
+step = 15.0
+unit = "s flight time"
+
+[resource]
+script = ExtResource("1_char")
+id = &"tally"
+name = "Tally"
+role = "Long-haul pilot"
+shape = &"tuft"
+colors = PackedColorArray(0.45, 0.82, 0.6, 1, 0.95, 0.93, 0.82, 1, 0.2, 0.32, 0.3, 1)
+lines = "res://data/dialogue/tally.json"
+death_consequence = &""
+can_be_harmed = false
+tags = Array[StringName]([&"pilot"])
+tweak = SubResource("tweak")

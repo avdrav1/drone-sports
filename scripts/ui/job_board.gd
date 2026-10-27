@@ -3,7 +3,7 @@ extends Control
 # The hub: wallet, reputation, and team in the header; every job with client,
 # pay, and the assists it flies with; Fly on the ones the pilot's team takes,
 # and who unlocks the rest; the crew and their status. Offers ask here too,
-# and the shop opens from here.
+# and the shop and pilot select open from here. A new game picks a pilot first.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -15,6 +15,7 @@ const HURT := Color(1.0, 0.45, 0.35)
 var jobs: JobList
 var offer_dialog: OfferDialog
 var shop: ShopDialog
+var pilot_select: PilotSelect
 ## Job id -> its row, rebuilt on every refresh.
 var job_rows := {}
 ## Character id -> its row.
@@ -27,6 +28,7 @@ var _money: Label
 var _jobs_box: VBoxContainer
 var _crew_box: VBoxContainer
 var _footer: HBoxContainer
+var _pilot_button: Button
 
 func _ready() -> void:
 	jobs = load(JOBS)
@@ -39,6 +41,13 @@ func _ready() -> void:
 	shop = ShopDialog.new()
 	shop.purchased.connect(refresh)
 	add_child(shop)
+	pilot_select = PilotSelect.new()
+	pilot_select.name = "PilotSelect"
+	pilot_select.visible = false
+	pilot_select.chosen.connect(func(_id): refresh())
+	add_child(pilot_select)
+	if not PlayerProfile.has_pilot():
+		pilot_select.open()
 	Career.check_offers()
 	offer_dialog.show_next()
 
@@ -57,6 +66,7 @@ static func preset_label(job: Job) -> String:
 ## A job's row: [title, details, Fly button or lock text].
 func refresh() -> void:
 	_header.text = Career.label()
+	_pilot_button.text = "Pilot: %s" % PlayerProfile.pilot().name
 	_money.text = money_text()
 	for c in _jobs_box.get_children():
 		c.free()
@@ -239,6 +249,10 @@ func _build() -> void:
 	shop_button.text = "Shop"
 	shop_button.pressed.connect(func(): shop.open())
 	_footer.add_child(shop_button)
+	_pilot_button = Button.new()
+	_pilot_button.name = "Pilot"
+	_pilot_button.pressed.connect(func(): pilot_select.open())
+	_footer.add_child(_pilot_button)
 	var intro := Button.new()
 	intro.name = "WatchIntro"
 	intro.text = "Watch intro"

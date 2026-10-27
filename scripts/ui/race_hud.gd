@@ -2,7 +2,8 @@ class_name RaceHud
 extends Control
 # Race overlay on top of the flight HUD: position, lap, split delta against the
 # best lap, and a marker on the next gate (at the screen edge, pointing, when off screen).
-# Lights the player's next gate. Reads the course; never changes it.
+# Lights the player's next gate. Reads the course; never changes it. The chosen
+# pilot's portrait sits beside the position (Story 7.2).
 
 @export var course: Course
 ## The player's racer, usually their Drone.
@@ -25,11 +26,19 @@ var split_delta := NAN
 var _split_age := 0.0
 var _lit_gate := -1
 var font: Font
+## The chosen pilot avatar's face.
+var pilot_face: CharacterPortrait
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	font = get_theme_default_font()
+	pilot_face = CharacterPortrait.new()
+	pilot_face.name = "Pilot"
+	pilot_face.character = PlayerProfile.pilot()
+	pilot_face.size = Vector2(64, 64)
+	pilot_face.mouse_filter = MOUSE_FILTER_IGNORE
+	add_child(pilot_face)
 	if course:
 		course.gate_passed.connect(_on_gate_passed)
 
@@ -98,6 +107,8 @@ func _draw() -> void:
 		return
 	var s := size
 	var right := s.x - 28.0
+	pilot_face.position = Vector2(right - 190.0, 34.0)
+	_text(Vector2(right - 222.0, 116), pilot_face.character.name.to_upper(), 13, LINE, HORIZONTAL_ALIGNMENT_CENTER, 128)
 	_text(Vector2(right - 200, 40), "POSITION", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	_text(Vector2(right - 200, 74), position_text(), 32, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	_text(Vector2(right - 200, 100), "LAP", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)

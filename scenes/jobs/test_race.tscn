@@ -125,6 +125,7 @@ script = ExtResource("8_hud")
 gps = NodePath("../../Gps")
 drone = NodePath("../../Drone")
 runner = NodePath("../../JobRunner")
+show_pilot = false
 
 [node name="Race" type="Control" parent="HUD" node_paths=PackedStringArray("course", "racer", "camera_rig")]
 layout_mode = 3
