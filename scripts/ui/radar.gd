@@ -98,18 +98,26 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([c + Vector2(0, -8), c + Vector2(6, 6), c + Vector2(0, 3), c + Vector2(-6, 6)]), ACCENT)
 
 func _blip(at: Vector2, m: MapMarker, lit: bool, on_rim: bool) -> void:
-	var col := DRONE if m.kind == &"drone" else (ACCENT if lit or m.kind == &"drop" else LINE)
+	var col := marker_color(m)
 	if on_rim:
 		col.a *= 0.6
 	var r := 6.0 if lit else 4.0
-	match m.icon:
-		&"circle":
-			draw_circle(at, r, col)
-		&"square":
-			draw_rect(Rect2(at - Vector2.ONE * r, Vector2.ONE * r * 2.0), col)
-		&"triangle":
-			draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, r), at + Vector2(-r, r)]), col)
-		_:
-			draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, 0), at + Vector2(0, r), at + Vector2(-r, 0)]), col)
+	draw_icon(self, at, m.icon, r, col)
 	if lit:
 		draw_arc(at, r + 4.0, 0, TAU, 16, col, 1.5, true)
+
+## Drones red, lit markers and drop points amber, the rest white. Shared with the map screen.
+static func marker_color(m: MapMarker) -> Color:
+	return DRONE if m.kind == &"drone" else (ACCENT if m.highlighted or m.kind == &"drop" else LINE)
+
+## A marker icon of radius r, shared with the map screen.
+static func draw_icon(ci: CanvasItem, at: Vector2, icon: StringName, r: float, col: Color) -> void:
+	match icon:
+		&"circle":
+			ci.draw_circle(at, r, col)
+		&"square":
+			ci.draw_rect(Rect2(at - Vector2.ONE * r, Vector2.ONE * r * 2.0), col)
+		&"triangle":
+			ci.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, r), at + Vector2(-r, r)]), col)
+		_:
+			ci.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r, 0), at + Vector2(0, r), at + Vector2(-r, 0)]), col)

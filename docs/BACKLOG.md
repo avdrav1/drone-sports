@@ -224,9 +224,9 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: A marker straight ahead of the drone draws straight up on the radar at its scaled distance, whatever the drone's yaw. A marker beyond range draws on the rim at the correct bearing. In the test race the radar shows the three opponents and lights the next gate.
   - Out of scope: Fog of war, map zoom levels.
 
-- [ ] **10.3 Full map screen**
+- [x] **10.3 Full map screen**
   - Goal: The `toggle_map` action (M) opens a north-up chart of the whole area: terrain, grid, landmarks, markers, the player's track so far, and the job's route.
-  - Context: Same marker data and terrain image as 10.2. Opens as an overlay during Live without pausing the job, and from Briefing for route planning. Not the fleet command view: 6.2 has its own top-down camera.
+  - Context: Same marker data and terrain image as 10.2. Opens as an overlay during Live without pausing the job, and from Briefing for route planning. Not the fleet command view: 6.2 has its own top-down camera. The map sits on its own CanvasLayer above the HUD and the Act 1 bezel. The route line arrives with 10.4.
   - Acceptance: M toggles the map in the debug scene, the delivery job, and the race. A world point maps to the chart and back within one pixel. The job timer keeps running while the map is open. The player's track records only while Live.
   - Out of scope: Placing waypoints on the map (6.2), fast travel.
 

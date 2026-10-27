@@ -22,6 +22,7 @@
 [ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
 [ext_resource type="Resource" path="res://data/maps/test_loop.tres" id="81_map"]
 [ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
+[ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -133,6 +134,23 @@ theme = ExtResource("9_theme")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 horizontal_alignment = 1
+
+[node name="MapLayer" type="CanvasLayer" parent="."]
+layer = 12
+
+[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "runner")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("84_map")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+runner = NodePath("../../JobRunner")
 
 [node name="Framing" type="CanvasLayer" parent="."]
 layer = 11
