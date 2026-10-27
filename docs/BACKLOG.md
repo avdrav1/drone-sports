@@ -36,6 +36,12 @@ Done when Claude Code can open the repo, read CLAUDE.md, and run tests headless.
   - Acceptance: Every project input action is listed with a key. The sandbox opens with the panel up; W hides it; ? brings it back and hides it again. Each of the five jobs shows the hint while in its briefing and hides it on launch, with the panel closed.
   - Out of scope: Gamepad glyphs, rebinding, a settings menu.
 
+- [x] **0.5 Leaving and starting jobs**
+  - Goal: Players can tell how to start a job from the sandbox and how to get back out of one.
+  - Context: Playtest question. The sandbox is now titled "Free flight" with the job keys in its subtitle; the controls panel groups "In a job" (Enter launch, Esc leave) and "Start a job". Esc in a job goes to the runner's `back_scene`, the sandbox until 5.3 retargets it to the job board.
+  - Acceptance: Esc in a briefing leaves at once. Esc in countdown or flight pauses and asks "Leave job?" with "Keep flying" focused; keeping resumes, leaving fails the job (reason "left", no results screen) and goes back. The sandbox HUD reads "Free flight" and "J K L H U start a job", and the job hint line includes Esc.
+  - Out of scope: The job board (5.3), a pause menu.
+
 ## Epic 1: One flight model with a toggleable assist stack
 
 Done when a quadcopter flies with real physics in the debug scene and each assist can be switched on or off at runtime without changing the physics code.

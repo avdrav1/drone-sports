@@ -15,6 +15,8 @@ signal crew_struck(character: StringName, before: Roster.Status)
 signal launch_confirm_needed(injured: Array[StringName])
 ## The player backed out of a risky launch.
 signal launch_declined
+## The player left the job (Esc) for `back_scene`.
+signal job_left
 
 @export var job: Job
 @export var drone: Drone
@@ -27,7 +29,7 @@ signal launch_declined
 @export var pays_out := true
 ## Ask before launching with injured crew in the field.
 @export var confirm_risk := true
-## Where declining a risky launch goes. Empty stays put.
+## Where backing out of a launch or leaving the job goes. Empty stays put.
 @export_file("*.tscn") var back_scene := "res://scenes/debug_flight.tscn"
 @export var grade_scale: GradeScale = preload("res://data/jobs/grade_scale.tres")
 ## Shown over the job when it ends. Null shows nothing.
@@ -48,6 +50,8 @@ var strikes := {}
 ## Character id -> status after a strike this job, e.g. injured or dead.
 var casualties := {}
 var launch_dialog: LaunchDialog
+## Asks before leaving a job in flight.
+var leave_dialog: ConfirmationDialog
 
 func _ready() -> void:
 	if auto_begin:
@@ -122,6 +126,41 @@ func _ask_launch(hurt: Array[StringName]) -> void:
 		add_child(launch_dialog)
 	launch_dialog.ask(hurt, job.tags.has(&"lethal"))
 
+## Esc. In the briefing it leaves at once; in flight it asks first, with the
+## game paused, because leaving then fails the job.
+func request_leave() -> void:
+	if state == State.BRIEFING:
+		leave()
+	elif state in [State.COUNTDOWN, State.LIVE]:
+		if leave_dialog == null:
+			leave_dialog = ConfirmationDialog.new()
+			leave_dialog.title = "Leave job?"
+			leave_dialog.dialog_text = "Leaving now counts as a failed job: no pay."
+			leave_dialog.ok_button_text = "Leave"
+			leave_dialog.cancel_button_text = "Keep flying"
+			leave_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+			leave_dialog.confirmed.connect(func(): _unpause(); leave())
+			leave_dialog.canceled.connect(_unpause)
+			add_child(leave_dialog)
+		get_tree().paused = true
+		leave_dialog.popup_centered()
+		leave_dialog.get_cancel_button().grab_focus()
+
+## Go to `back_scene`. A job in flight fails first, without the results screen.
+func leave() -> void:
+	if state in [State.COUNTDOWN, State.LIVE]:
+		results_scene = null
+		fail("left")
+	elif state != State.BRIEFING:
+		return
+	job_left.emit()
+	if back_scene and is_inside_tree():
+		get_tree().change_scene_to_file.call_deferred(back_scene)
+
+func _unpause() -> void:
+	if is_inside_tree():
+		get_tree().paused = false
+
 func complete() -> void:
 	if state == State.LIVE:
 		_set_state(State.COMPLETE)
@@ -137,10 +176,12 @@ func is_over() -> bool:
 	return state == State.COMPLETE or state == State.FAILED
 
 func _unhandled_input(event: InputEvent) -> void:
-	if launch_dialog and launch_dialog.visible:
+	if (launch_dialog and launch_dialog.visible) or (leave_dialog and leave_dialog.visible):
 		return
 	if state == State.BRIEFING and event.is_action_pressed("ui_accept"):
 		launch()
+	elif event.is_action_pressed("ui_cancel"):
+		request_leave()
 
 func _physics_process(delta: float) -> void:
 	state_time += delta

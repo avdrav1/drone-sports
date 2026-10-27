@@ -15,14 +15,17 @@ const GROUPS := [
 	["VIEW AND TOOLS", [
 		[[&"cycle_camera"], "Camera view"],
 		[[&"toggle_map"], "Full map"],
-		[[&"reset_drone"], "Reset the drone (sandbox)"],
+		[[&"reset_drone"], "Reset the drone (free flight)"],
 		[[&"toggle_help"], "Show or hide these controls"],
 		[[&"toggle_readout"], "Debug readout"],
-		[[&"cycle_preset"], "Cycle act assists (sandbox)"],
+		[[&"cycle_preset"], "Cycle act assists (free flight)"],
 	]],
-	["JOBS", [
+	["IN A JOB", [
 		[[&"ui_accept"], "Launch from the briefing"],
-		[[&"start_sample_job"], "Delivery (from the sandbox)"],
+		[[&"ui_cancel"], "Leave the job"],
+	]],
+	["START A JOB (FROM FREE FLIGHT)", [
+		[[&"start_sample_job"], "Delivery"],
 		[[&"start_race_job"], "Race"],
 		[[&"start_inspection_job"], "Tower inspection"],
 		[[&"start_demolition_job"], "Demolition run"],
@@ -32,7 +35,7 @@ const GROUPS := [
 ## Pressing any of these hides the panel.
 const FLY_ACTIONS: Array[StringName] = [&"pitch_forward", &"pitch_back", &"roll_left", &"roll_right",
 	&"throttle_up", &"throttle_down", &"yaw_left", &"yaw_right"]
-const ARROWS := {"Up": "↑", "Down": "↓", "Left": "←", "Right": "→", "Slash": "?"}
+const ARROWS := {"Up": "↑", "Down": "↓", "Left": "←", "Right": "→", "Slash": "?", "Escape": "Esc"}
 const KEY := Color(1.0, 0.76, 0.25)
 const HEAD := Color(0.35, 0.8, 0.95)
 const ROW_SIZE := 15
@@ -64,6 +67,13 @@ static func key_text(action: StringName) -> String:
 static func keys_text(actions: Array) -> String:
 	return " / ".join(actions.map(func(a): return key_text(a)))
 
+## The job keys, e.g. "J K L H U".
+static func job_keys() -> String:
+	var out: Array[String] = []
+	for row in GROUPS[-1][1]:
+		out.append(key_text(row[0][0]))
+	return " ".join(out)
+
 ## Every action the panel lists.
 static func listed_actions() -> Array[StringName]:
 	var out: Array[StringName] = []
@@ -72,12 +82,12 @@ static func listed_actions() -> Array[StringName]:
 			out.append_array(row[0])
 	return out
 
-## One line for a job briefing: the flying keys, camera, map, launch, and help.
+## One line for a job briefing: the flying keys, camera, map, leaving, and help.
 static func hint_line() -> String:
-	return "%s%s%s%s move   ·   %s height   ·   %s turn   ·   %s camera   ·   %s map   ·   %s all keys" % [
+	return "%s%s%s%s move   ·   %s height   ·   %s turn   ·   %s camera   ·   %s map   ·   %s leave   ·   %s all keys" % [
 		key_text(&"pitch_forward"), key_text(&"pitch_back"), key_text(&"roll_left"), key_text(&"roll_right"),
 		keys_text([&"throttle_up", &"throttle_down"]), keys_text([&"yaw_left", &"yaw_right"]),
-		key_text(&"cycle_camera"), key_text(&"toggle_map"), key_text(&"toggle_help")]
+		key_text(&"cycle_camera"), key_text(&"toggle_map"), key_text(&"ui_cancel"), key_text(&"toggle_help")]
 
 func _build() -> void:
 	var box := VBoxContainer.new()
