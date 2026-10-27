@@ -33,7 +33,8 @@ git -C "$OUT" -c user.name="$(git config user.name)" -c user.email="$(git config
 git -C "$OUT" push -q --force "$REMOTE" "$BRANCH"
 
 SLUG="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+# GitHub may enable Pages on its own when gh-pages first appears (409 here), so ignore that.
 if ! gh api "repos/$SLUG/pages" >/dev/null 2>&1; then
-  gh api -X POST "repos/$SLUG/pages" -f "source[branch]=$BRANCH" -f "source[path]=/" >/dev/null
+  gh api -X POST "repos/$SLUG/pages" -f "source[branch]=$BRANCH" -f "source[path]=/" >/dev/null 2>&1 || true
 fi
 echo "Deployed: $(gh api "repos/$SLUG/pages" -q .html_url)"
