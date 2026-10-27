@@ -87,10 +87,10 @@ func margin() -> float:
 	var r := get_viewport_rect().size
 	return minf(edge_margin, minf(r.x, r.y) * 0.25)
 
-func _on_gate_passed(racer: Node3D, gate: int) -> void:
-	if racer != racer:
+func _on_gate_passed(who: Node3D, gate: int) -> void:
+	if who != racer:
 		return
-	var p = course.progress(racer)
+	var p = course.progress(who)
 	if p.best_splits.has(gate) and p.splits.has(gate):
 		split_delta = p.splits[gate] - p.best_splits[gate]
 		_split_age = 0.0

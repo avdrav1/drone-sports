@@ -100,6 +100,24 @@ func test_split_red_when_slower_than_best() -> bool:
 	_free(s)
 	return ok
 
+func test_split_ignores_other_racers() -> bool:
+	var s := _setup()
+	var course: Course = s[1]
+	var hud: RaceHud = s[4]
+	var rival := Node3D.new()
+	s[0].add_child(rival)
+	rival.global_position = course.gates[0].global_transform * Vector3(0, 0, 1.5)
+	course.add_racer(rival)
+	course.start()
+	await Sim.physics_frames(2)
+	rival.global_position = course.gates[0].global_transform * Vector3(0, 0, -1.5)
+	await Sim.physics_frames(2)
+	await _lap(course, rival, 0)
+	await _lap(course, rival, 3)
+	var ok := is_nan(hud.split_delta) and course.progress(rival).laps >= 1
+	_free(s)
+	return ok
+
 func test_position_and_lap_text() -> bool:
 	var s := _setup()
 	var hud: RaceHud = s[4]
