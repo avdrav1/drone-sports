@@ -272,9 +272,9 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
   - Acceptance: A scripted hold completes in exactly N seconds. Leaving for more than the grace period resets. The three-hold job completes and grades.
   - Out of scope: Camera-based coverage scoring.
 
-- [ ] **4.5 Weather**
+- [x] **4.5 Weather**
   - Goal: Fog density and wind gusts as per-job data, read by the rescue job and available to any job. Visual fog only; wind feeds the sim from 1.7.
-  - Context: Keep rendering simple: Godot volumetric fog or a fog shader, one parameter.
+  - Context: Keep rendering simple: Godot volumetric fog or a fog shader, one parameter. `Job.weather` is a `Weather` resource (fog density plus a `Wind`) in `data/weather/`; `JobRunner` applies it on Briefing to a copy of the scene's Environment, so the shared golden-hour resource is untouched.
   - Acceptance: Fog density and gust amplitude load from the Job resource. A job with no weather block runs clear and still.
   - Out of scope: Rain, night.
 

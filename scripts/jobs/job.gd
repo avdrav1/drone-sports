@@ -26,3 +26,5 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var tags: Array[StringName] = []
 ## Route display: the whole route, the next leg only, or nothing. Not an assist.
 @export var guidance := Guidance.FULL
+## Fog and wind. Null flies clear and still.
+@export var weather: Weather

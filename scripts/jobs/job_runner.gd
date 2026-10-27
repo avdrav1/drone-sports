@@ -46,7 +46,7 @@ func objectives() -> Array[Objective]:
 			out.append(c)
 	return out
 
-## Enter Briefing: apply the job's assists and camera view; hold the drone still.
+## Enter Briefing: apply the job's assists, weather, and camera view; hold the drone still.
 func begin() -> void:
 	for o in objectives():
 		o.bind(self)
@@ -54,6 +54,7 @@ func begin() -> void:
 			o.weight = job.weights[String(o.name)]
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
+	_apply_weather()
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -128,6 +129,20 @@ func _show_results() -> void:
 	var scene_root := owner if owner else get_tree().current_scene
 	results_screen.job_scene = scene_root.scene_file_path if scene_root else ""
 	results_screen.show_result(result)
+
+## Wind into the drone's sim, fog into the scene's WorldEnvironment (a copy, so the
+## shared Environment resource is untouched). No weather: still air, scene fog as is.
+func _apply_weather() -> void:
+	var w := job.weather
+	if drone:
+		drone.wind = w.wind if w else null
+	if w == null:
+		return
+	var scope: Node = owner if owner else get_parent()
+	for env_node in scope.find_children("*", "WorldEnvironment", true, false):
+		var env: Environment = env_node.environment.duplicate()
+		env.fog_density = w.fog_density
+		env_node.environment = env
 
 func _finish_line_reached() -> bool:
 	var any := false
