@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="92_hud"]
 [ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
 [ext_resource type="Resource" path="res://data/maps/sandbox.tres" id="81_map"]
+[ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 size = Vector3(4, 4, 4)
@@ -97,6 +98,18 @@ map = ExtResource("81_map")
 drone = NodePath("../Drone")
 
 [node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("83_radar")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
 
 [node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone")]
 layout_mode = 3

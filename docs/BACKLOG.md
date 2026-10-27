@@ -218,7 +218,7 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: The grid reference matches the drone's world position for a known point and changes cell at the cell boundary. Collecting markers returns every visible `MapMarker` in the scene with its kind and position, and none of the hidden ones. The debug scene, sample delivery, and test race each load a `MapData`.
   - Out of scope: Real-world map data, latitude and longitude.
 
-- [ ] **10.2 Radar minimap**
+- [x] **10.2 Radar minimap**
   - Goal: A round radar in a HUD corner, heading-up, showing the player, other drones, visible markers, and the next objective, over a terrain image of the area.
   - Context: Drawn in `_draw` from marker positions, not rendered by a second camera, so it is cheap on the web build and is not a camera view (rule 8). The terrain image is baked once from `DesertTerrain.height_at` and cached like the terrain mesh. Markers beyond the radar range clamp to the rim, pointing their way. Matches the thin-line look from 9.5.
   - Acceptance: A marker straight ahead of the drone draws straight up on the radar at its scaled distance, whatever the drone's yaw. A marker beyond range draws on the rim at the correct bearing. In the test race the radar shows the three opponents and lights the next gate.

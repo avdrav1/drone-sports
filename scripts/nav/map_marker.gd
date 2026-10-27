@@ -13,6 +13,9 @@ const GROUP := &"map_markers"
 ## False keeps it off the map, e.g. a rescue target found by beacon only.
 @export var on_map := true
 
+## Drawn lit: the next target, e.g. the next gate.
+var highlighted := false
+
 func _enter_tree() -> void:
 	add_to_group(GROUP)
 

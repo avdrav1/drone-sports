@@ -21,6 +21,7 @@
 [ext_resource type="Resource" path="res://data/framing/act1.tres" id="19_act1frame"]
 [ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
 [ext_resource type="Resource" path="res://data/maps/test_loop.tres" id="81_map"]
+[ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -80,6 +81,18 @@ map = ExtResource("81_map")
 drone = NodePath("../Drone")
 
 [node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("83_radar")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
 
 [node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
 layout_mode = 3

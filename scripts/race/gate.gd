@@ -14,14 +14,15 @@ const LIT := Color(1.0, 0.6, 0.2)
 
 var index := 0
 var _glow: StandardMaterial3D
+var _marker: MapMarker
 
 func _ready() -> void:
 	_build()
-	var marker := MapMarker.new()
-	marker.name = "MapMarker"
-	marker.kind = &"gate"
-	marker.label = "Gate %d" % index
-	add_child(marker)
+	_marker = MapMarker.new()
+	_marker.name = "MapMarker"
+	_marker.kind = &"gate"
+	_marker.label = "Gate %d" % index
+	add_child(_marker)
 
 ## Where a segment from `a` to `b` (world) crosses the opening, if it does.
 ## Returns 1 for a forward pass, -1 backward, 0 for no pass.
@@ -41,6 +42,8 @@ func crossing(a: Vector3, b: Vector3) -> int:
 func set_highlight(on: bool) -> void:
 	if _glow:
 		_glow.emission_energy_multiplier = 1.8 if on else 0.6
+	if _marker:
+		_marker.highlighted = on
 
 func _build() -> void:
 	var frame := StandardMaterial3D.new()

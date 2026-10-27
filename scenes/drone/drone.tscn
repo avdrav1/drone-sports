@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/drone/assists/battery_wind.gd" id="7_env"]
 [ext_resource type="Script" path="res://scripts/drone/drone_look.gd" id="8_look"]
 [ext_resource type="Script" path="res://scripts/drone/prop_wash.gd" id="9_wash"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="10_marker"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
@@ -56,6 +57,11 @@ shape = SubResource("body_shape")
 
 [node name="Look" type="Node3D" parent="."]
 script = ExtResource("8_look")
+
+[node name="MapMarker" type="Node3D" parent="."]
+script = ExtResource("10_marker")
+kind = &"drone"
+icon = &"triangle"
 
 [node name="PropWash" type="CPUParticles3D" parent="."]
 emitting = false

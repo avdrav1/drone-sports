@@ -44,6 +44,10 @@ func height_at(x: float, z: float) -> float:
 	ridge *= smoothstep(ridge_start, ridge_start + 450.0, r)
 	return dune + ridge
 
+## Everything that shapes the ground, for caches built from it.
+func params() -> Array:
+	return [noise_seed, size, cells, flat_radius, dune_blend, dune_height, ridge_start, ridge_height]
+
 func build() -> void:
 	_dunes.seed = noise_seed
 	_dunes.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
@@ -55,7 +59,7 @@ func build() -> void:
 	_ridges.frequency = 0.0018
 	_ridges.fractal_octaves = 4
 	_ridges.fractal_gain = 0.45
-	var key := [noise_seed, size, cells, flat_radius, dune_blend, dune_height, ridge_start, ridge_height]
+	var key := params()
 	if not _cache.has(key):
 		_cache[key] = _generate()
 	var built: Array = _cache[key]
