@@ -246,9 +246,9 @@ Done when the player always knows where they are and where the job wants them: a
 
 Done when the three drone-work jobs exist: demolition run, search and rescue, inspection. Each puts a crew member in the field and uses a camera view as a tool, never as a score.
 
-- [ ] **4.1 Scripted hazard scene**
+- [x] **4.1 Scripted hazard scene**
   - Goal: A `HazardScene` base: a scene with `AnimationPlayer` timelines for events (a collapse, a storm front, a crane swing) that start on Countdown, plus `Debris` bodies that can strike a `HazardZone`.
-  - Context: Extends the job framework from 2.1. Events do not restart on retry mid-job; retry reloads.
+  - Context: Extends the job framework from 2.1. Events do not restart on retry mid-job; retry reloads. `scenes/hazard/hazard_scene.tscn` is the base: method tracks call `fire_event(name)`, and `Debris` with `release_on` set falls when that event fires. `HazardZone` here only reports what enters it; strikes come in 7.4.
   - Acceptance: Events fire at their timeline times. A debris body entering a hazard zone emits `debris_in_zone`. Crew props are no-collision.
   - Out of scope: Runtime destruction physics.
 

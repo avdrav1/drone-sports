@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/hazard/hazard_scene.gd" id="1_hazard"]
+
+[sub_resource type="Animation" id="events"]
+resource_name = "events"
+length = 60.0
+
+[sub_resource type="AnimationLibrary" id="lib"]
+_data = {
+&"events": SubResource("events")
+}
+
+[node name="Hazards" type="Node3D" node_paths=PackedStringArray("timeline")]
+script = ExtResource("1_hazard")
+timeline = NodePath("Timeline")
+
+[node name="Timeline" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("lib")
+}
