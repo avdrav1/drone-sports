@@ -8,9 +8,43 @@
 [ext_resource type="Script" path="res://scripts/drone/assists/speed_governor.gd" id="6_gov"]
 [ext_resource type="Script" path="res://scripts/drone/assists/battery_wind.gd" id="7_env"]
 [ext_resource type="Script" path="res://scripts/drone/drone_look.gd" id="8_look"]
+[ext_resource type="Script" path="res://scripts/drone/prop_wash.gd" id="9_wash"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
+
+[sub_resource type="Gradient" id="puff"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="puff_tex"]
+gradient = SubResource("puff")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="StandardMaterial3D" id="dust_mat"]
+transparency = 1
+albedo_texture = SubResource("puff_tex")
+shading_mode = 0
+vertex_color_use_as_albedo = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="dust_mesh"]
+material = SubResource("dust_mat")
+size = Vector2(0.6, 0.6)
+
+[sub_resource type="Curve" id="dust_scale"]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="dust_fade"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(0.92, 0.7, 0.5, 0, 0.92, 0.7, 0.5, 0.2, 0.92, 0.7, 0.5, 0)
 
 [node name="Drone" type="RigidBody3D"]
 mass = 1.0
@@ -21,6 +55,25 @@ shape = SubResource("body_shape")
 
 [node name="Look" type="Node3D" parent="."]
 script = ExtResource("8_look")
+
+[node name="PropWash" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 48
+lifetime = 1.2
+mesh = SubResource("dust_mesh")
+emission_shape = 1
+emission_sphere_radius = 0.3
+direction = Vector3(0, 0.25, 0)
+spread = 180.0
+flatness = 0.85
+gravity = Vector3(0, -0.5, 0)
+initial_velocity_min = 1.5
+initial_velocity_max = 3.5
+damping_min = 1.5
+damping_max = 2.5
+scale_amount_curve = SubResource("dust_scale")
+color_ramp = SubResource("dust_fade")
+script = ExtResource("9_wash")
 
 [node name="Assists" type="Node" parent="."]
 script = ExtResource("2_pipeline")

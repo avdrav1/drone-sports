@@ -25,6 +25,13 @@ signal view_changed(view: View)
 @export var orbit_sensitivity := 0.006
 @export_group("Top-down")
 @export var top_down_height := 25.0
+@export_group("Speed")
+## Field of view at rest, degrees.
+@export var base_fov := 75.0
+## Field of view at fov_full_speed in chase and FPV, degrees.
+@export var speed_fov := 92.0
+@export var fov_full_speed := 25.0
+@export var fov_smoothing := 4.0
 @export_group("Clipping")
 @export var clip_radius := 0.2
 
@@ -38,6 +45,7 @@ var _clip_shape := SphereShape3D.new()
 
 func _ready() -> void:
 	camera.top_level = true
+	camera.fov = base_fov
 	view = default_view
 	if target:
 		_chase_position = _chase_goal()
@@ -80,6 +88,14 @@ func update_camera(delta: float) -> void:
 		View.TOP_DOWN:
 			camera.global_position = pivot + Vector3(0.0, top_down_height, 0.0)
 			camera.look_at(pivot, Vector3.FORWARD)
+	camera.fov = lerpf(camera.fov, _wanted_fov(), 1.0 - exp(-fov_smoothing * delta))
+
+## Wider with speed in the flying views, so speed reads on screen.
+func _wanted_fov() -> float:
+	if view != View.CHASE and view != View.FPV:
+		return base_fov
+	var speed := (target as RigidBody3D).linear_velocity.length() if target is RigidBody3D else 0.0
+	return lerpf(base_fov, speed_fov, clampf(speed / fov_full_speed, 0.0, 1.0))
 
 ## Behind the target along its heading (yaw only), and above.
 func _chase_goal() -> Vector3:

@@ -162,9 +162,9 @@ Done when every flying scene shares one golden-hour desert look: low warm sun, h
   - Acceptance: Prop spin rate and glow rise with motor thrust and are zero at zero thrust. The drone's collision shape and mass are unchanged. All flight tests still pass unchanged.
   - Out of scope: Damage visuals, liveries.
 
-- [ ] **9.4 Speed cues**
+- [x] **9.4 Speed cues**
   - Goal: The chase and FPV field of view widens with speed; sand dust kicks up under the drone near the ground.
-  - Context: Camera stays a tool (CLAUDE.md rule 8). CPU particles so the web build matches.
+  - Context: Camera stays a tool (CLAUDE.md rule 8). CPU particles so the web build matches. The flying scenes also bring the chase camera in to 1.5 m so the drone reads on screen; the rig's defaults are unchanged.
   - Acceptance: FOV at 20 m/s is wider than at rest and returns when the drone stops. Dust emits only within 3 m of the ground with thrust on.
   - Out of scope: Motion blur, screen shake.
 

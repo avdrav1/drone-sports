@@ -110,6 +110,8 @@ script = ExtResource("2_input")
 
 [node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_rig")]
 target = NodePath("../Drone")
+chase_distance = 1.5
+chase_height = 0.45
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
