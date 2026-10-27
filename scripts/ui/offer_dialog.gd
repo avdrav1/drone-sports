@@ -10,7 +10,7 @@ var team: Team
 
 func _ready() -> void:
 	ok_button_text = "Join"
-	cancel_button_text = "Not now"
+	cancel_button_text = "Decline"
 	dialog_autowrap = true
 	min_size = Vector2i(480, 0)
 	process_mode = Node.PROCESS_MODE_ALWAYS

@@ -7,6 +7,8 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 
 @export var id: StringName
 @export var title := ""
+## The scene that flies this job, opened from the job board.
+@export_file("*.tscn") var scene := ""
 ## Who is paying, as shown to the player.
 @export var client := ""
 ## What kind of job, e.g. race or demolition. Teams take on job types (Epic 5).

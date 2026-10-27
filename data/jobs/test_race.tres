@@ -7,6 +7,7 @@
 script = ExtResource("1_job")
 id = &"test_race"
 title = "Test loop race"
+scene = "res://scenes/jobs/test_race.tscn"
 client = "Skyline League"
 job_type = &"race"
 faction = &"league"

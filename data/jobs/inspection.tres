@@ -7,6 +7,7 @@
 script = ExtResource("1_job")
 id = &"inspection"
 title = "Relay tower inspection"
+scene = "res://scenes/jobs/inspection.tscn"
 client = "Meridian Grid"
 job_type = &"inspection"
 faction = &"city"

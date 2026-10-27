@@ -7,6 +7,7 @@
 script = ExtResource("1_job")
 id = &"sample_delivery"
 title = "Parcel to the pad"
+scene = "res://scenes/jobs/sample_delivery.tscn"
 client = "Harbor Couriers"
 job_type = &"delivery"
 faction = &"city"

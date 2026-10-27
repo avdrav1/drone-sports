@@ -8,6 +8,7 @@
 script = ExtResource("1_job")
 id = &"rescue"
 title = "Search and rescue: Ozzie"
+scene = "res://scenes/jobs/rescue.tscn"
 client = "City medical"
 job_type = &"rescue"
 faction = &"city"

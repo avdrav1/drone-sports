@@ -324,9 +324,9 @@ Done when the player moves from Act 1 to Act 4 by being recruited, each promotio
   - Acceptance: Top three in the Act 1 race produces the first offer. Accepting switches Act 1 to Act 2 and the HUD indicator changes. Declining and re-crossing does not re-offer.
   - Out of scope: Being fired, contracts.
 
-- [ ] **5.3 Job board**
+- [x] **5.3 Job board**
   - Goal: A hub screen listing the current team's jobs with client, pay, required preset, and a Fly button.
-  - Context: Replaces the debug scene as main scene. Locked jobs show which team unlocks them.
+  - Context: Replaces the debug scene as main scene. Locked jobs show which team unlocks them. Jobs gained `scene`; `data/jobs/board.tres` lists them. In Act 1 only `act1`-tagged jobs fly; on a team, its job types. The row's preset is the stricter of the job's and the career's. Back out, Esc, and the results screen's Continue all return here; free flight is a button, and Esc in free flight comes back. Offers also ask here.
   - Acceptance: Only the current team's jobs are flyable. Completing a job returns here. Wallet and reputation show in the header. The crew roster from 7.1 shows with status; dead characters are greyed with their memorial line.
   - Out of scope: Map, travel.
 

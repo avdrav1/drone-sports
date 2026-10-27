@@ -102,7 +102,7 @@ func test_launch_with_injured_crew_asks_first() -> bool:
 	var launched := runner.state == JobRunner.State.COUNTDOWN
 	root.free()
 	var fresh := JobRunner.new()
-	var goes_back := fresh.back_scene == "res://scenes/debug_flight.tscn"
+	var goes_back := fresh.back_scene == "res://scenes/ui/job_board.tscn"
 	fresh.free()
 	return asked and backed_out and launched and goes_back
 

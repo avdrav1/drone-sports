@@ -5,7 +5,7 @@ extends Control
 signal retry_pressed
 signal continue_pressed
 
-@export_file("*.tscn") var continue_scene := "res://scenes/debug_flight.tscn"
+@export_file("*.tscn") var continue_scene := "res://scenes/ui/job_board.tscn"
 ## The scene Retry reloads. Set by whoever shows the results.
 var job_scene := ""
 var result: JobResult

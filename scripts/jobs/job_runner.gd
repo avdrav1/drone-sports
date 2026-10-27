@@ -30,7 +30,7 @@ signal job_left
 ## Ask before launching with injured crew in the field.
 @export var confirm_risk := true
 ## Where backing out of a launch or leaving the job goes. Empty stays put.
-@export_file("*.tscn") var back_scene := "res://scenes/debug_flight.tscn"
+@export_file("*.tscn") var back_scene := "res://scenes/ui/job_board.tscn"
 @export var grade_scale: GradeScale = preload("res://data/jobs/grade_scale.tres")
 ## Shown over the job when it ends. Null shows nothing.
 @export var results_scene: PackedScene = preload("res://scenes/ui/results.tscn")

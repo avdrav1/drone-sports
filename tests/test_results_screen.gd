@@ -55,13 +55,13 @@ func test_retry_reloads_same_job() -> bool:
 	await Sim.process_frames(1)
 	return ok
 
-func test_continue_returns_to_debug_scene() -> bool:
+func test_continue_returns_to_job_board() -> bool:
 	var scene: Node = await _open_job()
 	await _finish(scene)
 	await Sim.physics_frames(60)
 	_runner(scene).results_screen.continue_on()
 	await Sim.process_frames(3)
-	var ok: bool = Sim.tree().current_scene.scene_file_path == "res://scenes/debug_flight.tscn"
+	var ok: bool = Sim.tree().current_scene.scene_file_path == "res://scenes/ui/job_board.tscn"
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
 	return ok

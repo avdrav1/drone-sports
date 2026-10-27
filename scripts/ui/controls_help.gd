@@ -20,9 +20,9 @@ const GROUPS := [
 		[[&"toggle_readout"], "Debug readout"],
 		[[&"cycle_preset"], "Cycle act assists (free flight)"],
 	]],
-	["IN A JOB", [
+	["JOBS", [
 		[[&"ui_accept"], "Launch from the briefing"],
-		[[&"ui_cancel"], "Leave the job"],
+		[[&"ui_cancel"], "Back to the job board"],
 	]],
 	["START A JOB (FROM FREE FLIGHT)", [
 		[[&"start_sample_job"], "Delivery"],

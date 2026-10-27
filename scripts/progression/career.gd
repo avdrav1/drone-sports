@@ -85,6 +85,20 @@ func decline(id: StringName) -> void:
 	pending.erase(id)
 	save()
 
+## Jobs the pilot may fly now: the current team's job types, or the home
+## game's tagged jobs in Act 1.
+func can_fly(job: Job) -> bool:
+	var t := team()
+	return job.job_type in t.job_types if t else job.tags.has(&"act1")
+
+## Names of the teams that fly this kind of job, for a locked job's row.
+func unlocked_by(job: Job) -> Array[String]:
+	var out: Array[String] = []
+	for t in teams.teams:
+		if job.job_type in t.job_types:
+			out.append(t.name)
+	return out
+
 func wants_still(t: Team) -> bool:
 	return int(t.preset.label.trim_prefix("Act ")) > act()
 
