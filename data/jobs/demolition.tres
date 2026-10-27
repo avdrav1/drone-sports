@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act3.tres" id="2_act3"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"demolition"
+title = "Demolition run: old cannery"
+client = "Salvage crew"
+faction = &"salvage"
+required_assists = ExtResource("2_act3")
+time_limit = 60.0
+pay = 1200
+countdown = 3.0
+default_view = 1
+crew_in_field = Array[StringName]([&"bea"])
+weights = {
+"Entry": 1.0,
+"Shaft": 1.0,
+"Exit": 1.0,
+"NoContact": 3.0,
+"UnderTime": 1.0,
+"BeatRoof": 1.0
+}

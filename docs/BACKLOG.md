@@ -254,9 +254,9 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
   - Acceptance: Events fire at their timeline times. A debris body entering a hazard zone emits `debris_in_zone`. Crew props are no-collision.
   - Out of scope: Runtime destruction physics.
 
-- [ ] **4.2 Demolition run**
+- [x] **4.2 Demolition run**
   - Goal: A building that collapses on a timeline with pre-authored fractured pieces. The job: enter through a window, fly the interior, exit before the roof comes down. Bea stands at the base inside a hazard zone. Default camera: FPV.
-  - Context: The signature job. Requires the Act 3 preset (collision guard off) or the drone refuses the window. Objectives: `ReachPoint` chain, `AvoidContact`, `FinishUnderTime`.
+  - Context: The signature job. Requires the Act 3 preset (collision guard off) or the drone refuses the window. Objectives: `ReachPoint` chain, `AvoidContact`, `FinishUnderTime`, plus `BeatEvent` (exit before the roof event or fail). "Contact with debris" means knocking debris onto Bea: loose cornice blocks under the entry window fall when the drone touches them, and one landing in her zone is a strike, warned at least 1 s ahead (7.4). H launches it from the debug scene. The job always flies Act 3, so the guard never meets the window. The guard sweeps only the drone's own shape, so it would not reliably refuse a centred approach; a wider sweep made the AI racers brake at gate posts.
   - Acceptance: Completable with Act 3 assists. Contact with debris is a strike on Bea. Exiting after the roof timeline fails the job. Grade A requires zero contact.
   - Out of scope: Dust, sound.
 

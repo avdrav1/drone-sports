@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MapData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/nav/map_data.gd" id="1_map"]
+
+[resource]
+script = ExtResource("1_map")
+title = "Old cannery"
+bounds = Rect2(-60, -100, 120, 120)
+cell_size = 20.0
+landmarks = {
+"Launch": Vector3(0, 0, 0)
+}

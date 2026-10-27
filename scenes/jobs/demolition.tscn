@@ -1,0 +1,819 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="desert"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="input"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="rig"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="runner"]
+[ext_resource type="Resource" path="res://data/jobs/demolition.tres" id="job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/reach_point.gd" id="reach"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/avoid_contact.gd" id="avoid"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="time"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/beat_event.gd" id="beat"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="theme"]
+[ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="hud"]
+[ext_resource type="Script" path="res://scripts/nav/gps.gd" id="gps"]
+[ext_resource type="Resource" path="res://data/maps/demolition_site.tres" id="map"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="marker"]
+[ext_resource type="Script" path="res://scripts/ui/radar.gd" id="radar"]
+[ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="mapscreen"]
+[ext_resource type="Script" path="res://scripts/nav/reach_route.gd" id="route"]
+[ext_resource type="Script" path="res://scripts/nav/route_ribbon.gd" id="ribbon"]
+[ext_resource type="Script" path="res://scripts/hazard/hazard_scene.gd" id="hazard"]
+[ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="zone"]
+[ext_resource type="Script" path="res://scripts/hazard/crew_prop.gd" id="crew"]
+[ext_resource type="Script" path="res://scripts/hazard/debris.gd" id="debris"]
+[ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="warn"]
+
+[sub_resource type="StandardMaterial3D" id="concrete"]
+albedo_color = Color(0.62, 0.55, 0.5, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="concrete_dark"]
+albedo_color = Color(0.5, 0.44, 0.4, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="brick"]
+albedo_color = Color(0.6, 0.3, 0.2, 1)
+roughness = 0.9
+
+[sub_resource type="Animation" id="events"]
+resource_name = "events"
+length = 60.0
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(28, 38),
+"transitions": PackedFloat32Array(1, 1),
+"values": [{
+"args": [&"creak"],
+"method": &"fire_event"
+}, {
+"args": [&"roof"],
+"method": &"fire_event"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="lib"]
+_data = {
+&"events": SubResource("events")
+}
+
+[sub_resource type="BoxShape3D" id="s1"]
+size = Vector3(12, 9, 0.4)
+
+[sub_resource type="BoxMesh" id="m1"]
+material = SubResource("concrete")
+size = Vector3(12, 9, 0.4)
+
+[sub_resource type="BoxShape3D" id="s2"]
+size = Vector3(1.6, 1, 0.4)
+
+[sub_resource type="BoxMesh" id="m2"]
+material = SubResource("concrete")
+size = Vector3(1.6, 1, 0.4)
+
+[sub_resource type="BoxShape3D" id="s3"]
+size = Vector3(5.2, 9, 0.4)
+
+[sub_resource type="BoxMesh" id="m3"]
+material = SubResource("concrete")
+size = Vector3(5.2, 9, 0.4)
+
+[sub_resource type="BoxShape3D" id="s4"]
+size = Vector3(5.2, 9, 0.4)
+
+[sub_resource type="BoxMesh" id="m4"]
+material = SubResource("concrete")
+size = Vector3(5.2, 9, 0.4)
+
+[sub_resource type="BoxShape3D" id="s5"]
+size = Vector3(1.6, 5.5, 0.4)
+
+[sub_resource type="BoxMesh" id="m5"]
+material = SubResource("concrete")
+size = Vector3(1.6, 5.5, 0.4)
+
+[sub_resource type="BoxShape3D" id="s6"]
+size = Vector3(1.6, 1.9, 0.4)
+
+[sub_resource type="BoxMesh" id="m6"]
+material = SubResource("concrete")
+size = Vector3(1.6, 1.9, 0.4)
+
+[sub_resource type="BoxShape3D" id="s7"]
+size = Vector3(0.4, 9, 11.2)
+
+[sub_resource type="BoxMesh" id="m7"]
+material = SubResource("concrete")
+size = Vector3(0.4, 9, 11.2)
+
+[sub_resource type="BoxShape3D" id="s8"]
+size = Vector3(0.4, 9, 11.2)
+
+[sub_resource type="BoxMesh" id="m8"]
+material = SubResource("concrete")
+size = Vector3(0.4, 9, 11.2)
+
+[sub_resource type="BoxShape3D" id="s9"]
+size = Vector3(11.2, 0.3, 11.2)
+
+[sub_resource type="BoxMesh" id="m9"]
+material = SubResource("concrete")
+size = Vector3(11.2, 0.3, 11.2)
+
+[sub_resource type="BoxShape3D" id="s10"]
+size = Vector3(5.6, 0.3, 11.2)
+
+[sub_resource type="BoxMesh" id="m10"]
+material = SubResource("concrete")
+size = Vector3(5.6, 0.3, 11.2)
+
+[sub_resource type="BoxShape3D" id="s11"]
+size = Vector3(1.6, 0.3, 11.2)
+
+[sub_resource type="BoxMesh" id="m11"]
+material = SubResource("concrete")
+size = Vector3(1.6, 0.3, 11.2)
+
+[sub_resource type="BoxShape3D" id="s12"]
+size = Vector3(4, 0.3, 3.6)
+
+[sub_resource type="BoxMesh" id="m12"]
+material = SubResource("concrete")
+size = Vector3(4, 0.3, 3.6)
+
+[sub_resource type="BoxShape3D" id="s13"]
+size = Vector3(4, 0.3, 3.6)
+
+[sub_resource type="BoxMesh" id="m13"]
+material = SubResource("concrete")
+size = Vector3(4, 0.3, 3.6)
+
+[sub_resource type="BoxShape3D" id="s14"]
+size = Vector3(5.2, 4.5, 0.4)
+
+[sub_resource type="BoxMesh" id="m14"]
+material = SubResource("concrete_dark")
+size = Vector3(5.2, 4.5, 0.4)
+
+[sub_resource type="BoxShape3D" id="s15"]
+size = Vector3(5.2, 4.5, 0.4)
+
+[sub_resource type="BoxMesh" id="m15"]
+material = SubResource("concrete_dark")
+size = Vector3(5.2, 4.5, 0.4)
+
+[sub_resource type="BoxShape3D" id="s16"]
+size = Vector3(1.6, 1.9, 0.4)
+
+[sub_resource type="BoxMesh" id="m16"]
+material = SubResource("concrete_dark")
+size = Vector3(1.6, 1.9, 0.4)
+
+[sub_resource type="BoxShape3D" id="s17"]
+size = Vector3(6, 4.5, 0.4)
+
+[sub_resource type="BoxMesh" id="m17"]
+material = SubResource("concrete_dark")
+size = Vector3(6, 4.5, 0.4)
+
+[sub_resource type="BoxShape3D" id="s18"]
+size = Vector3(6, 4.5, 0.4)
+
+[sub_resource type="BoxMesh" id="m18"]
+material = SubResource("concrete_dark")
+size = Vector3(6, 4.5, 0.4)
+
+[sub_resource type="BoxShape3D" id="s19"]
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m19"]
+material = SubResource("concrete_dark")
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s20"]
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m20"]
+material = SubResource("concrete_dark")
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s21"]
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m21"]
+material = SubResource("concrete_dark")
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s22"]
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m22"]
+material = SubResource("concrete_dark")
+size = Vector3(0.4, 4.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s23"]
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m23"]
+material = SubResource("concrete_dark")
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s24"]
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m24"]
+material = SubResource("concrete_dark")
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s25"]
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m25"]
+material = SubResource("concrete_dark")
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s26"]
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxMesh" id="m26"]
+material = SubResource("concrete_dark")
+size = Vector3(5.6, 0.5, 5.6)
+
+[sub_resource type="BoxShape3D" id="s27"]
+size = Vector3(1, 0.8, 1)
+
+[sub_resource type="BoxMesh" id="m27"]
+material = SubResource("concrete_dark")
+size = Vector3(1, 0.8, 1)
+
+[sub_resource type="BoxShape3D" id="s28"]
+size = Vector3(0.8, 0.7, 0.8)
+
+[sub_resource type="BoxMesh" id="m28"]
+material = SubResource("concrete_dark")
+size = Vector3(0.8, 0.7, 0.8)
+
+[sub_resource type="BoxShape3D" id="s29"]
+size = Vector3(0.4, 0.4, 0.4)
+
+[sub_resource type="BoxMesh" id="m29"]
+material = SubResource("brick")
+size = Vector3(0.4, 0.4, 0.4)
+
+[sub_resource type="BoxShape3D" id="s30"]
+size = Vector3(0.4, 0.4, 0.4)
+
+[sub_resource type="BoxMesh" id="m30"]
+material = SubResource("brick")
+size = Vector3(0.4, 0.4, 0.4)
+
+[sub_resource type="BoxShape3D" id="s31"]
+size = Vector3(0.4, 0.4, 0.4)
+
+[sub_resource type="BoxMesh" id="m31"]
+material = SubResource("brick")
+size = Vector3(0.4, 0.4, 0.4)
+
+[node name="Demolition" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("world")]
+
+[node name="Ground" parent="." instance=ExtResource("desert")]
+
+[node name="Hazards" type="Node3D" parent="." node_paths=PackedStringArray("runner", "timeline")]
+script = ExtResource("hazard")
+runner = NodePath("../JobRunner")
+timeline = NodePath("Timeline")
+
+[node name="Timeline" type="AnimationPlayer" parent="Hazards"]
+libraries = {
+&"": SubResource("lib")
+}
+
+[node name="Building" type="StaticBody3D" parent="Hazards"]
+
+[node name="MapMarker" type="Node3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -45)
+script = ExtResource("marker")
+kind = &"structure"
+label = "Old cannery"
+icon = &"square"
+
+[node name="SouthLowShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -39.2)
+shape = SubResource("s1")
+
+[node name="SouthLowMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, -39.2)
+mesh = SubResource("m1")
+
+[node name="SouthSillShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.5, -39.2)
+shape = SubResource("s2")
+
+[node name="SouthSillMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.5, -39.2)
+mesh = SubResource("m2")
+
+[node name="NorthLowLShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 4.5, -50.8)
+shape = SubResource("s3")
+
+[node name="NorthLowLMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 4.5, -50.8)
+mesh = SubResource("m3")
+
+[node name="NorthLowRShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 4.5, -50.8)
+shape = SubResource("s4")
+
+[node name="NorthLowRMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 4.5, -50.8)
+mesh = SubResource("m4")
+
+[node name="NorthSillShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, -50.8)
+shape = SubResource("s5")
+
+[node name="NorthSillMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.75, -50.8)
+mesh = SubResource("m5")
+
+[node name="NorthLintelShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.05, -50.8)
+shape = SubResource("s6")
+
+[node name="NorthLintelMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.05, -50.8)
+mesh = SubResource("m6")
+
+[node name="EastLowShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 4.5, -45)
+shape = SubResource("s7")
+
+[node name="EastLowMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 4.5, -45)
+mesh = SubResource("m7")
+
+[node name="WestLowShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 4.5, -45)
+shape = SubResource("s8")
+
+[node name="WestLowMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 4.5, -45)
+mesh = SubResource("m8")
+
+[node name="Floor2Shape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.35, -45)
+shape = SubResource("s9")
+
+[node name="Floor2Mesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.35, -45)
+mesh = SubResource("m9")
+
+[node name="Floor3WShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 8.85, -45)
+shape = SubResource("s10")
+
+[node name="Floor3WMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 8.85, -45)
+mesh = SubResource("m10")
+
+[node name="Floor3EShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 8.85, -45)
+shape = SubResource("s11")
+
+[node name="Floor3EMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.8, 8.85, -45)
+mesh = SubResource("m11")
+
+[node name="Floor3NShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 8.85, -48.8)
+shape = SubResource("s12")
+
+[node name="Floor3NMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 8.85, -48.8)
+mesh = SubResource("m12")
+
+[node name="Floor3SShape" type="CollisionShape3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 8.85, -41.2)
+shape = SubResource("s13")
+
+[node name="Floor3SMesh" type="MeshInstance3D" parent="Hazards/Building"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 8.85, -41.2)
+mesh = SubResource("m13")
+
+[node name="SouthUpL" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.4, 11.25, -39.2)
+mass = 3744
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(0, 0, -1.5)
+release_spin = Vector3(-1.5, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/SouthUpL"]
+shape = SubResource("s14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/SouthUpL"]
+mesh = SubResource("m14")
+
+[node name="SouthUpR" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4, 11.25, -39.2)
+mass = 3744
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(0, 0, -1.5)
+release_spin = Vector3(-1.5, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/SouthUpR"]
+shape = SubResource("s15")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/SouthUpR"]
+mesh = SubResource("m15")
+
+[node name="SouthLintel" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.55, -39.2)
+mass = 486.4
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(0, 0, -1.5)
+release_spin = Vector3(-1.5, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/SouthLintel"]
+shape = SubResource("s16")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/SouthLintel"]
+mesh = SubResource("m16")
+
+[node name="NorthUpL" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 11.25, -50.8)
+mass = 4320
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(0, 0, 1.5)
+release_spin = Vector3(1.5, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/NorthUpL"]
+shape = SubResource("s17")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/NorthUpL"]
+mesh = SubResource("m17")
+
+[node name="NorthUpR" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 11.25, -50.8)
+mass = 4320
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(0, 0, 1.5)
+release_spin = Vector3(1.5, 0, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/NorthUpR"]
+shape = SubResource("s18")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/NorthUpR"]
+mesh = SubResource("m18")
+
+[node name="EastUpS" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 11.25, -42.2)
+mass = 4032
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(-1.5, 0, 0)
+release_spin = Vector3(0, 0, 1.5)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/EastUpS"]
+shape = SubResource("s19")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/EastUpS"]
+mesh = SubResource("m19")
+
+[node name="EastUpN" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8, 11.25, -47.8)
+mass = 4032
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(-1.5, 0, 0)
+release_spin = Vector3(0, 0, 1.5)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/EastUpN"]
+shape = SubResource("s20")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/EastUpN"]
+mesh = SubResource("m20")
+
+[node name="WestUpS" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 11.25, -42.2)
+mass = 4032
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(1.5, 0, 0)
+release_spin = Vector3(0, 0, -1.5)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/WestUpS"]
+shape = SubResource("s21")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/WestUpS"]
+mesh = SubResource("m21")
+
+[node name="WestUpN" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 11.25, -47.8)
+mass = 4032
+script = ExtResource("debris")
+release_on = &"roof"
+release_velocity = Vector3(1.5, 0, 0)
+release_spin = Vector3(0, 0, -1.5)
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/WestUpN"]
+shape = SubResource("s22")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/WestUpN"]
+mesh = SubResource("m22")
+
+[node name="Roof00" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 13.25, -47.8)
+mass = 7200
+script = ExtResource("debris")
+release_on = &"roof"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Roof00"]
+shape = SubResource("s23")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Roof00"]
+mesh = SubResource("m23")
+
+[node name="Roof01" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8, 13.25, -42.2)
+mass = 7200
+script = ExtResource("debris")
+release_on = &"roof"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Roof01"]
+shape = SubResource("s24")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Roof01"]
+mesh = SubResource("m24")
+
+[node name="Roof10" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 13.25, -47.8)
+mass = 7200
+script = ExtResource("debris")
+release_on = &"roof"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Roof10"]
+shape = SubResource("s25")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Roof10"]
+mesh = SubResource("m25")
+
+[node name="Roof11" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 13.25, -42.2)
+mass = 7200
+script = ExtResource("debris")
+release_on = &"roof"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Roof11"]
+shape = SubResource("s26")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Roof11"]
+mesh = SubResource("m26")
+
+[node name="CreakA" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 13, -43.5)
+mass = 320
+script = ExtResource("debris")
+release_on = &"creak"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/CreakA"]
+shape = SubResource("s27")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/CreakA"]
+mesh = SubResource("m27")
+
+[node name="CreakB" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 13.05, -48.6)
+mass = 179.2
+script = ExtResource("debris")
+release_on = &"creak"
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/CreakB"]
+shape = SubResource("s28")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/CreakB"]
+mesh = SubResource("m28")
+
+[node name="Cornice0" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 9.9, -38.75)
+mass = 25.6
+script = ExtResource("debris")
+release_on_contact = true
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Cornice0"]
+shape = SubResource("s29")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Cornice0"]
+mesh = SubResource("m29")
+
+[node name="Cornice1" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.9, -38.75)
+mass = 25.6
+script = ExtResource("debris")
+release_on_contact = true
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Cornice1"]
+shape = SubResource("s30")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Cornice1"]
+mesh = SubResource("m30")
+
+[node name="Cornice2" type="RigidBody3D" parent="Hazards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 9.9, -38.75)
+mass = 25.6
+script = ExtResource("debris")
+release_on_contact = true
+
+[node name="Shape" type="CollisionShape3D" parent="Hazards/Cornice2"]
+shape = SubResource("s31")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hazards/Cornice2"]
+mesh = SubResource("m31")
+
+[node name="BeaZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -37.4)
+script = ExtResource("zone")
+character = &"bea"
+
+[node name="Bea" type="Node3D" parent="BeaZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+script = ExtResource("crew")
+character = &"bea"
+
+[node name="MapMarker" type="Node3D" parent="BeaZone"]
+script = ExtResource("marker")
+kind = &"crew"
+label = "Bea"
+icon = &"circle"
+
+[node name="EntryPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.8, -40.5)
+
+[node name="ShaftPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6.6, -45)
+
+[node name="ExitPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.3, -53.5)
+
+[node name="MapMarker" type="Node3D" parent="ExitPoint"]
+script = ExtResource("marker")
+kind = &"drop"
+label = "Exit"
+icon = &"diamond"
+
+[node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Drone"]
+script = ExtResource("input")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("rig")]
+target = NodePath("../Drone")
+chase_distance = 1.5
+chase_height = 0.45
+
+[node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("gps")
+map = ExtResource("map")
+drone = NodePath("../Drone")
+
+[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone")]
+script = ExtResource("route")
+runner = NodePath("../JobRunner")
+drone = NodePath("../Drone")
+
+[node name="RouteRibbon" type="MeshInstance3D" parent="." node_paths=PackedStringArray("route")]
+script = ExtResource("ribbon")
+route = NodePath("../Route")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain", "route")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("radar")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
+
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("hud")
+gps = NodePath("../../Gps")
+drone = NodePath("../../Drone")
+runner = NodePath("../../JobRunner")
+
+[node name="Crew" type="Control" parent="HUD" node_paths=PackedStringArray("runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("warn")
+runner = NodePath("../../JobRunner")
+
+[node name="State" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 96.0
+offset_right = 350.0
+offset_bottom = 166.0
+grow_horizontal = 2
+horizontal_alignment = 1
+theme = ExtResource("theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+
+[node name="MapLayer" type="CanvasLayer" parent="."]
+layer = 12
+
+[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "route", "runner")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("mapscreen")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
+runner = NodePath("../../JobRunner")
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("runner")
+job = ExtResource("job")
+drone = NodePath("../Drone")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Entry" type="Node" parent="JobRunner" node_paths=PackedStringArray("target")]
+script = ExtResource("reach")
+target = NodePath("../../EntryPoint")
+radius = 1.2
+label = "Enter by the top window"
+ends_job = true
+
+[node name="Shaft" type="Node" parent="JobRunner" node_paths=PackedStringArray("target")]
+script = ExtResource("reach")
+target = NodePath("../../ShaftPoint")
+radius = 1.5
+label = "Drop down the shaft"
+ends_job = true
+
+[node name="Exit" type="Node" parent="JobRunner" node_paths=PackedStringArray("target")]
+script = ExtResource("reach")
+target = NodePath("../../ExitPoint")
+radius = 2.0
+label = "Out the north window"
+ends_job = true
+
+[node name="NoContact" type="Node" parent="JobRunner"]
+script = ExtResource("avoid")
+penalty = 0.5
+label = "No contact"
+
+[node name="UnderTime" type="Node" parent="JobRunner"]
+script = ExtResource("time")
+target_time = 25.0
+label = "Under 25 s"
+
+[node name="BeatRoof" type="Node" parent="JobRunner" node_paths=PackedStringArray("hazard", "objective")]
+script = ExtResource("beat")
+hazard = NodePath("../../Hazards")
+event = &"roof"
+objective = NodePath("../Exit")
+reason = "the roof came down"
+label = "Out before the roof"
