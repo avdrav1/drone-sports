@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/drone/drone.gd" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/assist_pipeline.gd" id="2_pipeline"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/drone/drone_look.gd" id="8_look"]
 [ext_resource type="Script" path="res://scripts/drone/prop_wash.gd" id="9_wash"]
 [ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="10_marker"]
+[ext_resource type="Script" path="res://scripts/drone/assists/brake.gd" id="11_brake"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
@@ -84,6 +85,9 @@ script = ExtResource("9_wash")
 
 [node name="Assists" type="Node" parent="."]
 script = ExtResource("2_pipeline")
+
+[node name="Brake" type="Node" parent="Assists"]
+script = ExtResource("11_brake")
 
 [node name="AutoLevel" type="Node" parent="Assists"]
 script = ExtResource("4_level")

@@ -106,6 +106,12 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: After a flight that leaves the drone moved, tilted, moving, and low on battery, pressing R restores the spawn transform, zero velocity, and a full battery, and the drone then hovers in place under the Act 1 preset.
   - Out of scope: Checkpoints, resetting jobs.
 
+- [x] **1.12 Brake and heading hold**
+  - Goal: A new-pilot assist so keyboard flying is controllable: pitch and roll sticks ask for a ground speed, released sticks stop the drift, and released yaw stops the turn.
+  - Context: Playtest feedback (keyboard): the drone drifts after the keys are released and turns overshoot. A new `brake` assist runs first in the pipeline and hands auto-level the tilt to hold; on in Acts 1 and 2, off with auto-level in Act 3. The flight model and mixer are untouched. The CLAUDE.md assist table needs a row for it (the file is read-only).
+  - Acceptance: Coasting at 10 m/s with sticks released, the drone is below 0.5 m/s within 3 s (without the brake it is still above 3 m/s). Full forward stick holds the brake's max speed (8 m/s) within 10%. Full yaw holds its max turn rate within 10%, and 0.5 s after release the turn is below 5°/s with under 30° of overshoot. The act presets have it on in Acts 1 and 2 only.
+  - Out of scope: Camera-relative sticks, rebinding.
+
 ## Epic 2: Job framework, grading, and payout
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.

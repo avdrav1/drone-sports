@@ -6,6 +6,7 @@
 script = ExtResource("1_stack")
 label = "Act 2"
 collision_guard = false
+brake = true
 altitude_hold = true
 auto_level = true
 speed_governor = true

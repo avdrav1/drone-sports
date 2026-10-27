@@ -21,7 +21,7 @@ const DIM := Color(1, 1, 1, 0.35)
 const ACCENT := Color(1.0, 0.76, 0.25)
 const SHADOW := Color(0, 0, 0, 0.35)
 const ASSIST_NAMES := {
-	&"collision_guard": "GUARD", &"altitude_hold": "ALT HOLD", &"auto_level": "LEVEL",
+	&"collision_guard": "GUARD", &"brake": "BRAKE", &"altitude_hold": "ALT HOLD", &"auto_level": "LEVEL",
 	&"speed_governor": "GOVERNOR", &"battery_wind": "ENV SIM", &"single_drone_view": "SOLO VIEW",
 }
 const TAPE_SPAN := 120.0

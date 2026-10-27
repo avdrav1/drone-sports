@@ -5,7 +5,7 @@ const Sim = preload("res://tests/sim.gd")
 
 # The CLAUDE.md table: assist -> first act where it is off.
 const OFF_FROM := {
-	&"collision_guard": 2, &"altitude_hold": 3, &"auto_level": 3,
+	&"collision_guard": 2, &"brake": 3, &"altitude_hold": 3, &"auto_level": 3,
 	&"speed_governor": 4, &"battery_wind": 4, &"single_drone_view": 5,
 }
 
