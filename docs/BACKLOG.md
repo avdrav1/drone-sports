@@ -156,7 +156,7 @@ Done when every flying scene shares one golden-hour desert look: low warm sun, h
   - Acceptance: Inside a 150 m radius the ground is flat at y = 0. Ridge heights are identical for the same seed. Flying into a ridge is a contact. Both scenes load headless with no errors.
   - Out of scope: Streaming, editable terrain.
 
-- [ ] **9.3 Drone look**
+- [x] **9.3 Drone look**
   - Goal: A dark carbon frame with arms, motors, and props that spin with motor thrust; motor glow that brightens with thrust; white front and red rear lights.
   - Context: A visual node reads `Drone.motor_thrusts`. Mesh changes only; collision shape and mass are untouched.
   - Acceptance: Prop spin rate and glow rise with motor thrust and are zero at zero thrust. The drone's collision shape and mass are unchanged. All flight tests still pass unchanged.
