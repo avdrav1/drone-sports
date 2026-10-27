@@ -2,11 +2,14 @@ class_name RouteSource
 extends Node
 # Where the job wants the drone next, as world points in order. A job scene
 # places one subclass (CourseRoute, ReachRoute); the radar, map, and route
-# ribbon draw what the job's guidance setting allows. Never steers the drone.
+# ribbon draw what the job's guidance setting allows, and nothing without a GPS
+# fix. Never steers the drone.
 
 ## Optional: supplies the job's guidance. Without one the full route shows.
 @export var runner: JobRunner
 @export var drone: Node3D
+## Optional: when set, the route hides while the GPS has no fix (jamming).
+@export var gps: Gps
 
 ## Every point still ahead, in order. Subclasses fill this in.
 func points() -> PackedVector3Array:
@@ -15,8 +18,11 @@ func points() -> PackedVector3Array:
 func guidance() -> Job.Guidance:
 	return runner.job.guidance if runner and runner.job else Job.Guidance.FULL
 
-## What to draw: the drone's position, then the points guidance allows. Empty for none.
+## What to draw: the drone's position, then the points guidance allows. Empty for
+## none, or without a GPS fix.
 func guided() -> PackedVector3Array:
+	if gps and not gps.has_fix():
+		return PackedVector3Array()
 	var g := guidance()
 	var p := points()
 	if g == Job.Guidance.NONE or drone == null or p.is_empty():

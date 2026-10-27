@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/nav/jamming_zone.gd" id="1_zone"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="2_marker"]
+
+[sub_resource type="StandardMaterial3D" id="mast_mat"]
+albedo_color = Color(0.22, 0.22, 0.25, 1)
+
+[sub_resource type="CylinderMesh" id="mast_mesh"]
+material = SubResource("mast_mat")
+top_radius = 0.12
+bottom_radius = 0.3
+height = 9.0
+
+[sub_resource type="StandardMaterial3D" id="lamp_mat"]
+shading_mode = 0
+albedo_color = Color(1, 0.3, 0.25, 1)
+
+[sub_resource type="SphereMesh" id="lamp_mesh"]
+material = SubResource("lamp_mat")
+radius = 0.3
+height = 0.6
+
+[node name="Jammer" type="Node3D"]
+script = ExtResource("1_zone")
+
+[node name="Mast" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+mesh = SubResource("mast_mesh")
+
+[node name="Lamp" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9.1, 0)
+mesh = SubResource("lamp_mesh")
+
+[node name="MapMarker" type="Node3D" parent="."]
+script = ExtResource("2_marker")
+kind = &"jammer"
+label = "Jammer"
+icon = &"circle"

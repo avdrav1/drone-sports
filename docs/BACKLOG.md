@@ -236,9 +236,9 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: In the test race the route runs through the remaining gates in order and updates when a gate is passed. In the delivery job the route ends at the active drop point. A job set to no guidance draws no route anywhere.
   - Out of scope: Pathfinding around obstacles.
 
-- [ ] **10.5 GPS jamming**
+- [x] **10.5 GPS jamming**
   - Goal: A `JammingZone` that degrades GPS inside its radius: the signal readout drops, the grid reference drifts, the radar fuzzes, and the route line disappears when the signal is lost.
-  - Context: Waits for 4.1, since jamming is hazard-scene data. HUD only: the flight model and assists are untouched, and the drone flies identically with or without signal. Drift is seeded so runs reproduce.
+  - Context: Waits for 4.1, since jamming is hazard-scene data. HUD only: the flight model and assists are untouched, and the drone flies identically with or without signal. Drift is seeded so runs reproduce. Built as `scenes/nav/jammer.tscn` (a `JammingZone` with a mast and a map marker); one sits beside the delivery route and one in the sandbox. Signal falls linearly over `fade` metres in from the edge and recovers the instant the drone leaves. `RouteSource.gps` hides the route without a fix; the radar centres on the drifting fix.
   - Acceptance: Signal strength is a function of distance to the zone edge. At zero signal the route is hidden and the radar shows no markers. Leaving the zone restores everything within a second. Drift is reproducible with a seed.
   - Out of scope: GPS position hold as an assist (it would change the assist table in CLAUDE.md; decide separately), jamming that affects flight.
 

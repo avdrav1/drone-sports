@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -19,6 +19,8 @@
 [ext_resource type="Resource" path="res://data/maps/sandbox.tres" id="81_map"]
 [ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
 [ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
+
+[ext_resource type="PackedScene" path="res://scenes/nav/jammer.tscn" id="87_jammer"]
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 size = Vector3(4, 4, 4)
@@ -92,6 +94,11 @@ script = ExtResource("2_cam")
 target = NodePath("../Drone")
 chase_distance = 1.5
 chase_height = 0.45
+
+[node name="Jammer" parent="." instance=ExtResource("87_jammer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -40)
+radius = 25.0
+fade = 10.0
 
 [node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("80_gps")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="2_input"]
@@ -19,6 +19,8 @@
 [ext_resource type="Script" path="res://scripts/nav/reach_route.gd" id="85_route"]
 [ext_resource type="Script" path="res://scripts/nav/route_ribbon.gd" id="86_ribbon"]
 [ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="82_marker"]
+
+[ext_resource type="PackedScene" path="res://scenes/nav/jammer.tscn" id="87_jammer"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
 size = Vector3(16, 8, 2)
@@ -127,15 +129,21 @@ target = NodePath("../Drone")
 chase_distance = 1.5
 chase_height = 0.45
 
+[node name="Jammer" parent="." instance=ExtResource("87_jammer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -38)
+radius = 20.0
+fade = 6.0
+
 [node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("80_gps")
 map = ExtResource("81_map")
 drone = NodePath("../Drone")
 
-[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone")]
+[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone", "gps")]
 script = ExtResource("85_route")
 runner = NodePath("../JobRunner")
 drone = NodePath("../Drone")
+gps = NodePath("../Gps")
 
 [node name="RouteRibbon" type="MeshInstance3D" parent="." node_paths=PackedStringArray("route")]
 script = ExtResource("86_ribbon")

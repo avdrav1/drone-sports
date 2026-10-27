@@ -353,10 +353,11 @@ script = ExtResource("13_gps")
 map = ExtResource("14_map")
 drone = NodePath("../Drone")
 
-[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone")]
+[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone", "gps")]
 script = ExtResource("18_route")
 runner = NodePath("../JobRunner")
 drone = NodePath("../Drone")
+gps = NodePath("../Gps")
 
 [node name="RouteRibbon" type="MeshInstance3D" parent="." node_paths=PackedStringArray("route")]
 script = ExtResource("19_ribbon")
