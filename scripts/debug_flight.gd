@@ -24,6 +24,7 @@ var _spawn: Transform3D
 func _ready() -> void:
 	camera_rig.camera.make_current()
 	_spawn = drone.global_transform
+	Garage.apply(drone)
 	expert_toggle.button_pressed = GameSettings.expert_all_assists_off
 	expert_toggle.toggled.connect(_on_expert_toggled)
 	# Start on the preset the pilot's career has earned.

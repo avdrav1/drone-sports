@@ -2,7 +2,8 @@ class_name JobBoard
 extends Control
 # The hub: wallet, reputation, and team in the header; every job with client,
 # pay, and the assists it flies with; Fly on the ones the pilot's team takes,
-# and who unlocks the rest; the crew and their status. Offers ask here too.
+# and who unlocks the rest; the crew and their status. Offers ask here too,
+# and the shop opens from here.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -12,6 +13,7 @@ const HURT := Color(1.0, 0.45, 0.35)
 
 var jobs: JobList
 var offer_dialog: OfferDialog
+var shop: ShopDialog
 ## Job id -> its row, rebuilt on every refresh.
 var job_rows := {}
 ## Character id -> its row.
@@ -33,6 +35,9 @@ func _ready() -> void:
 	offer_dialog = OfferDialog.new()
 	offer_dialog.answered.connect(func(_t, _a): refresh())
 	add_child(offer_dialog)
+	shop = ShopDialog.new()
+	shop.purchased.connect(refresh)
+	add_child(shop)
 	Career.check_offers()
 	offer_dialog.show_next()
 
@@ -208,6 +213,11 @@ func _build() -> void:
 	free.text = "Free flight"
 	free.pressed.connect(free_flight)
 	_footer.add_child(free)
+	var shop_button := Button.new()
+	shop_button.name = "Shop"
+	shop_button.text = "Shop"
+	shop_button.pressed.connect(func(): shop.open())
+	_footer.add_child(shop_button)
 
 func _panel(parent: Control, wide: bool) -> VBoxContainer:
 	var panel := PanelContainer.new()

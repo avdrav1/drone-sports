@@ -336,9 +336,9 @@ Done when the player moves from Act 1 to Act 4 by being recruited, each promotio
   - Acceptance: Quit and relaunch restores the job board exactly. A corrupt file falls back to a new game with a warning, not a crash.
   - Out of scope: Multiple slots, cloud.
 
-- [ ] **5.5 Upgrades**
+- [x] **5.5 Upgrades**
   - Goal: A shop that spends wallet on drone stats: max thrust, battery capacity, drag.
-  - Context: Upgrades change exported variables on the Drone scene. Never add or remove assists.
+  - Context: Upgrades change exported variables on the Drone scene. Never add or remove assists. `Upgrade` resources in `data/upgrades/` (stat, step per level, a price per level); a `Garage` autoload holds levels (save section "upgrades") and applies them to the player's drone in each job's briefing and in free flight, never to AI racers. The shop opens from the job board.
   - Acceptance: Buying max thrust raises climb rate in the debug scene. Prices and effects are data. Cannot buy with insufficient funds.
   - Out of scope: Cosmetics.
 

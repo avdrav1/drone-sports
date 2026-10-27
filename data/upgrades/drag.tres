@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Upgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade.gd" id="1_up"]
+
+[resource]
+script = ExtResource("1_up")
+id = &"drag"
+name = "Airframe"
+stat = &"drag"
+step = -0.04
+prices = Array[int]([700, 1400])
+unit = "drag"

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Upgrade" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade.gd" id="1_up"]
+
+[resource]
+script = ExtResource("1_up")
+id = &"thrust"
+name = "Motors"
+stat = &"max_thrust"
+step = 0.5
+prices = Array[int]([600, 1200, 2000])
+unit = "N max thrust per motor"

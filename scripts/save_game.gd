@@ -32,7 +32,7 @@ static func write_section(key: String, value) -> void:
 ## Every system reads its section again, as on a fresh launch.
 static func load_all(tree: SceneTree) -> void:
 	GameSettings.load_saved()
-	for autoload in ["Wallet", "Reputation", "Roster", "Career"]:
+	for autoload in ["Wallet", "Reputation", "Roster", "Career", "Garage"]:
 		var node := tree.root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()

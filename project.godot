@@ -16,6 +16,7 @@ Wallet="*res://scripts/economy/wallet.gd"
 Reputation="*res://scripts/economy/reputation.gd"
 Roster="*res://scripts/story/roster.gd"
 Career="*res://scripts/progression/career.gd"
+Garage="*res://scripts/progression/garage.gd"
 
 [rendering]
 

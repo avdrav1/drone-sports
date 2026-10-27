@@ -65,7 +65,8 @@ func objectives() -> Array[Objective]:
 			out.append(c)
 	return out
 
-## Enter Briefing: apply the job's assists, weather, and camera view; hold the drone still.
+## Enter Briefing: apply the job's assists, the pilot's upgrades, weather, and
+## camera view; hold the drone still.
 func begin() -> void:
 	for o in objectives():
 		o.bind(self)
@@ -73,6 +74,7 @@ func begin() -> void:
 			o.weight = job.weights[String(o.name)]
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(assists_for(job)))
+	Garage.apply(drone)
 	_apply_weather()
 	_remove_dead_crew()
 	_arm_hazard_zones()

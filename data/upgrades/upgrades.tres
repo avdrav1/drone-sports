@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeList" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_list.gd" id="1_list"]
+[ext_resource type="Resource" path="res://data/upgrades/thrust.tres" id="u0"]
+[ext_resource type="Resource" path="res://data/upgrades/battery.tres" id="u1"]
+[ext_resource type="Resource" path="res://data/upgrades/drag.tres" id="u2"]
+
+[resource]
+script = ExtResource("1_list")
+upgrades = Array[Resource]([ExtResource("u0"), ExtResource("u1"), ExtResource("u2")])
