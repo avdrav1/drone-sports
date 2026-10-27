@@ -1,6 +1,7 @@
 extends RefCounted
 # Story 10.2: radar minimap. Heading-up, scaled, clamped to the rim, and in the
-# test race it shows the opponents and lights the next gate.
+# test race it shows the opponents and lights the next gate. Story 10.7: the
+# sandbox boxes show too.
 
 const Sim = preload("res://tests/sim.gd")
 
@@ -55,5 +56,19 @@ func test_race_radar_shows_opponents_and_next_gate() -> bool:
 		if b.lit:
 			lit.append(b.marker.get_parent())
 	var ok := drones == 3 and lit == [race_hud.next_gate()] and radar.texture != null
+	scene.free()
+	return ok
+
+func test_sandbox_boxes_on_radar() -> bool:
+	var scene: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
+	await Sim.process_frames(3)
+	var radar: Radar = scene.get_node("HUD/Radar")
+	var boxes := []
+	for b in radar.blips():
+		if (b.marker as MapMarker).get_parent().get_parent() == scene.get_node("Boxes"):
+			boxes.append(b)
+	var ok := boxes.size() == 4
+	for b in boxes:
+		ok = ok and b.marker.icon == &"square" and b.marker.global_position.is_equal_approx(b.marker.get_parent().global_position)
 	scene.free()
 	return ok

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
 
 [ext_resource type="PackedScene" path="res://scenes/nav/jammer.tscn" id="87_jammer"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="88_marker"]
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 size = Vector3(4, 4, 4)
@@ -51,6 +52,11 @@ shape = SubResource("box_shape")
 [node name="Mesh" type="MeshInstance3D" parent="Boxes/Box1"]
 mesh = SubResource("box_mesh")
 
+[node name="MapMarker" type="Node3D" parent="Boxes/Box1"]
+script = ExtResource("88_marker")
+label = "Box 1"
+icon = &"square"
+
 [node name="Box2" type="StaticBody3D" parent="Boxes"]
 transform = Transform3D(1, 0, 0, 0, 3, 0, 0, 0, 1, 12, 6, -12)
 
@@ -59,6 +65,11 @@ shape = SubResource("box_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="Boxes/Box2"]
 mesh = SubResource("box_mesh")
+
+[node name="MapMarker" type="Node3D" parent="Boxes/Box2"]
+script = ExtResource("88_marker")
+label = "Box 2"
+icon = &"square"
 
 [node name="Box3" type="StaticBody3D" parent="Boxes"]
 transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 1, -14, 2, -8)
@@ -69,6 +80,11 @@ shape = SubResource("box_shape")
 [node name="Mesh" type="MeshInstance3D" parent="Boxes/Box3"]
 mesh = SubResource("box_mesh")
 
+[node name="MapMarker" type="Node3D" parent="Boxes/Box3"]
+script = ExtResource("88_marker")
+label = "Box 3"
+icon = &"square"
+
 [node name="Box4" type="StaticBody3D" parent="Boxes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2, 14)
 
@@ -77,6 +93,11 @@ shape = SubResource("box_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="Boxes/Box4"]
 mesh = SubResource("box_mesh")
+
+[node name="MapMarker" type="Node3D" parent="Boxes/Box4"]
+script = ExtResource("88_marker")
+label = "Box 4"
+icon = &"square"
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("4_drone")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

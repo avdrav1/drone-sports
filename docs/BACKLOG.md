@@ -254,6 +254,12 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: On the delivery job the marker sits over the drop pad with the right distance. Facing away, it sits on screen at the edge and points down. It vanishes inside a jammer and returns outside, and shows nothing with guidance off. Every guided job scene has one wired up. Race HUD tests still pass.
   - Out of scope: Markers in the debug sandbox, waypoint lists.
 
+- [x] **10.7 Sandbox boxes on the radar**
+  - Goal: The four practice boxes in the debug sandbox show on the radar and map, so the pilot can find them.
+  - Context: Playtest request. Each box gets a `MapMarker` (landmark, square); no code changes.
+  - Acceptance: In the debug scene the radar shows four square blips, one at each box.
+  - Out of scope: Objectives in the sandbox.
+
 ## Epic 4: Hazard jobs
 
 Done when the three drone-work jobs exist: demolition run, search and rescue, inspection. Each puts a crew member in the field and uses a camera view as a tool, never as a score.
