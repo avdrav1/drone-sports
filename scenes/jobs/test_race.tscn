@@ -17,6 +17,8 @@
 [ext_resource type="Script" path="res://scripts/race/race.gd" id="15_race"]
 [ext_resource type="Script" path="res://scripts/race/ai_pilot.gd" id="16_ai"]
 [ext_resource type="Script" path="res://scripts/ui/race_hud.gd" id="17_racehud"]
+[ext_resource type="Script" path="res://scripts/ui/arcade_bezel.gd" id="18_bezel"]
+[ext_resource type="Resource" path="res://data/framing/act1.tres" id="19_act1frame"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -110,6 +112,23 @@ theme = ExtResource("9_theme")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 horizontal_alignment = 1
+
+[node name="Framing" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="Bezel" type="Control" parent="Framing" node_paths=PackedStringArray("runner", "course", "racer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("18_bezel")
+framing = ExtResource("19_act1frame")
+runner = NodePath("../../JobRunner")
+course = NodePath("../../Course")
+racer = NodePath("../../Drone")
 
 [node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
 script = ExtResource("10_runner")

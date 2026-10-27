@@ -202,7 +202,7 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
   - Acceptance: Next gate marker stays on screen or at the edge pointing to it. Split delta colors red or green against the best lap.
   - Out of scope: Minimap.
 
-- [ ] **3.5 Act 1 framing**
+- [x] **3.5 Act 1 framing**
   - Goal: Present the race as the home video game: a crude in-game bezel, a fake leaderboard with the player's handle, a one-line scout message after a top-three finish.
   - Context: The Last Starfighter beat. Text and a border only.
   - Acceptance: Bezel shows only in jobs tagged `act1`. Scout message fires once, on the first top-three, and sets a flag Epic 5 reads.

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ArcadeFraming" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/arcade_framing.gd" id="1_framing"]
+
+[resource]
+script = ExtResource("1_framing")
+tag = &"act1"
+title = "SKYLINE DRONE LEAGUE  //  HOME CIRCUIT"
+footer = "ONLINE  ·  RANKED  ·  SEASON 14"
+leaderboard = {
+"GLASSWING": 49.2,
+"KESTREL_9": 51.8,
+"MOTHLIGHT": 53.1,
+"NOVA_RUST": 55.6,
+"TINCANTOM": 58.4
+}
+scout_id = &"rin"
+scout_name = "Coach Rin"
+scout_line = "Saw your run. That line through the last gate wasn't luck. Want to try it with a real drone?"
+scout_flag = &"scouted"
+scout_place = 3

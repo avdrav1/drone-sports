@@ -19,3 +19,5 @@ extends Resource
 @export var default_view := CameraRig.View.CHASE
 ## Objective weights by objective node name. Overrides each objective's own weight.
 @export var weights := {}
+## Free-form tags, e.g. act1 for the home-game framing.
+@export var tags: Array[StringName] = []
