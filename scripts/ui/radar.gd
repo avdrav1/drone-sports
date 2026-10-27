@@ -2,11 +2,14 @@ class_name Radar
 extends Control
 # Heading-up radar in the bottom-right corner: the player at the centre, forward
 # up. Draws visible MapMarkers over a terrain image; markers out of range sit on
-# the rim at their bearing. Drawn in _draw, never by a camera (CLAUDE.md rule 8).
+# the rim at their bearing, and the job's route is a dotted line. Drawn in _draw,
+# never by a camera (CLAUDE.md rule 8).
 
 @export var gps: Gps
 ## Optional: the ground shaded under the blips.
 @export var terrain: DesertTerrain
+## Optional: the job's route, drawn dotted.
+@export var route: RouteSource
 ## World metres from the centre to the rim.
 @export var range_m := 120.0
 @export var radius := 84.0
@@ -71,6 +74,17 @@ func blips() -> Array:
 		out.append({"marker": m, "pos": p.pos, "on_rim": p.on_rim, "lit": m.highlighted})
 	return out
 
+## Radar offsets of the route's dots that fall inside the rim.
+func route_dots() -> PackedVector2Array:
+	var out := PackedVector2Array()
+	if route == null:
+		return out
+	RouteSource.walk(route.guided(), range_m / 20.0, func(at: Vector3) -> void:
+		var p: Dictionary = radar_point(at)
+		if not p.on_rim:
+			out.append(p.pos))
+	return out
+
 func _draw() -> void:
 	if gps == null or gps.drone == null:
 		return
@@ -92,6 +106,8 @@ func _draw() -> void:
 	# North on the rim.
 	var north: Vector2 = radar_point(gps.drone.global_position + Vector3.FORWARD * range_m * 10.0).pos
 	draw_string(get_theme_default_font(), c + north * 0.86 + Vector2(-20, 5), "N", HORIZONTAL_ALIGNMENT_CENTER, 40, 13, ACCENT)
+	for dot in route_dots():
+		draw_circle(c + dot, 1.6, Color(ACCENT, 0.8))
 	for b in blips():
 		_blip(c + b.pos, b.marker, b.lit, b.on_rim)
 	# The player: a chevron pointing up.

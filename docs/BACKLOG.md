@@ -230,9 +230,9 @@ Done when the player always knows where they are and where the job wants them: a
   - Acceptance: M toggles the map in the debug scene, the delivery job, and the race. A world point maps to the chart and back within one pixel. The job timer keeps running while the map is open. The player's track records only while Live.
   - Out of scope: Placing waypoints on the map (6.2), fast travel.
 
-- [ ] **10.4 GPS route guidance**
+- [x] **10.4 GPS route guidance**
   - Goal: A route from the drone to the job's next objective, drawn as a dotted line on the radar and the map and as a faint ribbon in the world.
-  - Context: Jobs supply the route through a `RouteSource` on the scene: a race uses the course path the AI flies (3.3), a delivery routes straight to its next `ReachPoint`, and 6.1 waypoints use it later. How much guidance shows (full, next leg only, none) is a per-job display setting in the Job resource, not an assist, so it never touches the assist table.
+  - Context: Jobs supply the route through a `RouteSource` on the scene: a race uses the course path the AI flies (3.3), a delivery routes straight to its next `ReachPoint`, and 6.1 waypoints use it later. How much guidance shows (full, next leg only, none) is a per-job display setting in the Job resource (`Job.guidance`: FULL, NEXT_LEG, NONE), not an assist, so it never touches the assist table. Before the start, a race route shows the start gate and then the whole first lap.
   - Acceptance: In the test race the route runs through the remaining gates in order and updates when a gate is passed. In the delivery job the route ends at the active drop point. A job set to no guidance draws no route anywhere.
   - Out of scope: Pathfinding around obstacles.
 

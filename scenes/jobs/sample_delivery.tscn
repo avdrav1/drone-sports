@@ -16,6 +16,8 @@
 [ext_resource type="Resource" path="res://data/maps/delivery_yard.tres" id="81_map"]
 [ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
 [ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
+[ext_resource type="Script" path="res://scripts/nav/reach_route.gd" id="85_route"]
+[ext_resource type="Script" path="res://scripts/nav/route_ribbon.gd" id="86_ribbon"]
 [ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="82_marker"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
@@ -130,9 +132,18 @@ script = ExtResource("80_gps")
 map = ExtResource("81_map")
 drone = NodePath("../Drone")
 
+[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone")]
+script = ExtResource("85_route")
+runner = NodePath("../JobRunner")
+drone = NodePath("../Drone")
+
+[node name="RouteRibbon" type="MeshInstance3D" parent="." node_paths=PackedStringArray("route")]
+script = ExtResource("86_ribbon")
+route = NodePath("../Route")
+
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain")]
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain", "route")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -143,6 +154,7 @@ mouse_filter = 2
 script = ExtResource("83_radar")
 gps = NodePath("../../Gps")
 terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
 
 [node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
 layout_mode = 3
@@ -174,7 +186,7 @@ theme_override_constants/outline_size = 5
 [node name="MapLayer" type="CanvasLayer" parent="."]
 layer = 12
 
-[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "runner")]
+[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "route", "runner")]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -186,6 +198,7 @@ mouse_filter = 2
 script = ExtResource("84_map")
 gps = NodePath("../../Gps")
 terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
 runner = NodePath("../../JobRunner")
 
 [node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]

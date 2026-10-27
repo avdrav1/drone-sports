@@ -10,6 +10,8 @@ extends Control
 @export var terrain: DesertTerrain
 ## Optional. With a runner, the track records only while Live.
 @export var runner: JobRunner
+## Optional: the job's route, drawn dashed.
+@export var route: RouteSource
 ## Chart side as a share of the screen's smaller side.
 @export var fill := 0.82
 ## Seconds between track points.
@@ -101,6 +103,9 @@ func _draw() -> void:
 		draw_circle(at, 3.0, DIM)
 		_text(at + Vector2(6, 4), String(name), 12, DIM)
 	_draw_track()
+	var leg := route_chart()
+	for i in leg.size() - 1:
+		draw_dashed_line(leg[i], leg[i + 1], ACCENT, 2.0, 6.0)
 	for m in MapMarker.collect(owner if owner else get_tree().root):
 		if m.get_parent() == gps.drone:
 			continue
@@ -110,6 +115,14 @@ func _draw() -> void:
 		if m.label and m.kind != &"gate":
 			_text(at + Vector2(8, 4), m.label, 12, LINE)
 	_draw_player()
+
+## The route as chart points, drone first. Empty when there is no guidance.
+func route_chart() -> PackedVector2Array:
+	var out := PackedVector2Array()
+	if route:
+		for p in route.guided():
+			out.append(to_chart(p))
+	return out
 
 func _draw_grid(map: MapData, r: Rect2) -> void:
 	var b := map.bounds
