@@ -17,3 +17,5 @@ extends Resource
 @export var countdown := 3.0
 ## Camera view set on Briefing.
 @export var default_view := CameraRig.View.CHASE
+## Objective weights by objective node name. Overrides each objective's own weight.
+@export var weights := {}

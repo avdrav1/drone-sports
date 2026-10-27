@@ -1,0 +1,95 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
+[ext_resource type="Script" path="res://scripts/race/course.gd" id="3_course"]
+[ext_resource type="Resource" path="res://data/courses/test_loop.tres" id="4_loop"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="5_drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="6_input"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="7_rig"]
+[ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="8_hud"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="9_theme"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="10_runner"]
+[ext_resource type="Resource" path="res://data/jobs/test_race.tres" id="11_job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/finish_position.gd" id="12_place"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/clean_lap.gd" id="13_clean"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/best_split.gd" id="14_split"]
+[ext_resource type="Script" path="res://scripts/race/race.gd" id="15_race"]
+
+[node name="TestRace" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("1_world")]
+
+[node name="Ground" parent="." instance=ExtResource("2_desert")]
+
+[node name="Course" type="Node3D" parent="."]
+script = ExtResource("3_course")
+data = ExtResource("4_loop")
+
+[node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -32)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Drone"]
+script = ExtResource("6_input")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("7_rig")]
+target = NodePath("../Drone")
+chase_distance = 1.5
+chase_height = 0.45
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("drone", "runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("8_hud")
+drone = NodePath("../../Drone")
+runner = NodePath("../../JobRunner")
+
+[node name="State" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 96.0
+offset_right = 350.0
+offset_bottom = 166.0
+grow_horizontal = 2
+theme = ExtResource("9_theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+horizontal_alignment = 1
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("10_runner")
+job = ExtResource("11_job")
+drone = NodePath("../Drone")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="FinishPosition" type="Node" parent="JobRunner" node_paths=PackedStringArray("course")]
+script = ExtResource("12_place")
+course = NodePath("../../Course")
+label = "Finish position"
+ends_job = true
+
+[node name="CleanLap" type="Node" parent="JobRunner" node_paths=PackedStringArray("course")]
+script = ExtResource("13_clean")
+course = NodePath("../../Course")
+label = "Clean laps"
+
+[node name="BestSplit" type="Node" parent="JobRunner" node_paths=PackedStringArray("course")]
+script = ExtResource("14_split")
+course = NodePath("../../Course")
+label = "Best lap"
+
+[node name="Race" type="Node" parent="." node_paths=PackedStringArray("runner", "course")]
+script = ExtResource("15_race")
+runner = NodePath("../JobRunner")
+course = NodePath("../Course")

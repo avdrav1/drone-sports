@@ -50,6 +50,8 @@ func objectives() -> Array[Objective]:
 func begin() -> void:
 	for o in objectives():
 		o.bind(self)
+		if job.weights.has(String(o.name)):
+			o.weight = job.weights[String(o.name)]
 	if job.required_assists and drone and drone.assists:
 		drone.assists.apply_stack(GameSettings.effective_stack(job.required_assists))
 	if camera_rig:

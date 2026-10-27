@@ -184,7 +184,7 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
   - Acceptance: Passing a gate backwards does not count. Skipping a gate invalidates the lap. Course emits `lap_completed(time)`. A test course with 8 gates and 2 laps exists in `data/courses/`.
   - Out of scope: Course editor.
 
-- [ ] **3.2 Race objectives**
+- [x] **3.2 Race objectives**
   - Goal: `FinishPosition`, `CleanLap`, `BestSplit` objectives and a `RaceJob` scene wiring them to the course.
   - Context: Finish position weighted highest. Weights live in the Job resource.
   - Acceptance: First-place clean run grades A. Last place with contact grades no higher than D.

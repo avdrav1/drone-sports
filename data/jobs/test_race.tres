@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act1.tres" id="2_act1"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"test_race"
+title = "Test loop race"
+client = "Skyline League"
+faction = &"league"
+required_assists = ExtResource("2_act1")
+time_limit = 180.0
+pay = 800
+countdown = 3.0
+default_view = 0
+weights = {
+"BestSplit": 1.0,
+"CleanLap": 1.0,
+"FinishPosition": 3.0
+}
