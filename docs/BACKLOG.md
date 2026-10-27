@@ -124,6 +124,12 @@ Done when a quadcopter flies with real physics in the debug scene and each assis
   - Acceptance: Coasting at 10 m/s with sticks released, the drone is below 0.5 m/s within 3 s (without the brake it is still above 3 m/s). Full forward stick holds the brake's max speed (8 m/s) within 10%. Full yaw holds its max turn rate within 10%, and 0.5 s after release the turn is below 5°/s with under 30° of overshoot. The act presets have it on in Acts 1 and 2 only.
   - Out of scope: Camera-relative sticks, rebinding.
 
+- [x] **1.13 Crash recovery**
+  - Goal: A drone that crashes into a state it cannot fly out of is put back upright, at rest, where it was last flying level, so a hit never ends a run.
+  - Context: Playtest feedback: "really easy to get stuck on an obstacle". Without collision guard (Act 2 on), a full-speed hit pitches the drone 90 degrees so its own thrust pins it to the wall at zero speed; a drone turned over on the ground can never right itself. Friction and bounce tuning did not fix both (zero friction let it tunnel through the ground). A `CrashRecovery` node in the drone scene watches for tilt over 60 degrees with almost no motion for 1.5 s and calls the new `Drone.recover`, which moves the drone like `reset` but keeps the battery. The safe point is the last level position at least 1 s old, lifted 0.5 m. Frozen drones are left alone. AI racers get it too. The flight HUD shows RECOVERED for 2 s. Grading is unchanged: the contact still counts for `AvoidContact`.
+  - Acceptance: Pinned to a wall in Act 2, the drone recovers exactly once, stands upright, keeps its battery, and then flies more than 4 m away in 2 s. Turned over on the ground, it recovers upright above the ground. Cruising and an Act 5 full-stick flip never trigger it. A frozen drone is never recovered.
+  - Out of scope: A manual recover key in jobs, turtle mode.
+
 ## Epic 2: Job framework, grading, and payout
 
 Done when any scene can declare itself a job, run start to finish, produce a grade, and pay out, with no job-specific code in the framework.

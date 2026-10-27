@@ -26,6 +26,9 @@ const MOTOR_COUNT := 4
 ## Seconds an empty battery takes to fade thrust to zero.
 const BATTERY_FADE_TIME := 3.0
 
+## Crash recovery put the drone back upright (see CrashRecovery).
+signal recovered
+
 ## Where intent comes from. Null means motor thrusts are set directly.
 @export var intent_source: IntentSource
 
@@ -73,10 +76,26 @@ func reset(xform: Transform3D) -> void:
 	motor_thrusts = PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
 	battery = 1.0
 	_empty_for = 0.0
+	var recovery := get_node_or_null("Recovery") as CrashRecovery
+	if recovery:
+		recovery.reset()
 	if assists:
 		assists.reset()
 	if intent_source:
 		intent_source.reset()
+
+## Puts the drone at `xform`, at rest, after a crash it could not fly out of.
+## Unlike reset, the battery is untouched. Assists and the intent source forget
+## held state, as on reset.
+func recover(xform: Transform3D) -> void:
+	global_transform = xform
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	if assists:
+		assists.reset()
+	if intent_source:
+		intent_source.reset()
+	recovered.emit()
 
 func assist_summary() -> String:
 	return assists.summary() if assists else "(none)"

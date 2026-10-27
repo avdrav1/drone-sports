@@ -36,6 +36,8 @@ func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	font = get_theme_default_font()
+	if drone and not drone.recovered.is_connected(_on_recovered):
+		drone.recovered.connect(_on_recovered)
 	pilot_face = CharacterPortrait.new()
 	pilot_face.name = "Pilot"
 	pilot_face.character = PlayerProfile.pilot()
@@ -44,8 +46,16 @@ func _ready() -> void:
 	pilot_face.visible = show_pilot
 	add_child(pilot_face)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	recovered_age += delta
 	queue_redraw()
+
+## Seconds since crash recovery last righted the drone; the HUD says so for RECOVERED_HOLD.
+var recovered_age := INF
+const RECOVERED_HOLD := 2.0
+
+func _on_recovered() -> void:
+	recovered_age = 0.0
 
 func heading() -> float:
 	var f := -drone.global_transform.basis.z
@@ -94,6 +104,8 @@ func _draw() -> void:
 	_draw_panel(Vector2(28.0, 26.0))
 	_draw_assists(Vector2(28.0, s.y - 34.0))
 	_draw_battery(Vector2(s.x - 28.0, s.y - 34.0))
+	if recovered_age < RECOVERED_HOLD:
+		_text(Vector2(s.x * 0.5 - 200, s.y * 0.32), "RECOVERED", 26, ACCENT, HORIZONTAL_ALIGNMENT_CENTER, 400)
 	if gps:
 		_draw_gps(Vector2(s.x - 28.0, s.y - 76.0))
 	if pilot_face.visible:
