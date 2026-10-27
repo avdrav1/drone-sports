@@ -1,0 +1,464 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="3_drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="4_input"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="5_rig"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="6_runner"]
+[ext_resource type="Resource" path="res://data/jobs/inspection.tres" id="7_job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/hold_station.gd" id="8_hold"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/avoid_contact.gd" id="9_avoid"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/finish_under_time.gd" id="10_time"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="11_theme"]
+[ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="12_hud"]
+[ext_resource type="Script" path="res://scripts/nav/gps.gd" id="13_gps"]
+[ext_resource type="Resource" path="res://data/maps/inspection_site.tres" id="14_map"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="15_marker"]
+[ext_resource type="Script" path="res://scripts/ui/radar.gd" id="16_radar"]
+[ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="17_mapscreen"]
+[ext_resource type="Script" path="res://scripts/nav/reach_route.gd" id="18_route"]
+[ext_resource type="Script" path="res://scripts/nav/route_ribbon.gd" id="19_ribbon"]
+[ext_resource type="Script" path="res://scripts/jobs/hold_beacon.gd" id="20_beacon"]
+[ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="21_zone"]
+[ext_resource type="Script" path="res://scripts/hazard/crew_prop.gd" id="22_crew"]
+
+[sub_resource type="StandardMaterial3D" id="steel"]
+albedo_color = Color(0.22, 0.2, 0.22, 1)
+metallic = 0.6
+roughness = 0.5
+
+[sub_resource type="BoxMesh" id="leg_mesh"]
+material = SubResource("steel")
+size = Vector3(0.5, 36, 0.5)
+
+[sub_resource type="BoxShape3D" id="leg_shape"]
+size = Vector3(0.5, 36, 0.5)
+
+[sub_resource type="BoxMesh" id="brace_x_mesh"]
+material = SubResource("steel")
+size = Vector3(4.5, 0.3, 0.3)
+
+[sub_resource type="BoxShape3D" id="brace_x_shape"]
+size = Vector3(4.5, 0.3, 0.3)
+
+[sub_resource type="BoxMesh" id="brace_z_mesh"]
+material = SubResource("steel")
+size = Vector3(0.3, 0.3, 4.5)
+
+[sub_resource type="BoxShape3D" id="brace_z_shape"]
+size = Vector3(0.3, 0.3, 4.5)
+
+[sub_resource type="StandardMaterial3D" id="deck_mat"]
+albedo_color = Color(0.75, 0.45, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="deck_mesh"]
+material = SubResource("deck_mat")
+size = Vector3(4.5, 0.4, 3)
+
+[sub_resource type="BoxShape3D" id="deck_shape"]
+size = Vector3(4.5, 0.4, 3)
+
+[sub_resource type="SphereShape3D" id="zone_shape"]
+radius = 3.0
+
+[node name="Inspection" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("1_world")]
+
+[node name="Ground" parent="." instance=ExtResource("2_desert")]
+
+[node name="Tower" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -40)
+
+[node name="Leg0" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, -2)
+shape = SubResource("leg_shape")
+
+[node name="LegMesh0" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, -2)
+mesh = SubResource("leg_mesh")
+
+[node name="Leg1" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, -2)
+shape = SubResource("leg_shape")
+
+[node name="LegMesh1" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, -2)
+mesh = SubResource("leg_mesh")
+
+[node name="Leg2" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 2)
+shape = SubResource("leg_shape")
+
+[node name="LegMesh2" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 2)
+mesh = SubResource("leg_mesh")
+
+[node name="Leg3" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 2)
+shape = SubResource("leg_shape")
+
+[node name="LegMesh3" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 2)
+mesh = SubResource("leg_mesh")
+
+[node name="Brace0" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh0" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace1" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh1" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace2" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh2" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace3" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh3" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace4" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, -2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh4" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, -2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace5" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh5" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace6" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh6" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace7" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 12, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh7" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 12, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace8" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, -2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh8" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, -2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace9" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh9" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace10" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh10" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace11" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh11" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace12" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, -2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh12" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, -2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace13" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh13" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace14" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 24, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh14" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 24, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace15" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 24, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh15" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 24, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace16" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh16" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace17" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, 2)
+shape = SubResource("brace_x_shape")
+
+[node name="BraceMesh17" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, 2)
+mesh = SubResource("brace_x_mesh")
+
+[node name="Brace18" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 30, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh18" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 30, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Brace19" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 0)
+shape = SubResource("brace_z_shape")
+
+[node name="BraceMesh19" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 0)
+mesh = SubResource("brace_z_mesh")
+
+[node name="Deck" type="CollisionShape3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 12, 0)
+shape = SubResource("deck_shape")
+
+[node name="DeckMesh" type="MeshInstance3D" parent="Tower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 12, 0)
+mesh = SubResource("deck_mesh")
+
+[node name="MapMarker" type="Node3D" parent="Tower"]
+script = ExtResource("15_marker")
+kind = &"structure"
+label = "Relay tower"
+icon = &"square"
+
+[node name="MarloZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 13, -40)
+script = ExtResource("21_zone")
+character = &"marlo"
+
+[node name="Shape" type="CollisionShape3D" parent="MarloZone"]
+shape = SubResource("zone_shape")
+
+[node name="Marlo" type="Node3D" parent="MarloZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
+script = ExtResource("22_crew")
+color = Color(0.95, 0.55, 0.25, 1)
+
+[node name="MapMarker" type="Node3D" parent="MarloZone"]
+script = ExtResource("15_marker")
+kind = &"crew"
+label = "Marlo"
+icon = &"circle"
+
+[node name="Station1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, -34)
+
+[node name="MapMarker" type="Node3D" parent="Station1"]
+script = ExtResource("15_marker")
+kind = &"hold"
+label = "Hold 1"
+icon = &"circle"
+
+[node name="Beacon" type="Node3D" parent="Station1" node_paths=PackedStringArray("hold")]
+script = ExtResource("20_beacon")
+hold = NodePath("../../JobRunner/Hold1")
+
+[node name="Station2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 20, -40)
+
+[node name="MapMarker" type="Node3D" parent="Station2"]
+script = ExtResource("15_marker")
+kind = &"hold"
+label = "Hold 2"
+icon = &"circle"
+
+[node name="Beacon" type="Node3D" parent="Station2" node_paths=PackedStringArray("hold")]
+script = ExtResource("20_beacon")
+hold = NodePath("../../JobRunner/Hold2")
+
+[node name="Station3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, -46)
+
+[node name="MapMarker" type="Node3D" parent="Station3"]
+script = ExtResource("15_marker")
+kind = &"hold"
+label = "Hold 3"
+icon = &"circle"
+
+[node name="Beacon" type="Node3D" parent="Station3" node_paths=PackedStringArray("hold")]
+script = ExtResource("20_beacon")
+hold = NodePath("../../JobRunner/Hold3")
+
+[node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("3_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Drone"]
+script = ExtResource("4_input")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("5_rig")]
+target = NodePath("../Drone")
+chase_distance = 1.5
+chase_height = 0.45
+
+[node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("13_gps")
+map = ExtResource("14_map")
+drone = NodePath("../Drone")
+
+[node name="Route" type="Node" parent="." node_paths=PackedStringArray("runner", "drone")]
+script = ExtResource("18_route")
+runner = NodePath("../JobRunner")
+drone = NodePath("../Drone")
+
+[node name="RouteRibbon" type="MeshInstance3D" parent="." node_paths=PackedStringArray("route")]
+script = ExtResource("19_ribbon")
+route = NodePath("../Route")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain", "route")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("16_radar")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
+
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("12_hud")
+gps = NodePath("../../Gps")
+drone = NodePath("../../Drone")
+runner = NodePath("../../JobRunner")
+
+[node name="State" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -350.0
+offset_top = 96.0
+offset_right = 350.0
+offset_bottom = 166.0
+grow_horizontal = 2
+horizontal_alignment = 1
+theme = ExtResource("11_theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+
+[node name="MapLayer" type="CanvasLayer" parent="."]
+layer = 12
+
+[node name="Map" type="Control" parent="MapLayer" node_paths=PackedStringArray("gps", "terrain", "route", "runner")]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("17_mapscreen")
+gps = NodePath("../../Gps")
+terrain = NodePath("../../Ground")
+route = NodePath("../../Route")
+runner = NodePath("../../JobRunner")
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("6_runner")
+job = ExtResource("7_job")
+drone = NodePath("../Drone")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Hold1" type="Node" parent="JobRunner" node_paths=PackedStringArray("center")]
+script = ExtResource("8_hold")
+center = NodePath("../../Station1")
+radius = 2.5
+hold_time = 3.0
+label = "Hold: South face, low"
+ends_job = true
+
+[node name="Hold2" type="Node" parent="JobRunner" node_paths=PackedStringArray("center", "after")]
+script = ExtResource("8_hold")
+center = NodePath("../../Station2")
+after = NodePath("../Hold1")
+radius = 2.5
+hold_time = 3.0
+label = "Hold: West face, mid"
+ends_job = true
+
+[node name="Hold3" type="Node" parent="JobRunner" node_paths=PackedStringArray("center", "after")]
+script = ExtResource("8_hold")
+center = NodePath("../../Station3")
+after = NodePath("../Hold2")
+radius = 2.5
+hold_time = 3.0
+label = "Hold: North face, top"
+ends_job = true
+
+[node name="NoContact" type="Node" parent="JobRunner"]
+script = ExtResource("9_avoid")
+label = "No contact"
+
+[node name="UnderTime" type="Node" parent="JobRunner"]
+script = ExtResource("10_time")
+target_time = 60.0
+label = "Under 60 s"

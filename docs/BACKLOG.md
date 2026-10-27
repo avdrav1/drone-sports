@@ -246,6 +246,8 @@ Done when the player always knows where they are and where the job wants them: a
 
 Done when the three drone-work jobs exist: demolition run, search and rescue, inspection. Each puts a crew member in the field and uses a camera view as a tool, never as a score.
 
+Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue strike crew members, and strikes (with their mandatory warning) come from 7.4.
+
 - [x] **4.1 Scripted hazard scene**
   - Goal: A `HazardScene` base: a scene with `AnimationPlayer` timelines for events (a collapse, a storm front, a crane swing) that start on Countdown, plus `Debris` bodies that can strike a `HazardZone`.
   - Context: Extends the job framework from 2.1. Events do not restart on retry mid-job; retry reloads. `scenes/hazard/hazard_scene.tscn` is the base: method tracks call `fire_event(name)`, and `Debris` with `release_on` set falls when that event fires. `HazardZone` here only reports what enters it; strikes come in 7.4.
@@ -264,9 +266,9 @@ Done when the three drone-work jobs exist: demolition run, search and rescue, in
   - Acceptance: Beacon strength is a function of distance. Holding over Ozzie completes. Timer expiry strikes and fails. Reproducible with a seed.
   - Out of scope: Multiple targets.
 
-- [ ] **4.4 Inspection and HoldStation**
+- [x] **4.4 Inspection and HoldStation**
   - Goal: A `HoldStation` objective: stay inside a sphere for N seconds, timer resets on exit. An inspection job: three holds around a tower in order, no contact, Marlo on a platform in a hazard zone. Default camera: orbit.
-  - Context: `HoldStation` is reused by the fleet inspection (6.3) and the boss override (8.5), so keep it generic: center, radius, hold time, reset grace.
+  - Context: `HoldStation` is reused by the fleet inspection (6.3) and the boss override (8.5), so keep it generic: center, radius, hold time, reset grace, plus an optional `after` hold so holds run in order. Leaving pauses the hold; staying out past the grace resets it. The job flies with the Act 2 preset; L launches it from the debug scene. Marlo's zone only reports until 7.4 adds strikes.
   - Acceptance: A scripted hold completes in exactly N seconds. Leaving for more than the grace period resets. The three-hold job completes and grades.
   - Out of scope: Camera-based coverage scoring.
 

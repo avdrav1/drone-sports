@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act2.tres" id="2_act2"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"inspection"
+title = "Relay tower inspection"
+client = "Meridian Grid"
+faction = &"city"
+required_assists = ExtResource("2_act2")
+time_limit = 120.0
+pay = 650
+countdown = 3.0
+default_view = 2
+weights = {
+"Hold1": 1.0,
+"Hold2": 1.0,
+"Hold3": 1.0,
+"NoContact": 2.0,
+"UnderTime": 1.0
+}
