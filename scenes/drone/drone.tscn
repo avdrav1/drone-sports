@@ -14,6 +14,7 @@
 size = Vector3(0.4, 0.12, 0.4)
 
 [sub_resource type="Gradient" id="puff"]
+offsets = PackedFloat32Array(0, 1)
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
 [sub_resource type="GradientTexture2D" id="puff_tex"]
@@ -29,10 +30,10 @@ transparency = 1
 albedo_texture = SubResource("puff_tex")
 shading_mode = 0
 vertex_color_use_as_albedo = true
-billboard_mode = 3
-particles_anim_h_frames = 1
-particles_anim_v_frames = 1
-particles_anim_loop = false
+proximity_fade_enabled = true
+proximity_fade_distance = 0.4
+billboard_mode = 1
+billboard_keep_scale = true
 
 [sub_resource type="QuadMesh" id="dust_mesh"]
 material = SubResource("dust_mat")
@@ -63,9 +64,9 @@ lifetime = 1.2
 mesh = SubResource("dust_mesh")
 emission_shape = 1
 emission_sphere_radius = 0.3
-direction = Vector3(0, 0.25, 0)
+direction = Vector3(1, 0, 0)
 spread = 180.0
-flatness = 0.85
+flatness = 0.9
 gravity = Vector3(0, -0.5, 0)
 initial_velocity_min = 1.5
 initial_velocity_max = 3.5

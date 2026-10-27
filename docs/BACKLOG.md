@@ -168,7 +168,7 @@ Done when every flying scene shares one golden-hour desert look: low warm sun, h
   - Acceptance: FOV at 20 m/s is wider than at rest and returns when the drone stops. Dust emits only within 3 m of the ground with thrust on.
   - Out of scope: Motion blur, screen shake.
 
-- [ ] **9.5 Flight HUD**
+- [x] **9.5 Flight HUD**
   - Goal: A thin-line HUD: compass heading tape at top, speed and altitude readouts at the sides, a job and objectives panel at top left, assist stack indicator, battery.
   - Context: Reuse the theme from 2.5. Jobs feed the panel from `JobRunner`; the debug scene shows the preset instead. Story 3.4 builds the race HUD on top of this.
   - Acceptance: Heading tape reads the drone's yaw (W at 270). Speed and altitude match the drone within rounding. The objectives panel lists the runner's objectives and state. The assist indicator lists the active assists.

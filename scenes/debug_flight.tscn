@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="12_rig"]
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="90_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="91_desert"]
+[ext_resource type="Script" path="res://scripts/ui/flight_hud.gd" id="92_hud"]
 
 [sub_resource type="BoxShape3D" id="box_shape"]
 size = Vector3(4, 4, 4)
@@ -90,11 +91,24 @@ chase_height = 0.45
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
+[node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("drone")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("92_hud")
+drone = NodePath("../../Drone")
+title = "Sandbox"
+
 [node name="Readout" type="Label" parent="HUD" node_paths=PackedStringArray("subject")]
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 520.0
-offset_bottom = 160.0
+visible = false
+offset_left = 28.0
+offset_top = 130.0
+offset_right = 536.0
+offset_bottom = 278.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
@@ -102,9 +116,9 @@ script = ExtResource("3_readout")
 subject = NodePath("../../Drone")
 
 [node name="Expert" type="CheckBox" parent="HUD"]
-offset_left = 12.0
-offset_top = 168.0
-offset_right = 320.0
-offset_bottom = 200.0
+offset_left = 28.0
+offset_top = 90.0
+offset_right = 336.0
+offset_bottom = 122.0
 focus_mode = 0
 text = "Expert: all assists off"

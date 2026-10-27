@@ -13,6 +13,7 @@ var _spawn: Transform3D
 @onready var drone: Drone = $Drone
 @onready var expert_toggle: CheckBox = $HUD/Expert
 @onready var camera_rig: CameraRig = $CameraRig
+@onready var hud: FlightHud = $HUD/Flight
 
 func _ready() -> void:
 	camera_rig.camera.make_current()
@@ -44,6 +45,7 @@ func apply_preset() -> void:
 	var stack := presets[preset_index]
 	drone.assists.apply_stack(GameSettings.effective_stack(stack))
 	readout.header = "preset: %s%s" % [stack.label, "  (expert: all assists off)" if GameSettings.expert_all_assists_off else ""]
+	hud.subtitle = stack.label + ("  ·  expert" if GameSettings.expert_all_assists_off else "")
 
 func _on_expert_toggled(on: bool) -> void:
 	GameSettings.expert_all_assists_off = on
