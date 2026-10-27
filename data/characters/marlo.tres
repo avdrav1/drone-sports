@@ -10,6 +10,7 @@ role = "Spotter"
 shape = &"antenna"
 colors = PackedColorArray(0.95, 0.55, 0.25, 1, 1, 0.92, 0.85, 1, 0.3, 0.3, 0.35, 1)
 lines = "res://data/dialogue/marlo.json"
+speaks_on = Array[StringName]([&"gate_passed"])
 death_consequence = &"no_spotter"
 can_be_harmed = true
 tags = Array[StringName]([])

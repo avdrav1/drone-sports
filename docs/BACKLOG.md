@@ -356,9 +356,9 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: Choice persists in the save. HUD from 3.4 shows the portrait. Changing pilot changes the tweaked stat and nothing else.
   - Out of scope: Unlockable pilots.
 
-- [ ] **7.3 Crew lines**
+- [x] **7.3 Crew lines**
   - Goal: A `Bark` system: characters speak in briefing, on job events (gate passed, strike warning, strike, complete, fail), and on results. Lines are data in `data/dialogue/<id>.json`, keyed by event, with variants by status.
-  - Context: Hooks into `JobRunner` signals from 2.1 and the results screen from 2.5. A portrait and a text box; no audio.
+  - Context: Hooks into `JobRunner` signals from 2.1 and the results screen from 2.5. A portrait and a text box; no audio. Who speaks is data: crew in the field speak on every event, and `Character.speaks_on` adds voices from afar (Rin briefs and debriefs, Marlo calls gates, Dot grumbles on fails and results, Pip reacts to the finish). Warning and strike lines come from the character in the zone. A `Bark` node and a `BarkBox` sit in every job scene; the closing line lands in `JobResult.bark` for the results screen. A line pool that runs dry goes quiet rather than repeat, and gate callouts are spaced 2.5 s apart.
   - Acceptance: Each cast member has at least three lines per event. An injured character uses the injured variant. A dead character never speaks. A line does not repeat within one job unless it is the only one.
   - Out of scope: Voice, branching dialogue.
 

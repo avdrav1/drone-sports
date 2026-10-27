@@ -1,0 +1,79 @@
+{
+ "briefing": {
+  "active": [
+   "Follow the beacon. I'll keep the flare lit.",
+   "I've got supplies. You've got the drone. Find me.",
+   "Weather's bad. Stay calm, so will I."
+  ],
+  "injured": [
+   "Bandaged up and still out here. Find me fast.",
+   "I'm patched. Not fixed. Hurry."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Good. Keep that pace.",
+   "Steady hands. Nice.",
+   "That's it. Breathe."
+  ],
+  "injured": [
+   "Steady. Good.",
+   "Keep going. I'm fine. Mostly."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Easy, easy, I'm right here!",
+   "Slow down! I'm under you!",
+   "Careful, I can hear you coming in hot!"
+  ],
+  "injured": [
+   "Please. Slowly. I can't take another.",
+   "Gently! I'm already hurt!"
+  ]
+ },
+ "strike": {
+  "active": [
+   "Ow. Okay. I can treat that.",
+   "That's a fracture. Probably.",
+   "I'm hurt. Note the time."
+  ],
+  "injured": [
+   "I can't treat this one myself.",
+   "Second hit. That's... that's bad."
+  ]
+ },
+ "complete": {
+  "active": [
+   "There you are. Thank you.",
+   "Found me. I knew you would.",
+   "Warm hands. Finally."
+  ],
+  "injured": [
+   "Found me. Just in time.",
+   "Thank you. I'll rest now."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Too late. It's okay. It's okay.",
+   "Cold out here. Come back for me.",
+   "We'll try again. I'll wait."
+  ],
+  "injured": [
+   "It's getting dark. Try again.",
+   "I'll hold on. Somehow."
+  ]
+ },
+ "results": {
+  "active": [
+   "Vitals are fine. Grade's fine.",
+   "Let me check you over too.",
+   "Everyone's breathing. Good job."
+  ],
+  "injured": [
+   "I'll be off my feet a while.",
+   "Grade's fine. I'm not, quite."
+  ]
+ }
+}

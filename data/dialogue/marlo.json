@@ -1,0 +1,83 @@
+{
+ "briefing": {
+  "active": [
+   "I'm on the line. Eyes up, call it as I see it.",
+   "Course is clean. Mostly. Listen for me.",
+   "You fly, I talk. That's the deal."
+  ],
+  "injured": [
+   "Arm's in a sling, but my mouth works fine.",
+   "I'll call it from the chair today. Fly kind."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Gate. Good line.",
+   "Through. Next one's left.",
+   "Clean. Keep the speed.",
+   "Nice. Tighter on the next.",
+   "That's how it's done.",
+   "Gate. Don't get cocky."
+  ],
+  "injured": [
+   "Gate. Ow. Good line.",
+   "Through. I felt that one in my ribs.",
+   "Clean. Keep it clean."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Hey! I'm right here!",
+   "Watch it, I'm standing in that!",
+   "Pull up, pull up!"
+  ],
+  "injured": [
+   "Not again, please, not again!",
+   "I can't dodge with this leg. Back off!"
+  ]
+ },
+ "strike": {
+  "active": [
+   "Agh! That's my shoulder!",
+   "Okay. Okay. I'm down.",
+   "Medic. Somebody. Please."
+  ],
+  "injured": [
+   "I told you. I told you.",
+   "That's... not good. That's not good."
+  ]
+ },
+ "complete": {
+  "active": [
+   "That's a finish. Nice flying.",
+   "Done. Buy me a drink.",
+   "I barely had to talk. Good."
+  ],
+  "injured": [
+   "Done. My ribs thank you.",
+   "Finished. Quietly. Nicely done."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Shake it off. We go again.",
+   "Not your day. Happens.",
+   "Listen to me next time, yeah?"
+  ],
+  "injured": [
+   "We'll get it. Slower, maybe.",
+   "Not today. I'm too sore to be mad."
+  ]
+ },
+ "results": {
+  "active": [
+   "Numbers don't lie. Mostly.",
+   "Fair grade. I'd argue the timing.",
+   "Look at those splits."
+  ],
+  "injured": [
+   "Grade's fine. My arm is not.",
+   "We'll do better when I can stand."
+  ]
+ }
+}

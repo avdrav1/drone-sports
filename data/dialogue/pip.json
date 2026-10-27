@@ -1,0 +1,51 @@
+{
+ "briefing": {
+  "active": [
+   "Okay. Okay. Same as the sim, right?",
+   "Hands steady. Let's do this.",
+   "I've flown worse. In a game, but still."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Through!",
+   "Clean. Next.",
+   "Ha, nailed it."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Wait, someone's down there!",
+   "Pulling off, pulling off!",
+   "Too close, too close."
+  ]
+ },
+ "strike": {
+  "active": [
+   "No. No, no, no.",
+   "That was me. That was my fault.",
+   "Are they okay? Somebody say something."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Done! We actually did it.",
+   "Wheels down. Well, skids.",
+   "That felt good."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Ugh. Again.",
+   "I had it. I had it until I didn't.",
+   "Okay. Reset. Breathe."
+  ]
+ },
+ "results": {
+  "active": [
+   "Let me see the numbers.",
+   "Not bad for a gamer.",
+   "I'll get that grade up."
+  ]
+ }
+}

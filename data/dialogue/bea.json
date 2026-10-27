@@ -1,0 +1,79 @@
+{
+ "briefing": {
+  "active": [
+   "Building's coming down on schedule. Be out before it does.",
+   "Hard hats on. Fly fast, fly smart.",
+   "I call the collapse. You listen."
+  ],
+  "injured": [
+   "Still the foreman. Still calling it. Move.",
+   "Leg's busted. Building doesn't care. Go."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Through the gap. Good.",
+   "That's a clean entry.",
+   "On line. Keep it."
+  ],
+  "injured": [
+   "Good gap. Keep it that tight.",
+   "Through. Don't get clever."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Watch the cornice! I'm under it!",
+   "Off my site, now!",
+   "Back up, I'm right below you!"
+  ],
+  "injured": [
+   "Not again. Not on me again!",
+   "I can't run on this leg. Back off!"
+  ]
+ },
+ "strike": {
+  "active": [
+   "Ugh! Block came down on me!",
+   "I'm hit. Keep the job moving.",
+   "Somebody get this off my leg."
+  ],
+  "injured": [
+   "That's twice. That's... twice.",
+   "I can't get up. I can't get up."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Out before the roof. That's the job.",
+   "Clean demo. I'll sign it.",
+   "Good. Nobody's under anything."
+  ],
+  "injured": [
+   "Done. I'll sign it from the stretcher.",
+   "Clean work. Wish I'd been upright for it."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Site's shut. We reset tomorrow.",
+   "Too slow. The roof doesn't wait.",
+   "Walk it back. Think about the line."
+  ],
+  "injured": [
+   "Not like this. Not with me hurt.",
+   "Pack it up. We try again slower."
+  ]
+ },
+ "results": {
+  "active": [
+   "Safety's the first grade. The rest is pay.",
+   "Fair work.",
+   "I've seen worse crews."
+  ],
+  "injured": [
+   "Grade's fine. Site safety, not so much.",
+   "Paperwork says injured. Paperwork's right."
+  ]
+ }
+}

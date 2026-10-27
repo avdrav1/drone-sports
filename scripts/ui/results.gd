@@ -1,6 +1,6 @@
 extends Control
 # Results after a job: every objective and its score, crew strikes, the grade,
-# pay, and reputation change. Retry reloads the job scene; Continue goes to continue_scene.
+# pay, reputation change, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
 
 signal retry_pressed
 signal continue_pressed
@@ -37,6 +37,8 @@ func show_result(r: JobResult) -> void:
 		row.text = line
 		row.add_theme_color_override("font_color", Color(1.0, 0.45, 0.35))
 		rows.add_child(row)
+	if not r.bark.is_empty():
+		rows.add_child(bark_row(r.bark))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
 
 ## One line per struck character, e.g. "Marlo struck 1x".
@@ -46,6 +48,21 @@ static func strike_lines(r: JobResult) -> Array[String]:
 		var c: Character = Roster.character(id)
 		out.append("%s struck %dx" % [c.name if c else String(id), r.strikes[id]])
 	return out
+
+## A portrait beside "Name: line".
+static func bark_row(b: Dictionary) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Bark"
+	var c: Character = Roster.character(b.id)
+	var face := CharacterPortrait.new()
+	face.character = c
+	face.custom_minimum_size = Vector2(48, 48)
+	row.add_child(face)
+	var line := Label.new()
+	line.text = "%s: %s" % [c.name if c else String(b.id), b.text]
+	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(line)
+	return row
 
 func retry() -> void:
 	retry_pressed.emit()

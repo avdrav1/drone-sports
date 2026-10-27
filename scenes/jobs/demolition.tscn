@@ -25,6 +25,8 @@
 [ext_resource type="Script" path="res://scripts/hazard/crew_prop.gd" id="crew"]
 [ext_resource type="Script" path="res://scripts/hazard/debris.gd" id="debris"]
 [ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="warn"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="88_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
 
 [sub_resource type="StandardMaterial3D" id="concrete"]
 albedo_color = Color(0.62, 0.55, 0.5, 1)
@@ -818,3 +820,18 @@ event = &"roof"
 objective = NodePath("../Exit")
 reason = "the roof came down"
 label = "Out before the roof"
+
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("88_bark")
+runner = NodePath("../JobRunner")
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("89_barkbox")
+bark = NodePath("../../Bark")

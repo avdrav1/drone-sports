@@ -13,3 +13,5 @@ var pay := 0
 var reputation_change := 0
 ## Character id -> strikes landed on them this job.
 var strikes := {}
+## The closing line for the results screen: {id, text}. Empty when nobody speaks.
+var bark := {}

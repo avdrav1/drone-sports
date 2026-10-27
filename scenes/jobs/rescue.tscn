@@ -22,6 +22,8 @@
 [ext_resource type="Script" path="res://scripts/rescue/beacon.gd" id="beacon"]
 [ext_resource type="Script" path="res://scripts/rescue/rescue_timer.gd" id="timer"]
 [ext_resource type="Script" path="res://scripts/ui/beacon_hud.gd" id="beaconhud"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="88_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
 
 [node name="Rescue" type="Node3D"]
 
@@ -180,3 +182,18 @@ ends_job = true
 script = ExtResource("time")
 target_time = 60.0
 label = "Under 60 s"
+
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("88_bark")
+runner = NodePath("../JobRunner")
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("89_barkbox")
+bark = NodePath("../../Bark")

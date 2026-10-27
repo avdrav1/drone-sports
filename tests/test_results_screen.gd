@@ -31,7 +31,7 @@ func test_shows_within_1s_with_every_objective() -> bool:
 	var screen: Control = runner.results_screen
 	var ok: bool = ended and screen != null and screen.is_visible_in_tree()
 	if ok:
-		var rows: Array = screen.get_node("%Rows").get_children().map(func(l): return l.text)
+		var rows: Array = screen.get_node("%Rows").get_children().filter(func(l): return l is Label).map(func(l): return l.text)
 		ok = rows.size() == 3 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
 			and rows[1].contains("No contact") and rows[2].contains("Under 25 s") \
 			and screen.get_node("%Grade").text.contains("Grade A") \

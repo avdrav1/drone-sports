@@ -10,6 +10,7 @@ role = "Scout"
 shape = &"tall"
 colors = PackedColorArray(0.55, 0.4, 0.8, 1, 0.9, 0.85, 1, 1, 0.2, 0.18, 0.28, 1)
 lines = "res://data/dialogue/rin.json"
+speaks_on = Array[StringName]([&"briefing", &"complete", &"fail", &"results"])
 death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([])

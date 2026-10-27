@@ -1,0 +1,79 @@
+{
+ "briefing": {
+  "active": [
+   "Props are balanced. Don't make me redo them.",
+   "Battery's fresh. Bring it back that way.",
+   "I tightened everything. Twice. Go."
+  ],
+  "injured": [
+   "Stitched up and still turning wrenches. Go.",
+   "Bring it back in one piece. Unlike me."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Motors sound happy.",
+   "That's my tune-up talking.",
+   "Good. Nothing fell off."
+  ],
+  "injured": [
+   "Still running. Good.",
+   "Gate. I heard every bearing."
+  ]
+ },
+ "warning": {
+  "active": [
+   "I'm standing right there, genius!",
+   "Not near the van!",
+   "Hey! Wrench in hand, back off!"
+  ],
+  "injured": [
+   "Don't you dare. I'm still healing!",
+   "I can't move fast. Away!"
+  ]
+ },
+ "strike": {
+  "active": [
+   "My hand! My good hand!",
+   "Who's fixing the fixer now?",
+   "Ow! Okay. Okay. Get a kit."
+  ],
+  "injured": [
+   "Twice. You got me twice.",
+   "I can't... I can't feel my fingers."
+  ]
+ },
+ "complete": {
+  "active": [
+   "It came back! Shocked.",
+   "Not a scratch. I'm almost proud.",
+   "Good. I can go to lunch."
+  ],
+  "injured": [
+   "Back in one piece. One of us is.",
+   "Fine. Good. I'll sit down now."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Do you know what parts cost?",
+   "I'll get the tape.",
+   "That's coming out of something."
+  ],
+  "injured": [
+   "Don't make me fix it like this.",
+   "Great. More work, fewer hands."
+  ]
+ },
+ "results": {
+  "active": [
+   "Grade's nice. The repair bill is nicer.",
+   "I'll price the damage.",
+   "Not bad. Not cheap either."
+  ],
+  "injured": [
+   "Grade's fine. My insurance is not.",
+   "Let's count what's broken. Including me."
+  ]
+ }
+}

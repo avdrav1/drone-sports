@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
@@ -25,6 +25,8 @@
 [ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
 [ext_resource type="Script" path="res://scripts/nav/course_route.gd" id="85_route"]
 [ext_resource type="Script" path="res://scripts/nav/route_ribbon.gd" id="86_ribbon"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="88_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -212,3 +214,19 @@ script = ExtResource("15_race")
 runner = NodePath("../JobRunner")
 course = NodePath("../Course")
 opponents = [NodePath("../Opponent1"), NodePath("../Opponent2"), NodePath("../Opponent3")]
+
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "course")]
+script = ExtResource("88_bark")
+runner = NodePath("../JobRunner")
+course = NodePath("../Course")
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("89_barkbox")
+bark = NodePath("../../Bark")

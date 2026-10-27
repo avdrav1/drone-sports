@@ -1,0 +1,51 @@
+{
+ "briefing": {
+  "active": [
+   "Read the brief. Then read it again.",
+   "Clean, safe, fast. In that order.",
+   "Show me why I scouted you."
+  ]
+ },
+ "gate_passed": {
+  "active": [
+   "Good line.",
+   "Patience. Then speed.",
+   "Better."
+  ]
+ },
+ "warning": {
+  "active": [
+   "Crew in the zone. Ease off.",
+   "Watch your crew.",
+   "You see them? Then fly like it."
+  ]
+ },
+ "strike": {
+  "active": [
+   "That one's on you. Own it.",
+   "Stop. Breathe. Your crew needs you careful.",
+   "That's the cost. Remember it."
+  ]
+ },
+ "complete": {
+  "active": [
+   "Good work. Not perfect. Good.",
+   "That's a pro finish.",
+   "Job done. Debrief."
+  ]
+ },
+ "fail": {
+  "active": [
+   "Failure's data. Read it.",
+   "Reset. We learn and go again.",
+   "Not today. Tomorrow."
+  ]
+ },
+ "results": {
+  "active": [
+   "Look at the grade, then look at why.",
+   "Here's where you lost time.",
+   "Every number is a lesson."
+  ]
+ }
+}

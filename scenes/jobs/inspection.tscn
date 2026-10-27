@@ -23,6 +23,8 @@
 [ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="21_zone"]
 [ext_resource type="Script" path="res://scripts/hazard/crew_prop.gd" id="22_crew"]
 [ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="23_warn"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="88_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
 
 [sub_resource type="StandardMaterial3D" id="steel"]
 albedo_color = Color(0.22, 0.2, 0.22, 1)
@@ -475,3 +477,18 @@ label = "No contact"
 script = ExtResource("10_time")
 target_time = 60.0
 label = "Under 60 s"
+
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("88_bark")
+runner = NodePath("../JobRunner")
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("89_barkbox")
+bark = NodePath("../../Bark")

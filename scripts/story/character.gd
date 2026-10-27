@@ -15,8 +15,11 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var shape: StringName = &"round"
 ## Two or three colors: body, accent, optional detail.
 @export var colors: PackedColorArray = []
-## Bark lines (Story 7.3).
+## Bark lines (Story 7.3): event -> {"active": [...], "injured": [...]}.
 @export_file("*.json") var lines := ""
+## Events this character speaks on even when not in the field, e.g. gate_passed
+## for the spotter. Crew in the field speak on every event.
+@export var speaks_on: Array[StringName] = []
 @export var death_consequence: StringName
 ## False for anyone never in the field: the player's own pilot, Coach Rin.
 @export var can_be_harmed := true
