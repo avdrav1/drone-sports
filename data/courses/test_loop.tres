@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CourseData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/race/course_data.gd" id="1_course"]
+
+[resource]
+script = ExtResource("1_course")
+title = "Test loop"
+gates = Array[Transform3D]([Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -40), Transform3D(0.650791, 0, 0.759257, 0, 1, 0, -0.759257, 0, 0.650791, -10.2513, 4.5, -61.2132), Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -35, 6, -70), Transform3D(-0.650791, 0, 0.759257, 0, 1, 0, -0.759257, 0, -0.650791, -59.7487, 5, -61.2132), Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -70, 3.5, -40), Transform3D(-0.650791, 0, -0.759257, 0, 1, 0, 0.759257, 0, -0.650791, -59.7487, 5.5, -18.7868), Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -35, 7, -10), Transform3D(0.650791, 0, -0.759257, 0, 1, 0, 0.759257, 0, 0.650791, -10.2513, 4, -18.7868)])
+gate_size = Vector2(4, 3)
+laps = 2
+bounds = AABB(-85, 0, -85, 100, 30, 90)

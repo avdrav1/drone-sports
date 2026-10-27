@@ -178,9 +178,9 @@ Done when every flying scene shares one golden-hour desert look: low warm sun, h
 
 Done when a player can fly a gated race against AI drones with Act 1 assists, get graded, and get paid. This is the playable slice; stop and playtest here.
 
-- [ ] **3.1 Gate and course**
+- [x] **3.1 Gate and course**
   - Goal: A `Gate` node that detects a pass-through in the correct direction, and a `Course` that orders gates and tracks laps.
-  - Context: Builds on `ReachPoint` from 2.3.
+  - Context: Builds on `ReachPoint` from 2.3. The signal also carries the racer, lap number, and validity, since one course tracks every racer: `lap_completed(time, racer, lap, valid)`. Invalid laps do not count toward the race.
   - Acceptance: Passing a gate backwards does not count. Skipping a gate invalidates the lap. Course emits `lap_completed(time)`. A test course with 8 gates and 2 laps exists in `data/courses/`.
   - Out of scope: Course editor.
 
