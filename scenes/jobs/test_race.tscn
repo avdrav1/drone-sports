@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/jobs/objectives/clean_lap.gd" id="13_clean"]
 [ext_resource type="Script" path="res://scripts/jobs/objectives/best_split.gd" id="14_split"]
 [ext_resource type="Script" path="res://scripts/race/race.gd" id="15_race"]
+[ext_resource type="Script" path="res://scripts/race/ai_pilot.gd" id="16_ai"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -27,11 +28,41 @@ script = ExtResource("3_course")
 data = ExtResource("4_loop")
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -32)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 3, -36)
 intent_source = NodePath("PilotInput")
 
 [node name="PilotInput" type="Node" parent="Drone"]
 script = ExtResource("6_input")
+
+[node name="Opponent1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 3, -33)
+intent_source = NodePath("AiPilot")
+
+[node name="AiPilot" type="Node" parent="Opponent1" node_paths=PackedStringArray("course")]
+script = ExtResource("16_ai")
+course = NodePath("../../Course")
+seed = 11
+lane = -1.0
+
+[node name="Opponent2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 3, -36)
+intent_source = NodePath("AiPilot")
+
+[node name="AiPilot" type="Node" parent="Opponent2" node_paths=PackedStringArray("course")]
+script = ExtResource("16_ai")
+course = NodePath("../../Course")
+seed = 12
+lane = 1.0
+
+[node name="Opponent3" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 3, -33)
+intent_source = NodePath("AiPilot")
+
+[node name="AiPilot" type="Node" parent="Opponent3" node_paths=PackedStringArray("course")]
+script = ExtResource("16_ai")
+course = NodePath("../../Course")
+seed = 13
+lane = 0.0
 
 [node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("7_rig")]
 target = NodePath("../Drone")
@@ -89,7 +120,8 @@ script = ExtResource("14_split")
 course = NodePath("../../Course")
 label = "Best lap"
 
-[node name="Race" type="Node" parent="." node_paths=PackedStringArray("runner", "course")]
+[node name="Race" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "opponents")]
 script = ExtResource("15_race")
 runner = NodePath("../JobRunner")
 course = NodePath("../Course")
+opponents = [NodePath("../Opponent1"), NodePath("../Opponent2"), NodePath("../Opponent3")]

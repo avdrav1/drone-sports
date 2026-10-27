@@ -112,6 +112,9 @@ func _physics_process(delta: float) -> void:
 		motor_thrusts = Mixer.mix(intent, max_thrust)
 	_time += delta
 	_drain_battery(delta)
+	# A frozen body keeps forces queued while frozen and releases them all on unfreeze.
+	if freeze:
+		return
 	var basis := global_transform.basis
 	var up := basis.y
 	var yaw := 0.0

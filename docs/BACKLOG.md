@@ -190,7 +190,7 @@ Done when a player can fly a gated race against AI drones with Act 1 assists, ge
   - Acceptance: First-place clean run grades A. Last place with contact grades no higher than D.
   - Out of scope: Multiplayer.
 
-- [ ] **3.3 AI racers**
+- [x] **3.3 AI racers**
   - Goal: Three opponent drones that fly the course on a spline with speed noise and a small chance to clip a gate.
   - Context: Same `Drone` scene with a scripted `Intent` source instead of input, so physics match the player.
   - Acceptance: Opponents finish within 10 percent of each other on the test course. They never leave course bounds. Lap times reproducible with a seed.

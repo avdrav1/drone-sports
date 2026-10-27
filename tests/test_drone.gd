@@ -73,3 +73,14 @@ func test_pitched_drone_moves_forward() -> bool:
 	var forward_speed := d.linear_velocity.dot(Vector3.FORWARD)
 	d.free()
 	return forward_speed > 0.5
+
+## Found in Story 3.3: forces queued while frozen used to fire all at once on unfreeze.
+func test_frozen_drone_queues_no_force() -> bool:
+	var d := Sim.drone(Sim.intent(0.2), Vector3(40, 50, 40))
+	d.freeze = true
+	await Sim.physics_frames(180)
+	d.freeze = false
+	await Sim.physics_frames(5)
+	var ok := d.linear_velocity.length() < 1.0 and d.angular_velocity.length() < 0.5
+	d.free()
+	return ok
