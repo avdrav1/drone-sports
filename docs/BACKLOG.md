@@ -431,11 +431,12 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
 
 Done when the boss job exists, is beatable by disabling the core, is lethal for crew in the field, and vanishes entirely when `enabled` is false. Read `docs/BOSS.md` before every story here. Requires Epics 6 and 7.
 
-- [ ] **8.1 Boss resource and kill switch**
+- [x] **8.1 Boss resource and kill switch**
   - Goal: A `Boss` resource at `data/boss/lattice.tres` with `enabled`, `required_characters` (marlo), `min_fleet` (2), phase timings, and the chorus line file. A `BossGate` check the job board calls.
   - Context: This is the feature flag. Everything else in this epic checks it.
   - Acceptance: With `enabled` false, the job board has no Lattice entry and no `scenes/boss/` scene is ever instanced (test asserts on a resource load spy). With it true but requirements unmet, the board shows the job as unreachable with the reason. With all met, it is flyable.
   - Out of scope: The fight.
+  - Note: `Boss` also has `after_job` (default `fleet_race`), so the Lattice follows the fleet final instead of being flyable on a new game; it shows on the board as unreachable until then. `BossGate.open()` is the only way into a boss scene and records each load in `BossGate.loads`, the spy the test reads along with `ResourceLoader.has_cached`. The boss job lives in `data/boss/`, off `board.tres`.
 
 - [ ] **8.2 The shell**
   - Goal: A procedurally placed sphere of captured drone units with one assembly trench seam, in `scenes/boss/lattice.tscn`. Units are the Drone scene's mesh, static, no physics per unit.

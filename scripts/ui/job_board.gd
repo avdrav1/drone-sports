@@ -89,6 +89,11 @@ func refresh() -> void:
 		var row := _job_row(job)
 		job_rows[job.id] = row
 		_jobs_box.add_child(row)
+	# The Lattice is data-gated: switched off, it is never listed (Story 8.1).
+	if BossGate.listed():
+		var boss := _boss_row(BossGate.data().job)
+		job_rows[BossGate.data().job.id] = boss
+		_jobs_box.add_child(boss)
 	_crew_box.add_child(_heading("CREW"))
 	for id in Roster.ids():
 		var row := crew_row(id)
@@ -161,6 +166,42 @@ func _job_row(job: Job) -> HBoxContainer:
 			lock.text = "Closed: needs " + ", ".join(missing)
 		else:
 			lock.text = "Locked: " + (", ".join(teams) if not teams.is_empty() else "no team yet")
+		lock.add_theme_color_override("font_color", DIM)
+		lock.add_theme_font_size_override("font_size", 14)
+		lock.custom_minimum_size.x = 220
+		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		row.add_child(lock)
+	return row
+
+## The boss's row: Fly when every requirement is met, else why not.
+func _boss_row(job: Job) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = String(job.id)
+	row.add_theme_constant_override("separation", 16)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = SIZE_EXPAND_FILL
+	var title := Label.new()
+	title.text = job.title
+	title.add_theme_color_override("font_color", HURT)
+	text.add_child(title)
+	var details := Label.new()
+	details.name = "Details"
+	details.text = "%s  ·  Lethal for crew in the field  ·  pay %d  ·  %s assists" % [job.client, job.pay, preset_label(job)]
+	details.add_theme_color_override("font_color", DIM)
+	details.add_theme_font_size_override("font_size", 14)
+	text.add_child(details)
+	row.add_child(text)
+	if BossGate.flyable():
+		var b := Button.new()
+		b.name = "Fly"
+		b.text = "Fly"
+		b.custom_minimum_size.x = 90
+		b.pressed.connect(func(): BossGate.open(get_tree()))
+		row.add_child(b)
+	else:
+		var lock := Label.new()
+		lock.name = "Locked"
+		lock.text = "Unreachable: " + "; ".join(BossGate.reasons())
 		lock.add_theme_color_override("font_color", DIM)
 		lock.add_theme_font_size_override("font_size", 14)
 		lock.custom_minimum_size.x = 220

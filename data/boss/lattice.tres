@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="Boss" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/boss/boss.gd" id="1_boss"]
+[ext_resource type="Resource" path="res://data/boss/lattice_job.tres" id="2_job"]
+
+[resource]
+script = ExtResource("1_boss")
+enabled = true
+job = ExtResource("2_job")
