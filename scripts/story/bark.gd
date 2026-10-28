@@ -7,9 +7,20 @@ extends Node
 # was before it, and a strike that kills leaves only a memorial line on the
 # results screen. Every line announced on `spoke` plays its speaker's chirp
 # (Story 14.8); lines kept for the results screen chirp when shown there.
+# Story 17.2: a line is a string or {"text": ..., "face": ...}; the face is one
+# of CharacterPortrait.EXPRESSIONS, or the event's default when it has none.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results"]
+## The face a line makes when its entry names none. Other events look neutral.
+const DEFAULT_FACES := {
+	&"briefing": &"determined",
+	&"gate_passed": &"happy",
+	&"warning": &"shocked",
+	&"strike": &"sad",
+	&"complete": &"happy",
+	&"fail": &"sad",
+}
 
 signal spoke(id: StringName, event: StringName, text: String)
 
@@ -64,17 +75,32 @@ static func lines_of(id: StringName) -> Dictionary:
 		_cache[id] = res.data if res and res.data is Dictionary else {}
 	return _cache[id]
 
-## The lines this character can say on an event right now. None when dead; the
-## injured variant when injured and one exists.
+## A line entry's text, whether it is a string or {"text", "face"}.
+static func text_of(line: Variant) -> String:
+	return str(line.get("text", "")) if line is Dictionary else str(line)
+
+## The face for a line: its entry's `face` when that is a known expression,
+## otherwise the event's default.
+static func face_of(id: StringName, event: StringName, text: String) -> StringName:
+	var e: Variant = lines_of(id).get(String(event), {})
+	if e is Dictionary:
+		for line in e.get("active", []) + e.get("injured", []):
+			if line is Dictionary and text_of(line) == text:
+				var face := StringName(str(line.get("face", "")))
+				if face in CharacterPortrait.EXPRESSIONS:
+					return face
+	return DEFAULT_FACES.get(event, &"neutral")
+
+## The lines this character can say on an event right now, as text. None when
+## dead; the injured variant when injured and one exists.
 ## `as_status` reads the lines as if the character had that status (alive only).
 static func pool(id: StringName, event: StringName, as_status := -1) -> Array:
 	if Roster.character(id) == null or not Roster.is_alive(id):
 		return []
 	var e: Dictionary = lines_of(id).get(String(event), {})
 	var status: int = Roster.status(id) if as_status < 0 else as_status
-	if status == Roster.Status.INJURED and e.has("injured"):
-		return e.injured
-	return e.get("active", [])
+	var lines: Array = e.injured if status == Roster.Status.INJURED and e.has("injured") else e.get("active", [])
+	return lines.map(text_of)
 
 ## Lines not yet said this job; the whole pool when it holds a single line.
 func available(id: StringName, event: StringName, as_status := -1) -> Array:
@@ -101,8 +127,8 @@ func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]
 			out.append(id)
 	return out
 
-## Picks a speaker and an unsaid line. Returns {id, event, text}, or {} when nobody
-## can. Announces it on `spoke` (the HUD) unless `announce` is false.
+## Picks a speaker and an unsaid line. Returns {id, event, text, face}, or {} when
+## nobody can. Announces it on `spoke` (the HUD) unless `announce` is false.
 func say(event: StringName, subject: StringName = &"", announce := true, as_status := -1) -> Dictionary:
 	var who: Array[StringName] = []
 	for id in speakers(event, subject):
@@ -118,7 +144,7 @@ func say(event: StringName, subject: StringName = &"", announce := true, as_stat
 	used[id].append(text)
 	if announce:
 		spoke.emit(id, event, text)
-	return {"id": id, "event": event, "text": text}
+	return {"id": id, "event": event, "text": text, "face": face_of(id, event, text)}
 
 func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 	match s:

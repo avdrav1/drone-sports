@@ -834,7 +834,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: Every expression gives a distinct pose; happy curves the mouth up, sad curves it down, shocked opens it wide. A blink closes the lids for 0.1 to 0.2 s every 2 to 6 s, at the same times for the same seed. While talking, mouth openness changes over time; when not talking, it holds the expression's value. A `portrait` texture still overrides the drawn face. Every character draws without errors at 32, 64, and 128 px. A dead character's lids are closed.
   - Out of scope: Lip sync to audio, head turns, new characters.
 
-- [ ] **17.2 Talking faces**
+- [x] **17.2 Talking faces**
   - Goal: Lines carry an expression, and the HUD line box shows the speaker's face making it and talking while the text types out.
   - Context: `data/dialogue/*.json` entries may be a string (as now) or `{"text": ..., "face": ...}`; existing files stay valid. Without a `face`, each event has a default: briefing determined, gate_passed happy, warning shocked, strike sad, complete happy, fail sad. `BarkBox` types the text at a steady rate, with the portrait talking until the last character and then holding the expression. The chirp from 14.8 plays as now. Results-screen lines show the face too.
   - Acceptance: A string line and an object line both load, and the object's `face` is used. A line with no `face` gets its event's default expression. While the text is typing, the portrait is talking; once the full line shows, it is not. The full line shows within 2 s of a 40-character line starting. Every existing bark test passes unchanged.

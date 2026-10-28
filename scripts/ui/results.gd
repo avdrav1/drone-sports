@@ -75,10 +75,11 @@ static func strike_lines(r: JobResult) -> Array[String]:
 		out.append("%s struck %dx" % [c.name if c else String(id), r.strikes[id]])
 	return out
 
-## A portrait beside "Name: line".
+## A portrait making the line's face beside "Name: line".
 static func bark_row(b: Dictionary) -> HBoxContainer:
 	var c: Character = Roster.character(b.id)
-	return _face_row("Bark", c, "%s: %s" % [c.name if c else String(b.id), b.text], false, Color.WHITE)
+	var face: StringName = b.get("face", Bark.face_of(b.id, b.get("event", &"results"), b.text))
+	return _face_row("Bark", c, "%s: %s" % [c.name if c else String(b.id), b.text], false, Color.WHITE, face)
 
 ## "Marlo injured, out for 2 jobs" with their line, or "Marlo died" with the
 ## memorial line and a greyed portrait.
@@ -89,21 +90,24 @@ static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var head := "%s died." % who if dead else "%s injured, out for %d jobs." % [who, Roster.INJURY_JOBS]
 	var line: String = r.casualty_lines.get(id, "")
 	var text := head + ("\n" + ("" if dead else who + ": ") + line if line else "")
-	return _face_row("Casualty", c, text, dead, Color(1.0, 0.45, 0.35))
+	var face := Bark.face_of(id, &"hurt", line) if line and not dead else &"neutral"
+	return _face_row("Casualty", c, text, dead, Color(1.0, 0.45, 0.35), face)
 
 ## The last word from one crew member: theirs if alive, their memorial if not.
 static func epilogue_row(e: Dictionary) -> HBoxContainer:
 	var c: Character = Roster.character(e.id)
 	var who := c.name if c else String(e.id)
 	var text: String = ("%s: %s" % [who, e.text]) if e.alive else ("%s is not coming home. %s" % [who, e.text])
-	return _face_row("Epilogue_%s" % e.id, c, text, not e.alive, Color.WHITE if e.alive else Color(1, 1, 1, 0.55))
+	var face := Bark.face_of(e.id, &"epilogue", e.text) if e.alive else &"neutral"
+	return _face_row("Epilogue_%s" % e.id, c, text, not e.alive, Color.WHITE if e.alive else Color(1, 1, 1, 0.55), face)
 
-static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color) -> HBoxContainer:
+static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color, expression: StringName = &"neutral") -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = row_name
 	var face := CharacterPortrait.new()
 	face.character = c
 	face.greyed = greyed
+	face.expression = expression
 	face.custom_minimum_size = Vector2(48, 48)
 	row.add_child(face)
 	var line := Label.new()

@@ -347,7 +347,7 @@ func _call(index: int) -> void:
 	var lines: Array = Bark.lines_of(&"marlo").get("trench", {}).get("active", [])
 	if lines.is_empty():
 		return
-	var text: String = lines[mini(index, lines.size() - 1)]
+	var text := Bark.text_of(lines[mini(index, lines.size() - 1)])
 	called.emit(index, text)
 	if bark:
 		bark.spoke.emit(&"marlo", &"trench", text)
@@ -431,5 +431,5 @@ func _on_finished(result: JobResult) -> void:
 		var text := Bark.memorial(id)
 		if alive:
 			var lines: Array = Bark.lines_of(id).get("epilogue", {}).get("active", [])
-			text = lines[0] if not lines.is_empty() else ""
+			text = Bark.text_of(lines[0]) if not lines.is_empty() else ""
 		result.epilogue.append({"id": id, "text": text, "alive": alive})
