@@ -14,12 +14,16 @@ extends StaticBody3D
 @export var lit_min := 0.04
 @export var lit_max := 0.25
 
+## Group a city joins so the drone's wind can find its lee (Story 13.4).
+const SHELTER_GROUP := &"wind_shelter"
+
 ## params -> [MultiMesh, Array of [BoxShape3D, centre]].
 static var _cache := {}
 
 var plan: CityPlan
 
 func _ready() -> void:
+	add_to_group(SHELTER_GROUP)
 	build()
 
 func build() -> void:

@@ -572,11 +572,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Snow on the drone, footprints, snow sound.
   - Note: `WeatherState` adds a `Snow` child beside `Rain`: `CPUParticles3D` flakes (`max_amount` 1600 times intensity, freed with no snow) on the camera via the shared static `Rain.follow_camera`, launched along `Snow.flake_velocity()` (1.5 m/s fall plus `weather.wind.sample`, visual only), and a `snow_cover` global shader uniform (in `project.godot`) that builds at intensity / `cover_time` 30 s and melts over `melt_time` 30 s; city roofs, streets, and flat desert whiten with it. `Weather.validate()` returns problems: a stored precipitation of RAIN | SNOW (3) is "rain and snow together", plus intensity outside 0..1 and a backwards strike range; 13.7 can validate presets with it.
 
-- [ ] **13.4 Real wind**
+- [x] **13.4 Real wind**
   - Goal: Wind that varies the way air does: turbulence on top of gusts, stronger with height, and calmer in the lee of buildings.
   - Context: All of it in `Wind.sample`, which the flight model already reads (rule 1 unchanged). Shear is a power law with height. Shelter uses the city's plan: a point downwind of a lot and below its height gets a reduced wind. Seeded turbulence.
   - Acceptance: With shear set, measured wind at 40 m exceeds wind at 5 m. A point in the lee of a tower gets less wind than one upwind of it at the same height. The same seed gives the same turbulence.
   - Out of scope: Updrafts, wind visualisation.
+  - Note: `Wind.sample(time, at := (0, 10, 0), plan: CityPlan = null)` scales base, gusts, and seeded turbulence (`Wind.seed`, a few sines per axis drifting with place) by `(height / REFERENCE_HEIGHT 10 m) ^ shear`, and by `Wind.shelter`: down to 0.3 just downwind of a lot taller than the point, recovering over 4 lot heights. `City` joins `City.SHELTER_GROUP` and `Drone.wind_velocity()` samples at its own position in that city's local space (still gated by `intent.environment_sim`); calls without a point (snow flakes, old presets) get the reference-height wind unchanged.
 
 - [ ] **13.5 Lightning**
   - Goal: Lightning in storms: a flash that lights the sky and the scene for a moment, and a bolt in the distance, at a seeded rate.

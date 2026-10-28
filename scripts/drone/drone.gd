@@ -107,8 +107,14 @@ func set_motor_thrusts(thrusts: PackedFloat32Array) -> void:
 func power() -> float:
 	return clampf(1.0 - _empty_for / BATTERY_FADE_TIME, 0.0, 1.0)
 
+## The wind where the drone is: stronger with height, calmer in a city's lee (Story 13.4).
 func wind_velocity() -> Vector3:
-	return wind.sample(_time) if wind and intent.environment_sim else Vector3.ZERO
+	if wind == null or not intent.environment_sim:
+		return Vector3.ZERO
+	var city: City = get_tree().get_first_node_in_group(City.SHELTER_GROUP) if is_inside_tree() else null
+	if city and city.plan:
+		return wind.sample(_time, city.to_local(global_position), city.plan)
+	return wind.sample(_time, global_position)
 
 func _drain_battery(delta: float) -> void:
 	if not intent.environment_sim:
