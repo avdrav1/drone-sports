@@ -8,7 +8,8 @@ extends SceneTree
 var _errors: Array = []
 
 # Tests never touch the player's save.
-const TEST_SAVE := "user://test_run_save.json"
+## DRONE_TEST_SAVE names another file, so two checkouts can test at once.
+var TEST_SAVE: String = OS.get_environment("DRONE_TEST_SAVE") if OS.has_environment("DRONE_TEST_SAVE") else "user://test_run_save.json"
 
 func _initialize() -> void:
 	_run()
