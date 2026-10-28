@@ -473,11 +473,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: New game plus.
   - Note: The shell lets go in eight slices round its axis, 0.8 s apart; units fall for 1.5 s and are gone. A living crew member's lost unit becomes a fleet drone with their portrait (`LatticeFight.returned`). The job ends on the `PowerDown` objective once the sequence is over, so the results come after it. `JobResult.epilogue` holds one line per crew member: their `epilogue` line if alive, their memorial if dead. `lattice_disabled` is a story flag (save section `flags`), set only on a job that pays out. The chorus's last line is 8.7's.
 
-- [ ] **8.7 Chorus lines**
+- [x] **8.7 Chorus lines**
   - Goal: The Lattice's lines in `data/dialogue/lattice.json`: plural, flat, never first person singular, triggered on phase start, on reclaiming a crew-owned unit, on a strike, and on shutdown. Portrait is a grid of dots that thins as the fight goes on.
   - Context: Uses the bark system from 7.3 with a non-character speaker.
   - Acceptance: Every line passes a test that rejects "I", "me", or "my". The portrait density tracks remaining shell units.
   - Out of scope: Voice.
+  - Note: `Chorus` picks lines the way `Bark` does (seeded, no repeats until a pool runs out) but is not a cast character, so it has its own `spoke` signal and `ChorusBox`. The crew-unit line fills `{name}` and `{role}`. After the shutdown line it stays silent. The portrait is a 9×9 dot grid; dots drawn = grid² × (units left / units built).
 
 ## Epic 11: Story setup
 

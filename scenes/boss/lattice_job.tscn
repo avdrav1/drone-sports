@@ -26,6 +26,8 @@
 [ext_resource type="Script" path="res://scripts/ui/lattice_hud.gd" id="24_hud"]
 [ext_resource type="Script" path="res://scripts/jobs/objectives/override_hold.gd" id="25_override"]
 [ext_resource type="Script" path="res://scripts/jobs/objectives/power_down.gd" id="26_power"]
+[ext_resource type="Script" path="res://scripts/boss/chorus.gd" id="27_chorus"]
+[ext_resource type="Script" path="res://scripts/ui/chorus_box.gd" id="28_chorusbox"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -142,6 +144,10 @@ camera_rig = NodePath("../CameraRig")
 bark = NodePath("../Bark")
 override = NodePath("../JobRunner/Override")
 
+[node name="Chorus" type="Node" parent="." node_paths=PackedStringArray("fight")]
+script = ExtResource("27_chorus")
+fight = NodePath("../Fight")
+
 [node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
 script = ExtResource("17_bark")
 runner = NodePath("../JobRunner")
@@ -158,6 +164,17 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("18_barkbox")
 bark = NodePath("../../Bark")
+
+[node name="ChorusBox" type="Control" parent="HUD" node_paths=PackedStringArray("chorus")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("28_chorusbox")
+chorus = NodePath("../../Chorus")
 
 [node name="CrewWarning" type="Control" parent="HUD" node_paths=PackedStringArray("runner")]
 layout_mode = 3

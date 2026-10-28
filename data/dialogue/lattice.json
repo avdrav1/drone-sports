@@ -1,0 +1,32 @@
+{
+ "phase_reclaim": [
+  "We are more now.",
+  "You came to us. Good.",
+  "We see your machines. We will keep them."
+ ],
+ "phase_trench": [
+  "Inside us there is no room.",
+  "The way in is the way we close.",
+  "We are closing."
+ ],
+ "phase_override": [
+  "Hold still. We hold still too. For now.",
+  "Small machine. Small port. Small chance.",
+  "We feel you there."
+ ],
+ "crew_unit": [
+  "Your {role}'s drone flew well for us.",
+  "That one was {name}'s. Now it is yours again. For now.",
+  "Take it back. We have more."
+ ],
+ "strike": [
+  "Contact. Your crew pays for it.",
+  "We felt that. So did they.",
+  "Careless. We are never careless."
+ ],
+ "shutdown": [
+  "We are fewer now.",
+  "Quiet. We have never been quiet.",
+  "Let go. We let go."
+ ]
+}
