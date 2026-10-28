@@ -1,0 +1,96 @@
+{
+ "fifth": 220.245,
+ "instruments": [
+  "tanpura",
+  "reed",
+  "voice",
+  "frame_drum",
+  "cymbals",
+  "kick",
+  "clap",
+  "bass",
+  "arp",
+  "pad",
+  "lead"
+ ],
+ "scale": [
+  1.0,
+  1.125,
+  1.25,
+  1.3333333333333333,
+  1.5,
+  1.6666666666666667,
+  1.875
+ ],
+ "scores": {
+  "demo": {
+   "bars": 11,
+   "instruments": [
+    {
+     "bar": 0,
+     "instrument": "tanpura"
+    },
+    {
+     "bar": 1,
+     "instrument": "reed"
+    },
+    {
+     "bar": 2,
+     "instrument": "voice"
+    },
+    {
+     "bar": 3,
+     "instrument": "frame_drum"
+    },
+    {
+     "bar": 4,
+     "instrument": "cymbals"
+    },
+    {
+     "bar": 5,
+     "instrument": "kick"
+    },
+    {
+     "bar": 6,
+     "instrument": "clap"
+    },
+    {
+     "bar": 7,
+     "instrument": "bass"
+    },
+    {
+     "bar": 8,
+     "instrument": "arp"
+    },
+    {
+     "bar": 9,
+     "instrument": "pad"
+    },
+    {
+     "bar": 10,
+     "instrument": "lead"
+    }
+   ],
+   "stems": [
+    "demo"
+   ],
+   "tempo": 120.0,
+   "tonic": 146.83
+  },
+  "placeholder": {
+   "bars": 4,
+   "stems": [
+    "tonic"
+   ],
+   "tempo": 120.0,
+   "tonic": 146.83
+  }
+ },
+ "tonic": 146.83,
+ "vowels": [
+  "ah",
+  "oo",
+  "ee",
+  "mm"
+ ]
+}

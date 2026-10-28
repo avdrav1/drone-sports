@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Score" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
+[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
+[ext_resource type="AudioStream" path="res://data/music/demo_demo.ogg" id="1"]
+
+[sub_resource type="Resource" id="stem_1"]
+script = ExtResource("stem")
+id = &"demo"
+stream = ExtResource("1")
+level_db = -6.0
+
+[resource]
+script = ExtResource("score")
+id = &"demo"
+tempo = 120.0
+tonic = 146.83
+bars = 11
+stems = Array[ExtResource("stem")]([SubResource("stem_1")])

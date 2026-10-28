@@ -7,14 +7,42 @@ join seamlessly: tones use whole cycles per loop, noise is filtered around the
 loop until it settles. Run from the repo root: python3 tools/sfx/generate.py
 """
 
+import json
 import math
 import os
 import random
 import struct
+import sys
 import wave
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "music"))
+import key  # noqa: E402  (tools/music/key.py: the game's one key, Story 16.2)
 
 RATE = 22050
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "data", "audio", "generated")
+# Sounds tuned to the key (Story 16.2): name -> (scale degree, octave). Written
+# with their frequencies to pitches.json, which tests/test_music_key.gd checks.
+PITCHED = {
+    "drone_hum": (1, 0),
+    "lattice_drone": (1, -2),
+    "lattice_tone": (5, 0),
+}
+
+
+def loop_len(freq, seconds):
+    """Samples in about `seconds` that hold a whole number of cycles of freq,
+    and that number, so a loop at freq joins seamlessly."""
+    cycles = max(1, round(freq * seconds))
+    return round(cycles * RATE / freq), cycles
+
+
+def write_pitches():
+    """pitches.json: each tuned sound's degree, octave and base pitch in Hz."""
+    out = {name: {"degree": d, "octave": o, "hz": round(key.hz(d, o), 4)} for name, (d, o) in PITCHED.items()}
+    with open(os.path.join(OUT, "pitches.json"), "w") as f:
+        json.dump(out, f, indent=1, sort_keys=True)
+        f.write("\n")
 
 
 def write(name, samples, loop=False):
@@ -61,20 +89,20 @@ def muffled(samples):
 
 
 def drone_hum():
-    """One second of four motors' blade-pass buzz, slightly apart so they beat.
-    Played pitched up and down by thrust (DroneSound)."""
+    """About a second of four motors' blade-pass buzz, slightly apart so they
+    beat, the first on the key's tonic (Story 16.2). Played pitched up and down
+    by thrust (DroneSound), so at pitch 1 it sits on the tonic."""
     rng = random.Random(1402)
-    n = RATE
-    motors = [(190, 0.0), (193, 1.3), (187, 2.1), (196, 0.7)]  # Hz: whole cycles per second
+    n, c = loop_len(key.hz(*PITCHED["drone_hum"]), 1.0)
+    motors = [(c, 0.0), (c + 1, 1.3), (c - 1, 2.1), (c + 2, 0.7)]  # whole cycles per loop
     noise = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.25)
     out = []
     for i in range(n):
-        t = i / RATE
         s = 0.0
-        for f, ph in motors:
+        for cycles, ph in motors:
             # Blade pass plus a few harmonics: a buzzy, slightly nasal whine.
             for h, amp in ((1, 1.0), (2, 0.55), (3, 0.3), (4, 0.18), (6, 0.08)):
-                s += amp * math.sin(2 * math.pi * f * h * t + ph * h)
+                s += amp * math.sin(2 * math.pi * cycles * h * i / n + ph * h)
         out.append(s * 0.25 + noise[i] * 0.6)
     return out
 
@@ -366,9 +394,12 @@ def crew_chirp():
 
 def lattice_tone():
     """The chorus under each of its lines: a flat cluster of close sine tones,
-    many voices on one note, swelling in and fading out."""
+    many voices on the key's fifth with the tonic and fifth above, swelling in
+    and fading out."""
     n = int(RATE * 1.2)
-    voices = [(220, 0.0), (221.5, 1.1), (218.7, 2.3), (330, 0.4), (331.2, 1.9), (440.8, 2.8)]
+    f = key.hz(*PITCHED["lattice_tone"])
+    t8 = key.hz(1, 1)
+    voices = [(f, 0.0), (f + 1.5, 1.1), (f - 1.3, 2.3), (t8, 0.4), (t8 + 1.2, 1.9), (2 * f + 0.6, 2.8)]
     out = []
     for i in range(n):
         t = i / RATE
@@ -379,16 +410,17 @@ def lattice_tone():
 
 
 def lattice_drone():
-    """Two seconds of the Lattice's low drone: a deep hum with slow beating
-    partials and a faint grain of noise. Whole cycles, so it loops."""
+    """About two seconds of the Lattice's low drone: a deep hum on the tonic two
+    octaves down, with slow beating partials and a faint grain of noise. Whole
+    cycles, so it loops."""
     rng = random.Random(1480)
-    n = RATE * 2
+    n, c = loop_len(key.hz(*PITCHED["lattice_drone"]), 2.0)
     grain = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.03)
     out = []
     for i in range(n):
-        t = i / RATE
-        s = math.sin(2 * math.pi * 41 * t) + 0.7 * math.sin(2 * math.pi * 41.5 * t + 1.0)
-        s += 0.35 * math.sin(2 * math.pi * 82 * t) + 0.2 * math.sin(2 * math.pi * 123.5 * t + 0.5)
+        x = 2 * math.pi * i / n
+        s = math.sin(c * x) + 0.7 * math.sin((c + 1) * x + 1.0)
+        s += 0.35 * math.sin(2 * c * x) + 0.2 * math.sin((3 * c + 1) * x + 0.5)
         out.append(s + grain[i] * 1.5)
     return out
 
@@ -448,6 +480,7 @@ def main():
     # Frequencies in whole Hz (whole cycles per 3 s loop).
     write("bed_intro.wav", bed(1490, (110, 165, 220, 277), 2.0), loop=True)
     write("bed_recruited.wav", bed(1491, (98, 147, 196, 247), 1.2), loop=True)
+    write_pitches()
 
 
 if __name__ == "__main__":

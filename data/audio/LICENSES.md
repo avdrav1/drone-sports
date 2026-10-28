@@ -55,3 +55,6 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `cc0/thunder_2.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 20.8 to 31.8 s: https://opengameart.org/content/rain-long-thunder | CC0 |
 | `cc0/thunder_3.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 27.5 to 35.5 s, low-passed (900 Hz) for a distant roll: https://opengameart.org/content/rain-long-thunder | CC0 |
 | `../music/placeholder_tonic.ogg` | `tools/music/generate.py` | generated |
+| `generated/pitches.json` | `tools/sfx/generate.py` (base pitches of the tuned sounds, not audio) | generated |
+| `../music/demo_demo.ogg` | `tools/music/generate.py` | generated |
+| `../music/manifest.json` | `tools/music/generate.py` (the key, instruments and scores, not audio) | generated |

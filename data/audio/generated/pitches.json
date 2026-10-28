@@ -1,0 +1,17 @@
+{
+ "drone_hum": {
+  "degree": 1,
+  "hz": 146.83,
+  "octave": 0
+ },
+ "lattice_drone": {
+  "degree": 1,
+  "hz": 36.7075,
+  "octave": -2
+ },
+ "lattice_tone": {
+  "degree": 5,
+  "hz": 220.245,
+  "octave": 0
+ }
+}

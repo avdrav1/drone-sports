@@ -7,14 +7,26 @@ score is a set of stems of exactly the same length in samples, so Music can
 start them on one frame and they stay in step while their volumes fade. The
 generator writes WAV stems to build/music/ (not checked in), encodes each to
 mono Ogg Vorbis in data/music/, and writes the score's .tres beside them.
-Run from the repo root: python3 tools/music/generate.py
+It also writes data/music/manifest.json: the key, the instruments, and each
+score's tempo, tonic, bars and stems (and for the demo, which instrument plays
+in which bar). Run from the repo root: python3 tools/music/generate.py
+With --check it renders everything into build/music/check/ instead and exits
+nonzero unless every file there matches data/music/ byte for byte.
 """
 
+import filecmp
+import json
 import math
 import os
 import struct
 import subprocess
+import sys
 import wave
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import key  # noqa: E402
+import instruments  # noqa: E402
 
 RATE = 22050
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
@@ -23,8 +35,8 @@ OUT = os.path.join(ROOT, "data", "music")
 # Vorbis quality (-q:a). Mono 22050 Hz keeps all of data/music/ under 8 MB.
 QUALITY = "2"
 BEATS_PER_BAR = 4
-# Placeholder tonic (D3) until Story 16.2 moves the key to tools/music/key.py.
-TONIC = 146.83
+# Everything the generator wrote this run, for manifest.json.
+MANIFEST = {"scores": {}}
 
 
 def bar_samples(tempo, bars):
@@ -52,9 +64,12 @@ def encode(wav_path, ogg_path):
                    check=True)
 
 
-def write_score(score_id, tempo, tonic, bars, stems):
+def write_score(score_id, tempo, tonic, bars, stems, extra=None):
     """Writes each stem (id, samples, level_db) as WAV and Ogg, then the Score
-    resource data/music/<score_id>.tres naming them."""
+    resource data/music/<score_id>.tres naming them, and lists the score (plus
+    `extra` fields) in the manifest."""
+    MANIFEST["scores"][score_id] = dict({"tempo": float(tempo), "tonic": float(tonic), "bars": bars,
+                                         "stems": [stem_id for stem_id, _, _ in stems]}, **(extra or {}))
     lengths = {len(s) for _, s, _ in stems}
     assert len(lengths) == 1, "%s: stems differ in length %s" % (score_id, lengths)
     os.makedirs(OUT, exist_ok=True)
@@ -88,11 +103,62 @@ def placeholder():
     """Story 16.1: a single sine on the tonic, four bars at 120 bpm. Not music."""
     tempo, bars = 120, 4
     n = bar_samples(tempo, bars)
-    write_score("placeholder", tempo, TONIC, bars, [("tonic", sine_loop(TONIC, n), -12.0)])
+    write_score("placeholder", tempo, key.TONIC, bars, [("tonic", sine_loop(key.TONIC, n), -12.0)])
+
+
+def demo():
+    """Story 16.2: every instrument in turn, one bar each, in the key."""
+    tempo = 120
+    bars = len(instruments.INSTRUMENTS)
+    track = instruments.Track(bar_samples(tempo, bars), tempo)
+    for bar, name in enumerate(instruments.INSTRUMENTS):
+        instruments.demo_bar(track, name, bar, 1600 + bar * 10)
+    order = [{"bar": bar, "instrument": name} for bar, name in enumerate(instruments.INSTRUMENTS)]
+    write_score("demo", tempo, key.TONIC, bars, [("demo", track.buf, -6.0)], {"instruments": order})
+
+
+def write_manifest():
+    MANIFEST.update({
+        "tonic": key.TONIC,
+        "fifth": key.FIFTH,
+        "scale": list(key.SCALE),
+        "instruments": list(instruments.INSTRUMENTS),
+        "vowels": list(instruments.VOWELS),
+    })
+    with open(os.path.join(OUT, "manifest.json"), "w") as f:
+        json.dump(MANIFEST, f, indent=1, sort_keys=True)
+        f.write("\n")
+
+
+def check():
+    """Renders into build/music/check/ and compares with data/music/."""
+    global OUT
+    real = OUT
+    OUT = os.path.join(WAV_DIR, "check")
+    if os.path.isdir(OUT):
+        for f in os.listdir(OUT):
+            os.remove(os.path.join(OUT, f))
+    generate()
+    made = sorted(os.listdir(OUT))
+    have = sorted(f for f in os.listdir(real) if not f.endswith(".import"))
+    bad = sorted(set(made) ^ set(have))
+    bad += [f for f in made if f in have and not filecmp.cmp(os.path.join(OUT, f), os.path.join(real, f), shallow=False)]
+    for f in bad:
+        print("differs: data/music/%s" % f)
+    return not bad
+
+
+def generate():
+    MANIFEST["scores"].clear()
+    placeholder()
+    demo()
+    write_manifest()
 
 
 def main():
-    placeholder()
+    if "--check" in sys.argv:
+        sys.exit(0 if check() else 1)
+    generate()
 
 
 if __name__ == "__main__":
