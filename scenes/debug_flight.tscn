@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=33 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -32,6 +32,9 @@
 [ext_resource type="Resource" path="res://data/weather/storm.tres" id="101_storm"]
 [ext_resource type="Resource" path="res://data/weather/blizzard.tres" id="102_blizzard"]
 [ext_resource type="Script" path="res://scripts/radio/flight_watcher.gd" id="flight_watcher"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="radio_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="radio_box"]
+[ext_resource type="Script" path="res://scripts/radio/companion.gd" id="radio_companion"]
 
 [node name="DebugFlight" type="Node3D"]
 script = ExtResource("1_root")
@@ -103,6 +106,17 @@ gps = NodePath("../../Gps")
 drone = NodePath("../../Drone")
 title = "Free flight"
 
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("radio_box")
+bark = NodePath("../../Bark")
+
 [node name="Readout" type="Label" parent="HUD" node_paths=PackedStringArray("subject")]
 visible = false
 offset_left = 28.0
@@ -159,3 +173,12 @@ city = NodePath("../../City")
 [node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("flight_watcher")
 drone = NodePath("../Drone")
+
+[node name="Bark" type="Node" parent="."]
+script = ExtResource("radio_bark")
+
+[node name="Companion" type="Node" parent="." node_paths=PackedStringArray("bark", "watcher", "gps")]
+script = ExtResource("radio_companion")
+bark = NodePath("../Bark")
+watcher = NodePath("../FlightWatcher")
+gps = NodePath("../Gps")

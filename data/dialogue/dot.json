@@ -359,5 +359,57 @@
     "face": "neutral"
    }
   ]
+ },
+ "free_greet": {
+  "active": [
+   {
+    "text": "Dot on the radio. Don't break anything on your day off.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fresh pack, free sky. Bring it back in one piece.",
+    "face": "determined"
+   },
+   {
+    "text": "I'm listening to the motors. Go have fun.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Dot here. One hand on the wrench, one on the radio.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fly gentle. I can't fix much right now.",
+    "face": "worried"
+   }
+  ]
+ },
+ "free_arrive": {
+  "active": [
+   {
+    "text": "There. And nothing fell off.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Motors sound fine.",
+    "face": "neutral"
+   },
+   {
+    "text": "Good. That's a landing I like.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Made it. Good, less work for me.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Nice and gentle.",
+    "face": "neutral"
+   }
+  ]
  }
 }

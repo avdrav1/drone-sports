@@ -102,8 +102,11 @@ func _open(line: Dictionary) -> void:
 	_age = 0.0
 	if line.event in chatter:
 		_since_chatter = 0.0
-	Sfx.play(&"radio_static")
-	Bark.chirp(line.id)
+	# Heard only while the HUD is shown: not under a cutscene or the title.
+	var layer := get_canvas_layer_node()
+	if layer == null or layer.visible:
+		Sfx.play(&"radio_static")
+		Bark.chirp(line.id)
 	var c: Character = Roster.character(line.id)
 	portrait.character = c
 	portrait.expression = line.get("face", &"neutral")

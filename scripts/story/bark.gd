@@ -165,11 +165,16 @@ func say(event: StringName, subject: StringName = &"", announce := true, as_stat
 	used[id].append(text)
 	var line := {"id": id, "event": event, "text": text, "face": face_of(id, event, text)}
 	if announce:
-		_saying = true
-		spoke.emit(id, event, text)
-		_saying = false
-		said.emit(line)
+		announce_line(line)
 	return line
+
+## Puts a line on `spoke` and `said` as given, face and all, e.g. a free-flight
+## suggestion whose text and face are data (Story 17.10).
+func announce_line(line: Dictionary) -> void:
+	_saying = true
+	spoke.emit(line.id, line.event, line.text)
+	_saying = false
+	said.emit(line)
 
 func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 	match s:

@@ -378,5 +378,57 @@
     "face": "neutral"
    }
   ]
+ },
+ "free_greet": {
+  "active": [
+   {
+    "text": "Marlo here. No course today, just sky. Go play.",
+    "face": "happy"
+   },
+   {
+    "text": "I'm on the radio. Fly anywhere, I'll keep you company.",
+    "face": "happy"
+   },
+   {
+    "text": "Free flight, huh? I'll spot for fun.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Marlo, from the couch. Fly something pretty for me.",
+    "face": "neutral"
+   },
+   {
+    "text": "Still on the mend. I can still talk, though. Go.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "free_arrive": {
+  "active": [
+   {
+    "text": "There it is. Nice find.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Clean.",
+    "face": "happy"
+   },
+   {
+    "text": "Good. That's the spot.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Made it. Nice and easy.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Good flying.",
+    "face": "neutral"
+   }
+  ]
  }
 }

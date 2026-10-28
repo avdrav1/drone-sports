@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="SuggestionList" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/radio/suggestion_list.gd" id="1_list"]
+[ext_resource type="Script" path="res://scripts/radio/suggestion.gd" id="2_suggestion"]
+
+[sub_resource type="Resource" id="pad"]
+script = ExtResource("2_suggestion")
+text = "See the pads up on the rooftops? Go put it down on one. Gently."
+face = &"happy"
+kind = &"pad"
+reach = 6.0
+
+[sub_resource type="Resource" id="plaza"]
+script = ExtResource("2_suggestion")
+text = "Take it down to the plaza. Use the streets, not the sky."
+face = &"determined"
+landmark = "Plaza"
+reach = 20.0
+
+[sub_resource type="Resource" id="downtown"]
+script = ExtResource("2_suggestion")
+text = "Downtown's got the tall stuff. Go weave through it."
+face = &"happy"
+landmark = "Downtown"
+reach = 25.0
+
+[sub_resource type="Resource" id="jammer"]
+script = ExtResource("2_suggestion")
+text = "There's a jammer out there. Fly near it and watch your GPS go strange."
+face = &"worried"
+kind = &"jammer"
+reach = 30.0
+
+[resource]
+script = ExtResource("1_list")
+companions = Array[StringName]([&"marlo", &"dot", &"bea", &"ozzie", &"rin"])
+suggestions = Array[ExtResource("2_suggestion")]([SubResource("pad"), SubResource("plaza"), SubResource("downtown"), SubResource("jammer")])

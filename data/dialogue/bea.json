@@ -352,5 +352,57 @@
     "face": "sad"
    }
   ]
+ },
+ "free_greet": {
+  "active": [
+   {
+    "text": "Bea here. No demolition today. Enjoy the buildings standing.",
+    "face": "happy"
+   },
+   {
+    "text": "Site's closed, sky's open. Fly smart.",
+    "face": "determined"
+   },
+   {
+    "text": "On the radio. Go learn the city.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Bea, off shift and mending. Fly careful.",
+    "face": "neutral"
+   },
+   {
+    "text": "Still sore. Still watching. Go.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "free_arrive": {
+  "active": [
+   {
+    "text": "Right on it. Good line.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Clean approach.",
+    "face": "neutral"
+   },
+   {
+    "text": "That's where I meant. Nice.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "There. Good, steady.",
+    "face": "neutral"
+   },
+   {
+    "text": "Made it. Nicely done.",
+    "face": "happy"
+   }
+  ]
  }
 }

@@ -359,5 +359,57 @@
     "face": "sad"
    }
   ]
+ },
+ "free_greet": {
+  "active": [
+   {
+    "text": "Ozzie here. Warm and dry for once. Go fly.",
+    "face": "happy"
+   },
+   {
+    "text": "No one to find today. Just enjoy it.",
+    "face": "happy"
+   },
+   {
+    "text": "I'm on the radio. Breathe, then fly.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Ozzie, resting up. Fly something calm.",
+    "face": "neutral"
+   },
+   {
+    "text": "Still bandaged. Still here. Go on.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "free_arrive": {
+  "active": [
+   {
+    "text": "You found it. Nice.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. Good.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Breathe.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Found it. Good.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Nicely done.",
+    "face": "neutral"
+   }
+  ]
  }
 }

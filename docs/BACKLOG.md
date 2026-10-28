@@ -882,7 +882,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: `test_every_member_has_three_lines_per_event` passes with the new events included. Every new line has a valid `face`. In a scripted near miss on a job with Marlo on comms, Marlo's radio line plays. With Marlo dead, no near-miss line comes from Marlo.
   - Out of scope: Branching conversations.
 
-- [ ] **17.10 Free-flight companion**
+- [x] **17.10 Free-flight companion**
   - Goal: In free flight one crew member rides along on the radio: they greet you at spawn, react to your flying, and when things go quiet they suggest something to try in the city.
   - Context: The companion is data on the sandbox (a list in order of preference); the first living one rides along, so a death changes who you hear. Suggestions are data (`data/radio/suggestions.tres`): a line, plus a `MapMarker` kind or landmark it points at (a rooftop pad, the plaza, downtown, the jammer). When one plays, the radar lights its target until you reach it or another suggestion plays. Reaching it gets a short reaction line. A suggestion plays after 45 s without a line, never during the first 10 s, and never twice in a row.
   - Acceptance: Free flight greets with the first living companion within 3 s of spawn. With them dead, the next one in the list greets instead. After 45 s with no line, a suggestion plays and the radar lights its target. Reaching the target plays a reaction and clears the highlight. No suggestion plays during a job. Nothing is graded or saved from free flight.

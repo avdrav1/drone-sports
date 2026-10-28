@@ -212,5 +212,37 @@
     "face": "neutral"
    }
   ]
+ },
+ "free_greet": {
+  "active": [
+   {
+    "text": "Rin here. No grades today. Fly to learn.",
+    "face": "neutral"
+   },
+   {
+    "text": "Free flight. Use it. Practice what scares you.",
+    "face": "determined"
+   },
+   {
+    "text": "I'm listening. Show me something.",
+    "face": "determined"
+   }
+  ]
+ },
+ "free_arrive": {
+  "active": [
+   {
+    "text": "There. Now find a better line back.",
+    "face": "determined"
+   },
+   {
+    "text": "Good. That's practice.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Again, faster.",
+    "face": "determined"
+   }
+  ]
  }
 }
