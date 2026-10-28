@@ -1,0 +1,159 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
+[ext_resource type="PackedScene" path="res://scenes/world/city.tscn" id="3_city"]
+[ext_resource type="PackedScene" path="res://scenes/world/streets.tscn" id="4_streets"]
+[ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="5_roofs"]
+[ext_resource type="PackedScene" path="res://scenes/boss/lattice.tscn" id="6_lattice"]
+[ext_resource type="Script" path="res://scripts/fleet/fleet_crew.gd" id="7_crew"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="8_drone"]
+[ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="9_input"]
+[ext_resource type="Script" path="res://scripts/boss/defender.gd" id="10_defender"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="11_rig"]
+[ext_resource type="PackedScene" path="res://scenes/fleet/command_view.tscn" id="12_view"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="13_runner"]
+[ext_resource type="Resource" path="res://data/boss/lattice_job.tres" id="14_job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/reclaim_gap.gd" id="15_reclaim"]
+[ext_resource type="Script" path="res://scripts/boss/lattice_fight.gd" id="16_fight"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="17_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="18_barkbox"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="19_theme"]
+[ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="20_help"]
+[ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="21_hint"]
+
+[node name="LatticeJob" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("1_world")]
+
+[node name="Ground" parent="." instance=ExtResource("2_desert")]
+
+[node name="City" parent="." instance=ExtResource("3_city")]
+
+[node name="Streets" parent="." instance=ExtResource("4_streets")]
+
+[node name="Rooftops" parent="." instance=ExtResource("5_roofs")]
+
+[node name="Lattice" parent="." instance=ExtResource("6_lattice")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 150, 0)
+
+[node name="FleetCrew" type="Node3D" parent="." node_paths=PackedStringArray("command", "runner", "bark")]
+script = ExtResource("7_crew")
+command = NodePath("../CommandView")
+runner = NodePath("../JobRunner")
+bark = NodePath("../Bark")
+lead_runner = false
+
+[node name="Slot1" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 150, -6)
+
+[node name="Slot2" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 150, 0)
+
+[node name="Slot3" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 150, 6)
+
+[node name="Slot4" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 153, -6)
+
+[node name="Slot5" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 153, 0)
+
+[node name="Slot6" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 153, 6)
+
+[node name="Pilot" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("8_drone")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 96, 150, 0)
+intent_source = NodePath("PilotInput")
+
+[node name="PilotInput" type="Node" parent="Pilot"]
+script = ExtResource("9_input")
+
+[node name="Defender1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("8_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 158, 0)
+intent_source = NodePath("Defender")
+
+[node name="Defender" type="Node" parent="Defender1"]
+script = ExtResource("10_defender")
+
+[node name="Defender2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("8_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 142, 0)
+intent_source = NodePath("Defender")
+
+[node name="Defender" type="Node" parent="Defender2"]
+script = ExtResource("10_defender")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("11_rig")]
+target = NodePath("../Pilot")
+
+[node name="CommandView" parent="." node_paths=PackedStringArray("camera_rig", "focus", "runner") instance=ExtResource("12_view")]
+camera_rig = NodePath("../CameraRig")
+focus = NodePath("../Lattice")
+runner = NodePath("../JobRunner")
+height = 260.0
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("13_runner")
+job = ExtResource("14_job")
+drone = NodePath("../Pilot")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Reclaim" type="Node" parent="JobRunner" node_paths=PackedStringArray("fight")]
+script = ExtResource("15_reclaim")
+fight = NodePath("../../Fight")
+label = "Trench opened"
+
+[node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders")]
+script = ExtResource("16_fight")
+runner = NodePath("../JobRunner")
+lattice = NodePath("../Lattice")
+command = NodePath("../CommandView")
+defenders = [NodePath("../Defender1"), NodePath("../Defender2")]
+
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("17_bark")
+runner = NodePath("../JobRunner")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("18_barkbox")
+bark = NodePath("../../Bark")
+
+[node name="State" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 600.0
+offset_bottom = 60.0
+theme = ExtResource("19_theme")
+
+[node name="Hint" type="Label" parent="HUD" node_paths=PackedStringArray("runner")]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -20.0
+horizontal_alignment = 1
+theme = ExtResource("19_theme")
+script = ExtResource("21_hint")
+runner = NodePath("../../JobRunner")
+
+[node name="Help" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+theme = ExtResource("19_theme")
+script = ExtResource("20_help")

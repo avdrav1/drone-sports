@@ -90,6 +90,29 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	get_viewport().set_input_as_handled()
 
+## Adds a drone to the fleet, e.g. one freed from the Lattice.
+func add(d: Drone, pilot: Character = null) -> void:
+	drones.append(d)
+	if pilot:
+		pilots[d] = pilot
+	if selected == null:
+		select(d)
+
+## Takes a drone out of the fleet: lost, captured, or gone.
+func remove(d: Drone) -> void:
+	if d == flown:
+		leave()
+	drones.erase(d)
+	pilots.erase(d)
+	var overlay := $Overlay.get_child(0)
+	if overlay.portraits.has(d):
+		overlay.portraits[d].queue_free()
+		overlay.portraits.erase(d)
+	if d == selected:
+		selected = null
+		if not drones.is_empty():
+			select(drones[0])
+
 func select(d: Drone) -> void:
 	if d == selected:
 		return
@@ -190,7 +213,7 @@ class _Overlay extends Control:
 		if not cam.is_inside_tree():
 			return
 		for d in view.drones:
-			if cam.is_position_behind(d.global_position):
+			if not is_instance_valid(d) or cam.is_position_behind(d.global_position):
 				continue
 			var lit := d == view.selected
 			var at := cam.unproject_position(d.global_position)

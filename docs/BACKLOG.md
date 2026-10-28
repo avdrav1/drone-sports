@@ -445,11 +445,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: Textures, lighting.
   - Note: `Lattice` (`scenes/boss/lattice.tscn`) draws three layers of units (about 5,600 for 2,400 in the outer layer) from `DroneLook.still_mesh()`, the drone's body without props. The shell's shape lives on `Boss` (radius 60 m; lid, tunnel, floor; trench width and arc). Contact is analytic (`solid`, `touching`, `sphere_cast`), since units have no physics. The trench is a tunnel inside the shell from a lidded entrance at +x round to a shutter over the core's port. Each `can_fly` crew member has one lost unit in their colour. The headless renderer keeps no instance data, so the test checks `color_of`, the colour each instance is given.
 
-- [ ] **8.3 Phase 1: reclaim**
+- [x] **8.3 Phase 1: reclaim**
   - Goal: Fleet drones under autopilot tag shell units with override pucks; a tagged unit detaches and joins the fleet. Shell defenders disable fleet drones on contact; a disabled drone is recaptured into the shell. A gap opens when N adjacent units are reclaimed.
   - Context: Reuses command view (6.2) and autopilot (6.1). Defender behavior is the AI racer with a target instead of a spline.
   - Acceptance: Reclaiming N adjacent units opens the trench entrance and emits `phase_complete`. Losing all fleet drones fails the job. Reproducible with a seed.
   - Out of scope: Player flying in phase 1.
+  - Note: `scenes/boss/lattice_job.tscn` holds the fight: the city, the Lattice 150 m up, the crew's fleet, the pilot's own drone (frozen until the trench opens), two `Defender`s, and `LatticeFight`. A unit is tagged by staying 3.5 m from it for 0.5 s; T (`tag_unit`) sends the selected drone to the next gap unit. Each freed unit becomes a fleet drone. A defender within 1.4 m disables a fleet drone, and the shell takes back the last unit reclaimed. The four units nearest the shaft (`gap_units`) open it. Seeded through `LatticeFight.seed` (defender patrols).
 
 - [ ] **8.4 Phase 2: the trench**
   - Goal: The player flies the trench with the Act 5 preset while the shell contracts on a timer. Marlo calls turns from `data/dialogue/marlo.json` keyed to trench waypoints. Contact with the shell is a strike on the calling crew member.

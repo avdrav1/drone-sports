@@ -16,6 +16,9 @@ const TAG := &"can_fly"
 @export var bark: Bark
 ## Passed to each autopilot; above 0 it flies through waypoints (relays).
 @export var corner_speed := 0.0
+## The runner's drone is the fleet's first. Off when the pilot flies their own
+## drone as well (the Lattice).
+@export var lead_runner := true
 
 var drones: Array[Drone] = []
 ## Drone -> the crew member flying it.
@@ -63,7 +66,7 @@ func _ready() -> void:
 			command.camera_rig.target = drones[0]
 	if relay:
 		relay.drones = drones
-	if runner and not drones.is_empty():
+	if runner and lead_runner and not drones.is_empty():
 		runner.drone = drones[0]
 
 ## The crew member flying `d`, or empty.
