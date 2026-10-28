@@ -97,11 +97,78 @@ def drone_impact(seed):
     return out
 
 
+def tone_seq(notes, shape="sine", decay=18.0, gap=0.0):
+    """Short beeps one after another: (freq Hz, length s) each, with a quick
+    attack and exponential decay. `shape` "square" is a softened square."""
+    out = []
+    for f, length in notes:
+        n = int(RATE * length)
+        for i in range(n):
+            t = i / RATE
+            s = math.sin(2 * math.pi * f * t)
+            if shape == "square":
+                s = math.tanh(4 * s) + 0.3 * math.sin(2 * math.pi * f * 2 * t)
+            env = min(1.0, t / 0.004) * math.exp(-t * decay)
+            out.append(s * env)
+        out.extend([0.0] * int(RATE * gap))
+    return out
+
+
+def flight_recovered():
+    """A rising three-note chime: back upright, carry on."""
+    return tone_seq([(660, 0.09), (880, 0.09), (1320, 0.28)], decay=10.0)
+
+
+def flight_low_battery():
+    """Two falling square beeps: the battery bar just turned red."""
+    return tone_seq([(988, 0.16), (740, 0.24)], shape="square", decay=8.0, gap=0.05)
+
+
+def flight_guard():
+    """A quick sharp double blip: the collision guard grabbed the sticks."""
+    return tone_seq([(1760, 0.06), (1760, 0.12)], shape="square", decay=30.0, gap=0.03)
+
+
+def flight_brake():
+    """A soft falling swoop: the brake is pulling the drone to a stop."""
+    rng = random.Random(1431)
+    n = int(RATE * 0.35)
+    y = 0.0
+    out = []
+    phase = 0.0
+    for i in range(n):
+        t = i / RATE
+        f = 520 * math.exp(-t * 4.0)
+        phase += 2 * math.pi * f / RATE
+        y += 0.1 * (rng.uniform(-1, 1) - y)
+        env = min(1.0, t / 0.01) * math.exp(-t * 9.0)
+        out.append((math.sin(phase) * 0.8 + y * 0.6) * env)
+    return out
+
+
+def camera_view():
+    """A small shutter click for a camera view change."""
+    rng = random.Random(1432)
+    n = int(RATE * 0.08)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        click = math.sin(2 * math.pi * 2400 * t) * math.exp(-t * 120)
+        tick = rng.uniform(-1, 1) * math.exp(-t * 200)
+        out.append(click * 0.7 + tick * 0.5)
+    return out
+
+
 def main():
     write("drone_hum.wav", drone_hum(), loop=True)
     write("drone_wash.wav", drone_wash(), loop=True)
     for k in range(3):
         write("drone_impact_%d.wav" % (k + 1), drone_impact(1410 + k))
+    write("flight_recovered.wav", flight_recovered())
+    write("flight_low_battery.wav", flight_low_battery())
+    write("flight_guard.wav", flight_guard())
+    write("flight_brake.wav", flight_brake())
+    write("camera_view.wav", camera_view())
 
 
 if __name__ == "__main__":

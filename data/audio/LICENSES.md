@@ -14,3 +14,8 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/drone_impact_1.wav` | `tools/sfx/generate.py` | generated |
 | `generated/drone_impact_2.wav` | `tools/sfx/generate.py` | generated |
 | `generated/drone_impact_3.wav` | `tools/sfx/generate.py` | generated |
+| `generated/flight_recovered.wav` | `tools/sfx/generate.py` | generated |
+| `generated/flight_low_battery.wav` | `tools/sfx/generate.py` | generated |
+| `generated/flight_guard.wav` | `tools/sfx/generate.py` | generated |
+| `generated/flight_brake.wav` | `tools/sfx/generate.py` | generated |
+| `generated/camera_view.wav` | `tools/sfx/generate.py` | generated |

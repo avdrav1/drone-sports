@@ -17,6 +17,12 @@ extends Assist
 ## Yaw stick per rad/s of turn rate error.
 @export var yaw_gain := 3.0
 
+## Ground speed (m/s) above which released sticks count as the brake stopping the drone.
+@export var stop_speed := 1.5
+
+## True on frames where the sticks are released and the brake is stopping the drone.
+var stopping := false
+
 ## Tilt auto-level gives at full stick when there is none to ask.
 const FALLBACK_ANGLE := deg_to_rad(35.0)
 
@@ -30,6 +36,7 @@ func apply(intent: Intent, drone: Drone, _delta: float) -> void:
 	var stick := Vector2(intent.pitch, intent.roll).limit_length(1.0)
 	var want := (fwd * stick.x + right * stick.y) * max_speed
 	var v := FlightControl.horizontal_velocity(drone)
+	stopping = stick.length() < 0.1 and v.length() > stop_speed
 	# Pull toward the wanted velocity and cancel drag on the way.
 	var accel := speed_gain * (want - v) + v * drone.drag / drone.mass
 	var tilt := FlightControl.tilt_for_accel(drone, accel)

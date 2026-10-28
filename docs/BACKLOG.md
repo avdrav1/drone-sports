@@ -625,11 +625,12 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Out of scope: Doppler, per-motor sound sources.
   - Note: `tools/sfx/generate.py` (stdlib, fixed seeds) writes `data/audio/generated/`; loops carry a RIFF `smpl` chunk because `*.import` is gitignored, so add `loop=True` rather than editing import settings. Each drone has a `Sound` node (`DroneSound`): hum and wash `AudioStreamPlayer3D`s on the Flight bus, state exposed as `humming`, `hum_pitch`, `hum_db`, `washing`, `impacts`; it turns on `contact_monitor` and plays `drone_impact` once per body contact. `Sfx.play(id, at, gain_db)` now takes a gain, logged as `gain_db`.
 
-- [ ] **14.3 Flight events**
+- [x] **14.3 Flight events**
   - Goal: Sounds for what the pilot needs to notice: crash recovery, low battery, an assist cutting in (guard, brake), and changing camera view.
   - Context: Hooks on existing signals; each plays once per event.
   - Acceptance: Each event plays its sound once and only on its event.
   - Out of scope: Voice warnings.
+  - Note: `FlightCues` (`scripts/audio/flight_cues.gd`) is a child of `camera_rig.tscn`, so every flying scene gets it and it follows the rig's target drone; it plays `flight_recovered`, `flight_low_battery` (battery crosses 0.2, the HUD's red), `flight_guard` (`CollisionGuard.braking`), `flight_brake` (new `Brake.stopping`: sticks released above `stop_speed`), and `camera_view` (UI bus, only when the view really changes). Assist cues count a flicker as one event until the assist has been out for `rearm_time`; switching target drones is never an event.
 
 - [ ] **14.4 Jobs**
   - Goal: Jobs sound like jobs: countdown beeps, gates passed, hold progress, finish and fail stingers, the payout count, and the hazard warning and strike.

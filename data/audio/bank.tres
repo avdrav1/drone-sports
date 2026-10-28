@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -7,6 +7,11 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_1.wav" id="5_impact1"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_2.wav" id="6_impact2"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_3.wav" id="7_impact3"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/flight_recovered.wav" id="8_recovered"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/flight_low_battery.wav" id="9_low_battery"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/flight_guard.wav" id="10_guard"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/flight_brake.wav" id="11_brake"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/camera_view.wav" id="12_view"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -29,6 +34,42 @@ streams = Array[AudioStream]([ExtResource("5_impact1"), ExtResource("6_impact2")
 pitch_variance = 0.1
 bus = &"Flight"
 
+[sub_resource type="Resource" id="flight_recovered"]
+script = ExtResource("2_event")
+id = &"flight_recovered"
+streams = Array[AudioStream]([ExtResource("8_recovered")])
+volume_db = -6.0
+bus = &"Flight"
+
+[sub_resource type="Resource" id="flight_low_battery"]
+script = ExtResource("2_event")
+id = &"flight_low_battery"
+streams = Array[AudioStream]([ExtResource("9_low_battery")])
+volume_db = -6.0
+bus = &"Flight"
+
+[sub_resource type="Resource" id="flight_guard"]
+script = ExtResource("2_event")
+id = &"flight_guard"
+streams = Array[AudioStream]([ExtResource("10_guard")])
+volume_db = -10.0
+bus = &"Flight"
+
+[sub_resource type="Resource" id="flight_brake"]
+script = ExtResource("2_event")
+id = &"flight_brake"
+streams = Array[AudioStream]([ExtResource("11_brake")])
+volume_db = -14.0
+pitch_variance = 0.05
+bus = &"Flight"
+
+[sub_resource type="Resource" id="camera_view"]
+script = ExtResource("2_event")
+id = &"camera_view"
+streams = Array[AudioStream]([ExtResource("12_view")])
+volume_db = -12.0
+bus = &"UI"
+
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view")])
