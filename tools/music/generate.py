@@ -18,6 +18,7 @@ import filecmp
 import json
 import math
 import os
+import random
 import struct
 import subprocess
 import sys
@@ -298,6 +299,85 @@ def act_4():
     hand_and_voice("act_4", ACT_4_TEMPO, True, 2100)
 
 
+# Story 16.7: Act 5, the fleet. Kirtan tempo, and the choir sizes the answer is
+# baked at (stems choir_<size>), chosen by how many drones are under command.
+ACT_5_TEMPO = 96
+CHOIR_SIZES = (3, 10, 50)
+
+
+def detune(samples, ratio):
+    """`samples` played back `ratio` times faster (linear interpolation)."""
+    n = int((len(samples) - 1) / ratio)
+    out = []
+    for i in range(n):
+        x = i * ratio
+        k = int(x)
+        f = x - k
+        out.append(samples[k] * (1 - f) + samples[k + 1] * f)
+    return out
+
+
+def choirs(tempo, bars, sizes, seed):
+    """The answer half of the hook in bars 5-8, sung by a choir at each of
+    `sizes` voices: {size: samples}. Each voice is the formant voice detuned a
+    few cents, a few milliseconds late and at its own gain, and every third
+    sings an octave down. The bigger choirs are the smaller plus more voices."""
+    m = load_mantra()
+    rng = random.Random(seed)
+    track = instruments.Track(bar_samples(tempo, bars), tempo)
+    start = MANTRA_BARS // 2 * BEATS_PER_BAR
+    sung = {}
+    out = {}
+    for v in range(max(sizes)):
+        octave = -1 if v % 3 == 2 else 0
+        ratio = 2 ** (rng.uniform(-14, 14) / 1200.0) if v else 1.0
+        late = rng.uniform(0.0, 0.03) / track.seconds(1) if v else 0.0
+        gain = rng.uniform(0.6, 1.0)
+        beat = start
+        for k, n in enumerate(m["answer"]):
+            got = (k, octave)
+            if got not in sung:
+                sung[got] = instruments.note("voice", key.hz(n["degree"], octave), track.seconds(n["beats"]) * 0.95,
+                                             n["syllable"], seed + k)
+            track.add(beat + late, detune(sung[got], ratio) if v else sung[got], gain)
+            beat += n["beats"]
+        if v + 1 in sizes:
+            out[v + 1] = list(track.buf)
+    return out
+
+
+def act_5():
+    """Story 16.7: the fleet, in kirtan form. One lead voice sings the call
+    half of the hook (bars 1-4, stem mantra_lead) and a choir answers (bars
+    5-8), baked at CHOIR_SIZES voices (choir_3, choir_10, choir_50) so the
+    director can let the choir grow with the fleet. Under them the tanpura
+    drone, the harmonium holding tonic and fifth, and a soft frame drum."""
+    tempo, bars = ACT_5_TEMPO, MANTRA_BARS
+    n = bar_samples(tempo, bars)
+    order = ("drone", "reed", "frame_drum")
+    plays = {"drone": "tanpura", "reed": "reed", "frame_drum": "frame_drum", "mantra_lead": "voice"}
+    tracks = {k: instruments.Track(n, tempo) for k in order}
+    beat = tracks["reed"].seconds(1)
+    low, rim = key.hz(1, -1), 520
+    for bar in range(bars):
+        b = bar * BEATS_PER_BAR
+        sd = 2200 + bar * 20
+        for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
+            tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, sd + k), 0.8)
+        for d, o in ((1, 0), (5, 0), (1, -1)):
+            tracks["reed"].add(b, instruments.reed(key.hz(d, o), 4 * beat - 0.3, sd), 0.35)
+        for k, (t, f) in enumerate(((0, low), (1.5, rim), (2, low), (3, rim))):
+            tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=sd + 8 + k), 0.8)
+    levels = {"drone": -10.0, "reed": -13.0, "frame_drum": -14.0}
+    stems = [(k, tracks[k].buf, levels[k]) for k in order]
+    call = render_mantra("voice", tempo, half="call", seed=2300)
+    stems.append(("mantra_lead", call + [0.0] * (n - len(call)), -9.0))
+    for size, buf in sorted(choirs(tempo, bars, CHOIR_SIZES, 2400).items()):
+        stems.append(("choir_%d" % size, buf, -9.0))
+        plays["choir_%d" % size] = "voice"
+    write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES)})
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -342,6 +422,7 @@ def generate():
     act_2()
     act_3()
     act_4()
+    act_5()
     write_manifest()
 
 

@@ -8,6 +8,10 @@ extends Node
 # rest go to their Stem.level_db. JobRunner hands itself to watch(), the board
 # calls board(), and a cutscene with a score plays it through play_score().
 # Runners that do not pay out (cutscene backdrops, previews) are ignored.
+# A runner's job plays the act it is flown in (act_for), so a fleet job, whose
+# assists are Act 5's, plays act_5. In Act 5 (Story 16.7) a CommandView hands
+# itself to command(): of the choir stems only the one sized nearest the fleet
+# sounds, and while a drone is flown by hand the lead voice comes forward.
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
@@ -31,8 +35,16 @@ const STATE_MIX := {
 	JobRunner.State.FAILED: &"results",
 }
 
+## Act 5's answer choirs: fleet size -> the stem baked at that many voices.
+const CHOIRS := {3: &"choir_3", 10: &"choir_10", 50: &"choir_50"}
+## The call's lead voice, and how far it comes forward while a drone is flown.
+const LEAD := &"mantra_lead"
+const LEAD_FORWARD_DB := 6.0
+
 ## The mix last set.
 var mix: StringName = &""
+## The fleet layer in use, or null.
+var fleet: CommandView
 
 ## The score for `act`: its own, or the nearest earlier act's. Null if none.
 func score_for(act: int) -> Score:
@@ -40,6 +52,12 @@ func score_for(act: int) -> Score:
 		if ResourceLoader.exists(SCORE_PATH % n):
 			return load(SCORE_PATH % n)
 	return null
+
+## The act `job` is flown in: its assists' act or the career's, whichever is
+## later (as the board shows it).
+static func act_for(job: Job) -> int:
+	var job_act := int(job.required_assists.label.trim_prefix("Act ")) if job and job.required_assists else 1
+	return maxi(job_act, Career.act())
 
 ## Plays the career's act score in mix `m`.
 func play_act(m: StringName) -> void:
@@ -57,7 +75,7 @@ func set_mix(m: StringName, time := -1.0) -> void:
 	mix = m
 	if Music.score == null:
 		return
-	var levels := levels_for(Music.score, m)
+	var levels := command_levels(levels_for(Music.score, m), fleet_size(), flying())
 	for id in levels:
 		if not is_equal_approx(Music.level(id), levels[id]):
 			Music.set_level(id, levels[id], time)
@@ -69,6 +87,45 @@ static func levels_for(score: Score, m: StringName) -> Dictionary:
 	for s in score.stems:
 		out[s.id] = s.level_db if (on == ALL or s.id in on) else Music.SILENT_DB
 	return out
+
+## Drones under command in the fleet layer, 0 without one.
+func fleet_size() -> int:
+	return fleet.drones.size() if is_instance_valid(fleet) and fleet.is_inside_tree() else 0
+
+## A fleet drone is being flown by hand.
+func flying() -> bool:
+	return is_instance_valid(fleet) and fleet.is_inside_tree() and fleet.flown != null
+
+## The choir stem for a fleet of `n` drones: the size nearest it (by ratio).
+static func choir_for(n: int) -> StringName:
+	var best: int = CHOIRS.keys()[0]
+	for size in CHOIRS:
+		if absf(log(maxf(n, 1.0) / size)) < absf(log(maxf(n, 1.0) / best)):
+			best = size
+	return CHOIRS[best]
+
+## `levels` with only the choir for `size` drones left sounding of the choirs
+## the mix has on, and the lead `LEAD_FORWARD_DB` up when `forward`. Scores
+## without choirs or a lead are unchanged.
+static func command_levels(levels: Dictionary, size: int, forward: bool) -> Dictionary:
+	var choir := choir_for(size)
+	for id in CHOIRS.values():
+		if levels.has(id) and id != choir:
+			levels[id] = Music.SILENT_DB
+	if forward and levels.has(LEAD) and levels[LEAD] > Music.SILENT_DB:
+		levels[LEAD] += LEAD_FORWARD_DB
+	return levels
+
+## Follows `view`, the fleet layer: its size and drops into a drone change the mix.
+func command(view: CommandView) -> void:
+	fleet = view
+	for sig in [view.dropped_in, view.left, view.fleet_changed]:
+		if not sig.is_connected(_on_fleet):
+			sig.connect(_on_fleet)
+
+func _on_fleet(_arg = null) -> void:
+	if mix != &"":
+		set_mix(mix)
 
 ## The job board: the act's score, drone and pad.
 func board() -> void:
@@ -83,4 +140,4 @@ func watch(runner: JobRunner) -> void:
 func _on_state(s: JobRunner.State, _previous: JobRunner.State, runner: JobRunner) -> void:
 	if not runner.pays_out:
 		return
-	play_act(STATE_MIX[s])
+	play_score(score_for(act_for(runner.job)), STATE_MIX[s])

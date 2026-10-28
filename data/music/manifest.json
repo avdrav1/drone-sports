@@ -105,6 +105,34 @@
    "tempo": 132.0,
    "tonic": 146.83
   },
+  "act_5": {
+   "bars": 8,
+   "choirs": [
+    3,
+    10,
+    50
+   ],
+   "plays": {
+    "choir_10": "voice",
+    "choir_3": "voice",
+    "choir_50": "voice",
+    "drone": "tanpura",
+    "frame_drum": "frame_drum",
+    "mantra_lead": "voice",
+    "reed": "reed"
+   },
+   "stems": [
+    "drone",
+    "reed",
+    "frame_drum",
+    "mantra_lead",
+    "choir_3",
+    "choir_10",
+    "choir_50"
+   ],
+   "tempo": 96.0,
+   "tonic": 146.83
+  },
   "demo": {
    "bars": 11,
    "instruments": [

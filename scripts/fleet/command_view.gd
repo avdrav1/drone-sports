@@ -11,6 +11,8 @@ signal selected_changed(drone: Drone)
 signal waypoint_queued(drone: Drone, point: Vector3)
 signal dropped_in(drone: Drone)
 signal left(drone: Drone)
+## The number of drones under command changed (MusicDirector sizes the choir by it).
+signal fleet_changed(count: int)
 
 ## The fleet: Drone scenes, each with an Autopilot as its intent source.
 @export var drones: Array[Drone] = []
@@ -45,6 +47,7 @@ func _ready() -> void:
 	_place_camera()
 	if runner:
 		runner.state_changed.connect(_on_runner_state)
+	MusicDirector.command(self)
 
 func _on_runner_state(state: JobRunner.State, _previous: JobRunner.State) -> void:
 	match state:
@@ -97,6 +100,7 @@ func add(d: Drone, pilot: Character = null) -> void:
 		pilots[d] = pilot
 	if selected == null:
 		select(d)
+	fleet_changed.emit(drones.size())
 
 ## Takes a drone out of the fleet: lost, captured, or gone.
 func remove(d: Drone) -> void:
@@ -112,6 +116,7 @@ func remove(d: Drone) -> void:
 		selected = null
 		if not drones.is_empty():
 			select(drones[0])
+	fleet_changed.emit(drones.size())
 
 func select(d: Drone) -> void:
 	if d == selected:

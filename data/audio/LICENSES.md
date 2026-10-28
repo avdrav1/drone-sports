@@ -86,3 +86,10 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_4_frame_drum.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_4_cymbals.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_4_mantra_voice.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_reed.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_frame_drum.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_mantra_lead.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_choir_3.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_choir_10.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_5_choir_50.ogg` | `tools/music/generate.py` | generated |
