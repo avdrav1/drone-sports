@@ -7,8 +7,11 @@ extends RefCounted
 
 static var _cache := {}
 
-## Street surfaces, kerb to kerb, in XZ (x, z). Crossings overlap.
+## Street surfaces, kerb to kerb, in XZ (x, z), clipped to the core circle.
+## Crossings overlap. Even entries run along z, odd entries along x.
 var streets: Array[Rect2] = []
+## Blocks between streets, kerb to kerb: sidewalk around the lots.
+var blocks: Array[Rect2] = []
 ## Building footprints in XZ (x, z).
 var lots: Array[Rect2] = []
 ## Height of each lot, same order as lots.
@@ -42,10 +45,15 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	var axis := _axis(layout)
 	var r := layout.core_radius
 	for s: Vector2 in axis[0]:
-		plan.streets.append(Rect2(s.x, -r, s.y - s.x, r * 2.0))
-		plan.streets.append(Rect2(-r, s.x, r * 2.0, s.y - s.x))
+		var edge := maxf(absf(s.x), absf(s.y))
+		if edge >= r:
+			continue
+		var half := sqrt(r * r - edge * edge)
+		plan.streets.append(Rect2(s.x, -half, s.y - s.x, half * 2.0))
+		plan.streets.append(Rect2(-half, s.x, half * 2.0, s.y - s.x))
 	for bx: Vector2 in axis[1]:
 		for bz: Vector2 in axis[1]:
+			plan.blocks.append(Rect2(bx.x, bz.x, bx.y - bx.x, bz.y - bz.x))
 			for cx in _split(layout, rng, bx):
 				for cz in _split(layout, rng, bz):
 					var lot := Rect2(cx.x, cz.x, cx.y - cx.x, cz.y - cz.x)

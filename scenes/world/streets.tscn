@@ -1,0 +1,24 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/streets.gd" id="1_streets"]
+[ext_resource type="Resource" path="res://data/city/sandbox_city.tres" id="2_layout"]
+[ext_resource type="Shader" path="res://scenes/world/streets.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="road"]
+shader = ExtResource("3_shader")
+
+[sub_resource type="StandardMaterial3D" id="sidewalk"]
+albedo_color = Color(0.72, 0.66, 0.6, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="light"]
+albedo_color = Color(0.22, 0.22, 0.24, 1)
+metallic = 0.5
+roughness = 0.5
+
+[node name="Streets" type="StaticBody3D"]
+script = ExtResource("1_streets")
+layout = ExtResource("2_layout")
+road_material = SubResource("road")
+sidewalk_material = SubResource("sidewalk")
+light_material = SubResource("light")

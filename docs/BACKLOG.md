@@ -507,11 +507,12 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
   - Out of scope: Interiors, enterable buildings, damage, night lighting.
   - Note: Built and tested, not ticked: the hand flight on the web build is still to do. The city isn't in the sandbox until 12.5, so that flight belongs with 12.5. Under GL Compatibility at 1280×720 (desktop RTX 3080) the city costs no measurable frame time: one MultiMesh, one draw.
 
-- [ ] **12.3 Streets**
+- [x] **12.3 Streets**
   - Goal: Asphalt streets with lane markings and sidewalks, and street lights along them.
   - Context: A flat road mesh just above y = 0 with its own shader for markings; avenues get a centre line. Street lights are a `MultiMeshInstance3D` placed along street edges at a fixed spacing, each with a thin collision shape, since they are real obstacles at low altitude. Lights are unlit for now; night is a separate system.
   - Acceptance: Every street segment in the plan is covered by road mesh, and no road lies under a lot. Every street light stands on a sidewalk, outside every lot and reserved clearing, and has collision. Placement is identical for the same layout.
   - Out of scope: Traffic, signals, crosswalk props, night lights.
+  - Note: `Streets` is its own scene (`scenes/world/streets.tscn`), separate from `City` so the City's four-multimesh check stays about towers; 12.5 instances both. Plan streets are now clipped to the core circle, and the plan lists `blocks`. Sidewalks and lights go only on blocks wholly inside the core, so edge lots stand on sand.
 
 - [ ] **12.4 Rooftops**
   - Goal: Rooftop clutter (AC units, water tanks, antennas) and a few rooftop landing pads, all seeded.
