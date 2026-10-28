@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/drone/drone.gd" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/assist_pipeline.gd" id="2_pipeline"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="10_marker"]
 [ext_resource type="Script" path="res://scripts/drone/assists/brake.gd" id="11_brake"]
 [ext_resource type="Script" path="res://scripts/drone/crash_recovery.gd" id="12_recovery"]
+[ext_resource type="Script" path="res://scripts/drone/drone_sound.gd" id="13_sound"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
@@ -83,6 +84,9 @@ damping_max = 2.5
 scale_amount_curve = SubResource("dust_scale")
 color_ramp = SubResource("dust_fade")
 script = ExtResource("9_wash")
+
+[node name="Sound" type="Node3D" parent="."]
+script = ExtResource("13_sound")
 
 [node name="Assists" type="Node" parent="."]
 script = ExtResource("2_pipeline")

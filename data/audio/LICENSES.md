@@ -9,3 +9,8 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 
 | File | Source | Licence |
 | --- | --- | --- |
+| `generated/drone_hum.wav` | `tools/sfx/generate.py` | generated |
+| `generated/drone_wash.wav` | `tools/sfx/generate.py` | generated |
+| `generated/drone_impact_1.wav` | `tools/sfx/generate.py` | generated |
+| `generated/drone_impact_2.wav` | `tools/sfx/generate.py` | generated |
+| `generated/drone_impact_3.wav` | `tools/sfx/generate.py` | generated |

@@ -13,7 +13,7 @@ const POOL := 12
 const LOG_SIZE := 256
 
 var bank: SoundBank
-## Recent plays, oldest first: {id, bus, at (Vector3 or null), msec}.
+## Recent plays, oldest first: {id, bus, at (Vector3 or null), gain_db, msec}.
 var log: Array[Dictionary] = []
 var _flat: Array[AudioStreamPlayer] = []
 var _next := 0
@@ -29,13 +29,14 @@ func _ready() -> void:
 	apply_volumes()
 
 ## Plays event `id`. With `at`, a 3D sound at that world point (it frees itself
-## when done). Returns the player, or null when the event is unknown or silent.
-func play(id: StringName, at: Variant = null) -> Node:
+## when done). `gain_db` is added to the event's volume (louder impacts).
+## Returns the player, or null when the event is unknown or silent.
+func play(id: StringName, at: Variant = null, gain_db := 0.0) -> Node:
 	var e := bank.find(id) if bank else null
 	if e == null:
 		push_warning("Sfx: no sound event '%s'" % id)
 		return null
-	_log(id, e.bus, at)
+	_log(id, e.bus, at, gain_db)
 	if e.streams.is_empty():
 		return null
 	var stream: AudioStream = e.streams[_rng.randi() % e.streams.size()]
@@ -43,7 +44,7 @@ func play(id: StringName, at: Variant = null) -> Node:
 	if at is Vector3:
 		var p3 := AudioStreamPlayer3D.new()
 		p3.stream = stream
-		p3.volume_db = e.volume_db
+		p3.volume_db = e.volume_db + gain_db
 		p3.pitch_scale = pitch
 		p3.bus = e.bus
 		p3.finished.connect(p3.queue_free)
@@ -54,7 +55,7 @@ func play(id: StringName, at: Variant = null) -> Node:
 	var p := _flat[_next]
 	_next = (_next + 1) % _flat.size()
 	p.stream = stream
-	p.volume_db = e.volume_db
+	p.volume_db = e.volume_db + gain_db
 	p.pitch_scale = pitch
 	p.bus = e.bus
 	p.play()
@@ -67,8 +68,8 @@ func count(id: StringName) -> int:
 func clear_log() -> void:
 	log.clear()
 
-func _log(id: StringName, bus: StringName, at: Variant) -> void:
-	log.append({"id": id, "bus": bus, "at": at, "msec": Time.get_ticks_msec()})
+func _log(id: StringName, bus: StringName, at: Variant, gain_db := 0.0) -> void:
+	log.append({"id": id, "bus": bus, "at": at, "gain_db": gain_db, "msec": Time.get_ticks_msec()})
 	if log.size() > LOG_SIZE:
 		log.pop_front()
 

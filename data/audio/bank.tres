@@ -1,6 +1,34 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
+[ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/drone_hum.wav" id="3_hum"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/drone_wash.wav" id="4_wash"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_1.wav" id="5_impact1"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_2.wav" id="6_impact2"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/drone_impact_3.wav" id="7_impact3"]
+
+[sub_resource type="Resource" id="drone_hum"]
+script = ExtResource("2_event")
+id = &"drone_hum"
+streams = Array[AudioStream]([ExtResource("3_hum")])
+volume_db = -6.0
+bus = &"Flight"
+
+[sub_resource type="Resource" id="drone_wash"]
+script = ExtResource("2_event")
+id = &"drone_wash"
+streams = Array[AudioStream]([ExtResource("4_wash")])
+volume_db = -8.0
+bus = &"Flight"
+
+[sub_resource type="Resource" id="drone_impact"]
+script = ExtResource("2_event")
+id = &"drone_impact"
+streams = Array[AudioStream]([ExtResource("5_impact1"), ExtResource("6_impact2"), ExtResource("7_impact3")])
+pitch_variance = 0.1
+bus = &"Flight"
 
 [resource]
 script = ExtResource("1_bank")
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact")])

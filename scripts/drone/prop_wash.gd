@@ -9,6 +9,9 @@ extends CPUParticles3D
 @export var min_thrust := 0.1
 
 var drone: Drone
+## How hard the wash blows this tick, 0 when there is none: closeness to the
+## ground times thrust. DroneSound reads it.
+var strength := 0.0
 
 func _ready() -> void:
 	drone = get_parent() as Drone
@@ -27,8 +30,10 @@ func _physics_process(_delta: float) -> void:
 		thrust += clampf(t, 0.0, drone.max_thrust)
 	thrust = thrust / (drone.max_thrust * Drone.MOTOR_COUNT) * drone.power()
 	emitting = not hit.is_empty() and thrust >= min_thrust
+	strength = 0.0
 	if emitting:
 		global_position = hit.position + Vector3.UP * 0.05
 		# Thicker the closer and harder the drone pushes.
 		var closeness := 1.0 - from.distance_to(hit.position) / max_height
-		speed_scale = 0.6 + closeness * thrust
+		strength = closeness * thrust
+		speed_scale = 0.6 + strength

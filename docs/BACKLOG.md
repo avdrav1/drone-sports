@@ -618,11 +618,12 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Out of scope: Any specific sound.
   - Note: Buses live in `default_bus_layout.tres` (Master, Flight, World, Weather, UI, Voice). `Sfx` keeps 12 flat players and makes a self-freeing 3D player per placed sound. Volumes are linear 0..1 per bus in `GameSettings.volumes`, saved with `muted` in the settings section; N mutes, and the board has a Sound dialog. `SaveGame.load_all` reapplies them. The bank (`data/audio/bank.tres`) and `LICENSES.md` start empty.
 
-- [ ] **14.2 The drone**
+- [x] **14.2 The drone**
   - Goal: Each drone sounds like a drone: motor hum whose pitch and level follow its motors' thrust, prop wash near the ground, and impacts by speed.
   - Context: Generated motor loop, pitched per drone from thrust (the same reading `DroneLook` uses). 3D players so AI racers and the fleet are heard around you. One impact per contact, scaled by impact speed.
   - Acceptance: Pitch rises with thrust and falls at idle. A contact plays exactly one impact, louder when faster. A frozen drone is silent.
   - Out of scope: Doppler, per-motor sound sources.
+  - Note: `tools/sfx/generate.py` (stdlib, fixed seeds) writes `data/audio/generated/`; loops carry a RIFF `smpl` chunk because `*.import` is gitignored, so add `loop=True` rather than editing import settings. Each drone has a `Sound` node (`DroneSound`): hum and wash `AudioStreamPlayer3D`s on the Flight bus, state exposed as `humming`, `hum_pitch`, `hum_db`, `washing`, `impacts`; it turns on `contact_monitor` and plays `drone_impact` once per body contact. `Sfx.play(id, at, gain_db)` now takes a gain, logged as `gain_db`.
 
 - [ ] **14.3 Flight events**
   - Goal: Sounds for what the pilot needs to notice: crash recovery, low battery, an assist cutting in (guard, brake), and changing camera view.
