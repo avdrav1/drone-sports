@@ -97,6 +97,8 @@ func advance() -> void:
 		card_name.text = "UNKNOWN VIEWER" if beat.silhouette else c.name.to_upper()
 		portrait.queue_redraw()
 	bezel.visible = beat.bezel
+	if beat.score:
+		MusicDirector.play_score(beat.score, &"live")
 	_place_camera(0.0, true)
 
 func finish() -> void:

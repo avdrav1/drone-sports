@@ -39,7 +39,7 @@ BEATS_PER_BAR = 4
 MANTRA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mantra.json")
 MANTRA_BARS = 8
 # Octave each instrument plays the hook in.
-MANTRA_OCTAVE = {"voice": 0, "lead": 1, "tanpura": 0}
+MANTRA_OCTAVE = {"voice": 0, "lead": 1, "tanpura": 0, "reed": 1}
 # Everything the generator wrote this run, for manifest.json.
 MANIFEST = {"scores": {}}
 
@@ -200,6 +200,44 @@ def act_1():
     write_score("act_1", tempo, key.TONIC, bars, stems)
 
 
+# The pop kit's synths. From Act 2 on no act score has a stem played on one.
+SYNTHS = ("bass", "arp", "pad", "lead")
+
+
+def act_2():
+    """Story 16.5: the tryout. The same hook and chords move from synths to
+    real instruments: the harmonium takes the pad's chords (stem `reed`), the
+    tanpura plucks the arpeggio (`pluck`) over its drone, a frame drum takes
+    the clap's two and four, the kick is lighter (one and three, quieter), and
+    the hook is on the harmonium. No bass. One hook long at 120 bpm."""
+    tempo, bars = 120, MANTRA_BARS
+    n = bar_samples(tempo, bars)
+    plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "kick": "kick",
+             "frame_drum": "frame_drum", "mantra_reed": "reed"}
+    order = ("drone", "reed", "pluck", "kick", "frame_drum")
+    tracks = {k: instruments.Track(n, tempo) for k in order}
+    beat = tracks["reed"].seconds(1)
+    for bar, chord in enumerate(ACT_1_CHORDS):
+        b = bar * BEATS_PER_BAR
+        seed = 1900 + bar * 10
+        for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
+            tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, seed + k), 0.8)
+        for d in chord:
+            tracks["reed"].add(b, instruments.reed(key.hz(d, 0), 4 * beat - 0.3, seed), 0.35)
+        for k in range(8):
+            d = (chord + (chord[0] + 7,))[k % 4]
+            tracks["pluck"].add(b + k * 0.5, instruments.tanpura(key.hz(d, 1), beat * 0.5, seed + 4 + k), 0.5)
+        for t in (0, 2):
+            tracks["kick"].add(b + t, instruments.kick(key.hz(5, -2)), 0.6)
+        for t, f in ((1, key.hz(1, -1)), (3, key.hz(1, -1)), (3.5, 520)):
+            tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=seed + int(t * 2)), 0.8)
+    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "kick": -14.0, "frame_drum": -12.0}
+    stems = [(k, tracks[k].buf, levels[k]) for k in order]
+    stems.append(("mantra_reed", render_mantra("reed", tempo), -11.0))
+    assert not set(plays.values()) & set(SYNTHS)
+    write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays})
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -207,6 +245,7 @@ def write_manifest():
         "scale": list(key.SCALE),
         "instruments": list(instruments.INSTRUMENTS),
         "vowels": list(instruments.VOWELS),
+        "synths": list(SYNTHS),
         "mantra": {"bars": MANTRA_BARS,
                    "call_beats": sum(n["beats"] for n in load_mantra()["call"]),
                    "answer_beats": sum(n["beats"] for n in load_mantra()["answer"])},
@@ -240,6 +279,7 @@ def generate():
     demo()
     mantra()
     act_1()
+    act_2()
     write_manifest()
 
 

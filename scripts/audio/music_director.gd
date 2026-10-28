@@ -12,12 +12,14 @@ extends Node
 const SCORE_PATH := "res://data/music/act_%d.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
 const ALL := [&"*"]
+## From Act 2 the harmonium (`reed`) has the pad's place and the tanpura's
+## plucked arpeggio (`pluck`) the arpeggio's; a score sounds the ones it has.
 const MIXES := {
-	&"board": [&"drone", &"pad"],
-	&"briefing": [&"drone", &"pad"],
-	&"countdown": [&"drone", &"pad", &"arp"],
+	&"board": [&"drone", &"pad", &"reed"],
+	&"briefing": [&"drone", &"pad", &"reed"],
+	&"countdown": [&"drone", &"pad", &"arp", &"reed", &"pluck"],
 	&"live": ALL,
-	&"results": [&"drone", &"pad"],
+	&"results": [&"drone", &"pad", &"reed"],
 }
 ## The mix for each runner state.
 const STATE_MIX := {

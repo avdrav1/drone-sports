@@ -1,7 +1,9 @@
-[gd_resource type="Resource" script_class="Cutscene" load_steps=8 format=3]
+[gd_resource type="Resource" script_class="Cutscene" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
 [ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
+[ext_resource type="Resource" path="res://data/music/act_1.tres" id="3_act1"]
+[ext_resource type="Resource" path="res://data/music/act_2.tres" id="4_act2"]
 
 [sub_resource type="Resource" id="beat0"]
 script = ExtResource("2_beat")
@@ -33,6 +35,7 @@ focus = NodePath("Drone")
 orbit_radius = 4.0
 orbit_height = 1.2
 orbit_speed = 12.0
+score = ExtResource("4_act2")
 caption = "No controller. No restart. The drone on the pad is yours."
 duration = 7.0
 
@@ -63,4 +66,5 @@ script = ExtResource("1_cut")
 beats = Array[ExtResource("2_beat")]([SubResource("beat0"), SubResource("beat1"), SubResource("beat2"), SubResource("beat3"), SubResource("beat4")])
 next_scene = "res://scenes/ui/job_board.tscn"
 bed = &"bed_recruited"
+score = ExtResource("3_act1")
 seen_flag = &"recruited_seen"

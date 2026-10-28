@@ -42,6 +42,27 @@
    "tempo": 120.0,
    "tonic": 146.83
   },
+  "act_2": {
+   "bars": 8,
+   "plays": {
+    "drone": "tanpura",
+    "frame_drum": "frame_drum",
+    "kick": "kick",
+    "mantra_reed": "reed",
+    "pluck": "tanpura",
+    "reed": "reed"
+   },
+   "stems": [
+    "drone",
+    "reed",
+    "pluck",
+    "kick",
+    "frame_drum",
+    "mantra_reed"
+   ],
+   "tempo": 120.0,
+   "tonic": 146.83
+  },
   "demo": {
    "bars": 11,
    "instruments": [
@@ -115,6 +136,12 @@
    "tonic": 146.83
   }
  },
+ "synths": [
+  "bass",
+  "arp",
+  "pad",
+  "lead"
+ ],
  "tonic": 146.83,
  "vowels": [
   "ah",

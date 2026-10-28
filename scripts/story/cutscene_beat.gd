@@ -27,4 +27,6 @@ enum Camera { ORBIT, CHASE, FIXED }
 @export var silhouette := false
 ## Frame the shot as the arcade home game.
 @export var bezel := false
+## Score crossfaded in, every stem, as this beat starts (Story 16.5). Null keeps the music.
+@export var score: Score
 @export var duration := 8.0

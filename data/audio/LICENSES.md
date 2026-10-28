@@ -68,3 +68,9 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_1_kick.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_1_clap.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_1_mantra_lead.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_reed.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_pluck.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_kick.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_frame_drum.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_mantra_reed.ogg` | `tools/music/generate.py` | generated |
