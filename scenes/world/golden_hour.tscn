@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Environment" path="res://data/world/golden_hour.tres" id="1_env"]
+[ext_resource type="Script" path="res://scripts/world/golden_hour.gd" id="2_script"]
 
 [node name="GoldenHour" type="Node3D"]
+script = ExtResource("2_script")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_env")

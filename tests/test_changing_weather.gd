@@ -143,6 +143,8 @@ func test_e_in_free_flight_blends_over_three_seconds() -> bool:
 	var env_node: WorldEnvironment = s.find_children("*", "WorldEnvironment", true, false)[0]
 	var fog: Weather = load("res://data/weather/fog_bank.tres")
 	var breeze := d.wind
+	# The scene's own copy of the shared sky (Story 15.1).
+	var own := env_node.environment
 	var ev := InputEventAction.new()
 	ev.action = &"cycle_weather"
 	ev.pressed = true
@@ -161,7 +163,7 @@ func test_e_in_free_flight_blends_over_three_seconds() -> bool:
 	while s.weather_index != -1:
 		s.cycle_weather()
 	state.advance(s.weather_blend_time)
-	var cleared: bool = state.weather == null and env_node.environment == ENV and d.wind == breeze
+	var cleared: bool = state.weather == null and env_node.environment == own and d.wind == breeze
 	var ok: bool = started and halfway and not_yet and reached and cleared
 	if not ok:
 		print("        %s %s(%.4f) %s %s %s" % [started, halfway, mid_fog, not_yet, reached, cleared])

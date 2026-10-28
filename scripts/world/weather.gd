@@ -129,4 +129,6 @@ static func apply(w: Weather, drone: Drone, scope: Node) -> void:
 			env.fog_light_color = Color(w.fog_color, 1.0) if a >= 1.0 else clear.fog_light_color.lerp(Color(w.fog_color, 1.0), a)
 			env.fog_sun_scatter = lerpf(clear.fog_sun_scatter, 0.0, a)
 			env.fog_sky_affect = w.sky_affect if w.sky_affect >= 0.0 else clear.fog_sky_affect
+			# On High the near fog is volumetric too (Story 15.1).
+			Quality.fog(env)
 			env_node.environment = env

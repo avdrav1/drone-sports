@@ -114,6 +114,11 @@ func fly(job: Job) -> void:
 	if Career.can_fly(job) and job.scene:
 		get_tree().change_scene_to_file(job.scene)
 
+## Picks the renderer tier (Quality.Tier) and saves it; scenes loaded after use it.
+func set_quality(tier: int) -> void:
+	GameSettings.quality = tier
+	GameSettings.save()
+
 func free_flight() -> void:
 	get_tree().change_scene_to_file(FREE_FLIGHT)
 
@@ -319,6 +324,15 @@ func _build() -> void:
 	sound_button.text = "Sound"
 	sound_button.pressed.connect(func(): sound.open())
 	_footer.add_child(sound_button)
+	# Renderer extras (Story 15.1); the web build is always Low, so no choice there.
+	var quality := OptionButton.new()
+	quality.name = "Quality"
+	quality.add_item("Quality: Low", Quality.Tier.LOW)
+	quality.add_item("Quality: High", Quality.Tier.HIGH)
+	quality.select(quality.get_item_index(GameSettings.quality))
+	quality.item_selected.connect(func(i): set_quality(quality.get_item_id(i)))
+	quality.visible = not OS.has_feature("web")
+	_footer.add_child(quality)
 	var intro := Button.new()
 	intro.name = "WatchIntro"
 	intro.text = "Watch intro"
