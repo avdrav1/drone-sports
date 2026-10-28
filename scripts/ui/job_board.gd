@@ -6,6 +6,10 @@ extends Control
 # and the shop and pilot select open from here. A new game picks a pilot first.
 # A locked faction's jobs leave the board, and the shop shows when it is closed
 # (Story 7.6). Esc goes back to the title (Story 17.3).
+# Story 17.4: the jobs are a carousel of big cards, one at a time: title, client,
+# type icon, pay, assists, best grade, and a crew member on comms pitching it in
+# their own voice. A locked card shows a padlock and one short reason, the full
+# one in its tooltip. It opens on START HERE, else on the last job flown.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -20,8 +24,11 @@ var offer_dialog: OfferDialog
 var shop: ShopDialog
 var pilot_select: PilotSelect
 var sound: SoundDialog
-## Job id -> its row, rebuilt on every refresh.
+## Job id -> its card's content (Fly or Locked inside), rebuilt on every refresh.
 var job_rows := {}
+## Job ids in carousel order.
+var job_ids: Array[StringName] = []
+var carousel: JobCarousel
 ## Character id -> its row.
 var crew_rows := {}
 
@@ -29,7 +36,6 @@ var _header: Label
 ## Shows SaveGame.warning, once, when the save had to be reset.
 var warning_label: Label
 var _money: Label
-var _jobs_box: VBoxContainer
 var _crew_box: VBoxContainer
 var _footer: HBoxContainer
 var _pilot_button: Button
@@ -52,10 +58,14 @@ func _ready() -> void:
 	pilot_select = PilotSelect.new()
 	pilot_select.name = "PilotSelect"
 	pilot_select.visible = false
-	pilot_select.chosen.connect(func(_id): refresh())
+	pilot_select.chosen.connect(func(_id):
+		refresh()
+		carousel.grab_focus())
 	add_child(pilot_select)
 	if not PlayerProfile.has_pilot():
 		pilot_select.open()
+	else:
+		carousel.grab_focus()
 	UiSounds.wire(self)
 	MusicDirector.board()
 	Career.check_offers()
@@ -83,24 +93,22 @@ func refresh() -> void:
 	_shop_button.text = "Shop" if closed == 0 else "Shop closed: %d more job%s" % [closed, "" if closed == 1 else "s"]
 	_shop_button.tooltip_text = "" if closed == 0 else "Closed since %s died." % \
 		", ".join(Consequences.causes(&"shop_closed").map(func(c): return c.name))
-	for c in _jobs_box.get_children():
-		c.free()
 	for c in _crew_box.get_children():
 		c.free()
+	var showing: StringName = job_ids[carousel.index] if carousel.index < job_ids.size() else &""
 	job_rows.clear()
+	job_ids.clear()
 	crew_rows.clear()
-	_jobs_box.add_child(_heading("JOBS"))
+	var cards: Array[Control] = []
 	for job in jobs.jobs:
 		if not Consequences.listed(job):
 			continue
-		var row := _job_row(job)
-		job_rows[job.id] = row
-		_jobs_box.add_child(row)
+		cards.append(_card(job, false))
 	# The Lattice is data-gated: switched off, it is never listed (Story 8.1).
 	if BossGate.listed():
-		var boss := _boss_row(BossGate.data().job)
-		job_rows[BossGate.data().job.id] = boss
-		_jobs_box.add_child(boss)
+		cards.append(_card(BossGate.data().job, true))
+	var open_on := job_ids.find(showing if showing != &"" else opening_job())
+	carousel.set_cards(cards, maxi(open_on, 0))
 	_crew_box.add_child(_heading("CREW"))
 	for id in Roster.ids():
 		var row := crew_row(id)
@@ -121,8 +129,16 @@ func set_quality(tier: int) -> void:
 	GameSettings.save()
 
 ## Esc (or pad B) with nothing open over the board: back to the title.
+## Left and right flip the carousel even when nothing has focus.
 func _unhandled_input(event: InputEvent) -> void:
-	if not event.is_action_pressed("ui_cancel") or pilot_select.visible:
+	if pilot_select.visible:
+		return
+	if get_viewport().gui_get_focus_owner() == null and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
+		carousel.grab_focus()
+		carousel.go(carousel.index + (1 if event.is_action_pressed("ui_right") else -1))
+		get_viewport().set_input_as_handled()
+		return
+	if not event.is_action_pressed("ui_cancel"):
 		return
 	for w in find_children("*", "Window", true, false):
 		if w.visible:
@@ -140,6 +156,49 @@ func watch_intro() -> void:
 	CutscenePlayer.replay = true
 	get_tree().change_scene_to_file(INTRO)
 
+## The card the carousel opens on: START HERE, else the last job flown.
+func opening_job() -> StringName:
+	var start := start_here()
+	return start if start != &"" else Career.last_job
+
+## Enter or a click on the shown card: fly it, or shake when it is locked.
+func fly_current() -> void:
+	var b := fly_button(job_ids[carousel.index]) if carousel.index < job_ids.size() else null
+	if b:
+		b.pressed.emit()
+	else:
+		carousel.shake()
+
+## Who pitches a job: the first living crew member in its field, then those it
+## needs alive, then whoever speaks at briefings, with a pitch line to say.
+static func comms_for(job: Job) -> StringName:
+	var who: Array[StringName] = []
+	who.append_array(job.crew_in_field)
+	who.append_array(job.requires_living)
+	for id in Roster.ids():
+		var c: Character = Roster.character(id)
+		if c and &"briefing" in c.speaks_on:
+			who.append(id)
+	for id in who:
+		if Roster.is_alive(id) and not Bark.pool(id, &"pitch").is_empty():
+			return id
+	return &""
+
+## Why a job is locked, short for the card and in full for its tooltip.
+static func lock_reason(job: Job) -> Array[String]:
+	var missing := Consequences.missing_crew(job)
+	if not missing.is_empty():
+		return ["Needs " + " and ".join(missing), "Closed: needs %s alive to fly it." % ", ".join(missing)]
+	var teams := Career.unlocked_by(job)
+	if teams.is_empty():
+		return ["No team flies this", "Locked: no team takes this kind of job yet."]
+	var short := "Join " + teams[0]
+	if teams.size() == 2:
+		short += " or " + teams[1]
+	elif teams.size() > 2:
+		short += " or %d more teams" % (teams.size() - 1)
+	return [short, "Locked: flown by %s. Join one to fly it." % ", ".join(teams)]
+
 ## Before anything is done, the first flyable job is where to start.
 func start_here() -> StringName:
 	if Career.team_id != &"" or not Career.completed.is_empty():
@@ -149,89 +208,138 @@ func start_here() -> StringName:
 			return job.id
 	return &""
 
-func _job_row(job: Job) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = String(job.id)
-	row.add_theme_constant_override("separation", 16)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = SIZE_EXPAND_FILL
-	var title := Label.new()
-	title.text = job.title
-	text.add_child(title)
-	if job.id == start_here():
+## A job's card: a panel holding a box named for the job, whose first child is
+## the info (StartHere, Details, Grade, Comms) and whose last is Fly or Locked.
+func _card(job: Job, boss: bool) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = "Card_" + String(job.id)
+	panel.mouse_filter = MOUSE_FILTER_STOP
+	var box := VBoxContainer.new()
+	box.name = String(job.id)
+	box.add_theme_constant_override("separation", 18)
+	panel.add_child(box)
+	job_rows[job.id] = box
+	job_ids.append(job.id)
+	var info := VBoxContainer.new()
+	info.name = "Info"
+	info.add_theme_constant_override("separation", 8)
+	box.add_child(info)
+	var flies := BossGate.flyable() if boss else Career.can_fly(job)
+	if not boss and job.id == start_here():
 		var tag := Label.new()
 		tag.name = "StartHere"
 		tag.text = "START HERE"
 		tag.add_theme_color_override("font_color", ACCENT)
-		tag.add_theme_font_size_override("font_size", 13)
-		text.add_child(tag)
-	var details := Label.new()
-	details.name = "Details"
-	details.text = "%s  ·  %s  ·  pay %d  ·  %s assists" % [job.client, String(job.job_type).capitalize(), job.pay, preset_label(job)]
-	var done := Career.times_completed(job.id)
-	if done > 0:
-		details.text += "  ·  done %d×" % done
-	details.add_theme_color_override("font_color", DIM)
-	details.add_theme_font_size_override("font_size", 14)
-	text.add_child(details)
-	row.add_child(text)
-	if Career.can_fly(job):
-		var b := Button.new()
-		b.name = "Fly"
-		b.text = "Fly"
-		b.custom_minimum_size.x = 90
-		b.pressed.connect(fly.bind(job))
-		row.add_child(b)
-	else:
-		var lock := Label.new()
-		lock.name = "Locked"
-		var teams := Career.unlocked_by(job)
-		var missing := Consequences.missing_crew(job)
-		if not missing.is_empty():
-			lock.text = "Closed: needs " + ", ".join(missing)
-		else:
-			lock.text = "Locked: " + (", ".join(teams) if not teams.is_empty() else "no team yet")
-		lock.add_theme_color_override("font_color", DIM)
-		lock.add_theme_font_size_override("font_size", 14)
-		lock.custom_minimum_size.x = 220
-		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		row.add_child(lock)
-	return row
-
-## The boss's row: Fly when every requirement is met, else why not.
-func _boss_row(job: Job) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = String(job.id)
-	row.add_theme_constant_override("separation", 16)
-	var text := VBoxContainer.new()
-	text.size_flags_horizontal = SIZE_EXPAND_FILL
+		tag.add_theme_font_size_override("font_size", 15)
+		info.add_child(tag)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 14)
+	info.add_child(head)
+	var icon := JobIcon.new()
+	icon.name = "Icon"
+	icon.kind = job.job_type
+	icon.color = HURT if boss else ACCENT
+	icon.custom_minimum_size = Vector2(52, 52)
+	head.add_child(icon)
 	var title := Label.new()
 	title.text = job.title
-	title.add_theme_color_override("font_color", HURT)
-	text.add_child(title)
+	title.size_flags_horizontal = SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.add_theme_font_size_override("font_size", 30)
+	if boss:
+		title.add_theme_color_override("font_color", HURT)
+	head.add_child(title)
+	if not flies:
+		var padlock := JobIcon.new()
+		padlock.name = "Padlock"
+		padlock.kind = &"locked"
+		padlock.color = DIM
+		padlock.custom_minimum_size = Vector2(36, 36)
+		head.add_child(padlock)
 	var details := Label.new()
 	details.name = "Details"
-	details.text = "%s  ·  Lethal for crew in the field  ·  pay %d  ·  %s assists" % [job.client, job.pay, preset_label(job)]
+	if boss:
+		details.text = "%s  ·  Lethal for crew in the field  ·  pay %d  ·  %s assists" % [job.client, job.pay, preset_label(job)]
+	else:
+		details.text = "%s  ·  %s  ·  pay %d  ·  %s assists" % [job.client, String(job.job_type).capitalize(), job.pay, preset_label(job)]
+		var done := Career.times_completed(job.id)
+		if done > 0:
+			details.text += "  ·  done %d×" % done
+	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_theme_color_override("font_color", DIM)
-	details.add_theme_font_size_override("font_size", 14)
-	text.add_child(details)
-	row.add_child(text)
-	if BossGate.flyable():
+	details.add_theme_font_size_override("font_size", 16)
+	info.add_child(details)
+	var grade := Label.new()
+	grade.name = "Grade"
+	var best := Career.best_grade(job.id)
+	grade.text = "BEST GRADE  " + (best if best != "" else "-")
+	grade.add_theme_color_override("font_color", Color(0.35, 0.8, 0.95))
+	grade.add_theme_font_size_override("font_size", 18)
+	info.add_child(grade)
+	# The Lattice gets no cheerful pitch; its row keeps its own say (Story 8.1).
+	var who := comms_for(job) if not boss else &""
+	if who != &"":
+		info.add_child(_comms(job, who))
+	if flies:
 		var b := Button.new()
 		b.name = "Fly"
-		b.text = "Fly"
-		b.custom_minimum_size.x = 90
-		b.pressed.connect(func(): BossGate.open(get_tree()))
-		row.add_child(b)
+		b.text = "FLY"
+		b.focus_mode = FOCUS_NONE
+		b.size_flags_horizontal = SIZE_SHRINK_CENTER
+		b.custom_minimum_size = Vector2(220, 0)
+		b.add_theme_font_size_override("font_size", 24)
+		if boss:
+			b.pressed.connect(func(): BossGate.open(get_tree()))
+		else:
+			b.pressed.connect(fly.bind(job))
+		box.add_child(b)
 	else:
 		var lock := Label.new()
 		lock.name = "Locked"
-		lock.text = "Unreachable: " + "; ".join(BossGate.reasons())
-		lock.add_theme_color_override("font_color", DIM)
-		lock.add_theme_font_size_override("font_size", 14)
-		lock.custom_minimum_size.x = 220
+		lock.mouse_filter = MOUSE_FILTER_PASS
+		if boss:
+			lock.text = "Unreachable: " + "; ".join(BossGate.reasons())
+			lock.tooltip_text = lock.text
+		else:
+			var why := lock_reason(job)
+			lock.text = why[0]
+			lock.tooltip_text = why[1]
+		panel.tooltip_text = lock.tooltip_text
+		lock.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		row.add_child(lock)
+		lock.add_theme_color_override("font_color", DIM)
+		lock.add_theme_font_size_override("font_size", 20)
+		box.add_child(lock)
+	return panel
+
+## The crew member on comms for a job: their face making the pitch's
+## expression, name and role, and the line.
+func _comms(job: Job, who: StringName) -> HBoxContainer:
+	var c: Character = Roster.character(who)
+	var line := Bark.pitch(who, job.id)
+	var row := HBoxContainer.new()
+	row.name = "Comms"
+	row.add_theme_constant_override("separation", 14)
+	var face := CharacterPortrait.new()
+	face.name = "Face"
+	face.character = c
+	face.expression = line.get("face", &"neutral")
+	face.custom_minimum_size = Vector2(76, 76)
+	row.add_child(face)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = SIZE_EXPAND_FILL
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(text)
+	var who_label := Label.new()
+	who_label.text = "%s  ·  %s  ·  ON COMMS" % [c.name, c.role]
+	who_label.add_theme_color_override("font_color", ACCENT)
+	who_label.add_theme_font_size_override("font_size", 14)
+	text.add_child(who_label)
+	var pitch := Label.new()
+	pitch.name = "Pitch"
+	pitch.text = "\"%s\"" % line.get("text", "")
+	pitch.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.add_child(pitch)
 	return row
 
 ## Portrait, name and role, and status: active, injured for N jobs, or dead
@@ -313,7 +421,12 @@ func _build() -> void:
 	body.size_flags_vertical = SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 24)
 	page.add_child(body)
-	_jobs_box = _panel(body, true)
+	carousel = JobCarousel.new()
+	carousel.name = "Carousel"
+	carousel.size_flags_horizontal = SIZE_EXPAND_FILL
+	carousel.size_flags_stretch_ratio = 1.6
+	carousel.activated.connect(func(_i): fly_current())
+	body.add_child(carousel)
 	_crew_box = _panel(body, false)
 	_footer = HBoxContainer.new()
 	_footer.name = "Footer"

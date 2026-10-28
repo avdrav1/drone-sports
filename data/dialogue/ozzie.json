@@ -10,6 +10,36 @@
    "I'm patched. Not fixed. Hurry."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "Somebody's waiting on this one. Let's go.",
+    "face": "determined"
+   },
+   {
+    "text": "I'll be out there. You'll find me.",
+    "face": "happy"
+   },
+   {
+    "text": "Easy pace, clear head. You can do this one.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "I'm patched up enough. Take the job.",
+    "face": "worried"
+   },
+   {
+    "text": "Sore but steady. Come get me.",
+    "face": "determined"
+   },
+   {
+    "text": "I'll keep the flare lit. You keep calm.",
+    "face": "neutral"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Good. Keep that pace.",

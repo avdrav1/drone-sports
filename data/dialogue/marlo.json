@@ -10,6 +10,36 @@
    "I'll call it from the chair today. Fly kind."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "I'll be on the line the whole way. Take it.",
+    "face": "determined"
+   },
+   {
+    "text": "Nice one. I can see the whole course from my spot.",
+    "face": "happy"
+   },
+   {
+    "text": "Fly this and I'll talk you through every turn.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Arm's in a sling, but I can still call it. Take it.",
+    "face": "determined"
+   },
+   {
+    "text": "I'll spot from the chair. Just say yes.",
+    "face": "worried"
+   },
+   {
+    "text": "Ribs hurt. Eyes work. Let's go.",
+    "face": "determined"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Gate. Good line.",

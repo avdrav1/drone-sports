@@ -10,6 +10,36 @@
    "Leg's busted. Building doesn't care. Go."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "Good money, short schedule. My kind of job.",
+    "face": "determined"
+   },
+   {
+    "text": "Sign on. I need a pilot who listens.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fly it right and nobody gets hurt. Take it.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Running the crew from a cast. I want you on this.",
+    "face": "determined"
+   },
+   {
+    "text": "Leg's busted. I still need a pilot. You.",
+    "face": "worried"
+   },
+   {
+    "text": "I'll be on site. Slower. Fly it clean.",
+    "face": "sad"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Through the gap. Good.",

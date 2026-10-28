@@ -235,6 +235,7 @@ func _finish() -> void:
 	if pays_out:
 		Payout.settle(result, grade_scale)
 		Roster.job_done(casualties.keys())
+		Career.job_flown(job.id, result.letter)
 		if result.completed:
 			Career.job_completed(job.id)
 	finished.emit(result)

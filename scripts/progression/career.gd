@@ -18,6 +18,10 @@ var offered: Array[StringName] = []
 var pending: Array[StringName] = []
 ## Job id -> times completed.
 var completed := {}
+## Job id -> best grade letter so far, A best, F worst (Story 17.4).
+var grades := {}
+## The job flown last; the board's carousel opens on it.
+var last_job: StringName = &""
 
 func _ready() -> void:
 	teams = load(TEAMS)
@@ -129,11 +133,25 @@ func job_completed(job_id: StringName) -> void:
 func times_completed(job_id: StringName) -> int:
 	return completed.get(job_id, 0)
 
+## A job was flown and graded `letter`; keeps the best and remembers it as last.
+func job_flown(job_id: StringName, letter: String) -> void:
+	if not grades.has(job_id) or letter < grades[job_id]:
+		grades[job_id] = letter
+	last_job = job_id
+	save()
+
+## The best grade flown on a job, or "" before it has been flown.
+func best_grade(job_id: StringName) -> String:
+	return grades.get(job_id, "")
+
 func save() -> void:
 	var done := {}
 	for id in completed:
 		done[String(id)] = completed[id]
-	SaveGame.write_section("career", {"team": String(team_id), "completed": done,
+	var best := {}
+	for id in grades:
+		best[String(id)] = grades[id]
+	SaveGame.write_section("career", {"team": String(team_id), "completed": done, "grades": best, "last_job": String(last_job),
 		"offered": offered.map(func(s): return String(s)), "pending": pending.map(func(s): return String(s))})
 
 func load_saved() -> void:
@@ -148,5 +166,11 @@ func load_saved() -> void:
 	if done is Dictionary:
 		for id in done:
 			completed[StringName(id)] = int(done[id])
+	grades.clear()
+	var best = saved.get("grades", {})
+	if best is Dictionary:
+		for id in best:
+			grades[StringName(id)] = str(best[id])
+	last_job = StringName(saved.get("last_job", ""))
 	offered.assign(saved.get("offered", []).map(func(s): return StringName(s)))
 	pending.assign(saved.get("pending", []).map(func(s): return StringName(s)))

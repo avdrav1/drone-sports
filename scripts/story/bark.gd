@@ -9,9 +9,10 @@ extends Node
 # (Story 14.8); lines kept for the results screen chirp when shown there.
 # Story 17.2: a line is a string or {"text": ..., "face": ...}; the face is one
 # of CharacterPortrait.EXPRESSIONS, or the event's default when it has none.
+# Story 17.4: `pitch` is a job card's one-liner on the board, never said in a job.
 # Holds no character or job names.
 
-const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results"]
+const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch"]
 ## The face a line makes when its entry names none. Other events look neutral.
 const DEFAULT_FACES := {
 	&"briefing": &"determined",
@@ -168,6 +169,15 @@ func _on_finished(result: JobResult) -> void:
 			result.casualty_lines[id] = memorial(id)
 		else:
 			result.casualty_lines[id] = say(&"hurt", id, false).get("text", "")
+
+## A job card's pitch from `id`, {text, face}, or {} when they have none.
+## Picked by `key` (the job id), so a card shows the same line every time.
+static func pitch(id: StringName, key: StringName) -> Dictionary:
+	var lines := pool(id, &"pitch")
+	if lines.is_empty():
+		return {}
+	var text: String = lines[absi(hash(String(key))) % lines.size()]
+	return {"text": text, "face": face_of(id, &"pitch", text)}
 
 ## A dead character's memorial line, from their line file.
 static func memorial(id: StringName) -> String:

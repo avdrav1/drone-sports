@@ -6,6 +6,22 @@
    "Show me why I scouted you."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "This one's worth your time. Prove it.",
+    "face": "determined"
+   },
+   {
+    "text": "Clean, safe, fast. Here's your chance.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'd put you on this. Don't make me regret it.",
+    "face": "happy"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Good line.",

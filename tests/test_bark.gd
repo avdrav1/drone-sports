@@ -117,3 +117,17 @@ func test_race_gate_callout() -> bool:
 	course.gate_passed.emit(course.racers()[1], 2)
 	scene.free()
 	return heard == [[&"marlo", &"gate_passed"]]
+
+# Story 17.4: every pitch line names a face the rig can make.
+func test_pitch_lines_set_a_valid_face() -> bool:
+	_fresh()
+	var ok := true
+	for id in Roster.ids():
+		var e: Dictionary = Bark.lines_of(id).get("pitch", {})
+		for line in e.get("active", []) + e.get("injured", []):
+			ok = ok and line is Dictionary and StringName(line.get("face", "")) in CharacterPortrait.EXPRESSIONS
+		ok = ok and not Bark.pitch(id, &"test_race").is_empty()
+	Roster.kill(&"marlo")
+	ok = ok and Bark.pitch(&"marlo", &"test_race").is_empty()
+	_fresh()
+	return ok

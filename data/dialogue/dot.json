@@ -10,6 +10,36 @@
    "Bring it back in one piece. Unlike me."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "Pays enough to cover the props you'll break. Probably.",
+    "face": "neutral"
+   },
+   {
+    "text": "Drone's ready. Don't ask about the van.",
+    "face": "worried"
+   },
+   {
+    "text": "Take it. I need parts money.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Take it. I'll fix the drone one-handed.",
+    "face": "determined"
+   },
+   {
+    "text": "I'm stitched up and it still pays. Go.",
+    "face": "neutral"
+   },
+   {
+    "text": "Bring the drone back whole. I can't bend down.",
+    "face": "worried"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Motors sound happy.",

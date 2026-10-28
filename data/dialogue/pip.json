@@ -6,6 +6,22 @@
    "I've flown worse. In a game, but still."
   ]
  },
+ "pitch": {
+  "active": [
+   {
+    "text": "Ooh, this one looks fun. Right? Fun?",
+    "face": "happy"
+   },
+   {
+    "text": "I'd fly it. I mean, you'd fly it. Same thing.",
+    "face": "happy"
+   },
+   {
+    "text": "Let's do this one. I've got a good feeling.",
+    "face": "determined"
+   }
+  ]
+ },
  "gate_passed": {
   "active": [
    "Through!",
