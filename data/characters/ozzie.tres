@@ -12,4 +12,4 @@ colors = PackedColorArray(0.4, 0.58, 0.92, 1, 0.95, 0.97, 1, 1)
 lines = "res://data/dialogue/ozzie.json"
 death_consequence = &"city_locked"
 can_be_harmed = true
-tags = Array[StringName]([])
+tags = Array[StringName]([&"can_fly"])

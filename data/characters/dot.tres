@@ -13,4 +13,4 @@ lines = "res://data/dialogue/dot.json"
 speaks_on = Array[StringName]([&"fail", &"results"])
 death_consequence = &"shop_closed"
 can_be_harmed = true
-tags = Array[StringName]([])
+tags = Array[StringName]([&"can_fly"])

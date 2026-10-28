@@ -30,19 +30,21 @@ func _await_lap(relay: Relay, seconds: float) -> void:
 		if relay.leg != legs or relay.invalid != bad:
 			return
 
+## The relay's i-th drone, from 1: the crew build the fleet at load (Story 7.7).
 func _fleet(s: Node, i: int) -> Drone:
-	return s.get_node("Fleet%d" % i)
+	return (s.get_node("Relay") as Relay).drones[i - 1]
 
 func test_relay_in_order_completes_with_handoffs() -> bool:
 	var s := _job()
 	var relay: Relay = s.get_node("Relay")
 	await _live(s)
-	for i in 3:
+	var n := relay.drones.size()
+	for i in n:
 		relay.send(_fleet(s, i + 1))
 		await _await_lap(relay, 90.0)
 	await Sim.physics_frames(5)
 	var runner: JobRunner = s.get_node("JobRunner")
-	var ok := relay.done and relay.invalid == 0 and relay.leg_times.size() == 3 and relay.handoffs.size() == 2 \
+	var ok := n >= 3 and relay.done and relay.invalid == 0 and relay.leg_times.size() == n and relay.handoffs.size() == n - 1 \
 		and runner.state == JobRunner.State.COMPLETE
 	if not ok:
 		print("        leg %d invalid %d (%s) handoffs %s state %s" % [relay.leg, relay.invalid, relay.last_invalid, relay.handoffs, runner.state])
@@ -56,7 +58,7 @@ func test_lap_by_the_wrong_drone_is_invalid() -> bool:
 	relay.send(_fleet(s, 1))
 	await _await_lap(relay, 90.0)
 	var first := relay.leg == 1
-	# Leg two belongs to Fleet2; Fleet3 flies it instead.
+	# Leg two belongs to the second drone; the third flies it instead.
 	var flagged := []
 	relay.lap_invalid.connect(func(d, why): flagged.append([d, why]))
 	relay.send(_fleet(s, 3))
@@ -88,8 +90,9 @@ func test_hud_shows_handoff_timing() -> bool:
 			break
 	await Sim.process_frames(2)
 	var after := hud.lines()
-	var ok := before.begins_with("Leg 1/3") and relay.handoffs.size() == 1 \
-		and after.contains("Handoff 1  %.2f s" % relay.handoffs[0]) and after.contains("Leg 2/3")
+	var n := relay.drones.size()
+	var ok := before.begins_with("Leg 1/%d" % n) and relay.handoffs.size() == 1 \
+		and after.contains("Handoff 1  %.2f s" % relay.handoffs[0]) and after.contains("Leg 2/%d" % n)
 	if not ok:
 		print("        before %s / after %s" % [before.replace("\n", " | "), after.replace("\n", " | ")])
 	s.free()

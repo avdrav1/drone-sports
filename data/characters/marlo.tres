@@ -13,4 +13,4 @@ lines = "res://data/dialogue/marlo.json"
 speaks_on = Array[StringName]([&"gate_passed"])
 death_consequence = &"no_spotter"
 can_be_harmed = true
-tags = Array[StringName]([])
+tags = Array[StringName]([&"can_fly"])

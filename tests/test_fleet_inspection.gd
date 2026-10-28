@@ -27,6 +27,10 @@ func _send(d: Drone, to: Vector3) -> void:
 	var p := d.global_position
 	Autopilot.of(d).go_to(PackedVector3Array([Vector3(p.x, CRUISE, p.z), Vector3(to.x, CRUISE, to.z), to]))
 
+## The fleet's i-th drone, from 1: the crew build it at load (Story 7.7).
+func _fleet(s: Node, i: int) -> Drone:
+	return (s.get_node("CommandView") as CommandView).drones[i - 1]
+
 func _station(s: Node, i: int) -> Vector3:
 	return s.get_node("Station%d" % i).global_position
 
@@ -41,7 +45,7 @@ func test_three_drones_three_stations_complete() -> bool:
 	var s := _job()
 	await _live(s)
 	for i in 3:
-		_send(s.get_node("Fleet%d" % (i + 1)), _station(s, i + 1))
+		_send(_fleet(s, i + 1), _station(s, i + 1))
 	await _wait_done(s, 60.0)
 	var runner: JobRunner = s.get_node("JobRunner")
 	var ok := runner.state == JobRunner.State.COMPLETE
@@ -53,7 +57,7 @@ func test_three_drones_three_stations_complete() -> bool:
 func test_one_drone_touring_every_station_never_completes() -> bool:
 	var s := _job()
 	await _live(s)
-	var d: Drone = s.get_node("Fleet1")
+	var d: Drone = _fleet(s, 1)
 	var route := PackedVector3Array([Vector3(d.global_position.x, CRUISE, d.global_position.z)])
 	for i in 3:
 		var st := _station(s, i + 1)
@@ -71,8 +75,8 @@ func test_one_drone_touring_every_station_never_completes() -> bool:
 	# And sits on the last one well past its hold time.
 	await Sim.physics_frames(60 * 8)
 	# Two drones on one station and none on the third: still nothing.
-	var two: Drone = s.get_node("Fleet2")
-	var three: Drone = s.get_node("Fleet3")
+	var two: Drone = _fleet(s, 2)
+	var three: Drone = _fleet(s, 3)
 	# Each down its own column, so their guards don't hold them apart above it.
 	_send(two, _station(s, 1) + Vector3(-1.6, 0, 0))
 	_send(three, _station(s, 1) + Vector3(1.6, 0, 0))
@@ -97,10 +101,10 @@ func test_graded_per_station_and_combined() -> bool:
 	var results := []
 	runner.finished.connect(func(r): results.append(r))
 	await _live(s)
-	_send(s.get_node("Fleet1"), _station(s, 1))
-	_send(s.get_node("Fleet2"), _station(s, 2))
+	_send(_fleet(s, 1), _station(s, 1))
+	_send(_fleet(s, 2), _station(s, 2))
 	# The third holds two metres off centre: a lower score for its relay only.
-	_send(s.get_node("Fleet3"), _station(s, 3) + Vector3(2.0, 0, 0))
+	_send(_fleet(s, 3), _station(s, 3) + Vector3(2.0, 0, 0))
 	await _wait_done(s, 60.0)
 	var ok: bool = results.size() == 1 and results[0].completed
 	if ok:

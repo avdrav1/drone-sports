@@ -87,5 +87,12 @@
    "I'll live. Fly kinder next time."
   ]
  },
- "memorial": "Marlo, spotter. Called every gate, even the last one."
+ "memorial": "Marlo, spotter. Called every gate, even the last one.",
+ "order": {
+  "active": [
+   "Copy. Moving.",
+   "Marked. On my way.",
+   "Seen it. Going."
+  ]
+ }
 }

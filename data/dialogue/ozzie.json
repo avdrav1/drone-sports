@@ -83,5 +83,12 @@
    "Patched up. Try not to need me."
   ]
  },
- "memorial": "Ozzie, medic. Waited in the cold for someone to come."
+ "memorial": "Ozzie, medic. Waited in the cold for someone to come.",
+ "order": {
+  "active": [
+   "Understood. En route.",
+   "Moving now. Steady.",
+   "On my way. Keep it calm."
+  ]
+ }
 }

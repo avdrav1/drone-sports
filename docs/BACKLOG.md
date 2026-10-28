@@ -420,11 +420,12 @@ Done when the player picks a pilot, the crew talks through every job, crew membe
   - Acceptance: A test kills each character and checks its consequence is in effect. The locked faction's jobs do not appear on the board. The memorial line is present.
   - Out of scope: Replacement recruits.
 
-- [ ] **7.7 Crew in the fleet**
+- [x] **7.7 Crew in the fleet**
   - Goal: In Epic 6, living crew members pilot the fleet drones under autopilot and bark on events. A dead crew member is one fewer drone.
   - Context: Do after 6.2. Resolves the fleet open question in CHARACTERS.md.
   - Acceptance: Fleet size equals living crew tagged `can_fly`. Each fleet drone shows its pilot's portrait in the command view.
   - Out of scope: Crew dying during fleet jobs.
+  - Note: `FleetCrew` (before the command view, relay, and runner in a fleet scene) builds one drone per living `can_fly` crew member at its Marker3D slots, names it after its pilot, and hands the fleet on. Pip, Marlo, Dot, and Ozzie fly, so the full fleet is four and the relay runs four legs. Pilots answer orders with the new `order` event in their line files. The fleet inspection needs three, so it stops being completable after two of the four die; nothing on the board says so yet.
 
 ## Epic 8: The Lattice
 

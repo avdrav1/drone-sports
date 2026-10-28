@@ -13,4 +13,4 @@ lines = "res://data/dialogue/pip.json"
 speaks_on = Array[StringName]([&"complete", &"fail"])
 death_consequence = &""
 can_be_harmed = false
-tags = Array[StringName]([&"pilot"])
+tags = Array[StringName]([&"pilot", &"can_fly"])

@@ -83,5 +83,12 @@
    "Two jobs off. Don't break anything."
   ]
  },
- "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time."
+ "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time.",
+ "order": {
+  "active": [
+   "She'll get there. Go easy on the battery.",
+   "Moving. Motors sound fine.",
+   "Fine, fine. Going."
+  ]
+ }
 }

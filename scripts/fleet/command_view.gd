@@ -25,6 +25,8 @@ signal left(drone: Drone)
 ## A fleet job's runner: the fleet holds still until Live, on its autopilots.
 @export var runner: JobRunner
 
+## Drone -> the crew member flying it, shown as a portrait by its ring (7.7).
+var pilots := {}
 var selected: Drone
 ## The drone being flown by hand, or null when commanding.
 var flown: Drone
@@ -142,11 +144,19 @@ func _cycle() -> void:
 		return
 	select(drones[(drones.find(selected) + 1) % drones.size()])
 
-## Rings on the drones (the selected one lit) and lines through each queue.
+## The portrait shown for `d` in the overlay, or null.
+func portrait(d: Drone) -> CharacterPortrait:
+	return $Overlay.get_child(0).portraits.get(d)
+
+## Rings on the drones (the selected one lit), each pilot's portrait, and lines
+## through each queue.
 class _Overlay extends Control:
 	const RING := Color(1, 1, 1, 0.75)
 	const LIT := Color(1.0, 0.76, 0.25)
+	const FACE := 34.0
 	var view: CommandView
+	## Drone -> CharacterPortrait.
+	var portraits := {}
 
 	func _ready() -> void:
 		set_anchors_preset(PRESET_FULL_RECT)
@@ -154,7 +164,26 @@ class _Overlay extends Control:
 
 	func _process(_delta: float) -> void:
 		visible = view.flown == null
+		_place_portraits()
 		queue_redraw()
+
+	func _place_portraits() -> void:
+		var cam := view.camera
+		for d in view.drones:
+			if not view.pilots.has(d):
+				continue
+			if not portraits.has(d):
+				var face := CharacterPortrait.new()
+				face.character = view.pilots[d]
+				face.custom_minimum_size = Vector2.ONE * FACE
+				face.size = Vector2.ONE * FACE
+				face.mouse_filter = MOUSE_FILTER_IGNORE
+				add_child(face)
+				portraits[d] = face
+			var p: CharacterPortrait = portraits[d]
+			p.visible = is_instance_valid(d) and cam.is_inside_tree() and not cam.is_position_behind(d.global_position)
+			if p.visible:
+				p.position = cam.unproject_position(d.global_position) + Vector2(16, -FACE - 6)
 
 	func _draw() -> void:
 		var cam := view.camera

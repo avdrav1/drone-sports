@@ -5,8 +5,9 @@
 [ext_resource type="PackedScene" path="res://scenes/world/city.tscn" id="3_city"]
 [ext_resource type="PackedScene" path="res://scenes/world/streets.tscn" id="4_streets"]
 [ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="5_roofs"]
-[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="6_drone"]
-[ext_resource type="Script" path="res://scripts/drone/autopilot.gd" id="7_auto"]
+[ext_resource type="Script" path="res://scripts/fleet/fleet_crew.gd" id="6_crew"]
+[ext_resource type="Script" path="res://scripts/story/bark.gd" id="7_bark"]
+[ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="19_barkbox"]
 [ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="8_rig"]
 [ext_resource type="PackedScene" path="res://scenes/fleet/command_view.tscn" id="9_view"]
 [ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="10_runner"]
@@ -67,40 +68,40 @@ label = "Relay 3"
 script = ExtResource("13_beacon")
 hold = NodePath("../../JobRunner/Relay3")
 
-[node name="Fleet1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+[node name="FleetCrew" type="Node3D" parent="." node_paths=PackedStringArray("command", "runner", "bark")]
+script = ExtResource("6_crew")
+command = NodePath("../CommandView")
+runner = NodePath("../JobRunner")
+bark = NodePath("../Bark")
+
+[node name="Slot1" type="Marker3D" parent="FleetCrew"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, 0)
-intent_source = NodePath("Autopilot")
 
-[node name="Autopilot" type="Node" parent="Fleet1"]
-script = ExtResource("7_auto")
-
-[node name="Fleet2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+[node name="Slot2" type="Marker3D" parent="FleetCrew"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
-intent_source = NodePath("Autopilot")
 
-[node name="Autopilot" type="Node" parent="Fleet2"]
-script = ExtResource("7_auto")
-
-[node name="Fleet3" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+[node name="Slot3" type="Marker3D" parent="FleetCrew"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, 0)
-intent_source = NodePath("Autopilot")
 
-[node name="Autopilot" type="Node" parent="Fleet3"]
-script = ExtResource("7_auto")
+[node name="Slot4" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -4)
 
-[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("8_rig")]
-target = NodePath("../Fleet1")
+[node name="Slot5" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, 4)
 
-[node name="CommandView" parent="." node_paths=PackedStringArray("drones", "camera_rig", "runner") instance=ExtResource("9_view")]
-drones = [NodePath("../Fleet1"), NodePath("../Fleet2"), NodePath("../Fleet3")]
+[node name="Slot6" type="Marker3D" parent="FleetCrew"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, 4)
+
+[node name="CameraRig" parent="." instance=ExtResource("8_rig")]
+
+[node name="CommandView" parent="." node_paths=PackedStringArray("camera_rig", "runner") instance=ExtResource("9_view")]
 camera_rig = NodePath("../CameraRig")
 runner = NodePath("../JobRunner")
 height = 130.0
 
-[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("camera_rig", "state_label")]
 script = ExtResource("10_runner")
 job = ExtResource("11_job")
-drone = NodePath("../Fleet1")
 camera_rig = NodePath("../CameraRig")
 state_label = NodePath("../HUD/State")
 
@@ -134,7 +135,22 @@ center = NodePath("../../Station3")
 radius = 3.0
 hold_time = 6.0
 
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("7_bark")
+runner = NodePath("../JobRunner")
+
 [node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("19_barkbox")
+bark = NodePath("../../Bark")
 
 [node name="State" type="Label" parent="HUD"]
 offset_left = 28.0

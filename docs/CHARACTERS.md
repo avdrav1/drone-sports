@@ -45,4 +45,4 @@ Three more pilot avatars (so "play as" means a choice) can be added as data once
 
 - [ ] Species: animals, robots, something new? Decide before any art is commissioned.
 - [ ] Should there be a rookie mode where strikes injure but never kill?
-- [ ] Do crew members ever fly drones themselves (Epic 6), and does a dead crew member shrink the fleet?
+- [x] Do crew members ever fly drones themselves (Epic 6), and does a dead crew member shrink the fleet? Yes to both: crew tagged `can_fly` (Pip, Marlo, Dot, Ozzie) each fly one fleet drone under autopilot, and a death takes that drone out of every fleet job (Story 7.7).
