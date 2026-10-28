@@ -28,6 +28,7 @@
 [ext_resource type="Script" path="res://scripts/jobs/objectives/power_down.gd" id="26_power"]
 [ext_resource type="Script" path="res://scripts/boss/chorus.gd" id="27_chorus"]
 [ext_resource type="Script" path="res://scripts/ui/chorus_box.gd" id="28_chorusbox"]
+[ext_resource type="Script" path="res://scripts/audio/lattice_sound.gd" id="29_lattice_sound"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -43,6 +44,11 @@
 
 [node name="Lattice" parent="." instance=ExtResource("6_lattice")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 150, 0)
+
+[node name="Sound" type="AudioStreamPlayer3D" parent="Lattice" node_paths=PackedStringArray("fight")]
+script = ExtResource("29_lattice_sound")
+unit_size = 60.0
+fight = NodePath("../../Fight")
 
 [node name="FleetCrew" type="Node3D" parent="." node_paths=PackedStringArray("command", "runner", "bark")]
 script = ExtResource("7_crew")

@@ -4,6 +4,7 @@ extends Node
 # chorus file, said on each phase's start, on reclaiming a unit that held a
 # crew member's drone, on a strike, and once at shutdown. After that it stops.
 # Picks lines like Bark: seeded, no repeats within a job until a pool runs out.
+# Each line has a tone under it (Story 14.8), so the tones stop with the lines.
 # Not a character: it has no portrait in the cast, only its dot grid.
 
 ## {text} said on `event`.
@@ -51,6 +52,7 @@ func say(event: StringName, about: Character = null) -> String:
 	var text := line
 	if about:
 		text = text.format({"name": about.name, "role": about.role.to_lower()})
+	Sfx.play(&"lattice_tone")
 	spoke.emit(event, text)
 	return text
 

@@ -13,7 +13,7 @@ const POOL := 12
 const LOG_SIZE := 256
 
 var bank: SoundBank
-## Recent plays, oldest first: {id, bus, at (Vector3 or null), gain_db, msec}.
+## Recent plays, oldest first: {id, bus, at (Vector3 or null), gain_db, pitch, msec}.
 var log: Array[Dictionary] = []
 var _flat: Array[AudioStreamPlayer] = []
 var _next := 0
@@ -29,18 +29,19 @@ func _ready() -> void:
 	apply_volumes()
 
 ## Plays event `id`. With `at`, a 3D sound at that world point (it frees itself
-## when done). `gain_db` is added to the event's volume (louder impacts).
-## Returns the player, or null when the event is unknown or silent.
-func play(id: StringName, at: Variant = null, gain_db := 0.0) -> Node:
+## when done). `gain_db` is added to the event's volume (louder impacts), and
+## `pitch` scales its pitch (a speaker's chirp). Returns the player, or null
+## when the event is unknown or silent.
+func play(id: StringName, at: Variant = null, gain_db := 0.0, pitch := 1.0) -> Node:
 	var e := bank.find(id) if bank else null
 	if e == null:
 		push_warning("Sfx: no sound event '%s'" % id)
 		return null
-	_log(id, e.bus, at, gain_db)
+	_log(id, e.bus, at, gain_db, pitch)
 	if e.streams.is_empty():
 		return null
 	var stream: AudioStream = e.streams[_rng.randi() % e.streams.size()]
-	var pitch := 1.0 + _rng.randf_range(-e.pitch_variance, e.pitch_variance)
+	pitch *= 1.0 + _rng.randf_range(-e.pitch_variance, e.pitch_variance)
 	if at is Vector3:
 		var p3 := AudioStreamPlayer3D.new()
 		p3.stream = stream
@@ -68,8 +69,8 @@ func count(id: StringName) -> int:
 func clear_log() -> void:
 	log.clear()
 
-func _log(id: StringName, bus: StringName, at: Variant, gain_db := 0.0) -> void:
-	log.append({"id": id, "bus": bus, "at": at, "gain_db": gain_db, "msec": Time.get_ticks_msec()})
+func _log(id: StringName, bus: StringName, at: Variant, gain_db := 0.0, pitch := 1.0) -> void:
+	log.append({"id": id, "bus": bus, "at": at, "gain_db": gain_db, "pitch": pitch, "msec": Time.get_ticks_msec()})
 	if log.size() > LOG_SIZE:
 		log.pop_front()
 

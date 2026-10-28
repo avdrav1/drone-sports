@@ -39,3 +39,9 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/debris_impact_1.wav` | `tools/sfx/generate.py` | generated |
 | `generated/debris_impact_2.wav` | `tools/sfx/generate.py` | generated |
 | `generated/debris_impact_3.wav` | `tools/sfx/generate.py` | generated |
+| `generated/crew_chirp.wav` | `tools/sfx/generate.py` | generated |
+| `generated/lattice_tone.wav` | `tools/sfx/generate.py` | generated |
+| `generated/lattice_drone.wav` | `tools/sfx/generate.py` | generated |
+| `generated/lattice_power_down.wav` | `tools/sfx/generate.py` | generated |
+| `generated/bed_intro.wav` | `tools/sfx/generate.py` | generated |
+| `generated/bed_recruited.wav` | `tools/sfx/generate.py` | generated |

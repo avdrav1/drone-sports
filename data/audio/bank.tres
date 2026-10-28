@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=58 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=70 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -32,6 +32,12 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/debris_impact_1.wav" id="30_debris1"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/debris_impact_2.wav" id="31_debris2"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/debris_impact_3.wav" id="32_debris3"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp.wav" id="33_crew_chirp"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/lattice_tone.wav" id="34_lattice_tone"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/lattice_drone.wav" id="35_lattice_drone"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/lattice_power_down.wav" id="36_lattice_power_down"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/bed_intro.wav" id="37_bed_intro"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/bed_recruited.wav" id="38_bed_recruited"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -219,6 +225,48 @@ volume_db = -3.0
 pitch_variance = 0.08
 bus = &"World"
 
+[sub_resource type="Resource" id="crew_chirp"]
+script = ExtResource("2_event")
+id = &"crew_chirp"
+streams = Array[AudioStream]([ExtResource("33_crew_chirp")])
+volume_db = -8.0
+bus = &"Voice"
+
+[sub_resource type="Resource" id="lattice_tone"]
+script = ExtResource("2_event")
+id = &"lattice_tone"
+streams = Array[AudioStream]([ExtResource("34_lattice_tone")])
+volume_db = -6.0
+bus = &"Voice"
+
+[sub_resource type="Resource" id="lattice_drone"]
+script = ExtResource("2_event")
+id = &"lattice_drone"
+streams = Array[AudioStream]([ExtResource("35_lattice_drone")])
+volume_db = -4.0
+bus = &"World"
+
+[sub_resource type="Resource" id="lattice_power_down"]
+script = ExtResource("2_event")
+id = &"lattice_power_down"
+streams = Array[AudioStream]([ExtResource("36_lattice_power_down")])
+volume_db = 0.0
+bus = &"World"
+
+[sub_resource type="Resource" id="bed_intro"]
+script = ExtResource("2_event")
+id = &"bed_intro"
+streams = Array[AudioStream]([ExtResource("37_bed_intro")])
+volume_db = -14.0
+bus = &"World"
+
+[sub_resource type="Resource" id="bed_recruited"]
+script = ExtResource("2_event")
+id = &"bed_recruited"
+streams = Array[AudioStream]([ExtResource("38_bed_recruited")])
+volume_db = -14.0
+bus = &"World"
+
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited")])

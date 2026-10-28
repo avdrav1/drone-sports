@@ -17,6 +17,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var colors: PackedColorArray = []
 ## Bark lines (Story 7.3): event -> {"active": [...], "injured": [...]}.
 @export_file("*.json") var lines := ""
+## Pitch of the chirp under their barks (Story 14.8): 1 is the sample as made,
+## higher for a smaller, quicker voice. No voice acting; this is their voice.
+@export_range(0.5, 2.0) var chirp_pitch := 1.0
 ## Events this character speaks on even when not in the field, e.g. gate_passed
 ## for the spotter. Crew in the field speak on every event.
 @export var speaks_on: Array[StringName] = []
@@ -42,6 +45,8 @@ func validate() -> Array[String]:
 		out.append("%s: unknown shape %s" % [id, shape])
 	if lines != "res://data/dialogue/%s.json" % id:
 		out.append("%s: lines should be data/dialogue/%s.json" % [id, id])
+	if chirp_pitch < 0.5 or chirp_pitch > 2.0:
+		out.append("%s: chirp_pitch must be 0.5 to 2" % id)
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
 	if tweak and (not tweak.stat in Upgrade.STATS or tweak.step == 0.0):

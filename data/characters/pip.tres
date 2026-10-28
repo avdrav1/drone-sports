@@ -10,6 +10,7 @@ role = "Rookie pilot"
 shape = &"round"
 colors = PackedColorArray(1, 0.8, 0.3, 1, 1, 0.95, 0.8, 1)
 lines = "res://data/dialogue/pip.json"
+chirp_pitch = 1.35
 speaks_on = Array[StringName]([&"complete", &"fail"])
 death_consequence = &""
 can_be_harmed = false

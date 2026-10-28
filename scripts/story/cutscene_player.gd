@@ -3,7 +3,8 @@ extends Node3D
 # Plays a Cutscene: each beat's backdrop (job scenes run unpaid with their HUDs
 # hidden), a camera that orbits, chases, or holds, and captions over letterbox
 # bars. Any key skips. At the end it sets the seen flag and opens next_scene.
-# Once seen, it forwards straight to next_scene unless `replay` is set.
+# Once seen, it forwards straight to next_scene unless `replay` is set. The
+# cutscene's bed loops under every beat until it ends.
 
 signal finished
 
@@ -32,6 +33,8 @@ var card: PanelContainer
 var card_name: Label
 var bezel: Control
 var curtain: ColorRect
+## Plays the cutscene's bed; null when it has none.
+var bed: AudioStreamPlayer
 
 var _backdrop_path := ""
 var _angle := 0.0
@@ -47,6 +50,7 @@ func _ready() -> void:
 	camera.far = 4000.0
 	add_child(camera)
 	_build_overlay()
+	_start_bed()
 	advance()
 
 func _process(delta: float) -> void:
@@ -97,6 +101,8 @@ func finish() -> void:
 	if done:
 		return
 	done = true
+	if bed:
+		bed.stop()
 	if cutscene.seen_flag != &"":
 		StoryFlags.set_flag(cutscene.seen_flag)
 	finished.emit()
@@ -107,6 +113,19 @@ func focus_node() -> Node3D:
 	if backdrop == null or beat == null or beat.focus.is_empty():
 		return null
 	return backdrop.get_node_or_null(beat.focus) as Node3D
+
+func _start_bed() -> void:
+	var e := Sfx.bank.find(cutscene.bed) if Sfx.bank and cutscene.bed != &"" else null
+	if e == null or e.streams.is_empty():
+		push_warning("CutscenePlayer: no bed '%s'" % cutscene.bed)
+		return
+	bed = AudioStreamPlayer.new()
+	bed.name = "Bed"
+	bed.stream = e.streams[0]
+	bed.bus = e.bus
+	bed.volume_db = e.volume_db
+	add_child(bed)
+	bed.play()
 
 func _go_next() -> void:
 	if cutscene.next_scene != "" and is_inside_tree():

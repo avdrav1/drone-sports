@@ -5,7 +5,9 @@ extends Node
 # the speaker's status. The dead never speak, and a line never repeats within a
 # job unless it is the only one. On a strike the line matches how the character
 # was before it, and a strike that kills leaves only a memorial line on the
-# results screen. Holds no character or job names.
+# results screen. Every line announced on `spoke` plays its speaker's chirp
+# (Story 14.8); lines kept for the results screen chirp when shown there.
+# Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results"]
 
@@ -27,6 +29,7 @@ var _since_gate := INF
 static var _cache := {}
 
 func _ready() -> void:
+	spoke.connect(_on_spoke)
 	if seed >= 0:
 		_rng.seed = seed
 	else:
@@ -42,6 +45,16 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_since_gate += delta
+
+## The speaker's chirp under a bark, pitched from their Character. The dead
+## never speak, so they never chirp.
+static func chirp(id: StringName) -> void:
+	var c: Character = Roster.character(id)
+	if c and Roster.is_alive(id):
+		Sfx.play(&"crew_chirp", null, 0.0, c.chirp_pitch)
+
+func _on_spoke(id: StringName, _event: StringName, _text: String) -> void:
+	chirp(id)
 
 ## Every line file, parsed once. Event -> {"active": [...], "injured": [...]}.
 static func lines_of(id: StringName) -> Dictionary:

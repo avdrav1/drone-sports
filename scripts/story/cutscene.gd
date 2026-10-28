@@ -4,6 +4,8 @@ extends Resource
 
 @export var beats: Array[CutsceneBeat] = []
 @export_file("*.tscn") var next_scene := ""
+## SoundEvent id of the loop under the whole cutscene (Story 14.8). Not music.
+@export var bed: StringName
 ## Set when the cutscene ends, played through or skipped.
 @export var seen_flag: StringName
 

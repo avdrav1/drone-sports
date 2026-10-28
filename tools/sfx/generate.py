@@ -338,6 +338,81 @@ def debris_impact(seed):
     return out
 
 
+def crew_chirp():
+    """A two-blip chirp under a crew bark, in place of a voice. One sample,
+    pitched per speaker from Character.chirp_pitch."""
+    out = []
+    for f0, f1, length in ((700, 980, 0.06), (900, 760, 0.08)):
+        n = int(RATE * length)
+        phase = 0.0
+        for i in range(n):
+            t = i / RATE
+            phase += 2 * math.pi * (f0 + (f1 - f0) * t / length) / RATE
+            s = math.tanh(2 * math.sin(phase)) + 0.3 * math.sin(2 * phase)
+            env = min(1.0, t / 0.004) * min(1.0, (n - i) / (RATE * 0.01))
+            out.append(s * env)
+        out.extend([0.0] * int(RATE * 0.02))
+    return out
+
+
+def lattice_tone():
+    """The chorus under each of its lines: a flat cluster of close sine tones,
+    many voices on one note, swelling in and fading out."""
+    n = int(RATE * 1.2)
+    voices = [(220, 0.0), (221.5, 1.1), (218.7, 2.3), (330, 0.4), (331.2, 1.9), (440.8, 2.8)]
+    out = []
+    for i in range(n):
+        t = i / RATE
+        s = sum(math.sin(2 * math.pi * f * t + ph) for f, ph in voices)
+        env = min(1.0, t / 0.15) * min(1.0, (n - i) / (RATE * 0.4))
+        out.append(s * env)
+    return out
+
+
+def lattice_drone():
+    """Two seconds of the Lattice's low drone: a deep hum with slow beating
+    partials and a faint grain of noise. Whole cycles, so it loops."""
+    rng = random.Random(1480)
+    n = RATE * 2
+    grain = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.03)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        s = math.sin(2 * math.pi * 41 * t) + 0.7 * math.sin(2 * math.pi * 41.5 * t + 1.0)
+        s += 0.35 * math.sin(2 * math.pi * 82 * t) + 0.2 * math.sin(2 * math.pi * 123.5 * t + 0.5)
+        out.append(s + grain[i] * 1.5)
+    return out
+
+
+def lattice_power_down():
+    """The Lattice letting go: its drone sliding down and fading to nothing."""
+    n = int(RATE * 3.0)
+    phase = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        f = 82 * math.exp(-t * 0.7)
+        phase += 2 * math.pi * f / RATE
+        env = min(1.0, t / 0.05) * (1.0 - t / 3.0) ** 2
+        out.append((math.sin(phase) + 0.5 * math.sin(2 * phase) + 0.25 * math.sin(3 * phase)) * env)
+    return out
+
+
+def bed(seed, chord, hiss):
+    """Three seconds of a cutscene's bed: a soft held chord (whole cycles per
+    loop, so it loops) over a hush of air. Not music: no melody, no beat."""
+    rng = random.Random(seed)
+    n = RATE * 3
+    air = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.05)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        swell = 0.8 + 0.2 * math.sin(2 * math.pi * t / 3.0)
+        s = sum(math.sin(2 * math.pi * f * t + k) for k, f in enumerate(chord))
+        out.append(s * 0.3 * swell + air[i] * hiss)
+    return out
+
+
 def main():
     write("drone_hum.wav", drone_hum(), loop=True)
     write("drone_wash.wav", drone_wash(), loop=True)
@@ -356,6 +431,12 @@ def main():
         write(name + ".wav", globals()[name](), loop=True)
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
+    for name in ("crew_chirp", "lattice_tone", "lattice_power_down"):
+        write(name + ".wav", globals()[name]())
+    write("lattice_drone.wav", lattice_drone(), loop=True)
+    # Frequencies in whole Hz (whole cycles per 3 s loop).
+    write("bed_intro.wav", bed(1490, (110, 165, 220, 277), 2.0), loop=True)
+    write("bed_recruited.wav", bed(1491, (98, 147, 196, 247), 1.2), loop=True)
 
 
 if __name__ == "__main__":

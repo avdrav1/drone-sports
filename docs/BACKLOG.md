@@ -659,8 +659,9 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Acceptance: Rain level follows intensity. Thunder plays after its flash, later the farther the strike. The wind loop's level follows the drone's measured wind.
   - Out of scope: Rain on the lens sound.
 
-- [ ] **14.8 Crew and story**
+- [x] **14.8 Crew and story**
   - Goal: The crew and the Lattice are heard without voice acting: a short chirp under each bark, the Lattice's low drone and chorus tones, its power-down, and sound beds under the cutscenes.
   - Context: Generated per-character chirps (pitch from data in `Character`). The chorus plays a tone under each line and stops for good after shutdown.
   - Acceptance: Every bark plays its speaker's chirp. Every chorus line plays a tone, and none after shutdown. Each cutscene has a bed.
   - Out of scope: Voice acting, music.
+  - Note: `Character.chirp_pitch` (data, validated 0.5..2) pitches one `crew_chirp` sample (Voice bus); `Bark` chirps on every `spoke` (including lines emitted straight onto it), `Bark.chirp(id)` is silent for the dead, and the results screen chirps its bark and injured casualty lines (epilogue rows do not). `Chorus.say` plays `lattice_tone` (Voice) per line, so nothing after shutdown; `LatticeSound` (child of the Lattice in `lattice_job.tscn`) loops `lattice_drone` and on `boss_disabled` stops it for good and plays `lattice_power_down` once. `Cutscene.bed` names a loop (`bed_intro`, `bed_recruited`, World bus) that `CutscenePlayer.bed` plays until `finish()`; `Sfx.play` now takes a `pitch` scale, logged as `pitch`.
