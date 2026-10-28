@@ -493,11 +493,12 @@ Decisions behind phase 1: the city is a core of about 280 m across inside the te
 
 Later phases, not yet stories: districts and landmarks (bridge, stadium, construction block, container yard); free-flight content (rooftop rings, courses with saved best times); life (drone traffic lanes, billboards, crew cameos); the city as the hub that replaces job hotkeys (decide against 5.3 first); the Lattice on the skyline by act, hidden entirely when `lattice.tres` has `enabled` false (rule 9).
 
-- [ ] **12.1 City layout and plan**
+- [x] **12.1 City layout and plan**
   - Goal: A `CityLayout` resource (`data/city/sandbox_city.tres`) and a pure `CityPlan` generator that turns it into streets and lots: footprint rectangle and height for every building.
   - Context: No meshes yet; this is the data every later story builds from. Layout fields: seed, core radius, block size, street width, avenue every N blocks (wider), lot subdivision range, height range with a falloff from tall downtown to low edges, and reserved clearings (centre and radius) where no lot may stand. The sandbox layout reserves a spawn plaza of at least 30 m radius at the origin and a clearing for the jammer. Generated like the terrain: deterministic per parameter set and cached.
   - Acceptance: The same layout gives an identical plan; a different seed gives a different one. No lot overlaps a street, another lot, or a reserved clearing. Every lot lies inside the core radius and inside the terrain's flat radius. Every height is within the layout's range, and the mean height of lots in the inner third of the core is greater than in the outer third.
   - Out of scope: Meshes, collision, districts, landmarks.
+  - Note: The grid puts a block on the origin, not a crossing, so the plaza is a square and lots fill the ring between it and the inner third. The sandbox uses 30 m blocks, 8 m streets, and 14 m avenues (about 125 lots); the jammer clearing is 20 m at (40, -40).
 
 - [ ] **12.2 Buildings**
   - Goal: A `City` node (`scenes/world/city.tscn`) that builds the plan into box towers with one collision box per lot and a window-grid shader.

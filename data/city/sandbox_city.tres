@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CityLayout" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/city_layout.gd" id="1_layout"]
+
+[resource]
+script = ExtResource("1_layout")
+seed = 7
+block_size = 30.0
+street_width = 8.0
+avenue_width = 14.0
+clearings = PackedVector3Array(0, 0, 32, 40, -40, 20)
