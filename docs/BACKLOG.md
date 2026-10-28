@@ -373,11 +373,12 @@ Do not start until Epics 3 and 4 have been playtested and the fleet-genre questi
   - Out of scope: Handoffs between human pilots.
   - Note: `scenes/jobs/fleet_inspection.tscn` ("Rooftop relay sweep") in the sandbox city: three relays 5 m over rooftop pads. `FleetHold` extends `HoldStation`; a group counts only while every hold has its own drone inside, and each grades 1.0 at dead centre down to 0.5 at the radius edge. `CommandView.runner` holds the fleet still until Live and keeps each drone on its autopilot stack. No team reaches Act 5, so job type `fleet` went to the top city and salvage teams (City Rescue Air, Deadweight); the board lists the job.
 
-- [ ] **6.4 Fleet race**
+- [x] **6.4 Fleet race**
   - Goal: A team relay where each lap must be flown by a different drone and the handoff is a gate.
   - Context: Reuses the course from 3.1.
   - Acceptance: A lap flown by the wrong drone is invalid. Handoff timing shows on the HUD.
   - Out of scope: Opponent fleets.
+  - Note: `scenes/jobs/fleet_race.tscn` ("Team relay", job type `relay`, flown by Halcyon Racing) on the 3.1 loop. `Relay` sets the course's laps to unlimited and owns the legs. A lap by a drone other than the open leg's, one that missed a gate, or one started before the handoff is invalid and the leg stays open. G (`send_lap`) sends the selected drone round on autopilot; `Autopilot.corner_speed` lets it fly through gates without stopping. Graded on legs (minus invalid laps) and mean handoff gap.
 
 ## Epic 7: Characters and consequence
 

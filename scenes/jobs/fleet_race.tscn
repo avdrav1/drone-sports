@@ -1,0 +1,132 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
+[ext_resource type="Script" path="res://scripts/race/course.gd" id="3_course"]
+[ext_resource type="Resource" path="res://data/courses/test_loop.tres" id="4_loop"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="6_drone"]
+[ext_resource type="Script" path="res://scripts/drone/autopilot.gd" id="7_auto"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="8_rig"]
+[ext_resource type="PackedScene" path="res://scenes/fleet/command_view.tscn" id="9_view"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="10_runner"]
+[ext_resource type="Resource" path="res://data/jobs/fleet_race.tres" id="11_job"]
+[ext_resource type="Script" path="res://scripts/race/relay.gd" id="12_relay"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/relay_legs.gd" id="13_legs"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/relay_handoffs.gd" id="14_handoffs"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="15_theme"]
+[ext_resource type="Script" path="res://scripts/ui/relay_hud.gd" id="16_hud"]
+[ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="17_help"]
+[ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="18_hint"]
+
+[node name="FleetRace" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("1_world")]
+
+[node name="Ground" parent="." instance=ExtResource("2_desert")]
+
+[node name="Course" type="Node3D" parent="."]
+script = ExtResource("3_course")
+data = ExtResource("4_loop")
+
+[node name="Focus" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -40)
+
+[node name="Fleet1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 3, -30)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet1"]
+script = ExtResource("7_auto")
+corner_speed = 5.0
+
+[node name="Fleet2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3, -30)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet2"]
+script = ExtResource("7_auto")
+corner_speed = 5.0
+
+[node name="Fleet3" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3, -30)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet3"]
+script = ExtResource("7_auto")
+corner_speed = 5.0
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("8_rig")]
+target = NodePath("../Fleet1")
+
+[node name="CommandView" parent="." node_paths=PackedStringArray("drones", "camera_rig", "focus", "runner") instance=ExtResource("9_view")]
+drones = [NodePath("../Fleet1"), NodePath("../Fleet2"), NodePath("../Fleet3")]
+camera_rig = NodePath("../CameraRig")
+focus = NodePath("../Focus")
+runner = NodePath("../JobRunner")
+height = 75.0
+
+[node name="Relay" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "command", "drones")]
+script = ExtResource("12_relay")
+runner = NodePath("../JobRunner")
+course = NodePath("../Course")
+command = NodePath("../CommandView")
+drones = [NodePath("../Fleet1"), NodePath("../Fleet2"), NodePath("../Fleet3")]
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("10_runner")
+job = ExtResource("11_job")
+drone = NodePath("../Fleet1")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Legs" type="Node" parent="JobRunner" node_paths=PackedStringArray("relay")]
+script = ExtResource("13_legs")
+relay = NodePath("../../Relay")
+label = "Every leg flown"
+ends_job = true
+
+[node name="Handoffs" type="Node" parent="JobRunner" node_paths=PackedStringArray("relay")]
+script = ExtResource("14_handoffs")
+relay = NodePath("../../Relay")
+label = "Clean handoffs"
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="State" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 600.0
+offset_bottom = 60.0
+theme = ExtResource("15_theme")
+
+[node name="Board" type="Label" parent="HUD" node_paths=PackedStringArray("relay")]
+offset_left = 28.0
+offset_top = 64.0
+offset_right = 600.0
+offset_bottom = 220.0
+theme = ExtResource("15_theme")
+script = ExtResource("16_hud")
+relay = NodePath("../../Relay")
+
+[node name="Hint" type="Label" parent="HUD" node_paths=PackedStringArray("runner")]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -20.0
+horizontal_alignment = 1
+theme = ExtResource("15_theme")
+script = ExtResource("18_hint")
+runner = NodePath("../../JobRunner")
+
+[node name="Help" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+theme = ExtResource("15_theme")
+script = ExtResource("17_help")

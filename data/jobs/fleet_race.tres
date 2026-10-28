@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act5.tres" id="2_act5"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"fleet_race"
+title = "Team relay"
+scene = "res://scenes/jobs/fleet_race.tscn"
+client = "Halcyon Racing"
+job_type = &"relay"
+faction = &"league"
+required_assists = ExtResource("2_act5")
+time_limit = 300.0
+pay = 1600
+countdown = 3.0
+default_view = 3
+weights = {
+"Legs": 2.0,
+"Handoffs": 1.0
+}

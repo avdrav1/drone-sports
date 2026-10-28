@@ -16,6 +16,10 @@ signal finished
 @export var approach_gain := 0.8
 ## A waypoint counts as reached inside this distance, m.
 @export var arrive_radius := 1.0
+## Above 0, it flies through every waypoint but the last at no less than this
+## speed instead of stopping on each, counting it reached inside pass_radius.
+@export var corner_speed := 0.0
+@export var pass_radius := 1.5
 
 var drone: Drone
 var waypoints := PackedVector3Array()
@@ -67,10 +71,16 @@ func read_intent() -> Intent:
 	if drone == null or t == null:
 		# Nowhere to go: hold where it is.
 		return Intent.new()
-	if not done() and drone.global_position.distance_to(t) < arrive_radius:
+	var passing := corner_speed > 0.0 and index < waypoints.size() - 1
+	if not done() and drone.global_position.distance_to(t) < (pass_radius if passing else arrive_radius):
 		index += 1
 		arrived.emit(index - 1)
 		if done():
 			finished.emit()
+		t = target()
+		passing = corner_speed > 0.0 and index < waypoints.size() - 1
 	var d: float = drone.global_position.distance_to(t)
-	return AiPilot.steer(drone, t, minf(cruise_speed, d * approach_gain))
+	var speed := minf(cruise_speed, d * approach_gain)
+	if passing:
+		speed = maxf(speed, corner_speed)
+	return AiPilot.steer(drone, t, speed)
