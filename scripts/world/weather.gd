@@ -31,6 +31,8 @@ enum Precipitation { NONE, RAIN, SNOW }
 @export var lightning_per_minute := 0.0
 ## Nearest and farthest a strike lands from the scene's centre, m.
 @export var strike_distance := Vector2(400.0, 2000.0)
+## Seeds when and where strikes land; the same seed repeats the storm (Story 13.5).
+@export var storm_seed := 0
 
 ## Problems with this preset; empty when it is valid. Precipitation is one
 ## kind at a time: a stored value of RAIN | SNOW (rain and snow together) is

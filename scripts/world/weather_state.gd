@@ -2,7 +2,7 @@ class_name WeatherState
 extends Node
 # The weather in effect in a scene, so rain, snow, lightning, and sound read one
 # place. `Weather.apply` sets it, adding one to the scene if it has none (Story 13.1).
-# It carries the scene's Rain (Story 13.2) and Snow (Story 13.3).
+# It carries the scene's Rain (Story 13.2), Snow (Story 13.3), and Lightning (Story 13.5).
 
 signal changed(weather: Weather)
 
@@ -21,6 +21,10 @@ func _ready() -> void:
 		var snow := Snow.new()
 		snow.name = "Snow"
 		add_child(snow)
+	if get_node_or_null(^"Lightning") == null:
+		var lightning := Lightning.new()
+		lightning.name = "Lightning"
+		add_child(lightning)
 
 ## The scope's WeatherState: an existing one below it, or a new child.
 static func of(scope: Node) -> WeatherState:

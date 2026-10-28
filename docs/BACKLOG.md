@@ -579,11 +579,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Updrafts, wind visualisation.
   - Note: `Wind.sample(time, at := (0, 10, 0), plan: CityPlan = null)` scales base, gusts, and seeded turbulence (`Wind.seed`, a few sines per axis drifting with place) by `(height / REFERENCE_HEIGHT 10 m) ^ shear`, and by `Wind.shelter`: down to 0.3 just downwind of a lot taller than the point, recovering over 4 lot heights. `City` joins `City.SHELTER_GROUP` and `Drone.wind_velocity()` samples at its own position in that city's local space (still gated by `intent.environment_sim`); calls without a point (snow flakes, old presets) get the reference-height wind unchanged.
 
-- [ ] **13.5 Lightning**
+- [x] **13.5 Lightning**
   - Goal: Lightning in storms: a flash that lights the sky and the scene for a moment, and a bolt in the distance, at a seeded rate.
   - Context: Each strike is an event with a position and time (14.7 uses it for thunder). The flash briefly raises the sky and ambient light; the bolt is a short-lived line mesh. Atmosphere only: nothing is hit or harmed.
   - Acceptance: Strike times and positions repeat with the seed. A strike raises ambient light then returns it within 0.5 s. No strike lands inside the strike distance's minimum.
   - Out of scope: Damage, strikes on drones or crew.
+  - Note: `WeatherState` adds a `Lightning` child: strikes come at `lightning_per_minute` (exponential waits, min 0.25 s) seeded by the new `Weather.storm_seed`, at a random bearing and a distance inside `strike_distance` around the scope's origin; `Lightning.plan(w, seconds, centre)` returns the same schedule the node plays. Each strike emits `struck(Lightning.Strike)` (`time` since the storm began, world `position`) for thunder (14.7), flashes ambient and sky energy on the per-scene Environment copy (x2.5, back over `flash_time` 0.35 s), and shows a camera-facing ribbon bolt for 0.2 s; a seed change or storm start restarts the schedule, rate changes apply from the next strike.
 
 - [ ] **13.6 Changing weather**
   - Goal: Weather that changes: a scene can blend from one preset to another over a set time, and a job can name a sequence (clear, then fog rolling in).
