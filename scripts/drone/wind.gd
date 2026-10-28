@@ -8,6 +8,10 @@ extends Resource
 @export var gust_amplitude := 0.0
 ## Seconds between gust peaks.
 @export var gust_period := 5.0
+## Random buffeting on top of gusts, m/s; 0 is smooth air (Story 13.4 samples it).
+@export var turbulence := 0.0
+## Power-law exponent for wind growing with height; 0 is the same at every height.
+@export var shear := 0.0
 
 func sample(time: float) -> Vector3:
 	var dir := base.normalized() if base.length_squared() > 0.0 else Vector3.RIGHT

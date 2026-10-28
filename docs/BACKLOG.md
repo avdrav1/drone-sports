@@ -551,11 +551,12 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
 
 Done when weather is layered and changing: rain, snow, fog, real wind, and lightning, each from data, blending between presets, and felt in flight as well as seen. Weather reaches the drone only through the environment sim, the same gate as wind and battery today: with the battery and wind assist on (Acts 1 to 3) the drone is shielded, so progression still removes protection rather than changing physics. Lightning is atmosphere only; it never damages a drone or strikes crew. Rendering stays inside what GL Compatibility does: CPU particles that follow the camera, and shader uniforms. Order with Epic 14: 14.1, then 13.1 to 13.4 and 13.8, then 14.2 to 14.6, then 13.5 to 13.7, then 14.7 and 14.8.
 
-- [ ] **13.1 Weather as layers**
+- [x] **13.1 Weather as layers**
   - Goal: `Weather` grows from fog and wind into layers: precipitation (none, rain, snow; intensity 0 to 1), temperature (°C), wind (base, gusts, turbulence, shear with height), fog (density, colour, sky cover), and storm (lightning per minute, strike distance range).
   - Context: Extends `scripts/world/weather.gd` and `Weather.apply` from 4.6. Existing presets (`fog_bank`, `whiteout`) and the rescue job keep their look and feel; new fields default to off. A `WeatherState` node in a scene holds the weather in effect, so later stories read one place.
   - Acceptance: Every new field loads from a `.tres`. The old presets apply exactly as before (fog values and wind unchanged). A scene's `WeatherState` reports the active weather after `Weather.apply`.
   - Out of scope: Particles, sound, physics effects.
+  - Note: `Weather` adds `precipitation` (`Weather.Precipitation` NONE/RAIN/SNOW), `intensity`, `temperature` (default 15 °C, no effect), `lightning_per_minute`, and `strike_distance` (Vector2 min/max m); fog keeps `fog_density`, `fog_color`, `sky_affect`; `Wind` adds `turbulence` and `shear` (power-law exponent), both 0 and not yet used by `Wind.sample` (13.4). `Weather.apply` sets `WeatherState.of(scope).weather`, which finds a `WeatherState` under the scope or adds one, and emits `changed`; read it with `WeatherState.of(node)`.
 
 - [ ] **13.2 Rain**
   - Goal: Rain that reads as rain: streaks around the camera at a density set by intensity, the ground, streets, and roofs going dark and glossy as it falls, and drops on the lens in FPV.
