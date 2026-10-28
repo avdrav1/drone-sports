@@ -322,6 +322,20 @@ def ui_confirm():
     return tone_seq([(880, 0.06), (1320, 0.16)], decay=22.0)
 
 
+def coin_chime():
+    """The cabinet's PRESS START (Story 17.6): a coin dropping in, two bright
+    metallic clinks of inharmonic partials, then a soft rising three-note bell."""
+    out = []
+    for f0, length in ((3100, 0.07), (3500, 0.12)):
+        n = int(RATE * length)
+        for i in range(n):
+            t = i / RATE
+            s = sum(math.sin(2 * math.pi * f0 * r * t) / (k + 1) for k, r in enumerate((1.0, 1.47, 2.09, 2.76)))
+            out.append(0.45 * s * min(1.0, t / 0.002) * math.exp(-t * 45))
+    bell = tone_seq([(784, 0.08), (988, 0.08), (1568, 0.5)], decay=7.0)
+    return out + [s * 0.7 for s in bell]
+
+
 def city_hum():
     """Three seconds of a city heard from above: a low traffic rumble that
     swells, mains hum from the towers, and a faint airy hiss."""
@@ -486,6 +500,7 @@ def main():
     for name in ("crew_chirp", "lattice_tone", "lattice_power_down"):
         write(name + ".wav", globals()[name]())
     write("lattice_drone.wav", lattice_drone(), loop=True)
+    write("coin_chime.wav", coin_chime())
     # Frequencies in whole Hz (whole cycles per 3 s loop).
     write("bed_intro.wav", bed(1490, (110, 165, 220, 277), 2.0), loop=True)
     write("bed_recruited.wav", bed(1491, (98, 147, 196, 247), 1.2), loop=True)

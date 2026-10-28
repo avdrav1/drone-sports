@@ -18,6 +18,12 @@ const DIM := Color(1, 1, 1, 0.3)
 
 var cards: Array[Control] = []
 var index := 0
+## The lit card's border and the current dot; the board sets its skin's.
+var accent := ACCENT:
+	set(v):
+		accent = v
+		if dots:
+			dots.accent = v
 ## Times a card has shaken; tests read it.
 var shakes := 0
 ## Lights the card as if focused, e.g. while the menu's FLY item has focus.
@@ -133,8 +139,8 @@ func _restyle() -> void:
 	if box is StyleBoxFlat:
 		var lit: StyleBoxFlat = box.duplicate()
 		var on := has_focus() or highlight
-		lit.border_color = ACCENT if on else box.border_color
-		lit.set_border_width_all(4 if on else 2)
+		lit.border_color = accent if on else box.border_color
+		lit.set_border_width_all(box.border_width_left + (2 if on else 0))
 		c.add_theme_stylebox_override("panel", lit)
 
 func _arrow(n: String, text: String, action: Callable) -> Button:
@@ -158,13 +164,13 @@ class Dots extends Control:
 		set(v):
 			current = v
 			queue_redraw()
-
+	var accent := ACCENT
 	func _draw() -> void:
 		var gap := 20.0
 		var left := size.x * 0.5 - gap * (count - 1) * 0.5
 		for i in count:
 			var at := Vector2(left + gap * i, size.y * 0.5)
 			if i == current:
-				draw_circle(at, 6.0, ACCENT)
+				draw_circle(at, 6.0, accent)
 			else:
 				draw_circle(at, 4.0, DIM)

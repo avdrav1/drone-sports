@@ -5,10 +5,9 @@ extends Node
 # sandbox, HUDs hidden). Any key, click, or pad button opens the job board,
 # which asks for a pilot first on a new game. The intro forwards here once
 # seen, and Esc on the board comes back.
+# Story 17.6: it wears the act's FrontSkin; the cabinet's Start is a coin chime.
 
 const BOARD := "res://scenes/ui/job_board.tscn"
-const ACCENT := Color(1.0, 0.76, 0.25)
-const THEME := preload("res://scenes/ui/theme.tres")
 ## Shown for a best score of zero.
 const NO_SCORE := "- - - -"
 
@@ -21,12 +20,14 @@ var started := false
 var title_label: Label
 var press_start: Label
 var best_label: Label
+var skin: FrontSkin
 
 var _age := 0.0
 
 @onready var backdrop: CutscenePlayer = $Backdrop
 
 func _ready() -> void:
+	skin = FrontSkin.current()
 	_build()
 	best_label.text = "BEST JOB  " + best_text(Wallet.best_pay)
 	MusicDirector.board()
@@ -52,7 +53,7 @@ func start() -> void:
 	if started:
 		return
 	started = true
-	Sfx.play(UiSounds.CONFIRM)
+	Sfx.play(skin.start_sound if skin.start_sound != &"" else UiSounds.CONFIRM)
 	get_tree().change_scene_to_file.call_deferred(BOARD)
 
 func _build() -> void:
@@ -62,7 +63,7 @@ func _build() -> void:
 	var root := Control.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.theme = THEME
+	root.theme = skin.theme()
 	layer.add_child(root)
 	# Shade top and bottom so the text reads over any sky or sand.
 	for top in [true, false]:
@@ -74,18 +75,24 @@ func _build() -> void:
 		shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		shade.texture = _fade_texture(top)
 		root.add_child(shade)
-	title_label = _label("DRONE SPORTS", 96, ACCENT, 14)
+	title_label = _label("DRONE SPORTS", 96, skin.accent, 14)
 	title_label.name = "Title"
+	title_label.theme_type_variation = &"Display"
 	_place(title_label, 0.12, 0.32)
 	root.add_child(title_label)
-	press_start = _label("PRESS START", 34, Color.WHITE, 8)
+	press_start = _label("PRESS START", 34, skin.text, 8)
+	press_start.theme_type_variation = &"Display"
 	press_start.name = "PressStart"
 	_place(press_start, 0.7, 0.78)
 	root.add_child(press_start)
-	best_label = _label("", 22, Color(0.35, 0.8, 0.95), 6)
+	best_label = _label("", 22, skin.heading, 6)
 	best_label.name = "Best"
 	_place(best_label, 0.86, 0.94)
 	root.add_child(best_label)
+	if skin.scanlines:
+		var lines := Scanlines.new()
+		lines.name = "Scanlines"
+		root.add_child(lines)
 
 ## Spans the width between two heights, as fractions of the screen.
 func _place(c: Control, top: float, bottom: float) -> void:

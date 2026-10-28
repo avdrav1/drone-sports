@@ -12,3 +12,4 @@ job_types = Array[StringName]([&"demolition"])
 reputation_needed = 25
 preset = ExtResource("2_preset")
 blurb = "Bea's crew. Old buildings come down; they need eyes inside when they do."
+colors = PackedColorArray(0.92, 0.56, 0.26, 1, 0.62, 0.82, 0.62, 1)

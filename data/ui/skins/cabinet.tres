@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="FrontSkin" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/front_skin.gd" id="1_skin"]
+
+[sub_resource type="FontVariation" id="body"]
+variation_embolden = 0.4
+
+[sub_resource type="FontVariation" id="display"]
+variation_embolden = 1.4
+spacing_glyph = 2
+
+[resource]
+script = ExtResource("1_skin")
+id = &"cabinet"
+background = Color(0.07, 0.07, 0.09, 1)
+panel = Color(0.1, 0.08, 0.07, 0.96)
+border = Color(1, 0.76, 0.25, 0.8)
+border_width = 3
+corner_radius = 10
+button = Color(0.2, 0.15, 0.1, 1)
+text = Color(1, 1, 1, 0.92)
+dim = Color(1, 1, 1, 0.5)
+accent = Color(1, 0.76, 0.25, 1)
+heading = Color(1, 0.55, 0.3, 1)
+font = SubResource("body")
+display_font = SubResource("display")
+scanlines = true
+start_sound = &"coin_chime"
+team_colors = false

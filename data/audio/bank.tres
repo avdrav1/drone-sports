@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=83 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=85 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -47,6 +47,7 @@
 [ext_resource type="AudioStream" path="res://data/audio/cc0/thunder_1.ogg" id="45_thunder1"]
 [ext_resource type="AudioStream" path="res://data/audio/cc0/thunder_2.ogg" id="46_thunder2"]
 [ext_resource type="AudioStream" path="res://data/audio/cc0/thunder_3.ogg" id="47_thunder3"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/coin_chime.wav" id="60_coin_chime"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -311,6 +312,13 @@ volume_db = -2.0
 pitch_variance = 0.08
 bus = &"Weather"
 
+[sub_resource type="Resource" id="coin_chime"]
+script = ExtResource("2_event")
+id = &"coin_chime"
+streams = Array[AudioStream]([ExtResource("60_coin_chime")])
+volume_db = -8.0
+bus = &"UI"
+
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])

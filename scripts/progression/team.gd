@@ -22,6 +22,8 @@ const FACTIONS: Array[StringName] = [&"league", &"city", &"salvage"]
 @export_file("*.tscn") var joining_scene := ""
 ## One line for the offer and the job board.
 @export var blurb := ""
+## Primary and secondary: the ops console wears them from Act 2 (Story 17.6).
+@export var colors: PackedColorArray = [Color(0.35, 0.8, 0.95), Color(0.9, 0.95, 1.0)]
 
 ## Problems with this resource given the job types that exist; empty when valid.
 func validate(known_types: Array) -> Array[String]:

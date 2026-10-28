@@ -858,7 +858,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: Every action the old footer offered is reachable from the menu by keyboard alone. Focus never lands on a hidden or disabled control. At 960×720 and 1920×1080 no control or label is clipped and nothing needs scrolling except the CREW page. The CREW page shows every roster member, with the dead greyed and memorial lines shown. Esc from any page returns to the menu, and from the menu to the title.
   - Out of scope: Rebinding keys, new options.
 
-- [ ] **17.6 Cabinet and ops skins**
+- [x] **17.6 Cabinet and ops skins**
   - Goal: The front end wears an arcade cabinet skin in Act 1 and the team's ops console skin from Act 2 on, and the switch happens during the recruitment scene.
   - Context: A skin is a resource (colors, fonts, panel style, sounds) applied to the title, board, menu, and CREW page. Cabinet: chunky display type, scanlines, a coin chime on Start, and the bezel colors from 3.5. Ops: the thin-line look of the flight HUD (9.5) in the current team's colors. A display font may be added under `data/ui/fonts/` only with an open font license, listed beside it. The recruitment scene (11.2) already has "the bezel falls away"; the next screen after it uses the ops skin.
   - Acceptance: With `Career.act()` at 1, every front-end screen uses the cabinet skin; at 2 or more, the ops skin with the current team's colors. Accepting the first team offer and finishing the recruitment scene shows the board in the ops skin. Scanlines and the coin chime appear only in the cabinet skin. Any added font has its license file next to it.

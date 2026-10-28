@@ -12,3 +12,4 @@ job_types = Array[StringName]([&"demolition", &"inspection", &"fleet"])
 reputation_needed = 60
 preset = ExtResource("2_preset")
 blurb = "The crew they call for the big ones. No guard, no governor."
+colors = PackedColorArray(1, 0.84, 0.2, 1, 0.72, 0.72, 0.78, 1)

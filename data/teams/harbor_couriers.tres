@@ -12,3 +12,4 @@ job_types = Array[StringName]([&"delivery", &"inspection"])
 reputation_needed = 10
 preset = ExtResource("2_preset")
 blurb = "Parcels, panels, and tower checks across the harbor district."
+colors = PackedColorArray(0.2, 0.82, 0.72, 1, 0.95, 0.75, 0.3, 1)

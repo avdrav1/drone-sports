@@ -12,3 +12,4 @@ job_types = Array[StringName]([&"race", &"relay"])
 reputation_needed = 60
 preset = ExtResource("2_preset")
 blurb = "A top-flight league team. They fly by hand and expect you to."
+colors = PackedColorArray(0.95, 0.35, 0.5, 1, 1, 0.85, 0.4, 1)

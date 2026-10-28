@@ -15,16 +15,19 @@ extends Control
 # while FLY has focus, Enter selects, Esc goes back: from a page to the menu,
 # from the menu to the title. CREW is its own page with big faces; OPTIONS
 # holds Sound, Quality, and Watch intro.
+# Story 17.6: it wears the FrontSkin for the act, the arcade cabinet in Act 1
+# and the team's ops console from Act 2.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
 const INTRO := "res://scenes/story/intro.tscn"
 const TITLE := "res://scenes/ui/title.tscn"
-const ACCENT := Color(1.0, 0.76, 0.25)
 const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
 
 var jobs: JobList
+## The look for this act; set before the board builds.
+var skin: FrontSkin
 var offer_dialog: OfferDialog
 var shop: ShopDialog
 var pilot_select: PilotSelect
@@ -54,6 +57,8 @@ var _crew_scroll: ScrollContainer
 func _ready() -> void:
 	jobs = load(JOBS)
 	set_anchors_preset(PRESET_FULL_RECT)
+	skin = FrontSkin.current()
+	theme = skin.theme()
 	_build()
 	refresh()
 	offer_dialog = OfferDialog.new()
@@ -80,6 +85,10 @@ func _ready() -> void:
 		pilot_select.open()
 	else:
 		menu_button(&"Fly").grab_focus()
+	if skin.scanlines:
+		var lines := Scanlines.new()
+		lines.name = "Scanlines"
+		add_child(lines)
 	UiSounds.wire(self)
 	MusicDirector.board()
 	Career.check_offers()
@@ -285,7 +294,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		var tag := Label.new()
 		tag.name = "StartHere"
 		tag.text = "START HERE"
-		tag.add_theme_color_override("font_color", ACCENT)
+		tag.add_theme_color_override("font_color", skin.accent)
 		tag.add_theme_font_size_override("font_size", 15)
 		info.add_child(tag)
 	var head := HBoxContainer.new()
@@ -294,7 +303,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	var icon := JobIcon.new()
 	icon.name = "Icon"
 	icon.kind = job.job_type
-	icon.color = HURT if boss else ACCENT
+	icon.color = HURT if boss else skin.accent
 	icon.custom_minimum_size = Vector2(52, 52)
 	head.add_child(icon)
 	var title := Label.new()
@@ -329,7 +338,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	grade.name = "Grade"
 	var best := Career.best_grade(job.id)
 	grade.text = "BEST GRADE  " + (best if best != "" else "-")
-	grade.add_theme_color_override("font_color", Color(0.35, 0.8, 0.95))
+	grade.add_theme_color_override("font_color", skin.heading)
 	grade.add_theme_font_size_override("font_size", 18)
 	info.add_child(grade)
 	# The Lattice gets no cheerful pitch; its row keeps its own say (Story 8.1).
@@ -388,7 +397,7 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	row.add_child(text)
 	var who_label := Label.new()
 	who_label.text = "%s  ·  %s  ·  ON COMMS" % [c.name, c.role]
-	who_label.add_theme_color_override("font_color", ACCENT)
+	who_label.add_theme_color_override("font_color", skin.accent)
 	who_label.add_theme_font_size_override("font_size", 14)
 	text.add_child(who_label)
 	var pitch := Label.new()
@@ -436,13 +445,13 @@ static func crew_row(id: StringName) -> HBoxContainer:
 func _heading(t: String) -> Label:
 	var l := Label.new()
 	l.text = t
-	l.add_theme_color_override("font_color", Color(0.35, 0.8, 0.95))
+	l.add_theme_color_override("font_color", skin.heading)
 	l.add_theme_font_size_override("font_size", 13)
 	return l
 
 func _build() -> void:
 	var bg := ColorRect.new()
-	bg.color = Color(0.07, 0.07, 0.09)
+	bg.color = skin.background
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	add_child(bg)
 	var margin := MarginContainer.new()
@@ -460,10 +469,11 @@ func _build() -> void:
 	head.add_child(titles)
 	var title := Label.new()
 	title.text = "JOB BOARD"
+	title.theme_type_variation = &"Display"
 	title.add_theme_font_size_override("font_size", 28)
 	titles.add_child(title)
 	_header = Label.new()
-	_header.add_theme_color_override("font_color", ACCENT)
+	_header.add_theme_color_override("font_color", skin.accent)
 	titles.add_child(_header)
 	_money = Label.new()
 	_money.size_flags_vertical = SIZE_SHRINK_END
@@ -486,6 +496,7 @@ func _build() -> void:
 	carousel = JobCarousel.new()
 	carousel.name = "Carousel"
 	carousel.set_anchors_preset(PRESET_FULL_RECT)
+	carousel.accent = skin.accent
 	carousel.activated.connect(func(_i): fly_current())
 	stack.add_child(carousel)
 	pages[&"jobs"] = carousel
@@ -498,7 +509,7 @@ func _build() -> void:
 	crew_page.gui_input.connect(_on_crew_scroll_input)
 	crew_page.focus_entered.connect(func():
 		var lit: StyleBoxFlat = crew_page.get_theme_stylebox("panel").duplicate()
-		lit.border_color = ACCENT
+		lit.border_color = skin.accent
 		crew_page.add_theme_stylebox_override("panel", lit))
 	crew_page.focus_exited.connect(func(): crew_page.remove_theme_stylebox_override("panel"))
 	_crew_box.add_theme_constant_override("separation", 16)
@@ -526,14 +537,8 @@ func _build_menu(parent: Control) -> void:
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.add_theme_font_size_override("font_size", 24)
-		b.add_theme_stylebox_override("focus", _focus_box())
 		b.pressed.connect(it[2])
 		menu.add_child(b)
-		# The theme has no disabled look; a faded normal one reads as off.
-		var off: StyleBoxFlat = b.get_theme_stylebox("normal").duplicate()
-		off.bg_color.a = 0.35
-		off.border_color.a = 0.2
-		b.add_theme_stylebox_override("disabled", off)
 	_shop_button = menu_button(&"Garage")
 	_pilot_button = menu_button(&"Pilot")
 	menu_button(&"Fly").gui_input.connect(_on_fly_item_input)
@@ -581,7 +586,6 @@ func _build_options(stack: Control) -> void:
 	for c in [sound_button, quality, intro]:
 		c.size_flags_horizontal = SIZE_SHRINK_BEGIN
 		c.custom_minimum_size.x = 280
-		c.add_theme_stylebox_override("focus", _focus_box())
 		# Left goes back to the menu item that opened the page.
 		c.focus_neighbor_left = c.get_path_to(menu_button(&"Options"))
 	var esc := Label.new()
@@ -600,16 +604,6 @@ func _on_crew_scroll_input(event: InputEvent) -> void:
 	if step != 0:
 		_crew_scroll.scroll_vertical += step * 120
 		pages[&"crew"].accept_event()
-
-## A focused control's outline: thick, bright, drawn over its normal look.
-func _focus_box() -> StyleBoxFlat:
-	var box := StyleBoxFlat.new()
-	box.draw_center = false
-	box.border_color = ACCENT
-	box.set_border_width_all(3)
-	box.set_corner_radius_all(4)
-	box.set_expand_margin_all(2)
-	return box
 
 ## A page holding a scrolling list, e.g. the crew.
 func _panel(stack: Control, key: StringName) -> VBoxContainer:

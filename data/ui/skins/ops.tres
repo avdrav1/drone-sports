@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="FrontSkin" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/front_skin.gd" id="1_skin"]
+
+[sub_resource type="FontVariation" id="body"]
+spacing_glyph = 1
+
+[sub_resource type="FontVariation" id="display"]
+spacing_glyph = 4
+
+[resource]
+script = ExtResource("1_skin")
+id = &"ops"
+background = Color(0.035, 0.045, 0.06, 1)
+panel = Color(0, 0, 0, 0.35)
+border = Color(1, 1, 1, 0.35)
+border_width = 1
+corner_radius = 0
+button = Color(1, 1, 1, 0.06)
+text = Color(1, 1, 1, 0.9)
+dim = Color(1, 1, 1, 0.45)
+accent = Color(1, 0.76, 0.25, 1)
+heading = Color(1, 1, 1, 0.6)
+font = SubResource("body")
+display_font = SubResource("display")
+scanlines = false
+start_sound = &""
+team_colors = true

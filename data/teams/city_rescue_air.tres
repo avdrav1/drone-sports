@@ -12,3 +12,4 @@ job_types = Array[StringName]([&"rescue", &"inspection", &"fleet"])
 reputation_needed = 35
 preset = ExtResource("2_preset")
 blurb = "The city's medical flight unit. Bad weather is the job."
+colors = PackedColorArray(1, 0.38, 0.32, 1, 0.95, 0.95, 0.95, 1)
