@@ -666,3 +666,67 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Acceptance: Every bark plays its speaker's chirp. Every chorus line plays a tone, and none after shutdown. Each cutscene has a bed.
   - Out of scope: Voice acting, music.
   - Note: `Character.chirp_pitch` (data, validated 0.5..2) pitches one `crew_chirp` sample (Voice bus); `Bark` chirps on every `spoke` (including lines emitted straight onto it), `Bark.chirp(id)` is silent for the dead, and the results screen chirps its bark and injured casualty lines (epilogue rows do not). `Chorus.say` plays `lattice_tone` (Voice) per line, so nothing after shutdown; `LatticeSound` (child of the Lattice in `lattice_job.tscn`) loops `lattice_drone` and on `boss_disabled` stops it for good and plays `lattice_power_down` once. `Cutscene.bed` names a loop (`bed_intro`, `bed_recruited`, World bus) that `CutscenePlayer.bed` plays until `finish()`; `Sfx.play` now takes a `pitch` scale, logged as `pitch`.
+
+## Epic 15: Grounded realism
+
+Done when the city, desert, and obstacles read as real places at drone height: real materials in the golden-hour palette, buildings and streets with the detail real ones have, clutter at street level, and lighting that sits them in the scene. The target is grounded realism, not strict photorealism; the golden-hour look stays. Two tiers: the web build (GL Compatibility) gets everything done in materials, geometry, and shaders, and a desktop High tier adds what only Forward+ has (SSAO, SSIL, SSR, SDFGI, volumetric fog). Assets are CC0 only, from ambientCG and Poly Haven, each listed in `data/LICENSES.md` with its source URL; downloads are images and glTF only, nothing executable. The epic adds at most 25 MB to the web build, checked by a test. Scenery only: collision follows the visible shape, flight and grading never change, and every job's existing test still completes. The web frame rate is checked by hand alongside 12.2 before 15.5 and again at the end.
+
+- [ ] **15.1 Quality tier**
+  - Goal: A Quality setting (Low, High) saved with the settings, picking which renderer extras each scene's Environment and lights use. High is the default on desktop; the web build is always Low.
+  - Context: `GameSettings` gains `quality`, saved in the settings section like `volumes`; the board's settings gain a Quality choice (hidden on web). A static `Quality.apply(env, sun)` turns on SSAO, SSIL, SSR, SDFGI, and volumetric fog, and longer, softer sun shadows, only when the renderer is Forward+ and quality is High; it works on the per-scene Environment copy, as `Weather.apply` does. Weather fog maps onto volumetric fog on High.
+  - Acceptance: Quality saves and reloads. On High under Forward+ every extra is on; on Low, or under GL Compatibility, every extra is off. The shared `golden_hour.tres` is not modified on disk. Weather fog still applies on both tiers.
+  - Out of scope: Resolution scaling, per-feature toggles.
+
+- [ ] **15.2 Material library**
+  - Goal: About ten CC0 surface sets at 1K (colour, normal, roughness, packed where possible): concrete, brick, metal cladding, glass, stone paving, asphalt, kerb stone, sand, rock, and painted metal, in `data/materials/`.
+  - Context: From ambientCG and Poly Haven, checked CC0 page by page as the audio was. `*.import` is gitignored, so textures import on the defaults: VRAM-compressed with mipmaps once a 3D material uses them; any import change goes in code or un-ignores that one file, decided here. A `SurfaceSet` resource names each set's maps and its real-world tile size in metres.
+  - Acceptance: Every set loads and names existing textures. Every file under `data/materials/` is in `data/LICENSES.md` as CC0 with a URL. A size test fails if `data/materials/` plus `data/models/` exceeds 25 MB.
+  - Out of scope: Using the sets anywhere.
+
+- [ ] **15.3 Light and grade**
+  - Goal: Golden hour that looks lit rather than flat: AgX tonemapping with tuned exposure, a colour grade, glow kept to hot spots (sun, lit windows, wet highlights), and sun shadows that are crisp near the drone and soft far out.
+  - Context: `data/world/golden_hour.tres` (ACES and glow today) and the sun in `golden_hour.tscn`. Grade via the Environment's adjustments, which GL Compatibility supports. Fog, rain, snow, and lightning presets are rechecked against the new tonemap.
+  - Acceptance: The Environment uses AgX and the tuned values. Shadow cascade split and distance are set from data. Every weather preset still applies and lightning's flash still raises and returns ambient light.
+  - Out of scope: Time of day, the desktop extras (15.1).
+
+- [ ] **15.4 Building surfaces**
+  - Goal: Towers in real materials: each building picks concrete, brick, cladding, or stone from its seed, mapped in world space so nothing stretches, with grime streaks under ledges, dust at the base, shader ambient occlusion where walls meet the ground, and roof stains.
+  - Context: `scenes/world/city.gdshader` and `City`; custom data already carries a per-building seed. Triplanar or world-space UVs at each set's tile size. Wetness darkens and glosses and snow cover whitens, as now.
+  - Acceptance: Each lot's material comes from its seed and repeats with it. Every material in use comes from the 15.2 library. Wetness and snow cover still change the shader's output. The plan and collision are unchanged.
+  - Out of scope: Window glass (15.5), building shape (15.6).
+
+- [ ] **15.5 Windows**
+  - Goal: Windows that read as glass with rooms behind them: sky reflection in the pane, fake interiors that shift in perspective as you move, blinds and lights varying per window, and lit windows glowing after dark-toned weather.
+  - Context: The window grid in `city.gdshader`, already in world space with `flat` varyings. Interior mapping draws a room box from a small atlas, cheap enough for GL Compatibility; reflection uses the sky colour and a Fresnel term, not a probe.
+  - Acceptance: The lit fraction per building stays within `lit_min` to `lit_max`. Window choice per cell repeats with the seed. The shader compiles under GL Compatibility (checked by loading the city with the compatibility renderer in the test run).
+  - Out of scope: Real interiors, reflection probes.
+
+- [ ] **15.6 Building shapes**
+  - Goal: Buildings that are not boxes: podiums with towers above, setbacks, parapets, ledges every few floors, and rooftop plant rooms, all from the same seeded plan, so every tower differs.
+  - Context: `CityPlan` gains a shape per lot (a list of stacked boxes plus trims); `City` draws each part kind through its own MultiMesh and builds collision from the stacked boxes, so the drone can land on a setback. `Rooftops` pads move to the top box; the radar footprint stays the ground lot.
+  - Acceptance: The same seed gives the same shapes. No part leaves its lot. Collision matches each stacked box. Wind shelter (13.4) uses each lot's tallest height as before. Every job and race test still completes.
+  - Out of scope: Curved or angled buildings.
+
+- [ ] **15.7 Streets**
+  - Goal: Streets with what real ones have: raised kerbs and pavements, crosswalks at every crossing, lane arrows, patches and cracks, manholes, and drains, on textured asphalt.
+  - Context: `Streets` and `streets.gdshader`. Kerbs are geometry (a thin MultiMesh along each block edge, with collision); markings, patches, and manholes are shader decals placed from the plan's seed, wet and snowed like the rest.
+  - Acceptance: Every block has a kerb on each street side. Every crossing has crosswalks. Decal placement repeats with the seed. Wetness and snow still apply.
+  - Out of scope: Traffic lights, moving traffic.
+
+- [ ] **15.8 Desert ground**
+  - Goal: Desert that reads as desert: textured sand and rock blended by slope and height, scattered rocks, scrub, and cacti in bulk, and dust blowing with the wind.
+  - Context: `DesertTerrain` and `desert.gdshader`; scatter through MultiMesh seeded from the terrain, kept off the city core, roads, clearings, and course lines. Rocks above knee height collide; scrub does not. Dust is camera-following CPU particles like rain, carried by `Wind.sample`.
+  - Acceptance: Scatter repeats with the seed and never lands in the city core, a clearing, or within a gate's radius of a course. Dust density follows wind speed and is zero in still air.
+  - Out of scope: Wildlife, vegetation sway.
+
+- [ ] **15.9 Street clutter**
+  - Goal: The city at drone height: parked cars, bus shelters, benches, lamp posts, signs, trees in pits, and AC units and pipes on walls.
+  - Context: CC0 glTF models from Poly Haven in `data/models/`, inside the 25 MB budget, drawn through MultiMesh per model and placed from the plan's seed along kerbs and on walls. Anything taller than a bench collides with a simple box. Clearings and rooftop pads stay clear.
+  - Acceptance: Placement repeats with the seed. Nothing sits in a street lane, a clearing, or on a pad. Every model is in `data/LICENSES.md`. Every job and race test still completes.
+  - Out of scope: Animated or interactive props.
+
+- [ ] **15.10 Obstacles as structures**
+  - Goal: Race gates, the inspection tower, the demolition's structures, and job props built as real objects (truss frames, beams, signage, lights) instead of plain boxes.
+  - Context: `Gate`, the job scenes (`inspection.tscn`, `demolition.tscn`, and the rest), and `Debris`. New meshes are visual; each keeps its existing collision shape and size, so courses and jobs play exactly as before. Debris pieces use the 15.2 materials.
+  - Acceptance: Every gate and job prop keeps its collision shape and transform. Every job and race test still completes. No job scene still draws a bare `BoxMesh` for a structure.
+  - Out of scope: New obstacles, changes to courses.
