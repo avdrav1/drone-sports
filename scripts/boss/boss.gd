@@ -21,3 +21,21 @@ extends Resource
 @export var hold_radius := 1.0
 ## The chorus's lines.
 @export_file("*.json") var chorus := "res://data/dialogue/lattice.json"
+
+@export_group("Shell")
+## Outer radius of the sphere, m.
+@export var radius := 60.0
+## The shell, outside in: the lid over the trench, the trench, its floor.
+@export var lid := 3.0
+@export var tunnel_height := 8.0
+@export var floor := 3.0
+@export var trench_width := 10.0
+## How far round the trench runs from the entrance to the shutter, degrees.
+@export var trench_arc := 120.0
+## Units in the outer layer; inner layers scale with their area.
+@export var unit_count := 2400
+## A captured drone's size in the shell, as a multiple of a real one.
+@export var unit_scale := 9.0
+@export var core_radius := 6.0
+## Seeds which units hold the crew's lost drones.
+@export var seed := 7

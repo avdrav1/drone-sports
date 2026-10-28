@@ -21,12 +21,20 @@ var drones: Array[Drone] = []
 ## Drone -> the crew member flying it.
 var pilots := {}
 
-## Living crew who fly, in roster order.
-static func flyers() -> Array[StringName]:
+## Crew who fly, living or not, in roster order.
+static func tagged() -> Array[StringName]:
 	var out: Array[StringName] = []
 	for id in Roster.ids():
 		var c: Character = Roster.character(id)
-		if c and TAG in c.tags and Roster.is_alive(id):
+		if c and TAG in c.tags:
+			out.append(id)
+	return out
+
+## Living crew who fly, in roster order.
+static func flyers() -> Array[StringName]:
+	var out: Array[StringName] = []
+	for id in tagged():
+		if Roster.is_alive(id):
 			out.append(id)
 	return out
 

@@ -438,11 +438,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: The fight.
   - Note: `Boss` also has `after_job` (default `fleet_race`), so the Lattice follows the fleet final instead of being flyable on a new game; it shows on the board as unreachable until then. `BossGate.open()` is the only way into a boss scene and records each load in `BossGate.loads`, the spy the test reads along with `ResourceLoader.has_cached`. The boss job lives in `data/boss/`, off `board.tres`.
 
-- [ ] **8.2 The shell**
+- [x] **8.2 The shell**
   - Goal: A procedurally placed sphere of captured drone units with one assembly trench seam, in `scenes/boss/lattice.tscn`. Units are the Drone scene's mesh, static, no physics per unit.
   - Context: Instancing thousands of meshes needs MultiMesh. Keep it under a frame budget in the headless test by counting instances, not rendering.
   - Acceptance: Unit count and trench width are data. The trench is a continuous navigable path from outside to the core shutter (a test walks it with a sphere cast). Units tagged as crew-owned carry the crew member's color.
   - Out of scope: Textures, lighting.
+  - Note: `Lattice` (`scenes/boss/lattice.tscn`) draws three layers of units (about 5,600 for 2,400 in the outer layer) from `DroneLook.still_mesh()`, the drone's body without props. The shell's shape lives on `Boss` (radius 60 m; lid, tunnel, floor; trench width and arc). Contact is analytic (`solid`, `touching`, `sphere_cast`), since units have no physics. The trench is a tunnel inside the shell from a lidded entrance at +x round to a shutter over the core's port. Each `can_fly` crew member has one lost unit in their colour. The headless renderer keeps no instance data, so the test checks `color_of`, the colour each instance is given.
 
 - [ ] **8.3 Phase 1: reclaim**
   - Goal: Fleet drones under autopilot tag shell units with override pucks; a tagged unit detaches and joins the fleet. Shell defenders disable fleet drones on contact; a disabled drone is recaptured into the shell. A gap opens when N adjacent units are reclaimed.

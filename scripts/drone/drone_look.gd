@@ -92,6 +92,22 @@ func _build() -> void:
 		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, -0.112), _light(Color(1, 0.95, 0.85)))
 		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, 0.112), _light(Color(1, 0.08, 0.05)))
 
+## The body without props as one mesh, for drawing many still drones at once
+## (the Lattice's shell, Story 8.2). Built from the same parts as a live drone.
+static func still_mesh() -> ArrayMesh:
+	var look := DroneLook.new()
+	look._build()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for mi in look.find_children("*", "MeshInstance3D", true, false):
+		if mi.get_parent() != look:
+			continue # props: they spin, so a still drone has none
+		if mi.mesh is CylinderMesh:
+			mi.mesh.radial_segments = 6 # thousands of these: keep them cheap
+		st.append_from(mi.mesh, 0, mi.transform)
+	look.free()
+	return st.commit()
+
 func _mat(color: Color, metallic: float, roughness: float) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
