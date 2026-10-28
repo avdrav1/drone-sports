@@ -724,11 +724,12 @@ Done when the city, desert, and obstacles read as real places at drone height: r
   - Acceptance: Scatter repeats with the seed and never lands in the city core, a clearing, or within a gate's radius of a course. Dust density follows wind speed and is zero in still air.
   - Out of scope: Wildlife, vegetation sway.
 
-- [ ] **15.9 Street clutter**
+- [x] **15.9 Street clutter**
   - Goal: The city at drone height: parked cars, bus shelters, benches, lamp posts, signs, trees in pits, and AC units and pipes on walls.
   - Context: CC0 glTF models from Poly Haven in `data/models/`, inside the 25 MB budget, drawn through MultiMesh per model and placed from the plan's seed along kerbs and on walls. Anything taller than a bench collides with a simple box. Clearings and rooftop pads stay clear.
   - Acceptance: Placement repeats with the seed. Nothing sits in a street lane, a clearing, or on a pad. Every model is in `data/LICENSES.md`. Every job and race test still completes.
   - Out of scope: Animated or interactive props.
+  - Note: `StreetClutter` (`scenes/world/street_clutter.tscn`, a child of `streets.tscn` that reads its parent `Streets`) draws one MultiMesh per kind (`StreetClutter.Kind`: CAR, BENCH, SHELTER, SIGN, TREE, PIT, AC, PIPE) from seed + 9 and lists each piece as {kind, xform, box, lot} in `pieces`; cars sit in `parking` strips `park_width` deep against the kerb (avenues both sides, streets one), clear of crosswalks and lane arrows, and `lanes` is the rest of the road. Pieces taller than the bench model collide with their AABB; models are reworked Poly Haven glTF in `data/models/<model>/` (1.3 MB, texture `.import` files un-ignored and checked in), the tree a low-poly card tree from a rendered leaf atlas; the clutter uses StandardMaterial3D, so `wetness` and `snow_cover` do not reach it, and the existing street lights stay as the lamp posts.
 
 - [ ] **15.10 Obstacles as structures**
   - Goal: Race gates, the inspection tower, the demolition's structures, and job props built as real objects (truss frames, beams, signage, lights) instead of plain boxes.

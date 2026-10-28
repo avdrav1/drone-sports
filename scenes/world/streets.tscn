@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/streets.gd" id="1_streets"]
 [ext_resource type="Resource" path="res://data/city/sandbox_city.tres" id="2_layout"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://data/materials/asphalt.tres" id="4_asphalt"]
 [ext_resource type="Resource" path="res://data/materials/paving.tres" id="5_paving"]
 [ext_resource type="Resource" path="res://data/materials/kerb.tres" id="6_kerb"]
+[ext_resource type="PackedScene" path="res://scenes/world/street_clutter.tscn" id="7_clutter"]
 
 [sub_resource type="ShaderMaterial" id="road"]
 shader = ExtResource("3_shader")
@@ -23,3 +24,5 @@ light_material = SubResource("light")
 asphalt = ExtResource("4_asphalt")
 paving = ExtResource("5_paving")
 kerb_stone = ExtResource("6_kerb")
+
+[node name="Clutter" parent="." instance=ExtResource("7_clutter")]

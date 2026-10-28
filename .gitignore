@@ -3,6 +3,8 @@
 *.import
 # Material library textures keep their import settings (VRAM compressed, mipmaps)
 !data/materials/*.import
+# Street clutter model textures too (Story 15.9)
+!data/models/*/*.import
 build/
 export_presets.cfg.bak
 

@@ -1,0 +1,51 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/street_clutter.gd" id="1_clutter"]
+[ext_resource type="PackedScene" path="res://data/models/car/car.gltf" id="2_car"]
+[ext_resource type="PackedScene" path="res://data/models/bench/bench.gltf" id="3_bench"]
+[ext_resource type="PackedScene" path="res://data/models/tree/tree.gltf" id="4_tree"]
+[ext_resource type="PackedScene" path="res://data/models/aircon/aircon.gltf" id="5_aircon"]
+[ext_resource type="Texture2D" path="res://data/materials/painted_metal_albedo.jpg" id="6_metal"]
+[ext_resource type="Texture2D" path="res://data/materials/painted_metal_nr.jpg" id="7_metal_nr"]
+[ext_resource type="Texture2D" path="res://data/materials/sand_albedo.jpg" id="8_soil"]
+
+[sub_resource type="StandardMaterial3D" id="metal"]
+albedo_color = Color(0.42, 0.44, 0.43, 1)
+albedo_texture = ExtResource("6_metal")
+metallic = 0.4
+roughness_texture = ExtResource("7_metal_nr")
+roughness_texture_channel = 2
+normal_enabled = true
+normal_texture = ExtResource("7_metal_nr")
+uv1_triplanar = true
+uv1_world_triplanar = true
+uv1_scale = Vector3(0.7, 0.7, 0.7)
+
+[sub_resource type="StandardMaterial3D" id="glass"]
+transparency = 1
+albedo_color = Color(0.55, 0.66, 0.72, 0.3)
+metallic = 0.3
+roughness = 0.05
+
+[sub_resource type="StandardMaterial3D" id="sign"]
+vertex_color_use_as_albedo = true
+metallic = 0.1
+roughness = 0.45
+
+[sub_resource type="StandardMaterial3D" id="pit"]
+albedo_color = Color(0.32, 0.25, 0.19, 1)
+albedo_texture = ExtResource("8_soil")
+roughness = 1.0
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[node name="StreetClutter" type="StaticBody3D"]
+script = ExtResource("1_clutter")
+car_model = ExtResource("2_car")
+bench_model = ExtResource("3_bench")
+tree_model = ExtResource("4_tree")
+aircon_model = ExtResource("5_aircon")
+metal = SubResource("metal")
+glass = SubResource("glass")
+sign_material = SubResource("sign")
+pit_material = SubResource("pit")
