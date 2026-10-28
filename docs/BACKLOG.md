@@ -505,6 +505,7 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
   - Context: Towers render through `MultiMeshInstance3D` (one per mesh kind, not one node per building) so the web build stays cheap. `scenes/world/city.gdshader` draws windows in world space so the grid stays square on any building size, with per-instance tint and a sprinkle of lit windows from instance custom data; roofs read differently from walls. Uses only features GL Compatibility has. Built meshes and shapes are cached per plan, like `DesertTerrain`. Before ticking, export the web build and fly it by hand: it should hold frame rate on the sandbox.
   - Acceptance: Every lot has exactly one collision box matching its footprint and height. A ray cast down at a lot's centre hits at the lot's height. Flying the drone into a wall registers contact with `AvoidContact`. The city renders through at most 4 `MultiMeshInstance3D` nodes whose instance counts sum to the lot count. Building the same layout twice reuses the cache. The scene loads headless with no errors.
   - Out of scope: Interiors, enterable buildings, damage, night lighting.
+  - Note: Built and tested, not ticked: the hand flight on the web build is still to do. The city isn't in the sandbox until 12.5, so that flight belongs with 12.5. Under GL Compatibility at 1280×720 (desktop RTX 3080) the city costs no measurable frame time: one MultiMesh, one draw.
 
 - [ ] **12.3 Streets**
   - Goal: Asphalt streets with lane markings and sidewalks, and street lights along them.
