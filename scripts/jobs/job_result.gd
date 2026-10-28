@@ -19,3 +19,6 @@ var casualties := {}
 var casualty_lines := {}
 ## The closing line for the results screen: {id, text}. Empty when nobody speaks.
 var bark := {}
+## The final crew pass after the Lattice (Story 8.6): {id, text, alive} for
+## every crew member, the dead with their memorial line.
+var epilogue: Array[Dictionary] = []

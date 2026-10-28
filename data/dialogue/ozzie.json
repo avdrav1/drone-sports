@@ -90,5 +90,10 @@
    "Moving now. Steady.",
    "On my way. Keep it calm."
   ]
+ },
+ "epilogue": {
+  "active": [
+   "Everyone breathe. Slowly. It's over."
+  ]
  }
 }

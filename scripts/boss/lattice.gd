@@ -205,6 +205,13 @@ func unit_transform(i: int) -> Transform3D:
 	var fwd := side.cross(up)
 	return Transform3D(Basis(side, up, -fwd).scaled(Vector3.ONE * boss.unit_scale), p)
 
+## Draws a unit moved by `offset` from its place, e.g. falling free.
+func offset_unit(i: int, offset: Vector3) -> void:
+	if multimesh and not _hidden.has(i):
+		var t := unit_transform(i)
+		t.origin += offset
+		multimesh.set_instance_transform(i, t)
+
 ## Takes a unit out of the shell (reclaimed, or fallen free).
 func hide_unit(i: int) -> void:
 	_hidden[i] = true

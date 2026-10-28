@@ -42,6 +42,8 @@ func show_result(r: JobResult) -> void:
 		rows.add_child(casualty_row(r, id))
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark))
+	for e in r.epilogue:
+		rows.add_child(epilogue_row(e))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
 	retry_button.disabled = not can_retry(r.job)
 	retry_button.tooltip_text = "" if can_retry(r.job) else "This job is off the board now."
@@ -83,6 +85,13 @@ static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var line: String = r.casualty_lines.get(id, "")
 	var text := head + ("\n" + ("" if dead else who + ": ") + line if line else "")
 	return _face_row("Casualty", c, text, dead, Color(1.0, 0.45, 0.35))
+
+## The last word from one crew member: theirs if alive, their memorial if not.
+static func epilogue_row(e: Dictionary) -> HBoxContainer:
+	var c: Character = Roster.character(e.id)
+	var who := c.name if c else String(e.id)
+	var text: String = ("%s: %s" % [who, e.text]) if e.alive else ("%s is not coming home. %s" % [who, e.text])
+	return _face_row("Epilogue_%s" % e.id, c, text, not e.alive, Color.WHITE if e.alive else Color(1, 1, 1, 0.55))
 
 static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color) -> HBoxContainer:
 	var row := HBoxContainer.new()

@@ -466,11 +466,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: Multiple ports.
   - Note: `OverrideHold` extends `HoldStation` and counts only in phase 3. The fight gives it a Port node on the core with the boss's `hold_radius` and `hold_time`, and grace 0.5 s. The gusts are `data/wind/lattice_gusts.tres` on the pilot's drone; the Act 5 preset already runs the wind sim, so nothing turns an assist on. The shake moves only the units' MultiMesh (look only); contact geometry stays put. Completion emits `hold_complete`, then `boss_disabled`, and moves to power-down.
 
-- [ ] **8.6 Power-down and epilogue**
+- [x] **8.6 Power-down and epilogue**
   - Goal: On `boss_disabled`, the shell loosens section by section on a timeline, captured units fall free, crew-owned units return to the roster as fleet drones, and the results screen shows a final crew lines pass with living and dead accounted for.
   - Context: Reuses the results screen (2.5) and crew lines (7.3). The chorus speaks once more, then stops.
   - Acceptance: Every living crew member's drone is back in the fleet after the sequence. Dead crew members are named on the results screen and nothing of theirs returns. The save records `lattice_disabled: true`.
   - Out of scope: New game plus.
+  - Note: The shell lets go in eight slices round its axis, 0.8 s apart; units fall for 1.5 s and are gone. A living crew member's lost unit becomes a fleet drone with their portrait (`LatticeFight.returned`). The job ends on the `PowerDown` objective once the sequence is over, so the results come after it. `JobResult.epilogue` holds one line per crew member: their `epilogue` line if alive, their memorial if dead. `lattice_disabled` is a story flag (save section `flags`), set only on a job that pays out. The chorus's last line is 8.7's.
 
 - [ ] **8.7 Chorus lines**
   - Goal: The Lattice's lines in `data/dialogue/lattice.json`: plural, flat, never first person singular, triggered on phase start, on reclaiming a crew-owned unit, on a strike, and on shutdown. Portrait is a grid of dots that thins as the fight goes on.

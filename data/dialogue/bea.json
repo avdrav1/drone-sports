@@ -83,5 +83,10 @@
    "Hurt, not done. Remember that."
   ]
  },
- "memorial": "Bea, demolition foreman. Called the collapse, every time."
+ "memorial": "Bea, demolition foreman. Called the collapse, every time.",
+ "epilogue": {
+  "active": [
+   "Quietest demolition I've ever seen. Nothing fell that shouldn't have."
+  ]
+ }
 }

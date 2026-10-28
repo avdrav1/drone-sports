@@ -109,5 +109,10 @@
    "Shutter's ahead, on the floor. Ease off.",
    "There. Drop through the shutter. Gently."
   ]
+ },
+ "epilogue": {
+  "active": [
+   "Good flying. I mean it. Every call, you took it clean."
+  ]
  }
 }

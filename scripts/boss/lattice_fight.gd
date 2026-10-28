@@ -19,6 +19,10 @@ extends Node
 #    the shell shakes and gusts blow down the trench (the wind sim, which the
 #    Act 5 preset already has on). Drifting out for more than half a second
 #    resets the hold. Completing it disables the Lattice: never damage.
+# 4. Power-down: the shell lets go section by section; units fall free. The
+#    crew's lost drones come home to the fleet, the living crew's only. Then
+#    the job completes, the save records lattice_disabled, and the results
+#    close with a word from every crew member, the dead by their memorial.
 #
 # Holds no flight code: drones fly through their intent sources, and every
 # order goes to an Autopilot.
@@ -63,6 +67,18 @@ const DRONE := preload("res://scenes/drone/drone.tscn")
 @export var gusts: Wind = preload("res://data/wind/lattice_gusts.tres")
 ## How far the shell's units shake during the override, m. Look only.
 @export var shake := 0.25
+## Power-down: the shell lets go in this many sections, one every interval.
+@export var sections := 8
+@export var section_interval := 0.8
+## Seconds a unit falls before it is gone.
+@export var fall_time := 1.5
+
+## Crew member -> their drone, home from the shell.
+var returned := {}
+var power_clock := 0.0
+## Unit -> seconds since its section let go.
+var _falling := {}
+var _released := 0
 
 var phase := Phase.BRIEFING
 ## Units reclaimed so far, in order.
@@ -89,6 +105,7 @@ func _ready() -> void:
 		def.normal = (def.guard - lattice.global_position).normalized()
 		def.prey = command.drones
 	runner.state_changed.connect(_on_runner_state)
+	runner.finished.connect(_on_finished)
 	if override:
 		var port := Node3D.new()
 		port.name = "Port"
@@ -166,6 +183,8 @@ func _physics_process(delta: float) -> void:
 			_trench_step(delta)
 		Phase.OVERRIDE:
 			_override_step()
+		Phase.POWER_DOWN:
+			_power_down_step(delta)
 
 func _reclaim_step(delta: float) -> void:
 	for d in assigned.keys():
@@ -345,3 +364,66 @@ func _override_step() -> void:
 		phase_complete.emit(Phase.OVERRIDE)
 		boss_disabled.emit()
 		_start(Phase.POWER_DOWN)
+
+# --- Power-down ------------------------------------------------------------
+
+## Which section a unit is in: slices round the vertical axis from the entrance.
+func section_of(unit: int) -> int:
+	var a := posmod(Lattice.angle_of(lattice.units[unit].pos), TAU)
+	return mini(int(a / TAU * sections), sections - 1)
+
+func _power_down_step(delta: float) -> void:
+	power_clock += delta
+	while _released < sections and power_clock >= _released * section_interval:
+		_release(_released)
+		_released += 1
+	var g := float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8))
+	for u in _falling.keys():
+		_falling[u] += delta
+		var t: float = _falling[u]
+		if t >= fall_time:
+			_falling.erase(u)
+			lattice.hide_unit(u)
+		else:
+			lattice.offset_unit(u, Vector3.DOWN * 0.5 * g * t * t)
+	if _released >= sections and _falling.is_empty():
+		_start(Phase.DONE)
+		if runner.pays_out:
+			StoryFlags.set_flag(&"lattice_disabled")
+
+func _release(section: int) -> void:
+	for u in lattice.units.size():
+		if lattice.is_hidden(u) or section_of(u) != section:
+			continue
+		_falling[u] = 0.0
+		var id: StringName = lattice.units[u].crew
+		if id != &"" and Roster.is_alive(id):
+			_bring_home(id, u)
+
+## A crew member's lost drone drops out of the shell and rejoins the fleet.
+func _bring_home(id: StringName, unit: int) -> void:
+	var c: Character = Roster.character(id)
+	var d: Drone = DRONE.instantiate()
+	d.name = "%sHome" % c.name
+	var auto := Autopilot.new()
+	auto.name = "Autopilot"
+	d.add_child(auto)
+	d.intent_source = auto
+	command.get_parent().add_child(d)
+	var at := lattice.to_global(lattice.units[unit].pos)
+	# Out from the shell, clear of it.
+	d.global_position = at + (at - lattice.global_position).normalized() * 6.0
+	auto.go_to(PackedVector3Array([d.global_position]))
+	command.add(d, c)
+	returned[id] = d
+
+func _on_finished(result: JobResult) -> void:
+	if not result.completed or phase != Phase.DONE:
+		return
+	for id in Roster.ids():
+		var alive := Roster.is_alive(id)
+		var text := Bark.memorial(id)
+		if alive:
+			var lines: Array = Bark.lines_of(id).get("epilogue", {}).get("active", [])
+			text = lines[0] if not lines.is_empty() else ""
+		result.epilogue.append({"id": id, "text": text, "alive": alive})

@@ -25,6 +25,7 @@
 [ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="23_warn"]
 [ext_resource type="Script" path="res://scripts/ui/lattice_hud.gd" id="24_hud"]
 [ext_resource type="Script" path="res://scripts/jobs/objectives/override_hold.gd" id="25_override"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/power_down.gd" id="26_power"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -112,6 +113,12 @@ label = "Trench opened"
 script = ExtResource("25_override")
 fight = NodePath("../../Fight")
 label = "Override held"
+
+[node name="PowerDown" type="Node" parent="JobRunner" node_paths=PackedStringArray("fight")]
+script = ExtResource("26_power")
+fight = NodePath("../../Fight")
+label = "The Lattice is down"
+ends_job = true
 
 [node name="MarloZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 37, -32.5)
