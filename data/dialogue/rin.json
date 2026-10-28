@@ -68,5 +68,149 @@
   "active": [
    "I knew it the first time I watched you fly. I just didn't know it'd be this."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "Up. Now show me something.",
+    "face": "determined"
+   },
+   {
+    "text": "Clean takeoff. That's the easy part.",
+    "face": "neutral"
+   },
+   {
+    "text": "You're flying. Make it count.",
+    "face": "determined"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "Close isn't clever.",
+    "face": "worried"
+   },
+   {
+    "text": "Too tight. Learn from it.",
+    "face": "determined"
+   },
+   {
+    "text": "That's luck. Don't spend it.",
+    "face": "worried"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Low pass. Controlled. Good.",
+    "face": "happy"
+   },
+   {
+    "text": "Low is fine if you meant it.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice. Now do it again on purpose.",
+    "face": "determined"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "Top speed. Now prove you can stop.",
+    "face": "determined"
+   },
+   {
+    "text": "Fast is easy. Fast and clean is the job.",
+    "face": "determined"
+   },
+   {
+    "text": "That's the ceiling. Fly under it.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's low. Plan the landing.",
+    "face": "determined"
+   },
+   {
+    "text": "Watch your charge. Pilots count.",
+    "face": "neutral"
+   },
+   {
+    "text": "Low pack. Bring it in clean.",
+    "face": "determined"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "Contact. Ask yourself why.",
+    "face": "sad"
+   },
+   {
+    "text": "That's data. Read it.",
+    "face": "neutral"
+   },
+   {
+    "text": "Hit. Reset your head first.",
+    "face": "sad"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Reset. Same goal, better line.",
+    "face": "determined"
+   },
+   {
+    "text": "Back to the start. Slower this time.",
+    "face": "neutral"
+   },
+   {
+    "text": "Again. Clean, safe, fast.",
+    "face": "determined"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Weather changed. So does your plan.",
+    "face": "determined"
+   },
+   {
+    "text": "New conditions. Adapt.",
+    "face": "neutral"
+   },
+   {
+    "text": "Read the sky before it reads you.",
+    "face": "determined"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "Thinking is good. Too much thinking isn't.",
+    "face": "neutral"
+   },
+   {
+    "text": "Clock's running. Pick a line.",
+    "face": "determined"
+   },
+   {
+    "text": "Hovering's a skill. So is moving.",
+    "face": "neutral"
+   }
+  ]
  }
 }

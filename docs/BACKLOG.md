@@ -876,7 +876,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: Each event fires from a scripted drone state that meets its threshold and does not fire from one just short of it. Each respects its cooldown. Battery low fires once per charge. Crash fires on contact above the crash speed, not on a gentle landing. The watcher changes no drone, intent, or assist value (checked before and after a run).
   - Out of scope: Lines for these events (17.9), scoring style or tricks.
 
-- [ ] **17.9 Flight lines**
+- [x] **17.9 Flight lines**
   - Goal: Every crew member reacts to the flight events in their own voice.
   - Context: The new events join `Bark.EVENTS`, so the bark rules apply: at least three lines per crew member per event, injured variants for anyone who can be harmed, the dead never speak, no repeats within a job unless only one line exists. Each line sets a `face`. `speaks_on` decides who reacts to what (Marlo calls near misses, Dot winces at crashes and low battery, Rin comments on top speed). Voices follow `docs/CHARACTERS.md`.
   - Acceptance: `test_every_member_has_three_lines_per_event` passes with the new events included. Every new line has a valid `face`. In a scripted near miss on a job with Marlo on comms, Marlo's radio line plays. With Marlo dead, no near-miss line comes from Marlo.

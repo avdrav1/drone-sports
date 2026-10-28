@@ -18,7 +18,8 @@ extends Control
 ## over, and its line cannot wait behind the briefing.
 @export var urgent: Array[StringName] = [&"warning", &"strike", &"complete", &"fail"]
 ## Events that are chatter: dropped instead of played late, and spaced out.
-@export var chatter: Array[StringName] = [&"gate_passed"]
+@export var chatter: Array[StringName] = [&"gate_passed", &"takeoff", &"near_miss", &"low_pass", &"top_speed",
+	&"battery_low", &"crash", &"reset", &"weather_change", &"long_hover"]
 ## Least seconds between the starts of two chatter lines.
 @export var chatter_gap := 6.0
 ## A chatter line still waiting after this many seconds is dropped.

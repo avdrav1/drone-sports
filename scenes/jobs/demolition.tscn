@@ -871,7 +871,8 @@ objective = NodePath("../Exit")
 reason = "the roof came down"
 label = "Out before the roof"
 
-[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "watcher")]
+watcher = NodePath("../FlightWatcher")
 script = ExtResource("88_bark")
 runner = NodePath("../JobRunner")
 

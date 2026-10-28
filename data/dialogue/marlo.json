@@ -144,5 +144,239 @@
   "active": [
    "Good flying. I mean it. Every call, you took it clean."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "You're up. I've got eyes on you.",
+    "face": "determined"
+   },
+   {
+    "text": "Liftoff. Talk to me if it feels wrong.",
+    "face": "neutral"
+   },
+   {
+    "text": "Up and clean. Now keep it that way.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "You're up. I'm watching from the chair.",
+    "face": "neutral"
+   },
+   {
+    "text": "Liftoff. Easy on my nerves today.",
+    "face": "worried"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "Close! Too close!",
+    "face": "shocked"
+   },
+   {
+    "text": "That was a hand's width. Breathe.",
+    "face": "worried"
+   },
+   {
+    "text": "You shaved paint off that one.",
+    "face": "shocked"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Don't do that to me. Not today.",
+    "face": "worried"
+   },
+   {
+    "text": "Close! My ribs just flinched.",
+    "face": "shocked"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Low pass, nice. Watch the lip.",
+    "face": "determined"
+   },
+   {
+    "text": "You're kissing the ground. Pull a hair.",
+    "face": "worried"
+   },
+   {
+    "text": "Under the radar. Pretty line.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low and quick. I'd cheer if it didn't hurt.",
+    "face": "happy"
+   },
+   {
+    "text": "That's low. Careful with it.",
+    "face": "worried"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "You're flat out. Eyes way ahead.",
+    "face": "determined"
+   },
+   {
+    "text": "That's top end. Pick your exit now.",
+    "face": "determined"
+   },
+   {
+    "text": "Fast. Good. Now think.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Fast. Too fast for my heart today.",
+    "face": "worried"
+   },
+   {
+    "text": "Top end. Pick your exit early.",
+    "face": "determined"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's low. Start heading home.",
+    "face": "worried"
+   },
+   {
+    "text": "Quarter charge. Don't get greedy.",
+    "face": "determined"
+   },
+   {
+    "text": "You're on reserve. Land it soon.",
+    "face": "worried"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Battery's low. Bring it home gentle.",
+    "face": "worried"
+   },
+   {
+    "text": "Reserve. Don't make me watch a dead stick.",
+    "face": "worried"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "Ooh. That one hurt to watch.",
+    "face": "sad"
+   },
+   {
+    "text": "Contact! You okay up there?",
+    "face": "shocked"
+   },
+   {
+    "text": "And that's a wall. Shake it off.",
+    "face": "sad"
+   }
+  ],
+  "injured": [
+   {
+    "text": "That sound. I know that sound.",
+    "face": "sad"
+   },
+   {
+    "text": "Contact. Join the club.",
+    "face": "sad"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Reset. Clean slate, same line.",
+    "face": "determined"
+   },
+   {
+    "text": "Back on the pad. Go again.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fresh air under you. Try it slower.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Reset. Take a breath. I am.",
+    "face": "neutral"
+   },
+   {
+    "text": "Back to the start. Steady.",
+    "face": "determined"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Weather's moving. Feel the air change.",
+    "face": "worried"
+   },
+   {
+    "text": "Sky's turning. Adjust your lines.",
+    "face": "determined"
+   },
+   {
+    "text": "New weather. Everything's a bit harder now.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Weather's turning. My knee called it.",
+    "face": "worried"
+   },
+   {
+    "text": "Sky's changing. Fly it careful.",
+    "face": "worried"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "You going to fly, or admire the view?",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice hold. Now do something with it.",
+    "face": "happy"
+   },
+   {
+    "text": "Still waiting on you, pilot.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Taking a breather? Fair. Me too.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice hold. I'm in no hurry today.",
+    "face": "neutral"
+   }
+  ]
  }
 }

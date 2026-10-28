@@ -118,5 +118,239 @@
   "active": [
    "Quietest demolition I've ever seen. Nothing fell that shouldn't have."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "You're airborne. Watch the site.",
+    "face": "determined"
+   },
+   {
+    "text": "Up. Now mind the scaffolding.",
+    "face": "determined"
+   },
+   {
+    "text": "Clean takeoff. Keep it that tidy.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "You're up. I'm calling it sitting down.",
+    "face": "neutral"
+   },
+   {
+    "text": "Airborne. Easy around my crew.",
+    "face": "worried"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "That was nearly a hole in my wall.",
+    "face": "shocked"
+   },
+   {
+    "text": "Gap discipline! Now!",
+    "face": "determined"
+   },
+   {
+    "text": "Close. The building doesn't move for you.",
+    "face": "worried"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Too close. Way too close.",
+    "face": "shocked"
+   },
+   {
+    "text": "Keep off the structure. Please.",
+    "face": "worried"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Low over the site. Hard hats down.",
+    "face": "worried"
+   },
+   {
+    "text": "Watch the rubble, you're right on it.",
+    "face": "worried"
+   },
+   {
+    "text": "Low and fast. Nice gap.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low. Mind the crew below.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy, there's people down here.",
+    "face": "worried"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "That's fast. Fast doesn't stop quickly.",
+    "face": "determined"
+   },
+   {
+    "text": "Flat out near a site? Bold.",
+    "face": "worried"
+   },
+   {
+    "text": "Quick. Now brake early.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Slow it down near my people.",
+    "face": "worried"
+   },
+   {
+    "text": "Fast. Too fast for me today.",
+    "face": "worried"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's low. Finish and get clear.",
+    "face": "determined"
+   },
+   {
+    "text": "Low charge. Don't die over the rubble.",
+    "face": "worried"
+   },
+   {
+    "text": "Pack's fading. Wrap it.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low battery. Get it out of here.",
+    "face": "worried"
+   },
+   {
+    "text": "Pack's low. Land somewhere safe.",
+    "face": "worried"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "Contact! Is it down?",
+    "face": "shocked"
+   },
+   {
+    "text": "That's a hit. Walk it back.",
+    "face": "sad"
+   },
+   {
+    "text": "Structures win. Every time.",
+    "face": "sad"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Another impact. Not today.",
+    "face": "sad"
+   },
+   {
+    "text": "Ugh. I know how that feels.",
+    "face": "sad"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Reset. Start from a safe line.",
+    "face": "determined"
+   },
+   {
+    "text": "Back to the start. Plan it this time.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fresh run. Same rules: get clear.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Reset. Slow and sure.",
+    "face": "neutral"
+   },
+   {
+    "text": "Back to the top. Breathe.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Weather's moving in. Dust'll get worse.",
+    "face": "worried"
+   },
+   {
+    "text": "Wind's changing. Watch the loose sheets.",
+    "face": "worried"
+   },
+   {
+    "text": "New weather. Recheck your gaps.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Weather's turning. Everything aches.",
+    "face": "sad"
+   },
+   {
+    "text": "Air's changing. Fly it careful.",
+    "face": "worried"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "Standing by? So am I.",
+    "face": "neutral"
+   },
+   {
+    "text": "Holding position. Good. Now move.",
+    "face": "neutral"
+   },
+   {
+    "text": "You're parked in the air. Clock's running.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Steady. I'll take steady.",
+    "face": "neutral"
+   },
+   {
+    "text": "Holding. Fine. I'm not going anywhere.",
+    "face": "sad"
+   }
+  ]
  }
 }

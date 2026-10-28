@@ -155,7 +155,8 @@ override = NodePath("../JobRunner/Override")
 script = ExtResource("27_chorus")
 fight = NodePath("../Fight")
 
-[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "watcher")]
+watcher = NodePath("../FlightWatcher")
 script = ExtResource("17_bark")
 runner = NodePath("../JobRunner")
 

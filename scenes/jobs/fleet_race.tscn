@@ -90,7 +90,8 @@ script = ExtResource("14_handoffs")
 relay = NodePath("../../Relay")
 label = "Clean handoffs"
 
-[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "watcher")]
+watcher = NodePath("../FlightWatcher")
 script = ExtResource("7_bark")
 runner = NodePath("../JobRunner")
 

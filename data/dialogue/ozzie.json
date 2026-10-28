@@ -125,5 +125,239 @@
   "active": [
    "Everyone breathe. Slowly. It's over."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "You're up. Take your time.",
+    "face": "neutral"
+   },
+   {
+    "text": "Off the ground. Steady breaths.",
+    "face": "neutral"
+   },
+   {
+    "text": "Liftoff. Good. Calm hands.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "You're up. I'm not going anywhere.",
+    "face": "neutral"
+   },
+   {
+    "text": "Liftoff. Gentle, please.",
+    "face": "worried"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "Easy. Easy. You're okay.",
+    "face": "worried"
+   },
+   {
+    "text": "That was close. Heart rate down.",
+    "face": "worried"
+   },
+   {
+    "text": "Whoa. Breathe out.",
+    "face": "shocked"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Close. Please be careful.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy. I can't patch a drone.",
+    "face": "worried"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Low. Keep your eyes level.",
+    "face": "worried"
+   },
+   {
+    "text": "Close to the ground. Stay loose.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice and low. Gentle.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low. Careful now.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy down there.",
+    "face": "worried"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "Fast. Keep breathing.",
+    "face": "worried"
+   },
+   {
+    "text": "That's quick. Stay calm with it.",
+    "face": "neutral"
+   },
+   {
+    "text": "Speed's fine. Panic isn't.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Fast. Too fast for my nerves.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy on the throttle.",
+    "face": "worried"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's low. Don't push it.",
+    "face": "worried"
+   },
+   {
+    "text": "Low charge. Head back gently.",
+    "face": "neutral"
+   },
+   {
+    "text": "Running low. No heroics.",
+    "face": "worried"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low battery. Come back safe.",
+    "face": "worried"
+   },
+   {
+    "text": "Running low. Gently home.",
+    "face": "worried"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "Oof. Everyone okay? Drone okay?",
+    "face": "shocked"
+   },
+   {
+    "text": "That's a bump. Check yourself.",
+    "face": "worried"
+   },
+   {
+    "text": "Hit. It's fine. Reset and breathe.",
+    "face": "sad"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Ouch. I felt that.",
+    "face": "sad"
+   },
+   {
+    "text": "Hit. Okay. We're okay.",
+    "face": "sad"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Reset. Shake out your hands.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fresh start. In for four, out for four.",
+    "face": "neutral"
+   },
+   {
+    "text": "Back at the start. You're fine.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Reset. Take a moment.",
+    "face": "neutral"
+   },
+   {
+    "text": "Start again. Slowly.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Weather's changing. Layer up, drone.",
+    "face": "worried"
+   },
+   {
+    "text": "Feel the cold coming in? I do.",
+    "face": "worried"
+   },
+   {
+    "text": "New weather. Fly a little softer.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Weather's turning. That's not good for me.",
+    "face": "worried"
+   },
+   {
+    "text": "It's changing out here. Hurry, gently.",
+    "face": "worried"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "Good hold. Take a breath.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice and still. Look around.",
+    "face": "neutral"
+   },
+   {
+    "text": "Resting? Good. Then go.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Still. Good. Rest a second.",
+    "face": "neutral"
+   },
+   {
+    "text": "Holding. I'll wait.",
+    "face": "sad"
+   }
+  ]
  }
 }

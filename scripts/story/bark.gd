@@ -12,9 +12,12 @@ extends Node
 # Story 17.4: `pitch` is a job card's one-liner on the board, never said in a job.
 # Story 17.7: every announced line also goes out on `said` with its face, for the
 # radio panel, which then plays the chirp itself when the line opens.
+# Story 17.9: the crew react to a FlightWatcher's flight events, each line with a
+# face; who reacts from afar is their `speaks_on`.
 # Holds no character or job names.
 
-const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch"]
+const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
+	&"takeoff", &"near_miss", &"low_pass", &"top_speed", &"battery_low", &"crash", &"reset", &"weather_change", &"long_hover"]
 ## The face a line makes when its entry names none. Other events look neutral.
 const DEFAULT_FACES := {
 	&"briefing": &"determined",
@@ -34,6 +37,8 @@ signal said(line: Dictionary)
 @export var runner: JobRunner
 ## Optional: gate callouts on a race.
 @export var course: Course
+## Optional: the drone's flight events (Story 17.8).
+@export var watcher: FlightWatcher
 ## Seconds between gate callouts, so a fast lap is not a wall of text.
 @export var gate_gap := 2.5
 ## Seeds who speaks and which line. Negative picks at random.
@@ -64,6 +69,8 @@ func _ready() -> void:
 			_on_state(runner.state, JobRunner.State.IDLE)
 	if course:
 		course.gate_passed.connect(_on_gate)
+	if watcher:
+		watcher.flight_event.connect(_on_flight_event)
 
 func _process(delta: float) -> void:
 	_since_gate += delta
@@ -205,6 +212,9 @@ func _on_warning(id: StringName) -> void:
 
 func _on_struck(id: StringName, before: Roster.Status) -> void:
 	say(&"strike", id, true, before)
+
+func _on_flight_event(event: StringName) -> void:
+	say(event)
 
 func _on_gate(who: Node3D, _gate: int) -> void:
 	if runner and who != runner.drone:

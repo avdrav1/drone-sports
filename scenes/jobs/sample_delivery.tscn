@@ -244,7 +244,8 @@ script = ExtResource("8_time")
 target_time = 25.0
 label = "Under 25 s"
 
-[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "watcher")]
+watcher = NodePath("../FlightWatcher")
 script = ExtResource("88_bark")
 runner = NodePath("../JobRunner")
 

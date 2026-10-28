@@ -125,5 +125,239 @@
   "active": [
    "Look at them all coming home. I'm going to be up all night fixing them."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "Props are spinning. Nothing rattled. Good.",
+    "face": "happy"
+   },
+   {
+    "text": "Up it goes. Treat it nice.",
+    "face": "determined"
+   },
+   {
+    "text": "Liftoff. I can hear every bearing.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Up you go. I can't climb after it today.",
+    "face": "worried"
+   },
+   {
+    "text": "Liftoff. Sounds fine. Keep it fine.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "Don't scrape my props!",
+    "face": "shocked"
+   },
+   {
+    "text": "That was nearly a repair bill.",
+    "face": "worried"
+   },
+   {
+    "text": "Keep a gap. Paint isn't free.",
+    "face": "worried"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Close! I can't fix much with one hand.",
+    "face": "shocked"
+   },
+   {
+    "text": "Easy. Don't give me more work.",
+    "face": "worried"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Sand in the motors. Lovely.",
+    "face": "sad"
+   },
+   {
+    "text": "Low enough to pick up grit. Stop it.",
+    "face": "worried"
+   },
+   {
+    "text": "I'll be cleaning that filter tonight.",
+    "face": "sad"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low. Grit. My poor motors.",
+    "face": "sad"
+   },
+   {
+    "text": "Please don't eat the ground.",
+    "face": "worried"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "Listen to those motors scream.",
+    "face": "happy"
+   },
+   {
+    "text": "That's all she's got. Don't ask for more.",
+    "face": "worried"
+   },
+   {
+    "text": "Top speed. Watch your temps.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Flat out. Don't cook the motors.",
+    "face": "worried"
+   },
+   {
+    "text": "That's my tune-up. Enjoy it.",
+    "face": "happy"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's at a quarter. Ugh.",
+    "face": "worried"
+   },
+   {
+    "text": "Low battery. I'm not carrying it home.",
+    "face": "worried"
+   },
+   {
+    "text": "You're draining it. Land before it sags.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Low battery. I can't run out for it today.",
+    "face": "worried"
+   },
+   {
+    "text": "Quarter left. Come home.",
+    "face": "worried"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "No! My props!",
+    "face": "shocked"
+   },
+   {
+    "text": "That's coming out of your pay.",
+    "face": "sad"
+   },
+   {
+    "text": "I heard that from the van.",
+    "face": "sad"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Great. Now we're both broken.",
+    "face": "sad"
+   },
+   {
+    "text": "I felt that in my stitches.",
+    "face": "shocked"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Reset. Battery's topped, don't waste it.",
+    "face": "determined"
+   },
+   {
+    "text": "Fresh pack in. Try not to bend it.",
+    "face": "neutral"
+   },
+   {
+    "text": "Back to the start. I checked it over.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Reset. One-handed pack swap. You're welcome.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fresh battery. Be nice to it.",
+    "face": "determined"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Weather's turning. Wet motors, here we go.",
+    "face": "worried"
+   },
+   {
+    "text": "Feel that? The air's heavier.",
+    "face": "worried"
+   },
+   {
+    "text": "New weather. Watch the battery.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Weather's changing. My stitches itch.",
+    "face": "worried"
+   },
+   {
+    "text": "Air's turning. Mind the pack.",
+    "face": "worried"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "Hovering burns battery too, you know.",
+    "face": "neutral"
+   },
+   {
+    "text": "Motors sound bored.",
+    "face": "neutral"
+   },
+   {
+    "text": "Going somewhere, or just humming?",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Nice and steady. I like steady.",
+    "face": "happy"
+   },
+   {
+    "text": "Just hovering. Fine by me.",
+    "face": "neutral"
+   }
+  ]
  }
 }

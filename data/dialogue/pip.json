@@ -75,5 +75,149 @@
   "active": [
    "We did it. I'm going to need to sit down for a week."
   ]
+ },
+ "takeoff": {
+  "active": [
+   {
+    "text": "Wheels up! Well, props up.",
+    "face": "happy"
+   },
+   {
+    "text": "Off the ground. Same as the sim.",
+    "face": "determined"
+   },
+   {
+    "text": "And we're flying. Okay. Okay!",
+    "face": "happy"
+   }
+  ]
+ },
+ "near_miss": {
+  "active": [
+   {
+    "text": "Whoa. That was close.",
+    "face": "shocked"
+   },
+   {
+    "text": "I did not mean to do that.",
+    "face": "worried"
+   },
+   {
+    "text": "Ha! Missed it. On purpose. Sort of.",
+    "face": "happy"
+   }
+  ]
+ },
+ "low_pass": {
+  "active": [
+   {
+    "text": "Skimming the deck!",
+    "face": "happy"
+   },
+   {
+    "text": "Low and fast, low and fast.",
+    "face": "determined"
+   },
+   {
+    "text": "I can see every pebble down there.",
+    "face": "shocked"
+   }
+  ]
+ },
+ "top_speed": {
+  "active": [
+   {
+    "text": "This thing really goes!",
+    "face": "happy"
+   },
+   {
+    "text": "Everything's a blur. Love it.",
+    "face": "happy"
+   },
+   {
+    "text": "Flat out. Don't blink.",
+    "face": "determined"
+   }
+  ]
+ },
+ "battery_low": {
+  "active": [
+   {
+    "text": "Battery's getting low. Wrap it up?",
+    "face": "worried"
+   },
+   {
+    "text": "Running on fumes here.",
+    "face": "worried"
+   },
+   {
+    "text": "Should've charged it more. Noted.",
+    "face": "sad"
+   }
+  ]
+ },
+ "crash": {
+  "active": [
+   {
+    "text": "Ow. Sorry, little drone.",
+    "face": "sad"
+   },
+   {
+    "text": "That was a wall. Walls are real.",
+    "face": "shocked"
+   },
+   {
+    "text": "Nope. Not like that.",
+    "face": "sad"
+   }
+  ]
+ },
+ "reset": {
+  "active": [
+   {
+    "text": "Fresh start. Nobody saw that.",
+    "face": "determined"
+   },
+   {
+    "text": "Back to the pad. Try again.",
+    "face": "neutral"
+   },
+   {
+    "text": "Reset. Breathe. Go.",
+    "face": "determined"
+   }
+  ]
+ },
+ "weather_change": {
+  "active": [
+   {
+    "text": "Uh, the weather's turning.",
+    "face": "worried"
+   },
+   {
+    "text": "Sky looks different. Heads up.",
+    "face": "worried"
+   },
+   {
+    "text": "New weather. New problems.",
+    "face": "neutral"
+   }
+  ]
+ },
+ "long_hover": {
+  "active": [
+   {
+    "text": "Just enjoying the view.",
+    "face": "happy"
+   },
+   {
+    "text": "Hovering. Thinking. Mostly hovering.",
+    "face": "neutral"
+   },
+   {
+    "text": "Where to next? Anywhere?",
+    "face": "neutral"
+   }
+  ]
  }
 }

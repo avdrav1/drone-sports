@@ -219,7 +219,8 @@ runner = NodePath("../JobRunner")
 course = NodePath("../Course")
 opponents = [NodePath("../Opponent1"), NodePath("../Opponent2"), NodePath("../Opponent3")]
 
-[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "course")]
+[node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "watcher")]
+watcher = NodePath("../FlightWatcher")
 script = ExtResource("88_bark")
 runner = NodePath("../JobRunner")
 course = NodePath("../Course")
