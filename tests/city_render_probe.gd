@@ -3,11 +3,19 @@ extends SceneTree
 # real renderer (GL Compatibility), since the headless test run draws nothing.
 # Renders one tower's wall and roof dry, wet, and snowed, and writes the mean
 # colour of each view's centre to the file named by the first user argument.
+# Story 15.5 adds a view of a tower's windows and the errors the engine logged
+# (shader compile errors among them) under "errors".
+
+var _errors: Array = []
 
 func _initialize() -> void:
 	SaveGame.path = "user://probe_save.json"
 	await process_frame
 	var out_path: String = OS.get_cmdline_user_args()[0]
+	if ClassDB.class_exists("Logger"):
+		var logger = load("res://tests/error_logger.gd").new()
+		logger.sink = _errors
+		OS.call("add_logger", logger)
 	var root := Node3D.new()
 	get_root().add_child(root)
 	root.add_child(load("res://scenes/world/golden_hour.tscn").instantiate())
@@ -25,6 +33,8 @@ func _initialize() -> void:
 		"wall": [Vector3(c.x, 2.5, lot.end.y + 4.0), Vector3(c.x, 2.5, lot.end.y), Vector3.UP],
 		# The roof, straight down from 6 m above.
 		"roof": [Vector3(c.x, h + 6.0, c.y), Vector3(c.x, h, c.y), Vector3.FORWARD],
+		# The south face's windows, from drone height 20 m out.
+		"windows": [Vector3(c.x, minf(h * 0.6, 30.0), lot.end.y + 20.0), Vector3(c.x, minf(h * 0.6, 30.0), lot.end.y), Vector3.UP],
 	}
 	var result := {}
 	for view in views:
@@ -38,6 +48,7 @@ func _initialize() -> void:
 			result["%s_%s" % [view, weather[0]]] = _centre_luma(get_root().get_texture().get_image())
 	RenderingServer.global_shader_parameter_set(&"wetness", 0.0)
 	RenderingServer.global_shader_parameter_set(&"snow_cover", 0.0)
+	result["errors"] = _errors
 	var f := FileAccess.open(out_path, FileAccess.WRITE)
 	f.store_string(JSON.stringify(result))
 	f.close()
