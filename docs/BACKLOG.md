@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -730,3 +730,73 @@ Done when the city, desert, and obstacles read as real places at drone height: r
   - Context: `Gate`, the job scenes (`inspection.tscn`, `demolition.tscn`, and the rest), and `Debris`. New meshes are visual; each keeps its existing collision shape and size, so courses and jobs play exactly as before. Debris pieces use the 15.2 materials.
   - Acceptance: Every gate and job prop keeps its collision shape and transform. Every job and race test still completes. No job scene still draws a bare `BoxMesh` for a structure.
   - Out of scope: New obstacles, changes to courses.
+
+## Epic 16: Music
+
+Done when every act has its own score, all built from one original mantra over one held drone note, and the music strips back as the assists come off: Act 1 is fully produced mantra pop, and by the Lattice it is a bare voice over the drone. Music follows the Epic 14 rules: it is generated offline and baked, never synthesized live (the web build has no threads). `tools/music/generate.py` (stdlib, fixed seeds, deterministic) writes WAV stems, and ffmpeg encodes them to Ogg Vorbis in `data/music/`, as it already low-passes the CC0 wind. The WAV intermediates are not checked in. Each score is a set of same-length stems. Plain `AudioStreamPlayer`s start them on the same frame, and the music changes only by fading stem volumes, never by live filters. `AudioStreamSynchronized` and `AudioStreamInteractive` stay out until the web build is shown to play them. The whole game uses one key, and the drone's motor hum is tuned to its tonic. Melodies are original. Lyrics are invented vowel syllables, never the text of a real mantra or prayer, and nothing quotes an existing song or franchise. Music is never needed to play and nothing is graded on it. Every file is listed in `data/audio/LICENSES.md` as generated. All of `data/music/` stays under 8 MB, checked by a test.
+
+- [ ] **16.1 Music foundation**
+  - Goal: A Music bus with its own volume slider, and a `Music` autoload that plays a `Score` resource: stems started together, each with a level it fades to.
+  - Context: Add `Music` to `default_bus_layout.tres` and `GameSettings.volumes`; the board's Sound dialog gains its slider. `Score` (`data/music/*.tres`) holds tempo, tonic, length in bars, and a list of `Stem`s (id, stream, base level in dB). `Music.play(score)` crossfades from the current score over `fade_time`. `Music.set_level(stem_id, db, time)` fades one stem. Like `Sfx`, every play and level change is logged so headless tests can assert on it. Audio starts on the first input on web, as `Sfx` does. `tools/music/generate.py` starts with one placeholder score: a single sine on the tonic.
+  - Acceptance: Playing a score starts all its stems on the same frame and logs it. Every stem in a score has the same length in samples, checked for every `Score` in `data/music/`. The Music volume saves and reloads, and mute silences it. `data/music/` is under 8 MB. Every file in it is in `LICENSES.md`.
+  - Out of scope: Any real music.
+
+- [ ] **16.2 Instruments and the tonic**
+  - Goal: A small set of generated instruments that every score is built from, all tuned to one tonic. The motor hum is retuned to it.
+  - Context: In `tools/music/`: a tanpura (Karplus-Strong pluck with a buzzing bridge), a harmonium or shruti-box reed drone, a formant voice that sings vowel syllables (ah, oo, ee, mm), a frame drum and finger cymbals, and the pop kit (kick, clap, synth bass, arpeggio, bright pad, saw lead). The tonic lives in one place, `tools/music/key.py`, and `tools/sfx/generate.py` reads it for `drone_hum`, `lattice_drone`, and `lattice_tone`. A demo score plays each instrument in turn.
+  - Acceptance: The generator writes the same files byte for byte on two runs. The demo score's manifest lists every instrument. `drone_hum`, `lattice_drone`, and `lattice_tone` record the tonic (or its fifth) as their base pitch, and the manifest's tonic matches every `Score.tonic`.
+  - Out of scope: Arrangements for an act.
+
+- [ ] **16.3 The mantra**
+  - Goal: One original chant hook, 8 bars of syllables and pitches, that every act's score arranges.
+  - Context: The hook is data (`tools/music/mantra.json`: syllable, scale degree, length per note), in a call half and an answer half so Act 5 can split it. The generator renders it for any instrument: sung by the formant voice, played by the saw lead, plucked by the tanpura.
+  - Acceptance: The mantra uses only invented syllables from the generator's vowel set. Every act score built later names a mantra stem. The hook is exactly 8 bars at every act's tempo.
+  - Out of scope: Words, more than one hook.
+
+- [ ] **16.4 Act 1: the home game**
+  - Goal: Fully produced mantra pop for the home game: four-on-the-floor kick, synth bass, arpeggio, bright pad, the hook on the saw lead, the tanpura drone underneath.
+  - Context: `data/music/act_1.tres`. A `MusicDirector` picks the score from `Career.act()` and sets stem levels from `JobRunner` state: board and briefing play the drone and pad, countdown adds the arpeggio, flying brings in everything, and the results screen drops to the pad again. The intro (11.1) plays this score too.
+  - Acceptance: With Act 1 the director plays `act_1`. Each runner state sets the stem levels listed for it. The intro starts the act 1 score.
+  - Out of scope: Other acts.
+
+- [ ] **16.5 Act 2: the tryout**
+  - Goal: The same hook moves from synths to real instruments: the tanpura and harmonium take over from the pad and arpeggio, a frame drum replaces the clap, and the kick gets lighter.
+  - Context: `data/music/act_2.tres`, using the same state levels as 16.4. The recruitment scene (11.2) crossfades from act 1 to act 2 at the bezel drop.
+  - Acceptance: With Act 2 the director plays `act_2`, which has no synth stems. The recruitment scene's bezel beat starts the crossfade.
+  - Out of scope: Acts 3 to 5.
+
+- [ ] **16.6 Acts 3 and 4: hand and voice**
+  - Goal: Act 3 drops the kick and bass for hand percussion and the sung hook. Act 4 is the same group played faster and rougher, for the act where the governor comes off.
+  - Context: `data/music/act_3.tres` and `act_4.tres`; act 4's tempo is higher. Same state levels as 16.4.
+  - Acceptance: Each act plays its own score. Neither has synth or kick stems. Act 4's tempo is higher than act 3's.
+  - Out of scope: Fleet music.
+
+- [ ] **16.7 Act 5: call and response**
+  - Goal: Fleet music in kirtan form: one lead voice sings the call half of the mantra, and a choir sings the answer. The choir grows with the fleet.
+  - Context: `data/music/act_5.tres` has answer stems baked at three choir sizes (3, 10, and 50 voices: stacked, detuned formant voices). The director crossfades between them by the number of drones under command in `CommandView`. When you drop into one drone to fly it by hand, the lead voice comes forward.
+  - Acceptance: With 3, 10, and 50 drones, the matching choir stem is the loudest. Dropping into a drone raises the lead stem. Act 5 plays `act_5`.
+  - Out of scope: The Lattice.
+
+- [ ] **16.8 Tension and weather**
+  - Goal: Music that gets out of the way when it should. During a hazard warning or a collapse, every stem falls away except the drone and a pulse, and the full hook returns when it clears. Snow muffles the music the way it muffles the ambience.
+  - Context: `HazardZone` warnings and the `HazardScene` collapse set the tension levels. Each score's stems get baked low-passed copies (like `SoundEvent.muffled`) that crossfade in with `WeatherSound.hush`. The muffled copies count against the 8 MB budget.
+  - Acceptance: A warning drops every stem except `drone` and `pulse`, and clearing restores them. Full hush plays only the muffled copies. The budget test still passes.
+  - Out of scope: Music changing with rain or wind.
+
+- [ ] **16.9 Gates in key**
+  - Goal: Race gate sounds play the mantra. Each gate passed sounds the next note of the hook in the act's key, so a clean run plays the melody.
+  - Context: `job_gate` (14.4) gains a pitch per gate index taken from `mantra.json`'s scale degrees, through `Sfx.play`'s `pitch`. The countdown beeps sit on the tonic and the fifth.
+  - Acceptance: Gate n plays at the pitch of mantra note n (mod length). Countdown pitches are the tonic and fifth.
+  - Out of scope: Pitching other cues.
+
+- [ ] **16.10 Crew motifs**
+  - Goal: Each crew member has a voice in the score. If they die, it is gone from the music for good.
+  - Context: `Character.motif` (data) names a stem id, such as Bea's harmonium line or Dot's frame drum fill. Act scores include those stems, and the director plays a motif only while `Roster.status` is active; injured plays it quieter. Rule 7 holds: nothing brings a dead character's motif back.
+  - Acceptance: Every motif named in `data/characters/` exists in the act scores that use it. A dead character's motif stays silent in every later score and after a save and reload. An injured character's motif plays below its base level.
+  - Out of scope: Motifs for pilots who are not crew.
+
+- [ ] **16.11 The Lattice**
+  - Goal: The Lattice sings: a dense choir of the mantra from thousands of captured machines. Each reclaimed unit thins it, at the override port only one voice is left, and when it switches off the music stops.
+  - Context: `data/music/lattice.tres` has choir stems at four densities over the tonic drone, in tune with `lattice_drone`. The director fades the densities by the fraction of units reclaimed (`LatticeFight.unit_reclaimed`), holds a single voice during `OverrideHold`, and on `boss_disabled` fades to silence. No explosion stinger, no victory fanfare. When `data/boss/lattice.tres` has `enabled` false, the score is never loaded.
+  - Acceptance: Density levels follow the reclaimed fraction. During the override hold only `voice` and `drone` play. After `boss_disabled` no music stem plays. With the boss disabled, the score is never loaded.
+  - Out of scope: An ending credits theme.
