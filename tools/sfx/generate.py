@@ -253,6 +253,29 @@ def hazard_strike():
     return out
 
 
+def ui_click():
+    """A short dry tick: a button pressed."""
+    rng = random.Random(1450)
+    n = int(RATE * 0.05)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        tone = math.sin(2 * math.pi * 1800 * t) * math.exp(-t * 160)
+        tick = rng.uniform(-1, 1) * math.exp(-t * 400)
+        out.append(tone * 0.6 + tick * 0.3)
+    return out
+
+
+def ui_focus():
+    """A faint high blip: focus moved to another button."""
+    return [s * 0.5 for s in tone_seq([(2640, 0.04)], decay=90.0)]
+
+
+def ui_confirm():
+    """Two quick rising notes: a dialog accepted."""
+    return tone_seq([(880, 0.06), (1320, 0.16)], decay=22.0)
+
+
 def main():
     write("drone_hum.wav", drone_hum(), loop=True)
     write("drone_wash.wav", drone_wash(), loop=True)
@@ -265,7 +288,7 @@ def main():
     write("camera_view.wav", camera_view())
     for name in ("job_briefing", "job_countdown", "job_go", "job_gate", "job_hold_tick",
                  "job_hold_done", "job_complete", "job_fail", "job_payout",
-                 "hazard_warning", "hazard_strike"):
+                 "hazard_warning", "hazard_strike", "ui_click", "ui_focus", "ui_confirm"):
         write(name + ".wav", globals()[name]())
 
 

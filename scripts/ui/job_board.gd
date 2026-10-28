@@ -55,6 +55,7 @@ func _ready() -> void:
 	add_child(pilot_select)
 	if not PlayerProfile.has_pilot():
 		pilot_select.open()
+	UiSounds.wire(self)
 	Career.check_offers()
 	offer_dialog.show_next()
 

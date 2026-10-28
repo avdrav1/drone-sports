@@ -30,3 +30,6 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/job_payout.wav` | `tools/sfx/generate.py` | generated |
 | `generated/hazard_warning.wav` | `tools/sfx/generate.py` | generated |
 | `generated/hazard_strike.wav` | `tools/sfx/generate.py` | generated |
+| `generated/ui_click.wav` | `tools/sfx/generate.py` | generated |
+| `generated/ui_focus.wav` | `tools/sfx/generate.py` | generated |
+| `generated/ui_confirm.wav` | `tools/sfx/generate.py` | generated |

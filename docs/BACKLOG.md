@@ -639,11 +639,12 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Out of scope: Commentary.
   - Note: `JobRunner` adds a `JobCues` (`scripts/audio/job_cues.gd`) as an internal child, so every job gets its sounds without scene edits and `objectives()` never sees it: a `job_*` cue per state entered, a `job_countdown` beep per whole countdown second, `job_gate` for each `Course.gate_passed` by `runner.drone` or the rig's target (not AI racers), `job_hold_tick` per quarter of each `HoldStation` and `job_hold_done`, and `hazard_warning` / `hazard_strike` from every `HazardZone`. The results screen plays `job_payout` when pay is above zero. `hazard_strike` is on the World bus; every other job cue, `hazard_warning` included, is on the UI bus.
 
-- [ ] **14.5 Interface**
+- [x] **14.5 Interface**
   - Goal: The board, shop, pilot select, offers, and dialogs click, focus, and confirm.
   - Context: A small helper that wires any `Button` to UI sounds, so new screens get them too.
   - Acceptance: Every button on the board and its dialogs plays a click when pressed.
   - Out of scope: Menu music.
+  - Note: `UiSounds.wire(root)` (`scripts/audio/ui_sounds.gd`) adds an internal node that wires every `BaseButton` under `root`, now and as nodes enter later (rebuilt rows, dialogs' internal OK/Cancel): `ui_click` on press, `ui_focus` on keyboard or pad focus (not while the mouse is down), and `ui_confirm` on each `AcceptDialog.confirmed`; a meta flag keeps nested wiring from doubling. `JobBoard` and `JobRunner` (its launch and leave dialogs and the results screen) call it; any new screen just calls it too. All three cues are on the UI bus.
 
 - [ ] **14.6 The world**
   - Goal: Places sound like places: city hum, desert wind, the demolition's debris, the job board's room tone.
