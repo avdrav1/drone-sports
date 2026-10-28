@@ -870,7 +870,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: A warning raised while a chatter line is showing replaces it at once. Two chatter lines raised together play one after the other, never at the same time. A chatter line queued for over 4 s is dropped. No two chatter lines start within the configured gap. The panel does not overlap the radar, objectives, or race HUD at 960×720 or 1920×1080. Every existing bark test passes.
   - Out of scope: Voice audio, player replies.
 
-- [ ] **17.8 Flight events**
+- [x] **17.8 Flight events**
   - Goal: A `FlightWatcher` node turns what the drone is doing into crew events: takeoff, near miss, low pass, top speed, battery low, crash, reset, weather change, and long hover.
   - Context: It reads the drone, the ground height, and the weather, and never writes to them (rules 1 and 2). Thresholds live in a resource (`data/radio/flight_events.tres`), for example near miss as passing within 2 m of static geometry above 8 m/s without contact, low pass as under 3 m above ground above 10 m/s, battery low at 25 percent, and long hover as 20 s still. Each event has its own cooldown so a long low pass is one event, not one per frame. Jobs and the sandbox both place one. Nothing is graded on these events.
   - Acceptance: Each event fires from a scripted drone state that meets its threshold and does not fire from one just short of it. Each respects its cooldown. Battery low fires once per charge. Crash fires on contact above the crash speed, not on a gentle landing. The watcher changes no drone, intent, or assist value (checked before and after a run).

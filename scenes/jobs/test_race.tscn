@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
@@ -29,6 +29,7 @@
 [ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="89_barkbox"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="97_hint"]
+[ext_resource type="Script" path="res://scripts/radio/flight_watcher.gd" id="flight_watcher"]
 
 [node name="TestRace" type="Node3D"]
 
@@ -269,3 +270,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("9_theme")
 script = ExtResource("96_help")
+
+[node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("flight_watcher")
+runner = NodePath("../JobRunner")

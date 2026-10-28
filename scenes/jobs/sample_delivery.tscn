@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="2_input"]
@@ -27,6 +27,7 @@
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="97_hint"]
 [ext_resource type="Script" path="res://scripts/world/structure.gd" id="structure"]
+[ext_resource type="Script" path="res://scripts/radio/flight_watcher.gd" id="flight_watcher"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
 size = Vector3(16, 8, 2)
@@ -305,3 +306,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("9_theme")
 script = ExtResource("96_help")
+
+[node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("flight_watcher")
+runner = NodePath("../JobRunner")

@@ -29,6 +29,7 @@
 [ext_resource type="Script" path="res://scripts/boss/chorus.gd" id="27_chorus"]
 [ext_resource type="Script" path="res://scripts/ui/chorus_box.gd" id="28_chorusbox"]
 [ext_resource type="Script" path="res://scripts/audio/lattice_sound.gd" id="29_lattice_sound"]
+[ext_resource type="Script" path="res://scripts/radio/flight_watcher.gd" id="flight_watcher"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -231,3 +232,7 @@ anchor_bottom = 0.5
 mouse_filter = 2
 theme = ExtResource("19_theme")
 script = ExtResource("20_help")
+
+[node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("runner")]
+script = ExtResource("flight_watcher")
+runner = NodePath("../JobRunner")

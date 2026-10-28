@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="FlightEvents" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/radio/flight_events.gd" id="1_events"]
+
+[resource]
+script = ExtResource("1_events")
+grounded_height = 0.3
+takeoff_height = 1.5
+near_miss_distance = 2.0
+near_miss_speed = 8.0
+low_pass_height = 3.0
+low_pass_speed = 10.0
+top_speed = 25.0
+battery_low = 0.25
+crash_speed = 4.0
+hover_time = 20.0
+hover_speed = 0.5
+cooldowns = {
+"crash": 8.0,
+"long_hover": 60.0,
+"low_pass": 20.0,
+"near_miss": 12.0,
+"reset": 8.0,
+"takeoff": 30.0,
+"top_speed": 30.0,
+"weather_change": 10.0
+}
+default_cooldown = 15.0

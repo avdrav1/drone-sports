@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=30 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
@@ -31,6 +31,7 @@
 [ext_resource type="Resource" path="res://data/weather/light_rain.tres" id="100_light_rain"]
 [ext_resource type="Resource" path="res://data/weather/storm.tres" id="101_storm"]
 [ext_resource type="Resource" path="res://data/weather/blizzard.tres" id="102_blizzard"]
+[ext_resource type="Script" path="res://scripts/radio/flight_watcher.gd" id="flight_watcher"]
 
 [node name="DebugFlight" type="Node3D"]
 script = ExtResource("1_root")
@@ -154,3 +155,7 @@ script = ExtResource("84_map")
 gps = NodePath("../../Gps")
 terrain = NodePath("../../Ground")
 city = NodePath("../../City")
+
+[node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("drone")]
+script = ExtResource("flight_watcher")
+drone = NodePath("../Drone")

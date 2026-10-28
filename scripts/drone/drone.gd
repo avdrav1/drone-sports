@@ -48,6 +48,8 @@ const MIN_COLD_CAPACITY := 0.4
 
 ## Crash recovery put the drone back upright (see CrashRecovery).
 signal recovered
+## reset() put the drone back at a spawn (Story 17.8: the crew hear about it).
+signal was_reset
 
 ## Where intent comes from. Null means motor thrusts are set directly.
 @export var intent_source: IntentSource
@@ -106,6 +108,7 @@ func reset(xform: Transform3D) -> void:
 		assists.reset()
 	if intent_source:
 		intent_source.reset()
+	was_reset.emit()
 
 ## Puts the drone at `xform`, at rest, after a crash it could not fly out of.
 ## Unlike reset, the battery is untouched. Assists and the intent source forget
