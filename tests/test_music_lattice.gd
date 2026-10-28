@@ -182,3 +182,20 @@ func test_disabled_boss_never_loads_the_score() -> bool:
 	BossGate.loads.clear()
 	_stop()
 	return ok
+
+## CLAUDE.md rule 9: with the boss off nothing about it loads, so booting the
+## game (autoloads, MusicDirector among them) must not compile the fight script
+## or load the data it preloads. Checked in a fresh process, since this run has
+## loaded both already.
+func test_boot_loads_nothing_of_the_boss() -> bool:
+	var paths := ["res://scripts/boss/lattice_fight.gd", "res://data/wind/lattice_gusts.tres", LATTICE]
+	var out := []
+	var args := ["--headless", "--path", ProjectSettings.globalize_path("res://"), "-s", "res://tests/boot_probe.gd", "--"]
+	var code := OS.execute(OS.get_executable_path(), args + paths, out, true)
+	var text := "\n".join(out)
+	var ok := code == 0 and text.contains("director true")
+	for p in paths:
+		ok = ok and text.contains("cached %s false" % p)
+	if not ok:
+		print(text)
+	return ok

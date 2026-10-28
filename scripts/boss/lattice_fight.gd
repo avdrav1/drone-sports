@@ -139,6 +139,10 @@ func _on_runner_state(state: JobRunner.State, _previous: JobRunner.State) -> voi
 			runner.drone.freeze = true
 			_start(Phase.RECLAIM)
 
+## At the override port (MusicDirector asks, so it never names this class).
+func holding() -> bool:
+	return phase == Phase.OVERRIDE
+
 func _start(p: Phase) -> void:
 	phase = p
 	phase_started.emit(p)

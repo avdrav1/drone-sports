@@ -18,7 +18,7 @@ extends Node
 # Crew motifs (Story 16.10): a stem named by a character's `motif` sounds only
 # while Roster has them active, INJURED_DB lower while injured, and is silent
 # for good once they are dead (CLAUDE.md rule 7: nothing brings it back).
-# The Lattice (Story 16.11): a LatticeFight hands itself to lattice(), and its
+# The Lattice (Story 16.11): the boss's fight hands itself to lattice(), and its
 # runner plays data/music/lattice.tres instead of an act score. Of its choir
 # densities the ones nearest the fraction of gap units reclaimed sound (dense
 # at none, sparse at all), during the override only the lone voice and the
@@ -66,7 +66,10 @@ var mix: StringName = &""
 ## The fleet layer in use, or null.
 var fleet: CommandView
 ## The Lattice fight in play, or null; and whether it has disabled the boss.
-var boss_fight: LatticeFight
+## Untyped on purpose: naming LatticeFight here would compile the boss's fight
+## script (and the data it preloads) into this autoload at every launch, even
+## with the boss disabled (CLAUDE.md rule 9).
+var boss_fight: Node
 var boss_off := false
 var _tension := {}  # instance id of each source holding tension -> true
 
@@ -169,7 +172,7 @@ static func lattice_score() -> Score:
 
 ## Follows `fight`, the Lattice: reclaimed units, the override and the boss
 ## going off change the mix.
-func lattice(fight: LatticeFight) -> void:
+func lattice(fight: Node) -> void:
 	boss_fight = fight
 	boss_off = false
 	if not fight.unit_reclaimed.is_connected(_on_reclaimed):
@@ -197,7 +200,7 @@ func reclaimed_fraction() -> float:
 
 ## The fight is at the override port.
 func holding() -> bool:
-	return is_instance_valid(boss_fight) and boss_fight.phase == LatticeFight.Phase.OVERRIDE
+	return is_instance_valid(boss_fight) and boss_fight.holding()
 
 ## `levels` for the Lattice's score: the DENSITIES crossfaded (equal power) by
 ## `fraction` reclaimed, densest at 0 and sparsest at 1; only HOLD while
@@ -260,5 +263,5 @@ func watch(runner: JobRunner) -> void:
 func _on_state(s: JobRunner.State, _previous: JobRunner.State, runner: JobRunner) -> void:
 	if not runner.pays_out:
 		return
-	var fights := is_instance_valid(boss_fight) and boss_fight.runner == runner
+	var fights: bool = is_instance_valid(boss_fight) and boss_fight.runner == runner
 	play_score(lattice_score() if fights else score_for(act_for(runner.job)), STATE_MIX[s])
