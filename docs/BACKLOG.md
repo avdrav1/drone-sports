@@ -514,11 +514,12 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
   - Out of scope: Traffic, signals, crosswalk props, night lights.
   - Note: `Streets` is its own scene (`scenes/world/streets.tscn`), separate from `City` so the City's four-multimesh check stays about towers; 12.5 instances both. Plan streets are now clipped to the core circle, and the plan lists `blocks`. Sidewalks and lights go only on blocks wholly inside the core, so edge lots stand on sand.
 
-- [ ] **12.4 Rooftops**
+- [x] **12.4 Rooftops**
   - Goal: Rooftop clutter (AC units, water tanks, antennas) and a few rooftop landing pads, all seeded.
   - Context: Clutter is drawn through `MultiMeshInstance3D`. Anything taller than 1 m gets a collision box; antennas count. Pads go on the flattest tall roofs, carry a `MapMarker` (kind `pad`), and are the first reason to land somewhere other than the plaza.
   - Acceptance: Every clutter piece sits on its roof (base at the lot's height, inside its footprint, clear of pads). Every piece taller than 1 m has collision. The sandbox has at least three pads, each with a visible map marker. Same layout, same rooftops.
   - Out of scope: Pad-landing objectives, rings, rooftop crew.
+  - Note: `Rooftops` is its own scene (`scenes/world/rooftops.tscn`), like `Streets`. Pads go on the broadest roofs at least 40% up the height range; four in the sandbox.
 
 - [ ] **12.5 Sandbox in the city**
   - Goal: The sandbox flies in the city: the four boxes are gone, the drone spawns on the plaza, the jammer stands in its clearing, and the radar and map draw building footprints.

@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/rooftops.gd" id="1_roofs"]
+[ext_resource type="Resource" path="res://data/city/sandbox_city.tres" id="2_layout"]
+
+[sub_resource type="StandardMaterial3D" id="clutter"]
+albedo_color = Color(0.62, 0.6, 0.58, 1)
+metallic = 0.3
+roughness = 0.6
+
+[sub_resource type="StandardMaterial3D" id="pad"]
+albedo_color = Color(0.2, 0.55, 0.65, 1)
+emission_enabled = true
+emission = Color(0.1, 0.35, 0.45, 1)
+roughness = 0.8
+
+[node name="Rooftops" type="StaticBody3D"]
+script = ExtResource("1_roofs")
+layout = ExtResource("2_layout")
+material = SubResource("clutter")
+pad_material = SubResource("pad")
