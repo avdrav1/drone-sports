@@ -4,7 +4,7 @@ extends AcceptDialog
 # apply at once and are saved with the settings.
 
 const LABELS := {&"Master": "All sound", &"Flight": "Drones", &"World": "World", &"Weather": "Weather",
-	&"UI": "Interface", &"Voice": "Crew"}
+	&"UI": "Interface", &"Voice": "Crew", &"Music": "Music"}
 
 ## Bus -> its slider.
 var sliders := {}

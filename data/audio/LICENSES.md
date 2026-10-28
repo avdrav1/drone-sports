@@ -1,8 +1,8 @@
 # Audio sources and licences
 
-Every audio file under `data/audio/` is listed here. Two sources only:
+Every audio file under `data/audio/` and `data/music/` is listed here (music by its path from `data/audio/`). Two sources only:
 
-- **generated**: made by `tools/sfx/` from a checked-in script; ours, no licence needed.
+- **generated**: made by `tools/sfx/` or `tools/music/` from a checked-in script; ours, no licence needed.
 - **CC0**: public-domain recordings; the source URL is recorded so it can be checked.
 
 `tests/test_sfx.gd` fails if a file is missing from this table or its licence is anything else.
@@ -54,3 +54,4 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `cc0/thunder_1.ogg` | "100 CC0 SFX #2" by rubberduck, `sfx100v2_thunder_01.ogg` from 0.5 s: https://opengameart.org/content/100-cc0-sfx-2 | CC0 |
 | `cc0/thunder_2.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 20.8 to 31.8 s: https://opengameart.org/content/rain-long-thunder | CC0 |
 | `cc0/thunder_3.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 27.5 to 35.5 s, low-passed (900 Hz) for a distant roll: https://opengameart.org/content/rain-long-thunder | CC0 |
+| `../music/placeholder_tonic.ogg` | `tools/music/generate.py` | generated |

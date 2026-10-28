@@ -6,7 +6,7 @@ extends Node
 # to play: every cue that matters has a visual too.
 
 const BANK := "res://data/audio/bank.tres"
-const BUSES: Array[StringName] = [&"Master", &"Flight", &"World", &"Weather", &"UI", &"Voice"]
+const BUSES: Array[StringName] = [&"Master", &"Flight", &"World", &"Weather", &"UI", &"Voice", &"Music"]
 ## Players kept for flat sounds; the oldest is reused when all are busy.
 const POOL := 12
 ## Log entries kept.
