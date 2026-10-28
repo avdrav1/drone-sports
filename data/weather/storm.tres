@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Weather" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather.gd" id="1_weather"]
+[ext_resource type="Script" path="res://scripts/drone/wind.gd" id="2_wind"]
+
+[sub_resource type="Resource" id="wind"]
+script = ExtResource("2_wind")
+base = Vector3(5, 0, 2)
+gust_amplitude = 3.5
+gust_period = 4.0
+turbulence = 1.5
+shear = 0.2
+seed = 23
+
+[resource]
+script = ExtResource("1_weather")
+label = "Storm"
+fog_density = 0.012
+wind = SubResource("wind")
+fog_color = Color(0.32, 0.34, 0.38, 1)
+sky_affect = 0.75
+precipitation = 1
+intensity = 0.85
+temperature = 14.0
+lightning_per_minute = 4.0
+strike_distance = Vector2(500, 2000)
+storm_seed = 7

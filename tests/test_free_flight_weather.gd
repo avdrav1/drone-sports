@@ -1,5 +1,5 @@
 extends RefCounted
-# Story 4.6: weather in free flight. E cycles clear, fog bank, whiteout, clear;
+# Story 4.6: weather in free flight. E cycles clear, fog bank, whiteout, ..., clear;
 # the HUD names it; clear brings back the scene's own sky and breeze.
 
 const Sim = preload("res://tests/sim.gd")
@@ -31,7 +31,9 @@ func test_e_cycles_weather_and_back_to_clear() -> bool:
 	_press(s)
 	var whited: bool = is_equal_approx(env_node.environment.fog_density, white.fog_density) and d.wind == white.wind \
 		and hud.subtitle.contains("Whiteout")
-	_press(s)
+	# The rest of the presets (Story 13.7), then clear.
+	while s.weather_index != -1:
+		_press(s)
 	var cleared: bool = env_node.environment == ENV and d.wind == breeze and not hud.subtitle.contains("Whiteout")
 	var ok: bool = clear_start and fogged and whited and cleared and ENV.fog_density == base and ENV.fog_light_color != fog.fog_color \
 		and ControlsHelp.key_text(&"cycle_weather") == "E"

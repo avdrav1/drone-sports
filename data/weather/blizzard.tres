@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Weather" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather.gd" id="1_weather"]
+[ext_resource type="Script" path="res://scripts/drone/wind.gd" id="2_wind"]
+
+[sub_resource type="Resource" id="wind"]
+script = ExtResource("2_wind")
+base = Vector3(6, 0, -3)
+gust_amplitude = 4.0
+gust_period = 3.5
+turbulence = 2.0
+shear = 0.2
+seed = 31
+
+[resource]
+script = ExtResource("1_weather")
+label = "Blizzard"
+fog_density = 0.035
+wind = SubResource("wind")
+fog_color = Color(0.85, 0.88, 0.92, 1)
+sky_affect = 0.9
+precipitation = 2
+intensity = 0.9
+temperature = -8.0

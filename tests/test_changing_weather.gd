@@ -158,8 +158,8 @@ func test_e_in_free_flight_blends_over_three_seconds() -> bool:
 	var reached: bool = not state.blending and state.weather == fog and d.wind == fog.wind \
 		and is_equal_approx(env_node.environment.fog_density, fog.fog_density)
 	# Back to clear the same way: the scene's own sky and breeze once it lands.
-	s.cycle_weather()
-	s.cycle_weather()
+	while s.weather_index != -1:
+		s.cycle_weather()
 	state.advance(s.weather_blend_time)
 	var cleared: bool = state.weather == null and env_node.environment == ENV and d.wind == breeze
 	var ok: bool = started and halfway and not_yet and reached and cleared

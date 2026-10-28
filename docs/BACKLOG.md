@@ -593,11 +593,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Forecasts, weather on the map.
   - Note: `Weather.blend(a, b, t, clear_env, into)` lerps every number, colour, and wind field (null is `Weather.new()`; rain/snow swap at t 0.5 through zero intensity; "keep the scene's" fog colour and sky cover resolve against the clear Environment), and `WeatherState.blend_to(to, seconds, drone, scope)` applies each step with `Weather.apply` (which now reuses the scene's Environment copy), lands on `to` itself, and emits `blended`; `advance(delta)` steps it in tests. `Job.weather_changes` is an `Array[WeatherChange]` (`at` s of live time, `weather`, `blend_time`) that `JobRunner` starts on schedule; free flight's E blends over `weather_blend_time` 3 s. Rain and snow only change particle amount on steps over 1/16 of `max_amount` (each change restarts the emitter); a storm blending in from 0 rolls its first strike at the low early rate, so 13.7 sequences may want to start lightning at a nonzero rate.
 
-- [ ] **13.7 Presets and placement**
+- [x] **13.7 Presets and placement**
   - Goal: A useful set of presets and weather on more jobs: light rain, storm, blizzard, fog bank, clear, and the rescue's whiteout.
   - Context: Data in `data/weather/`. Free flight's E cycles them all. Jobs pick weather that suits them (demolition in light rain, the relay in a storm). Weather never makes a job impossible at its act's preset.
   - Acceptance: Every preset loads and validates. Each job's weather is set in its `.tres`. Every job with weather still completes in its existing test.
   - Out of scope: Random weather.
+  - Note: `data/weather/` holds `clear`, `light_rain` (rain 0.35, 12 °C), `storm` (rain 0.85, lightning 4/min, seed 7), `blizzard` (snow 0.9, −8 °C), `fog_bank`, and `whiteout` (unchanged), all passing `Weather.validate()`. Free flight's E cycles fog bank, whiteout, light rain, storm, blizzard, then clear (its own sky and breeze at index −1, so `clear.tres` is for jobs and sequences, not the cycle); tests that want clear loop `cycle_weather` until `weather_index` is −1. Demolition (Act 3, shielded) flies in light rain, the Team relay (`fleet_race`, Act 5) in the storm, and the rescue keeps the whiteout; `Weather.apply` only reaches the player's drone, so the relay's fleet drones do not feel the storm.
 
 - [x] **13.8 Weather in the flight model**
   - Goal: Weather the drone feels beyond wind: rain adds drag and load, cold shortens the battery, and wet snow below freezing ices the props, costing thrust until it clears.

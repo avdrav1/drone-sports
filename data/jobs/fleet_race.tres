@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
 [ext_resource type="Resource" path="res://data/assists/act5.tres" id="2_act5"]
+[ext_resource type="Resource" path="res://data/weather/storm.tres" id="3_weather"]
 
 [resource]
 script = ExtResource("1_job")
@@ -15,6 +16,7 @@ required_assists = ExtResource("2_act5")
 time_limit = 300.0
 pay = 1600
 countdown = 3.0
+weather = ExtResource("3_weather")
 default_view = 3
 weights = {
 "Legs": 2.0,
