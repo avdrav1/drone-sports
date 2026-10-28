@@ -546,3 +546,107 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
   - Acceptance: The sandbox has no `Boxes` node and contains a `City`. Under the Act 1 preset the drone hovers at spawn for 5 s with no contact. The jammer test passes unchanged. The radar shows the rooftop pads, and the map image is darker under building footprints than over open street. Every existing sandbox test passes. The job hotkeys still launch every job.
   - Out of scope: Moving jobs into the city, the hub, landmarks.
   - Note: The sandbox instances `City`, `Streets`, and `Rooftops` side by side. Radar and Map take an optional `city` and bake its footprints through `TerrainImage.bake(..., footprints)`. The map's landmarks are Plaza and Downtown (the tallest tower). The full sandbox runs at 1.65 ms a frame under GL Compatibility at 1280×720 on the dev desktop; the hand flight on the web build for 12.2 is still open.
+
+## Epic 13: Weather
+
+Done when weather is layered and changing: rain, snow, fog, real wind, and lightning, each from data, blending between presets, and felt in flight as well as seen. Weather reaches the drone only through the environment sim, the same gate as wind and battery today: with the battery and wind assist on (Acts 1 to 3) the drone is shielded, so progression still removes protection rather than changing physics. Lightning is atmosphere only; it never damages a drone or strikes crew. Rendering stays inside what GL Compatibility does: CPU particles that follow the camera, and shader uniforms. Order with Epic 14: 14.1, then 13.1 to 13.4 and 13.8, then 14.2 to 14.6, then 13.5 to 13.7, then 14.7 and 14.8.
+
+- [ ] **13.1 Weather as layers**
+  - Goal: `Weather` grows from fog and wind into layers: precipitation (none, rain, snow; intensity 0 to 1), temperature (°C), wind (base, gusts, turbulence, shear with height), fog (density, colour, sky cover), and storm (lightning per minute, strike distance range).
+  - Context: Extends `scripts/world/weather.gd` and `Weather.apply` from 4.6. Existing presets (`fog_bank`, `whiteout`) and the rescue job keep their look and feel; new fields default to off. A `WeatherState` node in a scene holds the weather in effect, so later stories read one place.
+  - Acceptance: Every new field loads from a `.tres`. The old presets apply exactly as before (fog values and wind unchanged). A scene's `WeatherState` reports the active weather after `Weather.apply`.
+  - Out of scope: Particles, sound, physics effects.
+
+- [ ] **13.2 Rain**
+  - Goal: Rain that reads as rain: streaks around the camera at a density set by intensity, the ground, streets, and roofs going dark and glossy as it falls, and drops on the lens in FPV.
+  - Context: A `CPUParticles3D` box parented to the active camera, so it costs the same anywhere. Wetness is a global shader uniform that the terrain, city, and street shaders read and that ramps up while it rains and dries after. The lens drops are a screen overlay in FPV only.
+  - Acceptance: Particle amount scales with intensity and is zero with no rain. Wetness rises over about 10 s of rain and falls back to 0 after it stops. The shared golden-hour Environment and the shader resources are not modified on disk.
+  - Out of scope: Puddles, splashes, rain sound.
+
+- [ ] **13.3 Snow**
+  - Goal: Snow that drifts with the wind and builds up white on the ground and roofs, then melts away when it stops.
+  - Context: Same camera-following particles as rain, slower and carried by the scene's wind sample. Cover is a global shader uniform like wetness, read on upward-facing surfaces.
+  - Acceptance: Flakes move with the wind's direction. Cover rises while it snows and returns to 0 after. Snow and rain together are rejected by validation.
+  - Out of scope: Snow on the drone, footprints, snow sound.
+
+- [ ] **13.4 Real wind**
+  - Goal: Wind that varies the way air does: turbulence on top of gusts, stronger with height, and calmer in the lee of buildings.
+  - Context: All of it in `Wind.sample`, which the flight model already reads (rule 1 unchanged). Shear is a power law with height. Shelter uses the city's plan: a point downwind of a lot and below its height gets a reduced wind. Seeded turbulence.
+  - Acceptance: With shear set, measured wind at 40 m exceeds wind at 5 m. A point in the lee of a tower gets less wind than one upwind of it at the same height. The same seed gives the same turbulence.
+  - Out of scope: Updrafts, wind visualisation.
+
+- [ ] **13.5 Lightning**
+  - Goal: Lightning in storms: a flash that lights the sky and the scene for a moment, and a bolt in the distance, at a seeded rate.
+  - Context: Each strike is an event with a position and time (14.7 uses it for thunder). The flash briefly raises the sky and ambient light; the bolt is a short-lived line mesh. Atmosphere only: nothing is hit or harmed.
+  - Acceptance: Strike times and positions repeat with the seed. A strike raises ambient light then returns it within 0.5 s. No strike lands inside the strike distance's minimum.
+  - Out of scope: Damage, strikes on drones or crew.
+
+- [ ] **13.6 Changing weather**
+  - Goal: Weather that changes: a scene can blend from one preset to another over a set time, and a job can name a sequence (clear, then fog rolling in).
+  - Context: `WeatherState` blends every numeric field linearly and swaps precipitation type at the midpoint (intensity crosses zero there). Free flight's E blends over 3 s instead of snapping.
+  - Acceptance: Halfway through a blend every numeric field is halfway between the two presets. A job's sequence runs on its schedule. E in free flight reaches the next preset after the blend time.
+  - Out of scope: Forecasts, weather on the map.
+
+- [ ] **13.7 Presets and placement**
+  - Goal: A useful set of presets and weather on more jobs: light rain, storm, blizzard, fog bank, clear, and the rescue's whiteout.
+  - Context: Data in `data/weather/`. Free flight's E cycles them all. Jobs pick weather that suits them (demolition in light rain, the relay in a storm). Weather never makes a job impossible at its act's preset.
+  - Acceptance: Every preset loads and validates. Each job's weather is set in its `.tres`. Every job with weather still completes in its existing test.
+  - Out of scope: Random weather.
+
+- [ ] **13.8 Weather in the flight model**
+  - Goal: Weather the drone feels beyond wind: rain adds drag and load, cold shortens the battery, and wet snow below freezing ices the props, costing thrust until it clears.
+  - Context: New environment inputs to the one flight model in `drone.gd`, active only when `intent.environment_sim` is on, exactly like wind and battery today; the battery and wind assist shields them through Act 3. Rain: extra drag scaled by intensity. Cold: battery capacity falls below 10 °C. Icing: accumulates in snow below 0 °C, reduces max thrust up to a cap, and sheds when out of snow or warmer. The HUD shows an ICING chip.
+  - Acceptance: With the sim on, heavy rain lowers top speed measurably; −10 °C drains the battery faster than 20 °C; icing builds in snow, lowers climb rate, and sheds after. With the battery and wind assist on, none of these change anything.
+  - Out of scope: Water damage, crashes from weather alone.
+
+## Epic 14: Sound
+
+Done when everything that happens has a sound. Sounds are files, not live synthesis: the web build has no threads, so it plays samples only and live bus effects are out; anything filtered (snow's muffled mix) is baked. Two sources: `tools/sfx/` generates most effects from a checked-in script (deterministic, no licence), and CC0 recordings cover what synthesis does badly (rain, thunder, wind, rain on a roof). `data/audio/LICENSES.md` lists every file with its source and licence. Sound is never needed to play: every cue that matters already has a visual. No music yet.
+
+- [ ] **14.1 Sound foundation**
+  - Goal: A `Sfx` autoload that plays named events from data, buses for master, flight, world, weather, UI, and voice, and volume sliders plus a mute key saved with the settings.
+  - Context: A `SoundBank` resource maps an event id to one or more streams with volume, pitch variation, and bus. `Sfx.play(id, at := null)` picks a stream (2D, or 3D at a position) and logs the event so headless tests can assert on it. Settings section of the save holds the volumes. The web build starts audio on the first input (the intro's any key).
+  - Acceptance: Playing a known event logs it with its bus. An unknown event warns without crashing. Volume and mute save and reload. Every file under `data/audio/` is listed in `LICENSES.md` as generated or CC0.
+  - Out of scope: Any specific sound.
+
+- [ ] **14.2 The drone**
+  - Goal: Each drone sounds like a drone: motor hum whose pitch and level follow its motors' thrust, prop wash near the ground, and impacts by speed.
+  - Context: Generated motor loop, pitched per drone from thrust (the same reading `DroneLook` uses). 3D players so AI racers and the fleet are heard around you. One impact per contact, scaled by impact speed.
+  - Acceptance: Pitch rises with thrust and falls at idle. A contact plays exactly one impact, louder when faster. A frozen drone is silent.
+  - Out of scope: Doppler, per-motor sound sources.
+
+- [ ] **14.3 Flight events**
+  - Goal: Sounds for what the pilot needs to notice: crash recovery, low battery, an assist cutting in (guard, brake), and changing camera view.
+  - Context: Hooks on existing signals; each plays once per event.
+  - Acceptance: Each event plays its sound once and only on its event.
+  - Out of scope: Voice warnings.
+
+- [ ] **14.4 Jobs**
+  - Goal: Jobs sound like jobs: countdown beeps, gates passed, hold progress, finish and fail stingers, the payout count, and the hazard warning and strike.
+  - Context: `JobRunner` state changes, `Course` gates, `HoldStation` progress, `HazardZone` warnings and strikes, the results screen.
+  - Acceptance: Every runner state change and every hazard warning and strike plays its sound. Gate sounds match gates passed.
+  - Out of scope: Commentary.
+
+- [ ] **14.5 Interface**
+  - Goal: The board, shop, pilot select, offers, and dialogs click, focus, and confirm.
+  - Context: A small helper that wires any `Button` to UI sounds, so new screens get them too.
+  - Acceptance: Every button on the board and its dialogs plays a click when pressed.
+  - Out of scope: Menu music.
+
+- [ ] **14.6 The world**
+  - Goal: Places sound like places: city hum, desert wind, the demolition's debris, the job board's room tone.
+  - Context: Ambience loops per scene on the world bus; debris impacts from the demolition's `Debris`.
+  - Acceptance: Every flying scene has an ambience playing. Debris impacts play one sound each.
+  - Out of scope: Traffic, crowds.
+
+- [ ] **14.7 Weather sound**
+  - Goal: Weather you hear: rain that grows with intensity, rain drumming on a roof when the drone is under one, wind that follows the measured wind speed, snow that hushes the mix, and thunder after each lightning flash.
+  - Context: CC0 rain, wind, and thunder recordings. Thunder waits distance / 343 s after its strike (13.5). Snow's hush is a baked, filtered copy of the ambience crossfaded in, not a live filter.
+  - Acceptance: Rain level follows intensity. Thunder plays after its flash, later the farther the strike. The wind loop's level follows the drone's measured wind.
+  - Out of scope: Rain on the lens sound.
+
+- [ ] **14.8 Crew and story**
+  - Goal: The crew and the Lattice are heard without voice acting: a short chirp under each bark, the Lattice's low drone and chorus tones, its power-down, and sound beds under the cutscenes.
+  - Context: Generated per-character chirps (pitch from data in `Character`). The chorus plays a tone under each line and stops for good after shutdown.
+  - Acceptance: Every bark plays its speaker's chirp. Every chorus line plays a tone, and none after shutdown. Each cutscene has a bed.
+  - Out of scope: Voice acting, music.
