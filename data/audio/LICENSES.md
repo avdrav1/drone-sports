@@ -172,3 +172,15 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_5_motif_marlo.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_motif_ozzie_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_motif_ozzie.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_1_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_1.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_2_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_2.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_3_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_3.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_4_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_density_4.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_drone_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_voice_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/lattice_voice.ogg` | `tools/music/generate.py` | generated |

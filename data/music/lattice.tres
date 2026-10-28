@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="Score" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
+[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_drone.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_drone_muffled.ogg" id="m1"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_voice.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_voice_muffled.ogg" id="m2"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_1.ogg" id="3"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_1_muffled.ogg" id="m3"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_2.ogg" id="4"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_2_muffled.ogg" id="m4"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_3.ogg" id="5"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_3_muffled.ogg" id="m5"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_4.ogg" id="6"]
+[ext_resource type="AudioStream" path="res://data/music/lattice_density_4_muffled.ogg" id="m6"]
+
+[sub_resource type="Resource" id="stem_1"]
+script = ExtResource("stem")
+id = &"drone"
+stream = ExtResource("1")
+level_db = -10.0
+muffled = ExtResource("m1")
+
+[sub_resource type="Resource" id="stem_2"]
+script = ExtResource("stem")
+id = &"voice"
+stream = ExtResource("2")
+level_db = -9.0
+muffled = ExtResource("m2")
+
+[sub_resource type="Resource" id="stem_3"]
+script = ExtResource("stem")
+id = &"density_1"
+stream = ExtResource("3")
+level_db = -9.0
+muffled = ExtResource("m3")
+
+[sub_resource type="Resource" id="stem_4"]
+script = ExtResource("stem")
+id = &"density_2"
+stream = ExtResource("4")
+level_db = -9.0
+muffled = ExtResource("m4")
+
+[sub_resource type="Resource" id="stem_5"]
+script = ExtResource("stem")
+id = &"density_3"
+stream = ExtResource("5")
+level_db = -9.0
+muffled = ExtResource("m5")
+
+[sub_resource type="Resource" id="stem_6"]
+script = ExtResource("stem")
+id = &"density_4"
+stream = ExtResource("6")
+level_db = -9.0
+muffled = ExtResource("m6")
+
+[resource]
+script = ExtResource("score")
+id = &"lattice"
+tempo = 80.0
+tonic = 146.83
+bars = 8
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6")])

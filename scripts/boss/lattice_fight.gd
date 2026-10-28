@@ -106,6 +106,8 @@ func _ready() -> void:
 		def.prey = command.drones
 	runner.state_changed.connect(_on_runner_state)
 	runner.finished.connect(_on_finished)
+	# The Lattice sings (Story 16.11): the director follows the fight.
+	MusicDirector.lattice(self)
 	if override:
 		var port := Node3D.new()
 		port.name = "Port"

@@ -473,6 +473,76 @@ def act_5():
     write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES), "motifs": crew})
 
 
+# Story 16.11: the Lattice. Slow, and the voices its choir is baked at: the
+# smallest is sung voice by voice, each larger one is the last stacked
+# LATTICE_STACK times at its own small delay and gain, up to thousands.
+LATTICE_TEMPO = 80
+LATTICE_BASE = 12
+LATTICE_STACK = 8
+LATTICE_DENSITIES = 4
+# The drone stem's pitch: lattice_drone's (tools/sfx/generate.py PITCHED).
+LATTICE_DRONE = (1, -2)
+
+
+def lattice_choirs(tempo, bars, seed):
+    """The whole hook sung by the Lattice's captured machines at
+    LATTICE_DENSITIES densities: [(voices, samples)], sparsest first. The
+    sparsest is LATTICE_BASE formant voices, each detuned a few cents, a few
+    ms late, every third an octave down; each denser one is the last stacked
+    LATTICE_STACK times, every copy shifted round the loop by up to 60 ms."""
+    m = load_mantra()
+    notes = m["call"] + m["answer"]
+    rng = random.Random(seed)
+    track = instruments.Track(bar_samples(tempo, bars), tempo)
+    sung = {}
+    for v in range(LATTICE_BASE):
+        octave = -1 if v % 3 == 2 else 0
+        ratio = 2 ** (rng.uniform(-18, 18) / 1200.0) if v else 1.0
+        late = rng.uniform(0.0, 0.03) / track.seconds(1) if v else 0.0
+        gain = rng.uniform(0.6, 1.0)
+        beat = 0
+        for k, n in enumerate(notes):
+            got = (k, octave)
+            if got not in sung:
+                sung[got] = instruments.note("voice", key.hz(n["degree"], octave), track.seconds(n["beats"]) * 0.95,
+                                             n["syllable"], seed + k)
+            track.add(beat + late, detune(sung[got], ratio) if v else sung[got], gain)
+            beat += n["beats"]
+    out = [(LATTICE_BASE, track.buf)]
+    for _ in range(LATTICE_DENSITIES - 1):
+        last = out[-1][1]
+        n = len(last)
+        buf = [0.0] * n
+        for _ in range(LATTICE_STACK):
+            shift = int(rng.uniform(0.0, 0.06) * RATE)
+            gain = rng.uniform(0.6, 1.0)
+            rolled = last[-shift:] + last[:-shift] if shift else last
+            buf = [a + b * gain for a, b in zip(buf, rolled)]
+        out.append((out[-1][0] * LATTICE_STACK, buf))
+    return out
+
+
+def lattice():
+    """Story 16.11: the Lattice sings. Over the tonic drone (two octaves down,
+    in tune with lattice_drone, with the octave above) a choir of the whole
+    hook at four densities (density_1 the sparsest to density_4, thousands of
+    voices), and one formant voice alone (`voice`), which is all that is left
+    at the override port. One hook long at LATTICE_TEMPO. No stinger."""
+    tempo, bars = LATTICE_TEMPO, MANTRA_BARS
+    n = bar_samples(tempo, bars)
+    low, up = sine_loop(key.hz(*LATTICE_DRONE), n), sine_loop(key.hz(LATTICE_DRONE[0], LATTICE_DRONE[1] + 1), n)
+    stems = [("drone", [a + 0.5 * b for a, b in zip(low, up)], -10.0),
+             ("voice", render_mantra("voice", tempo, seed=2500), -9.0)]
+    plays = {"drone": "sine", "voice": "voice"}
+    densities = {}
+    for k, (voices, buf) in enumerate(lattice_choirs(tempo, bars, 2600)):
+        stems.append(("density_%d" % (k + 1), buf, -9.0))
+        plays["density_%d" % (k + 1)] = "voice"
+        densities["density_%d" % (k + 1)] = voices
+    drone = {"degree": LATTICE_DRONE[0], "octave": LATTICE_DRONE[1], "hz": key.hz(*LATTICE_DRONE)}
+    write_score("lattice", tempo, key.TONIC, bars, stems, {"plays": plays, "densities": densities, "drone": drone})
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -518,6 +588,7 @@ def generate():
     act_3()
     act_4()
     act_5()
+    lattice()
     write_manifest()
 
 

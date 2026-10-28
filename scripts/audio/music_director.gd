@@ -18,6 +18,12 @@ extends Node
 # Crew motifs (Story 16.10): a stem named by a character's `motif` sounds only
 # while Roster has them active, INJURED_DB lower while injured, and is silent
 # for good once they are dead (CLAUDE.md rule 7: nothing brings it back).
+# The Lattice (Story 16.11): a LatticeFight hands itself to lattice(), and its
+# runner plays data/music/lattice.tres instead of an act score. Of its choir
+# densities the ones nearest the fraction of gap units reclaimed sound (dense
+# at none, sparse at all), during the override only the lone voice and the
+# drone are left, and once the boss is disabled every stem falls silent. With
+# the boss disabled in data/boss/lattice.tres the score is never loaded.
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
@@ -49,11 +55,19 @@ const LEAD := &"mantra_lead"
 const LEAD_FORWARD_DB := 6.0
 ## How far below its level an injured crew member's motif plays.
 const INJURED_DB := 9.0
+## The Lattice's score, its choir densities from densest to sparsest, and the
+## stems the override hold leaves.
+const LATTICE_PATH := "res://data/music/lattice.tres"
+const DENSITIES := [&"density_4", &"density_3", &"density_2", &"density_1"]
+const HOLD := [&"drone", &"voice"]
 
 ## The mix last set.
 var mix: StringName = &""
 ## The fleet layer in use, or null.
 var fleet: CommandView
+## The Lattice fight in play, or null; and whether it has disabled the boss.
+var boss_fight: LatticeFight
+var boss_off := false
 var _tension := {}  # instance id of each source holding tension -> true
 
 func _ready() -> void:
@@ -89,6 +103,7 @@ func set_mix(m: StringName, time := -1.0) -> void:
 	if Music.score == null:
 		return
 	var levels := crew_levels(command_levels(levels_for(Music.score, &"tension" if tense() else m), fleet_size(), flying()))
+	levels = boss_levels(levels, reclaimed_fraction(), holding(), boss_off and is_instance_valid(boss_fight))
 	for id in levels:
 		if not is_equal_approx(Music.level(id), levels[id]):
 			Music.set_level(id, levels[id], time)
@@ -144,6 +159,66 @@ static func crew_levels(levels: Dictionary) -> Dictionary:
 					levels[motif] = maxf(levels[motif] - INJURED_DB, Music.SILENT_DB)
 	return levels
 
+## The Lattice's score, or null when the boss is disabled (then it is never
+## loaded). Each load is recorded in BossGate.loads.
+static func lattice_score() -> Score:
+	if not BossGate.listed():
+		return null
+	BossGate.loads.append(LATTICE_PATH)
+	return load(LATTICE_PATH)
+
+## Follows `fight`, the Lattice: reclaimed units, the override and the boss
+## going off change the mix.
+func lattice(fight: LatticeFight) -> void:
+	boss_fight = fight
+	boss_off = false
+	if not fight.unit_reclaimed.is_connected(_on_reclaimed):
+		fight.unit_reclaimed.connect(_on_reclaimed)
+	if not fight.phase_started.is_connected(_on_fleet):
+		fight.phase_started.connect(_on_fleet)
+	# A lost fleet drone gives its unit back after the signal; look once it has.
+	if not fight.fleet_drone_lost.is_connected(_on_fleet):
+		fight.fleet_drone_lost.connect(_on_fleet, CONNECT_DEFERRED)
+	if not fight.boss_disabled.is_connected(_on_boss_disabled):
+		fight.boss_disabled.connect(_on_boss_disabled)
+
+func _on_reclaimed(_unit: int, _by: Drone) -> void:
+	_on_fleet()
+
+func _on_boss_disabled() -> void:
+	boss_off = true
+	_on_fleet()
+
+## The share of the gap units reclaimed, 0..1; 0 without a fight.
+func reclaimed_fraction() -> float:
+	if not is_instance_valid(boss_fight) or boss_fight.lattice == null or boss_fight.boss() == null:
+		return 0.0
+	return clampf(float(boss_fight.reclaimed.size()) / maxi(boss_fight.boss().gap_units, 1), 0.0, 1.0)
+
+## The fight is at the override port.
+func holding() -> bool:
+	return is_instance_valid(boss_fight) and boss_fight.phase == LatticeFight.Phase.OVERRIDE
+
+## `levels` for the Lattice's score: the DENSITIES crossfaded (equal power) by
+## `fraction` reclaimed, densest at 0 and sparsest at 1; only HOLD while
+## `hold`; every stem silent once `off`. Scores without the densities are
+## unchanged.
+static func boss_levels(levels: Dictionary, fraction: float, hold: bool, off: bool) -> Dictionary:
+	if not DENSITIES.all(func(id): return levels.has(id)):
+		return levels
+	var at := clampf(fraction, 0.0, 1.0) * (DENSITIES.size() - 1)
+	for i in DENSITIES.size():
+		var id: StringName = DENSITIES[i]
+		var w := cos(absf(at - i) * PI / 2.0) if absf(at - i) < 1.0 else 0.0
+		if w < 0.001 or levels[id] <= Music.SILENT_DB:
+			levels[id] = Music.SILENT_DB
+		else:
+			levels[id] = maxf(levels[id] + linear_to_db(w), Music.SILENT_DB)
+	for id in levels:
+		if off or (hold and not id in HOLD):
+			levels[id] = Music.SILENT_DB
+	return levels
+
 ## Follows `view`, the fleet layer: its size and drops into a drone change the mix.
 func command(view: CommandView) -> void:
 	fleet = view
@@ -185,4 +260,5 @@ func watch(runner: JobRunner) -> void:
 func _on_state(s: JobRunner.State, _previous: JobRunner.State, runner: JobRunner) -> void:
 	if not runner.pays_out:
 		return
-	play_score(score_for(act_for(runner.job)), STATE_MIX[s])
+	var fights := is_instance_valid(boss_fight) and boss_fight.runner == runner
+	play_score(lattice_score() if fights else score_for(act_for(runner.job)), STATE_MIX[s])

@@ -252,6 +252,38 @@
    "tempo": 120.0,
    "tonic": 146.83
   },
+  "lattice": {
+   "bars": 8,
+   "densities": {
+    "density_1": 12,
+    "density_2": 96,
+    "density_3": 768,
+    "density_4": 6144
+   },
+   "drone": {
+    "degree": 1,
+    "hz": 36.7075,
+    "octave": -2
+   },
+   "plays": {
+    "density_1": "voice",
+    "density_2": "voice",
+    "density_3": "voice",
+    "density_4": "voice",
+    "drone": "sine",
+    "voice": "voice"
+   },
+   "stems": [
+    "drone",
+    "voice",
+    "density_1",
+    "density_2",
+    "density_3",
+    "density_4"
+   ],
+   "tempo": 80.0,
+   "tonic": 146.83
+  },
   "mantra": {
    "bars": 8,
    "stems": [
