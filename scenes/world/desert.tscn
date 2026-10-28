@@ -1,7 +1,14 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/desert_terrain.gd" id="1_terrain"]
 [ext_resource type="Shader" path="res://scenes/world/desert.gdshader" id="2_shader"]
+[ext_resource type="Resource" path="res://data/materials/sand.tres" id="3_sand"]
+[ext_resource type="Resource" path="res://data/materials/rock.tres" id="4_rock"]
+[ext_resource type="Script" path="res://scripts/world/desert_scatter.gd" id="5_scatter"]
+[ext_resource type="Shader" path="res://scenes/world/desert_scatter.gdshader" id="6_scatter_shader"]
+[ext_resource type="Texture2D" path="res://data/materials/rock_albedo.jpg" id="7_rock_albedo"]
+[ext_resource type="Texture2D" path="res://data/materials/rock_nr.jpg" id="8_rock_nr"]
+[ext_resource type="Script" path="res://scripts/world/desert_dust.gd" id="10_dust"]
 [ext_resource type="Script" path="res://scripts/audio/ambience.gd" id="9_ambience"]
 
 [sub_resource type="FastNoiseLite" id="detail"]
@@ -20,9 +27,52 @@ noise = SubResource("detail")
 shader = ExtResource("2_shader")
 shader_parameter/detail_noise = SubResource("detail_tex")
 
+[sub_resource type="ShaderMaterial" id="rocks"]
+shader = ExtResource("6_scatter_shader")
+shader_parameter/albedo_map = ExtResource("7_rock_albedo")
+shader_parameter/nr_map = ExtResource("8_rock_nr")
+shader_parameter/tile = 4.0
+shader_parameter/base_color = Color(0.46, 0.31, 0.22, 1)
+shader_parameter/alt_color = Color(0.55, 0.4, 0.3, 1)
+shader_parameter/patch_size = 2.0
+shader_parameter/texture_amount = 0.85
+shader_parameter/roughness = 0.9
+shader_parameter/tint_range = 0.2
+
+[sub_resource type="ShaderMaterial" id="scrub"]
+shader = ExtResource("6_scatter_shader")
+shader_parameter/base_color = Color(0.27, 0.3, 0.18, 1)
+shader_parameter/alt_color = Color(0.38, 0.36, 0.26, 1)
+shader_parameter/patch_size = 0.35
+shader_parameter/foot_dark = 0.5
+shader_parameter/roughness = 0.95
+shader_parameter/tint_range = 0.3
+shader_parameter/leafy = 0.5
+shader_parameter/leaf_size = 0.07
+
+[sub_resource type="ShaderMaterial" id="cactus"]
+shader = ExtResource("6_scatter_shader")
+shader_parameter/base_color = Color(0.24, 0.32, 0.18, 1)
+shader_parameter/alt_color = Color(0.28, 0.34, 0.22, 1)
+shader_parameter/patch_size = 0.5
+shader_parameter/foot_dark = 0.3
+shader_parameter/roughness = 0.7
+shader_parameter/tint_range = 0.2
+
 [node name="Ground" type="StaticBody3D"]
 script = ExtResource("1_terrain")
 material = SubResource("sand")
+sand_set = ExtResource("3_sand")
+rock_set = ExtResource("4_rock")
+
+[node name="Scatter" type="StaticBody3D" parent="."]
+script = ExtResource("5_scatter")
+rock_material = SubResource("rocks")
+scrub_material = SubResource("scrub")
+cactus_material = SubResource("cactus")
+
+[node name="Dust" type="Node" parent="."]
+script = ExtResource("10_dust")
 
 [node name="Ambience" type="AudioStreamPlayer" parent="."]
 script = ExtResource("9_ambience")

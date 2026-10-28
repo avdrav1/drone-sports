@@ -3,6 +3,8 @@ extends StaticBody3D
 # Sand flats, dunes, and a ring of rocky ridges, generated from a seeded noise at load.
 # Inside flat_radius the ground is exactly y = 0, so jobs keep their geometry.
 # Built meshes and shapes are cached per parameter set: scenes reload cheaply.
+# The ground is textured from the 15.2 sand and rock sets; a Scatter child
+# (DesertScatter) strews rocks, scrub, and cacti from the same seed (Story 15.8).
 
 @export var noise_seed := 1
 ## Side of the square terrain, m.
@@ -17,6 +19,9 @@ extends StaticBody3D
 @export var ridge_start := 330.0
 @export var ridge_height := 150.0
 @export var material: Material
+## Surface sets fed to the ground shader's sand and rock maps.
+@export var sand_set: SurfaceSet
+@export var rock_set: SurfaceSet
 
 static var _cache := {}
 
@@ -74,6 +79,23 @@ func build() -> void:
 	# HeightMapShape3D has 1 m spacing; scale uniformly and store heights in scaled units.
 	shape.scale = Vector3.ONE * step()
 	add_child(shape)
+	_apply_sets()
+	var scatter := get_node_or_null(^"Scatter") as DesertScatter
+	if scatter and is_inside_tree():
+		scatter.build(self, DesertScatter.keep_outs(owner if owner else get_parent(), self))
+
+func _apply_sets() -> void:
+	var shader_material := material as ShaderMaterial
+	if shader_material == null:
+		return
+	if sand_set:
+		shader_material.set_shader_parameter(&"sand_albedo", sand_set.albedo)
+		shader_material.set_shader_parameter(&"sand_nr", sand_set.normal_rough)
+		shader_material.set_shader_parameter(&"sand_tile", sand_set.tile_size.x)
+	if rock_set:
+		shader_material.set_shader_parameter(&"rock_albedo", rock_set.albedo)
+		shader_material.set_shader_parameter(&"rock_nr", rock_set.normal_rough)
+		shader_material.set_shader_parameter(&"rock_tile", rock_set.tile_size.x)
 
 func _generate() -> Array:
 	var n := cells + 1
