@@ -58,3 +58,6 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `generated/pitches.json` | `tools/sfx/generate.py` (base pitches of the tuned sounds, not audio) | generated |
 | `../music/demo_demo.ogg` | `tools/music/generate.py` | generated |
 | `../music/manifest.json` | `tools/music/generate.py` (the key, instruments and scores, not audio) | generated |
+| `../music/mantra_mantra_voice.ogg` | `tools/music/generate.py` | generated |
+| `../music/mantra_mantra_lead.ogg` | `tools/music/generate.py` | generated |
+| `../music/mantra_mantra_tanpura.ogg` | `tools/music/generate.py` | generated |

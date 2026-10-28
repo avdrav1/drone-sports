@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="Score" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
+[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
+[ext_resource type="AudioStream" path="res://data/music/mantra_mantra_voice.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/mantra_mantra_lead.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://data/music/mantra_mantra_tanpura.ogg" id="3"]
+
+[sub_resource type="Resource" id="stem_1"]
+script = ExtResource("stem")
+id = &"mantra_voice"
+stream = ExtResource("1")
+level_db = -6.0
+
+[sub_resource type="Resource" id="stem_2"]
+script = ExtResource("stem")
+id = &"mantra_lead"
+stream = ExtResource("2")
+level_db = -6.0
+
+[sub_resource type="Resource" id="stem_3"]
+script = ExtResource("stem")
+id = &"mantra_tanpura"
+stream = ExtResource("3")
+level_db = -6.0
+
+[resource]
+script = ExtResource("score")
+id = &"mantra"
+tempo = 120.0
+tonic = 146.83
+bars = 8
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3")])

@@ -1,0 +1,29 @@
+{
+ "about": "The game's one chant hook (Story 16.3): 8 bars of 4/4, a call half and an answer half of 16 beats each. syllable is from the generator's vowel set (instruments.VOWELS), degree is a scale degree of tools/music/key.py (1 tonic, 5 fifth, 8 tonic up an octave), beats is the note's length.",
+ "call": [
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "oo", "degree": 6, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "ee", "degree": 8, "beats": 2},
+  {"syllable": "oo", "degree": 6, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "mm", "degree": 3, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "oo", "degree": 6, "beats": 2},
+  {"syllable": "ah", "degree": 5, "beats": 4}
+ ],
+ "answer": [
+  {"syllable": "oo", "degree": 6, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 1},
+  {"syllable": "mm", "degree": 3, "beats": 1},
+  {"syllable": "ah", "degree": 2, "beats": 1},
+  {"syllable": "ee", "degree": 3, "beats": 2},
+  {"syllable": "ah", "degree": 2, "beats": 1},
+  {"syllable": "oo", "degree": 1, "beats": 1},
+  {"syllable": "ah", "degree": 2, "beats": 1},
+  {"syllable": "mm", "degree": 3, "beats": 1},
+  {"syllable": "ah", "degree": 5, "beats": 2},
+  {"syllable": "oo", "degree": 1, "beats": 4}
+ ]
+}

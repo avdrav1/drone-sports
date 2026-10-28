@@ -13,6 +13,11 @@
   "pad",
   "lead"
  ],
+ "mantra": {
+  "answer_beats": 16,
+  "bars": 8,
+  "call_beats": 16
+ },
  "scale": [
   1.0,
   1.125,
@@ -73,6 +78,16 @@
    ],
    "stems": [
     "demo"
+   ],
+   "tempo": 120.0,
+   "tonic": 146.83
+  },
+  "mantra": {
+   "bars": 8,
+   "stems": [
+    "mantra_voice",
+    "mantra_lead",
+    "mantra_tanpura"
    ],
    "tempo": 120.0,
    "tonic": 146.83
