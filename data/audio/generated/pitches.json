@@ -4,6 +4,21 @@
   "hz": 146.83,
   "octave": 0
  },
+ "job_countdown": {
+  "degree": 5,
+  "hz": 880.98,
+  "octave": 2
+ },
+ "job_gate": {
+  "degree": 1,
+  "hz": 587.32,
+  "octave": 2
+ },
+ "job_go": {
+  "degree": 1,
+  "hz": 1174.64,
+  "octave": 3
+ },
  "lattice_drone": {
   "degree": 1,
   "hz": 36.7075,

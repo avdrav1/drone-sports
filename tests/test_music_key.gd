@@ -7,7 +7,7 @@ extends RefCounted
 const MUSIC_DIR := "res://data/music"
 const MANIFEST := "res://data/music/manifest.json"
 const PITCHES := "res://data/audio/generated/pitches.json"
-const TUNED := [&"drone_hum", &"lattice_drone", &"lattice_tone"]
+const TUNED := [&"drone_hum", &"lattice_drone", &"lattice_tone", &"job_countdown", &"job_go", &"job_gate"]
 
 func _json(path: String) -> Dictionary:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(path))

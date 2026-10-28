@@ -27,6 +27,11 @@ PITCHED = {
     "drone_hum": (1, 0),
     "lattice_drone": (1, -2),
     "lattice_tone": (5, 0),
+    # Story 16.9: the countdown beeps on the fifth and launches on the tonic; the
+    # gate blip is the tonic, played at each mantra note's ratio by JobCues.
+    "job_countdown": (5, 2),
+    "job_go": (1, 3),
+    "job_gate": (1, 2),
 }
 
 
@@ -202,24 +207,28 @@ def job_briefing():
 
 
 def job_countdown():
-    """One countdown beep, played on each whole second of the countdown."""
-    return tone_seq([(880, 0.16)], shape="square", decay=14.0)
+    """One countdown beep, played on each whole second of the countdown: the
+    key's fifth (Story 16.9)."""
+    return tone_seq([(key.hz(*PITCHED["job_countdown"]), 0.16)], shape="square", decay=14.0)
 
 
 def job_go():
-    """The launch beep: an octave above the countdown and held longer."""
-    return tone_seq([(1760, 0.45)], shape="square", decay=5.0)
+    """The launch beep: the tonic above the countdown's fifth, held longer."""
+    return tone_seq([(key.hz(*PITCHED["job_go"]), 0.45)], shape="square", decay=5.0)
 
 
 def job_gate():
-    """A bright upward blip for a gate passed."""
+    """A bright blip for a gate passed, on the tonic (Story 16.9): JobCues plays
+    it at each mantra note's pitch in turn, so a clean run plays the hook. A
+    short scoop up into the note, then held on it."""
     rng = random.Random(1440)
+    f0 = key.hz(*PITCHED["job_gate"])
     n = int(RATE * 0.18)
     phase = 0.0
     out = []
     for i in range(n):
         t = i / RATE
-        f = 1100 + 900 * min(1.0, t / 0.05)
+        f = f0 * (0.94 + 0.06 * min(1.0, t / 0.012))
         phase += 2 * math.pi * f / RATE
         env = min(1.0, t / 0.003) * math.exp(-t * 16.0)
         out.append((math.sin(phase) + 0.25 * math.sin(2 * phase) + 0.05 * rng.uniform(-1, 1)) * env)

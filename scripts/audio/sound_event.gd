@@ -14,3 +14,6 @@ extends Resource
 @export var muffled: AudioStream
 ## Added to volume_db for the muffled copy.
 @export var muffled_db := 0.0
+## Pitch scales a cue steps through, one per play in turn (Story 16.9: the gate
+## blip's are the mantra's notes over its base pitch); empty for none.
+@export var pitches: PackedFloat32Array = PackedFloat32Array()
