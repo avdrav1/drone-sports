@@ -28,6 +28,20 @@
   1.875
  ],
  "scores": {
+  "act_1": {
+   "bars": 8,
+   "stems": [
+    "drone",
+    "pad",
+    "arp",
+    "bass",
+    "kick",
+    "clap",
+    "mantra_lead"
+   ],
+   "tempo": 120.0,
+   "tonic": 146.83
+  },
   "demo": {
    "bars": 11,
    "instruments": [

@@ -61,3 +61,10 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/mantra_mantra_voice.ogg` | `tools/music/generate.py` | generated |
 | `../music/mantra_mantra_lead.ogg` | `tools/music/generate.py` | generated |
 | `../music/mantra_mantra_tanpura.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_pad.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_arp.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_bass.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_kick.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_clap.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_mantra_lead.ogg` | `tools/music/generate.py` | generated |

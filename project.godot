@@ -19,6 +19,7 @@ Career="*res://scripts/progression/career.gd"
 Garage="*res://scripts/progression/garage.gd"
 Sfx="*res://scripts/audio/sfx.gd"
 Music="*res://scripts/audio/music.gd"
+MusicDirector="*res://scripts/audio/music_director.gd"
 
 [shader_globals]
 

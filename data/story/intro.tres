@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Cutscene" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="Cutscene" load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
 [ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
+[ext_resource type="Resource" path="res://data/music/act_1.tres" id="3_score"]
 
 [sub_resource type="Resource" id="beat0"]
 script = ExtResource("2_beat")
@@ -81,4 +82,5 @@ script = ExtResource("1_cut")
 beats = Array[ExtResource("2_beat")]([SubResource("beat0"), SubResource("beat1"), SubResource("beat2"), SubResource("beat3"), SubResource("beat4"), SubResource("beat5"), SubResource("beat6")])
 next_scene = "res://scenes/ui/job_board.tscn"
 bed = &"bed_intro"
+score = ExtResource("3_score")
 seen_flag = &"intro_seen"

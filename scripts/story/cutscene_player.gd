@@ -51,6 +51,8 @@ func _ready() -> void:
 	add_child(camera)
 	_build_overlay()
 	_start_bed()
+	if cutscene.score:
+		MusicDirector.play_score(cutscene.score, &"live")
 	advance()
 
 func _process(delta: float) -> void:

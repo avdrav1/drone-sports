@@ -56,6 +56,7 @@ func _ready() -> void:
 	if not PlayerProfile.has_pilot():
 		pilot_select.open()
 	UiSounds.wire(self)
+	MusicDirector.board()
 	Career.check_offers()
 	offer_dialog.show_next()
 

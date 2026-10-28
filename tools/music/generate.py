@@ -164,6 +164,42 @@ def mantra():
     write_score("mantra", tempo, key.TONIC, MANTRA_BARS, stems)
 
 
+# Story 16.4: one chord per bar under the hook (root, third, fifth as scale
+# degrees): I IV vi I | vi I V I, the call resolving up, the answer home.
+ACT_1_CHORDS = ((1, 3, 5), (4, 6, 8), (6, 8, 10), (1, 3, 5), (6, 8, 10), (1, 3, 5), (5, 7, 9), (1, 3, 5))
+
+
+def act_1():
+    """Story 16.4: the home game. Mantra pop: four-on-the-floor kick, clap on
+    two and four, synth bass, arpeggio, bright pad, the hook on the saw lead,
+    and the tanpura drone underneath. One hook long at 120 bpm."""
+    tempo, bars = 120, MANTRA_BARS
+    n = bar_samples(tempo, bars)
+    tracks = {k: instruments.Track(n, tempo) for k in ("drone", "pad", "arp", "bass", "kick", "clap")}
+    beat = tracks["pad"].seconds(1)
+    for bar, chord in enumerate(ACT_1_CHORDS):
+        b = bar * BEATS_PER_BAR
+        seed = 1800 + bar * 10
+        # The tanpura's four strings, every bar: fifth, tonic up, tonic up, tonic low.
+        for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
+            tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, seed + k), 0.8)
+        for d in chord:
+            tracks["pad"].add(b, instruments.pad(key.hz(d, 0), 4 * beat - 0.6), 0.4)
+        for k in range(16):
+            d = (chord + (chord[0] + 7,))[k % 4]
+            tracks["arp"].add(b + k * 0.25, instruments.arp(key.hz(d, 1), beat * 0.2), 0.5)
+        for k in range(8):
+            tracks["bass"].add(b + k * 0.5, instruments.bass(key.hz(chord[0], -1), beat * 0.45), 0.8)
+        for t in range(BEATS_PER_BAR):
+            tracks["kick"].add(b + t, instruments.kick(key.hz(5, -2)), 1.0)
+        for t in (1, 3):
+            tracks["clap"].add(b + t, instruments.clap(seed=seed + t), 0.8)
+    levels = {"drone": -10.0, "pad": -12.0, "arp": -15.0, "bass": -10.0, "kick": -8.0, "clap": -14.0}
+    stems = [(k, tracks[k].buf, levels[k]) for k in ("drone", "pad", "arp", "bass", "kick", "clap")]
+    stems.append(("mantra_lead", render_mantra("lead", tempo), -10.0))
+    write_score("act_1", tempo, key.TONIC, bars, stems)
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -203,6 +239,7 @@ def generate():
     placeholder()
     demo()
     mantra()
+    act_1()
     write_manifest()
 
 

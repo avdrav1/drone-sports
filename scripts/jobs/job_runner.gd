@@ -61,6 +61,7 @@ func _ready() -> void:
 	cues = JobCues.new()
 	cues.name = "Cues"
 	add_child(cues, false, Node.INTERNAL_MODE_BACK)
+	MusicDirector.watch(self)
 	# Its launch and leave dialogs and the results screen click (Story 14.5).
 	UiSounds.wire(self)
 	if auto_begin:
