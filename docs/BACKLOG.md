@@ -690,11 +690,12 @@ Done when the city, desert, and obstacles read as real places at drone height: r
   - Acceptance: The Environment uses AgX and the tuned values. Shadow cascade split and distance are set from data. Every weather preset still applies and lightning's flash still raises and returns ambient light.
   - Out of scope: Time of day, the desktop extras (15.1).
 
-- [ ] **15.4 Building surfaces**
+- [x] **15.4 Building surfaces**
   - Goal: Towers in real materials: each building picks concrete, brick, cladding, or stone from its seed, mapped in world space so nothing stretches, with grime streaks under ledges, dust at the base, shader ambient occlusion where walls meet the ground, and roof stains.
   - Context: `scenes/world/city.gdshader` and `City`; custom data already carries a per-building seed. Triplanar or world-space UVs at each set's tile size. Wetness darkens and glosses and snow cover whitens, as now.
   - Acceptance: Each lot's material comes from its seed and repeats with it. Every material in use comes from the 15.2 library. Wetness and snow cover still change the shader's output. The plan and collision are unchanged.
   - Out of scope: Window glass (15.5), building shape (15.6).
+  - Note: `City.walls` (concrete, brick, cladding, kerb granite as stone; the shader holds four) and `City.roof` (concrete) are `SurfaceSet`s set in `city.tscn`; `City._apply_surfaces` hands their maps, tile sizes, and metallic to `city.gdshader`, and each lot's set is `City.wall_for(seed)` from its custom-data seed, passed as `INSTANCE_CUSTOM.z` and kept in `City.seeds` / `City.wall_index` since MultiMesh data cannot be read back. The shader maps walls along z or x by world y and roofs by xz with a matching TANGENT/BINORMAL set in vertex(), adds grime under sills and the roof edge, base dust and AO, roof stains, then applies wetness and snow to every surface at the end; window code is unchanged for 15.5. `tests/city_render_probe.gd` is a GL Compatibility render run as a child process by `tests/test_building_surfaces.gd` (needs a display), which 15.5 can reuse for its compile check.
 
 - [ ] **15.5 Windows**
   - Goal: Windows that read as glass with rooms behind them: sky reflection in the pane, fake interiors that shift in perspective as you move, blinds and lights varying per window, and lit windows glowing after dark-toned weather.

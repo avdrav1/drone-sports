@@ -1,8 +1,13 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/city.gd" id="1_city"]
 [ext_resource type="Resource" path="res://data/city/sandbox_city.tres" id="2_layout"]
 [ext_resource type="Shader" path="res://scenes/world/city.gdshader" id="3_shader"]
+[ext_resource type="Resource" path="res://data/materials/concrete.tres" id="4_concrete"]
+[ext_resource type="Resource" path="res://data/materials/brick.tres" id="5_brick"]
+[ext_resource type="Resource" path="res://data/materials/cladding.tres" id="6_cladding"]
+[ext_resource type="Resource" path="res://data/materials/kerb.tres" id="7_stone"]
+[ext_resource type="Script" path="res://scripts/world/surface_set.gd" id="8_set"]
 [ext_resource type="Script" path="res://scripts/audio/ambience.gd" id="9_ambience"]
 
 [sub_resource type="ShaderMaterial" id="towers"]
@@ -12,6 +17,8 @@ shader = ExtResource("3_shader")
 script = ExtResource("1_city")
 layout = ExtResource("2_layout")
 material = SubResource("towers")
+walls = Array[ExtResource("8_set")]([ExtResource("4_concrete"), ExtResource("5_brick"), ExtResource("6_cladding"), ExtResource("7_stone")])
+roof = ExtResource("4_concrete")
 
 [node name="Ambience" type="AudioStreamPlayer" parent="."]
 script = ExtResource("9_ambience")
