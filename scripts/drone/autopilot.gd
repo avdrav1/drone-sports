@@ -22,6 +22,13 @@ var waypoints := PackedVector3Array()
 ## The waypoint being flown to; past the end once the last is reached.
 var index := 0
 
+## The autopilot among a drone's children, or null.
+static func of(d: Drone) -> Autopilot:
+	for c in d.get_children():
+		if c is Autopilot:
+			return c
+	return null
+
 func _ready() -> void:
 	drone = get_parent() as Drone
 	engage.call_deferred()

@@ -359,11 +359,12 @@ Do not start until Epics 3 and 4 have been playtested and the fleet-genre questi
   - Out of scope: Formation flying.
   - Note: Started on the user's go-ahead ("finish all epics"), before a recorded playtest of Epics 3 and 4; the fleet question is answered in VISION.md. `Autopilot` flies with its own stack (`data/assists/autopilot.tres`: guard, altitude hold, auto-level, governor; no brake). The racer's steering is now the static `AiPilot.steer`, which both use.
 
-- [ ] **6.2 Command view**
+- [x] **6.2 Command view**
   - Goal: A top-down camera with click-to-select on drones and click-to-set waypoints, plus a key to drop into any drone's first-person view.
   - Context: The Act 5 preset turns single-drone view off; this replaces it.
   - Acceptance: Selecting a drone and clicking the ground queues a waypoint. Dropping in hands it to manual input; leaving resumes autopilot.
   - Out of scope: Drag-select, groups.
+  - Note: `scenes/fleet/command_view.tscn` (CommandView) takes `drones` and a `camera_rig`. Click selects or queues a waypoint 10 m above the ground hit; Tab cycles; F (`drop_in`) moves its PilotInput onto the drone with the career preset, and F again hands back to `Autopilot.of(drone)`, which re-applies its own stack. Jobs in 6.3 and 6.4 instance it.
 
 - [ ] **6.3 Fleet inspection**
   - Goal: Three structures must each have an inspection hold running at the same time, so three drones must be on station at once.

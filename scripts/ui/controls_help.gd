@@ -20,6 +20,10 @@ const GROUPS := [
 		[[&"toggle_readout"], "Debug readout"],
 		[[&"cycle_preset"], "Cycle act assists (free flight)"],
 	]],
+	["FLEET (COMMAND VIEW)", [
+		[[&"next_drone"], "Select the next drone (or click one)"],
+		[[&"drop_in"], "Drop into the selected drone, or back out"],
+	]],
 	["JOBS", [
 		[[&"ui_accept"], "Launch from the briefing"],
 		[[&"ui_cancel"], "Back to the job board"],
