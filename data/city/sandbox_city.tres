@@ -8,4 +8,4 @@ seed = 7
 block_size = 30.0
 street_width = 8.0
 avenue_width = 14.0
-clearings = PackedVector3Array(0, 0, 32, 40, -40, 20)
+clearings = PackedVector3Array(0, 0, 32, 40, -40, 20, 0, -60, 20, 0, -95, 20, 0, -130, 20)
