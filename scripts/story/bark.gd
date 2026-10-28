@@ -10,6 +10,8 @@ extends Node
 # Story 17.2: a line is a string or {"text": ..., "face": ...}; the face is one
 # of CharacterPortrait.EXPRESSIONS, or the event's default when it has none.
 # Story 17.4: `pitch` is a job card's one-liner on the board, never said in a job.
+# Story 17.7: every announced line also goes out on `said` with its face, for the
+# radio panel, which then plays the chirp itself when the line opens.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch"]
@@ -24,6 +26,10 @@ const DEFAULT_FACES := {
 }
 
 signal spoke(id: StringName, event: StringName, text: String)
+## Every line announced on `spoke`, as {id, event, text, face}. A line emitted
+## straight onto `spoke` (Marlo's trench calls) comes here too, its face read
+## from its entry.
+signal said(line: Dictionary)
 
 @export var runner: JobRunner
 ## Optional: gate callouts on a race.
@@ -32,11 +38,15 @@ signal spoke(id: StringName, event: StringName, text: String)
 @export var gate_gap := 2.5
 ## Seeds who speaks and which line. Negative picks at random.
 @export var seed := -1
+## Off when a radio panel plays the chirp as each line opens instead.
+var chirp_on_spoke := true
 
 ## Character id -> lines said this job.
 var used := {}
 var _rng := RandomNumberGenerator.new()
 var _since_gate := INF
+## True while say() announces, so _on_spoke leaves `said` to it.
+var _saying := false
 
 static var _cache := {}
 
@@ -65,8 +75,11 @@ static func chirp(id: StringName) -> void:
 	if c and Roster.is_alive(id):
 		Sfx.play(&"crew_chirp", null, 0.0, c.chirp_pitch)
 
-func _on_spoke(id: StringName, _event: StringName, _text: String) -> void:
-	chirp(id)
+func _on_spoke(id: StringName, event: StringName, text: String) -> void:
+	if chirp_on_spoke:
+		chirp(id)
+	if not _saying:
+		said.emit({"id": id, "event": event, "text": text, "face": face_of(id, event, text)})
 
 ## Every line file, parsed once. Event -> {"active": [...], "injured": [...]}.
 static func lines_of(id: StringName) -> Dictionary:
@@ -143,9 +156,13 @@ func say(event: StringName, subject: StringName = &"", announce := true, as_stat
 	if not used.has(id):
 		used[id] = []
 	used[id].append(text)
+	var line := {"id": id, "event": event, "text": text, "face": face_of(id, event, text)}
 	if announce:
+		_saying = true
 		spoke.emit(id, event, text)
-	return {"id": id, "event": event, "text": text, "face": face_of(id, event, text)}
+		_saying = false
+		said.emit(line)
+	return line
 
 func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 	match s:

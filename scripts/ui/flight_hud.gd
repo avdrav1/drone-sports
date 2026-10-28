@@ -159,6 +159,15 @@ func _draw_gauge(at: Vector2, name: String, value: String, unit: String, right: 
 	_text(Vector2(left, at.y + 12), value, 34, LINE, align, 160)
 	_text(Vector2(left, at.y + 32), unit, 13, DIM, align, 160)
 
+## Screen area the job panel covers at top left, for laying out around it.
+func panel_rect() -> Rect2:
+	var p := panel()
+	var w := 0.0
+	for t in [[p.title, 17], [p.subtitle, 15], [p.state, 12]] + p.rows.map(func(r): return [r.label, 14]):
+		w = maxf(w, font.get_string_size(t[0], HORIZONTAL_ALIGNMENT_LEFT, -1, t[1]).x)
+	var h: float = 64.0 + (20.0 if p.state else 0.0) + 22.0 * p.rows.size()
+	return Rect2(Vector2(28, 26), Vector2(w + 34.0, h))
+
 func _draw_panel(at: Vector2) -> void:
 	var p := panel()
 	var y := at.y + 64

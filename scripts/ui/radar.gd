@@ -48,6 +48,10 @@ func _process(_delta: float) -> void:
 func center() -> Vector2:
 	return size - margin - Vector2.ONE * radius
 
+## Screen area the radar covers.
+func rect() -> Rect2:
+	return Rect2(center() - Vector2.ONE * radius, Vector2.ONE * radius * 2.0)
+
 ## The drone's forward on the ground. North if it points straight up or down.
 func _forward() -> Vector3:
 	var f := -gps.drone.global_transform.basis.z

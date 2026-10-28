@@ -103,6 +103,10 @@ func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONT
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)
 	draw_string(font, at, t, align, width, size_px, color)
 
+## Screen area the position, lap and pilot block covers at top right.
+func panel_rect() -> Rect2:
+	return Rect2(Vector2(size.x - 250.0, 20.0), Vector2(222.0, 116.0))
+
 func _draw() -> void:
 	if course == null or racer == null or course.progress(racer) == null:
 		return

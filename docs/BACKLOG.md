@@ -864,7 +864,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: With `Career.act()` at 1, every front-end screen uses the cabinet skin; at 2 or more, the ops skin with the current team's colors. Accepting the first team offer and finishing the recruitment scene shows the board in the ops skin. Scanlines and the coin chime appear only in the cabinet skin. Any added font has its license file next to it.
   - Out of scope: Per-team skins beyond colors, animated transitions between skins.
 
-- [ ] **17.7 Radio panel**
+- [x] **17.7 Radio panel**
   - Goal: The HUD line box becomes a crew radio: a larger talking face, the speaker's name and role, a short burst of static when a line opens, and a queue so lines never talk over each other.
   - Context: Builds on 17.2. Lines have a priority: warning and strike preempt anything; other events wait their turn, and chatter older than 4 s is dropped instead of played late. At most one chatter line per 6 s, configurable on the panel. The static burst is a generated sound under the Epic 14 rules. The panel sits low on the left, clear of the radar, the objectives panel, and the race HUD.
   - Acceptance: A warning raised while a chatter line is showing replaces it at once. Two chatter lines raised together play one after the other, never at the same time. A chatter line queued for over 4 s is dropped. No two chatter lines start within the configured gap. The panel does not overlap the radar, objectives, or race HUD at 960×720 or 1920×1080. Every existing bark test passes.

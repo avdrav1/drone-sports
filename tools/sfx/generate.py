@@ -415,6 +415,26 @@ def crew_chirp():
     return out
 
 
+def radio_static():
+    """A short burst of radio static as a crew line opens (Story 17.7): band-
+    limited hiss with a few crackles, cut off sharply like a keyed mic."""
+    rng = random.Random(1770)
+    n = int(RATE * 0.16)
+    lo = hi = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        x = rng.uniform(-1, 1)
+        hi += 0.6 * (x - hi)
+        lo += 0.08 * (hi - lo)
+        s = hi - lo
+        if rng.random() < 0.01:
+            s += rng.choice((-1, 1)) * 2.5
+        env = min(1.0, t / 0.003) * min(1.0, (n - i) / (RATE * 0.02))
+        out.append(s * env)
+    return out
+
+
 def lattice_tone():
     """The chorus under each of its lines: a flat cluster of close sine tones,
     many voices on the key's fifth with the tonic and fifth above, swelling in
@@ -497,7 +517,7 @@ def main():
         write(name + "_muffled.wav", muffled(globals()[name]()), loop=True)
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
-    for name in ("crew_chirp", "lattice_tone", "lattice_power_down"):
+    for name in ("crew_chirp", "radio_static", "lattice_tone", "lattice_power_down"):
         write(name + ".wav", globals()[name]())
     write("lattice_drone.wav", lattice_drone(), loop=True)
     write("coin_chime.wav", coin_chime())
