@@ -282,8 +282,49 @@ def act_2():
     stems = [(k, tracks[k].buf, levels[k]) for k in order]
     stems.append(("mantra_reed", render_mantra("reed", tempo), -11.0))
     stems.append(("pulse", pulse(tempo, bars, 1980), PULSE_DB))
+    crew = add_motifs("act_2", stems, plays, tempo, bars, 1990)
     assert not set(plays.values()) & set(SYNTHS)
-    write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays})
+    write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew})
+
+
+# Story 16.10: crew motifs. Each crew member's voice in the score, a stem named
+# by their Character.motif (data/characters/), in every act score from the
+# tryout on (MOTIF_ACTS), at MOTIF_DB. Stem id -> the instrument that plays it.
+MOTIFS = {"motif_bea": "reed", "motif_dot": "frame_drum", "motif_marlo": "tanpura", "motif_ozzie": "voice"}
+MOTIF_ACTS = ("act_2", "act_3", "act_4", "act_5")
+MOTIF_DB = -13.0
+
+
+def motifs(tempo, bars, seed):
+    """Each MOTIFS stem, once per half of the hook: Bea's harmonium line rising
+    into the half's last bar, Dot's frame drum fill over its last two beats,
+    Marlo's high plucked look-out call in its second bar, and Ozzie humming
+    "mm" on the third under its third bar. {stem id: samples}."""
+    n = bar_samples(tempo, bars)
+    t = {k: instruments.Track(n, tempo) for k in MOTIFS}
+    beat = t["motif_bea"].seconds(1)
+    for half in range(bars * BEATS_PER_BAR // 16):
+        b = half * 16
+        sd = seed + half * 40
+        for k, (at, d, beats) in enumerate(((12, 3, 1), (13, 5, 1), (14, 6, 2))):
+            t["motif_bea"].add(b + at, instruments.reed(key.hz(d, 1), beats * beat * 0.95, sd + k), 0.5)
+        for k in range(8):
+            f = 520 if k % 2 else key.hz(1, -1)
+            t["motif_dot"].add(b + 14 + k * 0.25, instruments.frame_drum(f, seed=sd + 10 + k), 0.5 + 0.06 * k)
+        for k, (at, d) in enumerate(((4, 8), (4.5, 6), (5, 5), (6, 8))):
+            t["motif_marlo"].add(b + at, instruments.tanpura(key.hz(d, 1), beat, sd + 20 + k), 0.6)
+        t["motif_ozzie"].add(b + 8, instruments.voice(key.hz(3, 0), 3 * beat * 0.95, "mm", sd + 30), 0.6)
+    return {k: t[k].buf for k in MOTIFS}
+
+
+def add_motifs(score_id, stems, plays, tempo, bars, seed):
+    """Appends the crew motif stems to an act's `stems` and `plays`; returns
+    the manifest's extra field naming them."""
+    assert score_id in MOTIF_ACTS
+    for k, buf in motifs(tempo, bars, seed).items():
+        stems.append((k, buf, MOTIF_DB))
+        plays[k] = MOTIFS[k]
+    return list(MOTIFS)
 
 
 def soft_clip(samples, drive):
@@ -336,8 +377,10 @@ def hand_and_voice(score_id, tempo, rough, seed):
         stems = [(k, soft_clip(buf, 2.5)) for k, buf in stems]
     levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "mantra_voice": -9.0,
               "pulse": PULSE_DB}
+    stems = [(k, buf, levels[k]) for k, buf in stems]
+    crew = add_motifs(score_id, stems, plays, tempo, bars, seed + 190)
     assert not set(plays.values()) & set(SYNTHS + ("kick", "bass"))
-    write_score(score_id, tempo, key.TONIC, bars, [(k, buf, levels[k]) for k, buf in stems], {"plays": plays})
+    write_score(score_id, tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew})
 
 
 def act_3():
@@ -426,7 +469,8 @@ def act_5():
         stems.append(("choir_%d" % size, buf, -9.0))
         plays["choir_%d" % size] = "voice"
     stems.append(("pulse", pulse(tempo, bars, 2280), PULSE_DB))
-    write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES)})
+    crew = add_motifs("act_5", stems, plays, tempo, bars, 2290)
+    write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES), "motifs": crew})
 
 
 def write_manifest():

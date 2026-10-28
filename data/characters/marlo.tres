@@ -12,6 +12,7 @@ colors = PackedColorArray(0.95, 0.55, 0.25, 1, 1, 0.92, 0.85, 1, 0.3, 0.3, 0.35,
 lines = "res://data/dialogue/marlo.json"
 chirp_pitch = 1.0
 speaks_on = Array[StringName]([&"gate_passed"])
+motif = &"motif_marlo"
 death_consequence = &"no_spotter"
 can_be_harmed = true
 tags = Array[StringName]([&"can_fly"])

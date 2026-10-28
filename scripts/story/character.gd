@@ -28,6 +28,11 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var can_be_harmed := true
 ## E.g. pilot (a selectable avatar).
 @export var tags: Array[StringName] = []
+## Their voice in the score (Story 16.10): the id of a stem in the act scores
+## from the tryout on, e.g. motif_bea. The MusicDirector plays it only while
+## they are active, quieter while injured, never again once dead. Empty for
+## anyone who is not crew.
+@export var motif: StringName
 ## A pilot avatar's one small stat tweak, applied once like a shop level
 ## (Story 7.2). None for the crew, and for Pip, the baseline.
 @export var tweak: Upgrade
@@ -49,6 +54,8 @@ func validate() -> Array[String]:
 		out.append("%s: chirp_pitch must be 0.5 to 2" % id)
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
+	if motif != &"" and not can_be_harmed:
+		out.append("%s: only crew have a motif" % id)
 	if tweak and (not tweak.stat in Upgrade.STATS or tweak.step == 0.0):
 		out.append("%s: tweak must change one of %s" % [id, Upgrade.STATS])
 	return out

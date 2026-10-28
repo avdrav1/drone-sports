@@ -45,11 +45,21 @@
   },
   "act_2": {
    "bars": 8,
+   "motifs": [
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
+   ],
    "plays": {
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "kick": "kick",
     "mantra_reed": "reed",
+    "motif_bea": "reed",
+    "motif_dot": "frame_drum",
+    "motif_marlo": "tanpura",
+    "motif_ozzie": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed"
@@ -61,18 +71,32 @@
     "kick",
     "frame_drum",
     "mantra_reed",
-    "pulse"
+    "pulse",
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
    ],
    "tempo": 120.0,
    "tonic": 146.83
   },
   "act_3": {
    "bars": 8,
+   "motifs": [
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
+   ],
    "plays": {
     "cymbals": "cymbals",
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
+    "motif_bea": "reed",
+    "motif_dot": "frame_drum",
+    "motif_marlo": "tanpura",
+    "motif_ozzie": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed"
@@ -84,18 +108,32 @@
     "frame_drum",
     "cymbals",
     "mantra_voice",
-    "pulse"
+    "pulse",
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
    ],
    "tempo": 104.0,
    "tonic": 146.83
   },
   "act_4": {
    "bars": 8,
+   "motifs": [
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
+   ],
    "plays": {
     "cymbals": "cymbals",
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
+    "motif_bea": "reed",
+    "motif_dot": "frame_drum",
+    "motif_marlo": "tanpura",
+    "motif_ozzie": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed"
@@ -107,7 +145,11 @@
     "frame_drum",
     "cymbals",
     "mantra_voice",
-    "pulse"
+    "pulse",
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
    ],
    "tempo": 132.0,
    "tonic": 146.83
@@ -119,6 +161,12 @@
     10,
     50
    ],
+   "motifs": [
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
+   ],
    "plays": {
     "choir_10": "voice",
     "choir_3": "voice",
@@ -126,6 +174,10 @@
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_lead": "voice",
+    "motif_bea": "reed",
+    "motif_dot": "frame_drum",
+    "motif_marlo": "tanpura",
+    "motif_ozzie": "voice",
     "pulse": "frame_drum",
     "reed": "reed"
    },
@@ -137,7 +189,11 @@
     "choir_3",
     "choir_10",
     "choir_50",
-    "pulse"
+    "pulse",
+    "motif_bea",
+    "motif_dot",
+    "motif_marlo",
+    "motif_ozzie"
    ],
    "tempo": 96.0,
    "tonic": 146.83

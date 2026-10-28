@@ -15,6 +15,9 @@ extends Node
 # Tension (Story 16.8): while any source (a HazardZone warning, a HazardScene
 # collapse) holds tense(), every stem but the drone and the pulse falls away,
 # whatever the mix; when the last lets go the mix comes back.
+# Crew motifs (Story 16.10): a stem named by a character's `motif` sounds only
+# while Roster has them active, INJURED_DB lower while injured, and is silent
+# for good once they are dead (CLAUDE.md rule 7: nothing brings it back).
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
@@ -44,12 +47,17 @@ const CHOIRS := {3: &"choir_3", 10: &"choir_10", 50: &"choir_50"}
 ## The call's lead voice, and how far it comes forward while a drone is flown.
 const LEAD := &"mantra_lead"
 const LEAD_FORWARD_DB := 6.0
+## How far below its level an injured crew member's motif plays.
+const INJURED_DB := 9.0
 
 ## The mix last set.
 var mix: StringName = &""
 ## The fleet layer in use, or null.
 var fleet: CommandView
 var _tension := {}  # instance id of each source holding tension -> true
+
+func _ready() -> void:
+	Roster.status_changed.connect(func(_id, _status): _on_fleet())
 
 ## The score for `act`: its own, or the nearest earlier act's. Null if none.
 func score_for(act: int) -> Score:
@@ -80,7 +88,7 @@ func set_mix(m: StringName, time := -1.0) -> void:
 	mix = m
 	if Music.score == null:
 		return
-	var levels := command_levels(levels_for(Music.score, &"tension" if tense() else m), fleet_size(), flying())
+	var levels := crew_levels(command_levels(levels_for(Music.score, &"tension" if tense() else m), fleet_size(), flying()))
 	for id in levels:
 		if not is_equal_approx(Music.level(id), levels[id]):
 			Music.set_level(id, levels[id], time)
@@ -119,6 +127,21 @@ static func command_levels(levels: Dictionary, size: int, forward: bool) -> Dict
 			levels[id] = Music.SILENT_DB
 	if forward and levels.has(LEAD) and levels[LEAD] > Music.SILENT_DB:
 		levels[LEAD] += LEAD_FORWARD_DB
+	return levels
+
+## `levels` with each crew member's motif as Roster has them: as it is while
+## active, INJURED_DB down while injured, silent once dead.
+static func crew_levels(levels: Dictionary) -> Dictionary:
+	for id in Roster.characters:
+		var motif: StringName = Roster.characters[id].motif
+		if motif == &"" or not levels.has(motif):
+			continue
+		match Roster.status(id):
+			Roster.Status.DEAD:
+				levels[motif] = Music.SILENT_DB
+			Roster.Status.INJURED:
+				if levels[motif] > Music.SILENT_DB:
+					levels[motif] = maxf(levels[motif] - INJURED_DB, Music.SILENT_DB)
 	return levels
 
 ## Follows `view`, the fleet layer: its size and drops into a drone change the mix.
