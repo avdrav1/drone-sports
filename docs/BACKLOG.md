@@ -319,6 +319,7 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
   - Context: Asked for after Epic 8. `Weather.apply` (moved out of `JobRunner`) puts a preset's wind on the drone and its fog on a copy of the scene's Environment; null restores the scene's own. The sandbox's `weathers` list is data; E (`cycle_weather`) cycles; the HUD subtitle names the weather. Clear brings back the sandbox breeze. Wind is only felt with the battery and wind assist off (Act 4 on), as everywhere.
   - Acceptance: E steps clear, fog bank, whiteout, clear, with each preset's fog density and wind, and the HUD names it. Back at clear the Environment is the shared golden-hour resource again, unchanged, and the drone has the sandbox breeze.
   - Out of scope: Weather on the job board, random weather, saving the choice.
+  - Note: First shipped, the fog took the scene's golden colour and barely touched the sky, so it hardly read as weather. `Weather` now carries `fog_color` and `sky_affect`: the fog bank is grey and hides most of the sky, the whiteout is near white and hides nearly all of it. The rescue job's whiteout gets the same look.
 
 ## Epic 5: Progression, teams, and recruitment gates
 

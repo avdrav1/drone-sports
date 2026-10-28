@@ -14,3 +14,5 @@ script = ExtResource("1_weather")
 label = "Fog bank"
 fog_density = 0.03
 wind = SubResource("gusts")
+fog_color = Color(0.6, 0.62, 0.66, 1)
+sky_affect = 0.7

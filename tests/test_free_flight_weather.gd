@@ -24,13 +24,14 @@ func test_e_cycles_weather_and_back_to_clear() -> bool:
 	var clear_start: bool = env_node.environment == ENV and breeze != null and not hud.subtitle.contains("Fog")
 	_press(s)
 	var fogged: bool = is_equal_approx(env_node.environment.fog_density, fog.fog_density) and d.wind == fog.wind \
-		and hud.subtitle.contains("Fog bank")
+		and hud.subtitle.contains("Fog bank") and env_node.environment.fog_light_color == fog.fog_color \
+		and is_equal_approx(env_node.environment.fog_sky_affect, fog.sky_affect) and fog.fog_color != ENV.fog_light_color
 	_press(s)
 	var whited: bool = is_equal_approx(env_node.environment.fog_density, white.fog_density) and d.wind == white.wind \
 		and hud.subtitle.contains("Whiteout")
 	_press(s)
 	var cleared: bool = env_node.environment == ENV and d.wind == breeze and not hud.subtitle.contains("Whiteout")
-	var ok: bool = clear_start and fogged and whited and cleared and ENV.fog_density == base \
+	var ok: bool = clear_start and fogged and whited and cleared and ENV.fog_density == base and ENV.fog_light_color != fog.fog_color \
 		and ControlsHelp.key_text(&"cycle_weather") == "E"
 	if not ok:
 		print("        %s %s %s %s" % [clear_start, fogged, whited, cleared])

@@ -14,3 +14,5 @@ script = ExtResource("1_weather")
 label = "Whiteout"
 fog_density = 0.05
 wind = SubResource("gusts")
+fog_color = Color(0.88, 0.9, 0.93, 1)
+sky_affect = 0.95
