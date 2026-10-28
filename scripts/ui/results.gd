@@ -45,6 +45,8 @@ func show_result(r: JobResult) -> void:
 	for e in r.epilogue:
 		rows.add_child(epilogue_row(e))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
+	if r.pay > 0:
+		Sfx.play(&"job_payout")
 	retry_button.disabled = not can_retry(r.job)
 	retry_button.tooltip_text = "" if can_retry(r.job) else "This job is off the board now."
 	show_offers()

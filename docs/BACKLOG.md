@@ -632,11 +632,12 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Out of scope: Voice warnings.
   - Note: `FlightCues` (`scripts/audio/flight_cues.gd`) is a child of `camera_rig.tscn`, so every flying scene gets it and it follows the rig's target drone; it plays `flight_recovered`, `flight_low_battery` (battery crosses 0.2, the HUD's red), `flight_guard` (`CollisionGuard.braking`), `flight_brake` (new `Brake.stopping`: sticks released above `stop_speed`), and `camera_view` (UI bus, only when the view really changes). Assist cues count a flicker as one event until the assist has been out for `rearm_time`; switching target drones is never an event.
 
-- [ ] **14.4 Jobs**
+- [x] **14.4 Jobs**
   - Goal: Jobs sound like jobs: countdown beeps, gates passed, hold progress, finish and fail stingers, the payout count, and the hazard warning and strike.
   - Context: `JobRunner` state changes, `Course` gates, `HoldStation` progress, `HazardZone` warnings and strikes, the results screen.
   - Acceptance: Every runner state change and every hazard warning and strike plays its sound. Gate sounds match gates passed.
   - Out of scope: Commentary.
+  - Note: `JobRunner` adds a `JobCues` (`scripts/audio/job_cues.gd`) as an internal child, so every job gets its sounds without scene edits and `objectives()` never sees it: a `job_*` cue per state entered, a `job_countdown` beep per whole countdown second, `job_gate` for each `Course.gate_passed` by `runner.drone` or the rig's target (not AI racers), `job_hold_tick` per quarter of each `HoldStation` and `job_hold_done`, and `hazard_warning` / `hazard_strike` from every `HazardZone`. The results screen plays `job_payout` when pay is above zero. `hazard_strike` is on the World bus; every other job cue, `hazard_warning` included, is on the UI bus.
 
 - [ ] **14.5 Interface**
   - Goal: The board, shop, pilot select, offers, and dialogs click, focus, and confirm.

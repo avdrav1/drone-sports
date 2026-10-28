@@ -159,6 +159,100 @@ def camera_view():
     return out
 
 
+def job_briefing():
+    """A soft two-note call: the job is on the board, waiting for launch."""
+    return tone_seq([(523, 0.14), (784, 0.36)], decay=7.0)
+
+
+def job_countdown():
+    """One countdown beep, played on each whole second of the countdown."""
+    return tone_seq([(880, 0.16)], shape="square", decay=14.0)
+
+
+def job_go():
+    """The launch beep: an octave above the countdown and held longer."""
+    return tone_seq([(1760, 0.45)], shape="square", decay=5.0)
+
+
+def job_gate():
+    """A bright upward blip for a gate passed."""
+    rng = random.Random(1440)
+    n = int(RATE * 0.18)
+    phase = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        f = 1100 + 900 * min(1.0, t / 0.05)
+        phase += 2 * math.pi * f / RATE
+        env = min(1.0, t / 0.003) * math.exp(-t * 16.0)
+        out.append((math.sin(phase) + 0.25 * math.sin(2 * phase) + 0.05 * rng.uniform(-1, 1)) * env)
+    return out
+
+
+def job_hold_tick():
+    """A soft wooden tick for each quarter of a hold."""
+    return tone_seq([(1200, 0.07)], decay=45.0)
+
+
+def job_hold_done():
+    """Two quick rising notes: the hold is done."""
+    return tone_seq([(988, 0.08), (1319, 0.22)], decay=12.0)
+
+
+def job_complete():
+    """A major arpeggio and a held top note: job complete."""
+    return tone_seq([(523, 0.11), (659, 0.11), (784, 0.11), (1047, 0.6)], decay=5.0)
+
+
+def job_fail():
+    """A falling minor line ending in a low buzz: job failed."""
+    return tone_seq([(466, 0.18), (392, 0.18), (311, 0.6)], shape="square", decay=4.5)
+
+
+def job_payout():
+    """The pay counting up: coin ticks that speed up, then a closing ding."""
+    rng = random.Random(1441)
+    out = []
+    gap = 0.11
+    for k in range(12):
+        f = 2000 + rng.uniform(-150, 150) + 40 * k
+        n = int(RATE * gap)
+        for i in range(n):
+            t = i / RATE
+            out.append(math.sin(2 * math.pi * f * t) * math.exp(-t * 70) * 0.6)
+        gap = max(0.035, gap * 0.85)
+    return out + tone_seq([(2637, 0.4)], decay=8.0)
+
+
+def hazard_warning():
+    """A two-tone warble: crew ahead, a strike is coming."""
+    out = []
+    for k in range(4):
+        f = 880 if k % 2 == 0 else 660
+        n = int(RATE * 0.13)
+        for i in range(n):
+            t = i / RATE
+            s = math.tanh(3 * math.sin(2 * math.pi * f * t))
+            env = min(1.0, t / 0.005) * min(1.0, (n - i) / (RATE * 0.01))
+            out.append(s * env)
+    return out
+
+
+def hazard_strike():
+    """A heavy hit: a low thud under a harsh burst of noise."""
+    rng = random.Random(1442)
+    n = int(RATE * 0.7)
+    y = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        y += 0.2 * (rng.uniform(-1, 1) - y)
+        thud = math.sin(2 * math.pi * (55 + 40 * math.exp(-t * 12)) * t) * math.exp(-t * 6)
+        buzz = math.tanh(3 * math.sin(2 * math.pi * 110 * t)) * math.exp(-t * 9)
+        out.append(thud * 1.0 + buzz * 0.35 + y * 1.2 * math.exp(-t * 10))
+    return out
+
+
 def main():
     write("drone_hum.wav", drone_hum(), loop=True)
     write("drone_wash.wav", drone_wash(), loop=True)
@@ -169,6 +263,10 @@ def main():
     write("flight_guard.wav", flight_guard())
     write("flight_brake.wav", flight_brake())
     write("camera_view.wav", camera_view())
+    for name in ("job_briefing", "job_countdown", "job_go", "job_gate", "job_hold_tick",
+                 "job_hold_done", "job_complete", "job_fail", "job_payout",
+                 "hazard_warning", "hazard_strike"):
+        write(name + ".wav", globals()[name]())
 
 
 if __name__ == "__main__":

@@ -19,3 +19,14 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/flight_guard.wav` | `tools/sfx/generate.py` | generated |
 | `generated/flight_brake.wav` | `tools/sfx/generate.py` | generated |
 | `generated/camera_view.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_briefing.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_countdown.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_go.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_gate.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_hold_tick.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_hold_done.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_complete.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_fail.wav` | `tools/sfx/generate.py` | generated |
+| `generated/job_payout.wav` | `tools/sfx/generate.py` | generated |
+| `generated/hazard_warning.wav` | `tools/sfx/generate.py` | generated |
+| `generated/hazard_strike.wav` | `tools/sfx/generate.py` | generated |

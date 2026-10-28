@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=20 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=42 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -12,6 +12,17 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/flight_guard.wav" id="10_guard"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/flight_brake.wav" id="11_brake"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/camera_view.wav" id="12_view"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_briefing.wav" id="13_job_briefing"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_countdown.wav" id="14_job_countdown"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_go.wav" id="15_job_go"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_gate.wav" id="16_job_gate"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_hold_tick.wav" id="17_job_hold_tick"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_hold_done.wav" id="18_job_hold_done"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_complete.wav" id="19_job_complete"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_fail.wav" id="20_job_fail"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/job_payout.wav" id="21_job_payout"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/hazard_warning.wav" id="22_hazard_warning"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/hazard_strike.wav" id="23_hazard_strike"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -70,6 +81,84 @@ streams = Array[AudioStream]([ExtResource("12_view")])
 volume_db = -12.0
 bus = &"UI"
 
+[sub_resource type="Resource" id="job_briefing"]
+script = ExtResource("2_event")
+id = &"job_briefing"
+streams = Array[AudioStream]([ExtResource("13_job_briefing")])
+volume_db = -8.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_countdown"]
+script = ExtResource("2_event")
+id = &"job_countdown"
+streams = Array[AudioStream]([ExtResource("14_job_countdown")])
+volume_db = -8.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_go"]
+script = ExtResource("2_event")
+id = &"job_go"
+streams = Array[AudioStream]([ExtResource("15_job_go")])
+volume_db = -6.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_gate"]
+script = ExtResource("2_event")
+id = &"job_gate"
+streams = Array[AudioStream]([ExtResource("16_job_gate")])
+volume_db = -8.0
+pitch_variance = 0.03
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_hold_tick"]
+script = ExtResource("2_event")
+id = &"job_hold_tick"
+streams = Array[AudioStream]([ExtResource("17_job_hold_tick")])
+volume_db = -12.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_hold_done"]
+script = ExtResource("2_event")
+id = &"job_hold_done"
+streams = Array[AudioStream]([ExtResource("18_job_hold_done")])
+volume_db = -8.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_complete"]
+script = ExtResource("2_event")
+id = &"job_complete"
+streams = Array[AudioStream]([ExtResource("19_job_complete")])
+volume_db = -4.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_fail"]
+script = ExtResource("2_event")
+id = &"job_fail"
+streams = Array[AudioStream]([ExtResource("20_job_fail")])
+volume_db = -4.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="job_payout"]
+script = ExtResource("2_event")
+id = &"job_payout"
+streams = Array[AudioStream]([ExtResource("21_job_payout")])
+volume_db = -8.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="hazard_warning"]
+script = ExtResource("2_event")
+id = &"hazard_warning"
+streams = Array[AudioStream]([ExtResource("22_hazard_warning")])
+volume_db = -6.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="hazard_strike"]
+script = ExtResource("2_event")
+id = &"hazard_strike"
+streams = Array[AudioStream]([ExtResource("23_hazard_strike")])
+volume_db = -2.0
+bus = &"World"
+
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike")])

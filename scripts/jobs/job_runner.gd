@@ -54,8 +54,13 @@ var _weather_step := 0
 var launch_dialog: LaunchDialog
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
+## The job's sounds; an internal child, so objectives() never sees it.
+var cues: JobCues
 
 func _ready() -> void:
+	cues = JobCues.new()
+	cues.name = "Cues"
+	add_child(cues, false, Node.INTERNAL_MODE_BACK)
 	if auto_begin:
 		begin.call_deferred()
 
