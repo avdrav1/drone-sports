@@ -45,3 +45,12 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/lattice_power_down.wav` | `tools/sfx/generate.py` | generated |
 | `generated/bed_intro.wav` | `tools/sfx/generate.py` | generated |
 | `generated/bed_recruited.wav` | `tools/sfx/generate.py` | generated |
+| `generated/city_hum_muffled.wav` | `tools/sfx/generate.py` (`city_hum` low-passed for snow's hush) | generated |
+| `generated/desert_wind_muffled.wav` | `tools/sfx/generate.py` (`desert_wind` low-passed for snow's hush) | generated |
+| `cc0/rain_loop.ogg` | "Rain (loopable)" by Ylmir, `1.ogg` at 8 s, 6 s crossfaded loop: https://opengameart.org/content/rain-loopable | CC0 |
+| `cc0/rain_roof_loop.ogg` | "Rain in the Gutter Loop" by Ogrebane, at 20 s, 6 s crossfaded loop: https://opengameart.org/content/rain-gutter-loop | CC0 |
+| `cc0/wind_loop.ogg` | "wind whoosh loop" by SketchMan3 (from JaggedStone's CC0 "Loopable Dungeon Ambience"), whole loop: https://opengameart.org/content/wind-whoosh-loop | CC0 |
+| `cc0/wind_loop_muffled.ogg` | `cc0/wind_loop.ogg` low-passed (500 Hz, twice) for snow's hush; same source: https://opengameart.org/content/wind-whoosh-loop | CC0 |
+| `cc0/thunder_1.ogg` | "100 CC0 SFX #2" by rubberduck, `sfx100v2_thunder_01.ogg` from 0.5 s: https://opengameart.org/content/100-cc0-sfx-2 | CC0 |
+| `cc0/thunder_2.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 20.8 to 31.8 s: https://opengameart.org/content/rain-long-thunder | CC0 |
+| `cc0/thunder_3.ogg` | "Rain + Long Thunder" by WuxiaScrub, `rain-thunder.ogg` 27.5 to 35.5 s, low-passed (900 Hz) for a distant roll: https://opengameart.org/content/rain-long-thunder | CC0 |

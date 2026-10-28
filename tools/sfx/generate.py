@@ -51,6 +51,15 @@ def lowpass_loop(samples, a):
     return out
 
 
+def muffled(samples):
+    """Snow's hush (Story 14.7): a loop heard through falling snow, its highs
+    gone. Four passes of a ~300 Hz low-pass around the loop, baked, since the
+    web build has no live bus effects."""
+    for _ in range(2):
+        samples = lowpass_loop(samples, 0.08)
+    return samples
+
+
 def drone_hum():
     """One second of four motors' blade-pass buzz, slightly apart so they beat.
     Played pitched up and down by thrust (DroneSound)."""
@@ -429,6 +438,8 @@ def main():
         write(name + ".wav", globals()[name]())
     for name in ("city_hum", "desert_wind", "room_tone"):
         write(name + ".wav", globals()[name](), loop=True)
+    for name in ("city_hum", "desert_wind"):
+        write(name + "_muffled.wav", muffled(globals()[name]()), loop=True)
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
     for name in ("crew_chirp", "lattice_tone", "lattice_power_down"):

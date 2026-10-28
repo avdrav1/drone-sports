@@ -132,7 +132,14 @@ func power() -> float:
 
 ## The wind where the drone is: stronger with height, calmer in a city's lee (Story 13.4).
 func wind_velocity() -> Vector3:
-	if wind == null or not intent.environment_sim:
+	if not intent.environment_sim:
+		return Vector3.ZERO
+	return measured_wind()
+
+## The wind where the drone is, whether or not the sim lets it push: what the
+## air is doing there (weather sound hears it, Story 14.7). Zero in still air.
+func measured_wind() -> Vector3:
+	if wind == null:
 		return Vector3.ZERO
 	var city: City = get_tree().get_first_node_in_group(City.SHELTER_GROUP) if is_inside_tree() else null
 	if city and city.plan:

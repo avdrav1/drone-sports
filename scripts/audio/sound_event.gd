@@ -9,3 +9,8 @@ extends Resource
 ## Each play is pitched by a random factor within ± this.
 @export var pitch_variance := 0.0
 @export var bus: StringName = &"World"
+## A baked low-passed copy of a loop, for snow's hush (Story 14.7); null if none.
+## Same length as the loop, so the two play in step and crossfade.
+@export var muffled: AudioStream
+## Added to volume_db for the muffled copy.
+@export var muffled_db := 0.0
