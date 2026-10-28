@@ -15,6 +15,11 @@ extends Node
 #    HazardZone, which warns first while the drone is near the shell. The
 #    entrance closes trench_time seconds after it opened, failing the job.
 #
+# 3. Override: hold inside a small sphere at the core's port for hold_time while
+#    the shell shakes and gusts blow down the trench (the wind sim, which the
+#    Act 5 preset already has on). Drifting out for more than half a second
+#    resets the hold. Completing it disables the Lattice: never damage.
+#
 # Holds no flight code: drones fly through their intent sources, and every
 # order goes to an Autopilot.
 
@@ -22,6 +27,8 @@ signal phase_started(phase: Phase)
 signal phase_complete(phase: Phase)
 signal unit_reclaimed(unit: int, by: Drone)
 signal fleet_drone_lost(drone: Drone)
+signal hold_complete
+signal boss_disabled
 ## Marlo called a turn at trench waypoint `index`.
 signal called(index: int, text: String)
 
@@ -51,6 +58,11 @@ const DRONE := preload("res://scenes/drone/drone.tscn")
 @export var contact_radius := 0.3
 ## A trench waypoint every this many points of the trench path.
 @export var call_every := 3
+## Phase 3's hold; the fight gives it the port and the boss's numbers.
+@export var override: OverrideHold
+@export var gusts: Wind = preload("res://data/wind/lattice_gusts.tres")
+## How far the shell's units shake during the override, m. Look only.
+@export var shake := 0.25
 
 var phase := Phase.BRIEFING
 ## Units reclaimed so far, in order.
@@ -77,6 +89,15 @@ func _ready() -> void:
 		def.normal = (def.guard - lattice.global_position).normalized()
 		def.prey = command.drones
 	runner.state_changed.connect(_on_runner_state)
+	if override:
+		var port := Node3D.new()
+		port.name = "Port"
+		lattice.add_child(port)
+		port.position = lattice.port()
+		override.center = port
+		override.radius = boss().hold_radius
+		override.hold_time = boss().hold_time
+		override.grace = 0.5
 
 static func _defender(d: Drone) -> Defender:
 	for c in d.get_children():
@@ -143,6 +164,8 @@ func _physics_process(delta: float) -> void:
 			_reclaim_step(delta)
 		Phase.TRENCH:
 			_trench_step(delta)
+		Phase.OVERRIDE:
+			_override_step()
 
 func _reclaim_step(delta: float) -> void:
 	for d in assigned.keys():
@@ -284,7 +307,7 @@ func _trench_step(delta: float) -> void:
 	_touching = touching
 	if p.distance_to(shutter()) <= 3.0:
 		phase_complete.emit(Phase.TRENCH)
-		_start(Phase.OVERRIDE)
+		start_override()
 		return
 	if trench_clock >= boss().trench_time:
 		lattice.entrance_open = false
@@ -303,3 +326,22 @@ func _call(index: int) -> void:
 	called.emit(index, text)
 	if bark:
 		bark.spoke.emit(&"marlo", &"trench", text)
+
+# --- Phase 3: override -----------------------------------------------------
+
+func start_override() -> void:
+	runner.drone.wind = gusts
+	_start(Phase.OVERRIDE)
+
+func _override_step() -> void:
+	var units := lattice.get_node_or_null("Units") as Node3D
+	if units:
+		var t := Time.get_ticks_msec() * 0.001
+		units.position = Vector3(sin(t * 23.0), sin(t * 31.0 + 1.0), sin(t * 19.0 + 2.0)) * shake
+	if override and override.is_done():
+		if units:
+			units.position = Vector3.ZERO
+		hold_complete.emit()
+		phase_complete.emit(Phase.OVERRIDE)
+		boss_disabled.emit()
+		_start(Phase.POWER_DOWN)

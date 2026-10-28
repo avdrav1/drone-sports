@@ -24,6 +24,7 @@
 [ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="22_zone"]
 [ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="23_warn"]
 [ext_resource type="Script" path="res://scripts/ui/lattice_hud.gd" id="24_hud"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/override_hold.gd" id="25_override"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -107,6 +108,11 @@ script = ExtResource("15_reclaim")
 fight = NodePath("../../Fight")
 label = "Trench opened"
 
+[node name="Override" type="Node" parent="JobRunner" node_paths=PackedStringArray("fight")]
+script = ExtResource("25_override")
+fight = NodePath("../../Fight")
+label = "Override held"
+
 [node name="MarloZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 37, -32.5)
 script = ExtResource("22_zone")
@@ -119,7 +125,7 @@ script = ExtResource("22_zone")
 character = &"bea"
 radius = 1.5
 
-[node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders", "camera_rig", "bark")]
+[node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders", "camera_rig", "bark", "override")]
 script = ExtResource("16_fight")
 runner = NodePath("../JobRunner")
 lattice = NodePath("../Lattice")
@@ -127,6 +133,7 @@ command = NodePath("../CommandView")
 defenders = [NodePath("../Defender1"), NodePath("../Defender2")]
 camera_rig = NodePath("../CameraRig")
 bark = NodePath("../Bark")
+override = NodePath("../JobRunner/Override")
 
 [node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
 script = ExtResource("17_bark")

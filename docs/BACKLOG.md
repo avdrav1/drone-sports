@@ -459,11 +459,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: Branching trench routes.
   - Note: When the entrance opens, the pilot's drone unfreezes with the job's assists and the camera rig takes it; the command view sleeps. Waypoints are invisible, collisionless `Gate`s every third point of `Lattice.trench_path()`, each called once from `marlo.json` (`trench`, by index) while Marlo lives. The shell has no physics, so contact is `Lattice.touching()` at 0.3 m. Within 2.5 m of the shell the calling crew member's `HazardZone` (Marlo, else Bea) warns; contact strikes through it, so rule 7's warning always comes first. A shell contact under a second after the warning starts lands no strike.
 
-- [ ] **8.5 Phase 3: override**
+- [x] **8.5 Phase 3: override**
   - Goal: Hold station inside a 1 m sphere at the override port for the configured hold time while the Lattice shakes the trench and gusts wind through it. Leaving the sphere resets the hold.
   - Context: Reuses `HoldStation` from 4.4 and the wind sim from 1.7. Win condition is `hold_complete`, never damage.
   - Acceptance: A scripted perfect hold completes in exactly the hold time. Leaving the sphere for more than 0.5 s resets. Completion emits `boss_disabled` and triggers the power-down sequence.
   - Out of scope: Multiple ports.
+  - Note: `OverrideHold` extends `HoldStation` and counts only in phase 3. The fight gives it a Port node on the core with the boss's `hold_radius` and `hold_time`, and grace 0.5 s. The gusts are `data/wind/lattice_gusts.tres` on the pilot's drone; the Act 5 preset already runs the wind sim, so nothing turns an assist on. The shake moves only the units' MultiMesh (look only); contact geometry stays put. Completion emits `hold_complete`, then `boss_disabled`, and moves to power-down.
 
 - [ ] **8.6 Power-down and epilogue**
   - Goal: On `boss_disabled`, the shell loosens section by section on a timeline, captured units fall free, crew-owned units return to the roster as fleet drones, and the results screen shows a final crew lines pass with living and dead accounted for.
