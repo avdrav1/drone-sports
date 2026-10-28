@@ -64,9 +64,8 @@ func reset() -> void:
 	_recover_left = 0.0
 
 func read_intent() -> Intent:
-	var intent := Intent.new()
 	if drone == null or curve.point_count < 2:
-		return intent
+		return Intent.new()
 	var dt := 1.0 / Engine.physics_ticks_per_second
 	_time += dt
 	var pos := drone.global_position
@@ -89,20 +88,28 @@ func read_intent() -> Intent:
 		var back := pos - (target - pos).normalized() * 3.0
 		target = Vector3(back.x, pos.y + 2.0, back.z)
 		speed = 3.0
+	return steer(drone, target, speed)
+
+## Sticks that carry `d` toward `target` at `speed` m/s: tilt for the horizontal
+## velocity, an altitude-hold climb for height, and yaw to face the way it goes.
+## Needs auto-level and altitude hold on. Shared with Autopilot (Story 6.1).
+static func steer(d: Drone, target: Vector3, speed: float) -> Intent:
+	var intent := Intent.new()
+	var pos := d.global_position
 	# Horizontal: accelerate toward the speed we want along the line.
 	var to := target - pos
 	var dir := Vector3(to.x, 0.0, to.z).normalized()
-	var accel := (dir * speed - FlightControl.horizontal_velocity(drone)) * 2.0
-	var tilt := FlightControl.tilt_for_accel(drone, accel)
+	var accel := (dir * speed - FlightControl.horizontal_velocity(d)) * 2.0
+	var tilt := FlightControl.tilt_for_accel(d, accel)
 	intent.pitch = clampf(tilt.x / STICK_ANGLE, -1.0, 1.0)
 	intent.roll = clampf(tilt.y / STICK_ANGLE, -1.0, 1.0)
 	# Vertical: ask altitude hold for a climb rate toward the line.
 	intent.throttle = clampf(to.y * 1.5 / STICK_CLIMB, -1.0, 1.0)
-	# Yaw: face where we are going.
-	var b := drone.global_transform.basis
+	# Yaw: face where we are going; holding on the spot, just stop turning.
+	var b := d.global_transform.basis
 	var fwd := Vector3(-b.z.x, 0.0, -b.z.z).normalized()
-	var err := fwd.signed_angle_to(dir, Vector3.UP)
-	intent.yaw = clampf(-err * 2.0 + FlightControl.body_rate(drone).y * 0.3, -1.0, 1.0)
+	var err := fwd.signed_angle_to(dir, Vector3.UP) if Vector2(to.x, to.z).length() > 1.0 else 0.0
+	intent.yaw = clampf(-err * 2.0 + FlightControl.body_rate(d).y * 0.3, -1.0, 1.0)
 	return intent
 
 ## Steer to the side and up around racers just ahead on our line.

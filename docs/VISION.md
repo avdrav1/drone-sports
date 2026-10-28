@@ -92,7 +92,7 @@ The last job is the Lattice: a rogue drone foundry that captured every drone it 
 
 - [ ] Does the player learn the home game was a tryout, or is that the act-one twist?
 - [ ] Which assists does the existing drone sim already have, and which need building?
-- [ ] Is the fleet tier a different genre (RTS) or still flown from a lead drone?
+- [x] Is the fleet tier a different genre (RTS) or still flown from a lead drone? Neither fully: a command layer. You give orders from a top-down view to drones under autopilot, and drop into any one of them to fly it by hand. Same physics, same drones. Decided 2026-10-27 when Epic 6 started.
 - [ ] One faction per playthrough, or can you switch teams mid-career?
 - [ ] Does all-assists-on feel like an arcade flyer, or just easy? Needs a prototype.
 - [ ] Should there be a rookie mode where crew get hurt but never die?

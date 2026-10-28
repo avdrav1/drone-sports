@@ -352,11 +352,12 @@ Done when the player moves from Act 1 to Act 4 by being recruited, each promotio
 
 Do not start until Epics 3 and 4 have been playtested and the fleet-genre question in VISION.md is answered.
 
-- [ ] **6.1 Autopilot intent source**
+- [x] **6.1 Autopilot intent source**
   - Goal: An `Intent` source that flies a drone to a waypoint, reusing the AI racer logic from 3.3.
   - Context: Each fleet drone is the same Drone scene under autopilot.
   - Acceptance: A drone reaches five waypoints within 2 m each and holds at the last.
   - Out of scope: Formation flying.
+  - Note: Started on the user's go-ahead ("finish all epics"), before a recorded playtest of Epics 3 and 4; the fleet question is answered in VISION.md. `Autopilot` flies with its own stack (`data/assists/autopilot.tres`: guard, altitude hold, auto-level, governor; no brake). The racer's steering is now the static `AiPilot.steer`, which both use.
 
 - [ ] **6.2 Command view**
   - Goal: A top-down camera with click-to-select on drones and click-to-set waypoints, plus a key to drop into any drone's first-person view.
