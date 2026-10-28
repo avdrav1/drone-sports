@@ -36,3 +36,5 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var requires_living: Array[StringName] = []
 ## Fog and wind. Null flies clear and still.
 @export var weather: Weather
+## Weather changes on a schedule after launch, each blending from the last (Story 13.6).
+@export var weather_changes: Array[WeatherChange] = []

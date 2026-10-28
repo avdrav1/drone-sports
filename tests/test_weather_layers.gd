@@ -115,6 +115,7 @@ func test_job_and_free_flight_fill_weather_state() -> bool:
 	var s: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
 	await Sim.process_frames(2)
 	s.cycle_weather()
+	WeatherState.of(s).advance(s.weather_blend_time)
 	var fog: Weather = load("res://data/weather/fog_bank.tres")
 	var flight_ok: bool = WeatherState.of(s).weather == fog
 	s.free()

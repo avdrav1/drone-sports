@@ -76,8 +76,13 @@ func _place_flakes(n: int) -> void:
 		return
 	if particles == null:
 		particles = _make_flakes()
+		particles.amount = n
 	Rain.follow_camera(self, particles)
-	if particles.amount != n:
+	# Small steps during a blend (Story 13.6) wait, since each change restarts
+	# the emitter; once the blend lands the exact count goes on.
+	var state := get_parent() as WeatherState
+	var settled: bool = state == null or not state.blending
+	if particles.amount != n and (settled or absi(particles.amount - n) * 16 > max_amount):
 		particles.amount = n
 	# Carried by the wind: the whole fall is the flake's own velocity, no gravity.
 	var v := flake_velocity()

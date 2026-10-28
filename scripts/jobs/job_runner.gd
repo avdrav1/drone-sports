@@ -49,6 +49,8 @@ var results_screen: Control
 var strikes := {}
 ## Character id -> status after a strike this job, e.g. injured or dead.
 var casualties := {}
+## Next of the job's weather_changes to start.
+var _weather_step := 0
 var launch_dialog: LaunchDialog
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
@@ -76,6 +78,7 @@ func begin() -> void:
 		drone.assists.apply_stack(GameSettings.effective_stack(assists_for(job)))
 	Garage.apply(drone)
 	_apply_weather()
+	_weather_step = 0
 	_remove_dead_crew()
 	_arm_hazard_zones()
 	if camera_rig:
@@ -199,6 +202,7 @@ func _physics_process(delta: float) -> void:
 				_set_state(State.LIVE)
 		State.LIVE:
 			live_time += delta
+			_run_weather_changes()
 			if _finish_line_reached():
 				complete()
 			elif job.time_limit > 0.0 and live_time >= job.time_limit:
@@ -284,6 +288,14 @@ func _on_struck(character: StringName, _cause: StringName) -> void:
 ## The job's weather on the drone and the scene; none is clear and still.
 func _apply_weather() -> void:
 	Weather.apply(job.weather, drone, owner if owner else get_parent())
+
+## Starts each of the job's weather changes once live time reaches it.
+func _run_weather_changes() -> void:
+	while _weather_step < job.weather_changes.size() and live_time >= job.weather_changes[_weather_step].at:
+		var change := job.weather_changes[_weather_step]
+		var scope: Node = owner if owner else get_parent()
+		WeatherState.of(scope).blend_to(change.weather, change.blend_time, drone, scope)
+		_weather_step += 1
 
 func _finish_line_reached() -> bool:
 	var any := false

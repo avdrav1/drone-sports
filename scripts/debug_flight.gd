@@ -3,11 +3,13 @@ extends Node3D
 # F1 toggles the readout, F2 cycles the act presets, C cycles camera views,
 # R (or Start) puts the drone back where it started, J flies the sample job, K the test race, L the tower inspection,
 # H the demolition run, U the search and rescue, Esc goes back to the job board.
-# E cycles the weather: clear, then each of `weathers`.
+# E cycles the weather: clear, then each of `weathers`, blending over weather_blend_time.
 
 @export var presets: Array[AssistStack] = []
 ## Weather presets E cycles through after clear.
 @export var weathers: Array[Weather] = []
+## Seconds E takes to blend into the next weather (Story 13.6).
+@export var weather_blend_time := 3.0
 @export_file("*.tscn") var sample_job := "res://scenes/jobs/sample_delivery.tscn"
 @export_file("*.tscn") var race_job := "res://scenes/jobs/test_race.tscn"
 @export_file("*.tscn") var inspection_job := "res://scenes/jobs/inspection.tscn"
@@ -82,10 +84,16 @@ func weather() -> Weather:
 ## Clear, then each preset in turn, then clear again.
 func cycle_weather() -> void:
 	weather_index = weather_index + 1 if weather_index + 1 < weathers.size() else -1
-	Weather.apply(weather(), drone, self)
-	if weather() == null:
-		drone.wind = _breeze
+	var state := WeatherState.of(self)
+	if not state.blended.is_connected(_on_weather_blended):
+		state.blended.connect(_on_weather_blended)
+	state.blend_to(weather(), weather_blend_time, drone, self)
 	apply_preset()
+
+## Clear brings the scene's breeze back once the blend lands.
+func _on_weather_blended(w: Weather) -> void:
+	if w == null:
+		drone.wind = _breeze
 
 func _on_expert_toggled(on: bool) -> void:
 	GameSettings.expert_all_assists_off = on

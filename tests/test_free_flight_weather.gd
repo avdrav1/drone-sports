@@ -10,6 +10,8 @@ func _press(scene: Node) -> void:
 	ev.action = &"cycle_weather"
 	ev.pressed = true
 	scene.get_viewport().push_input(ev)
+	# E blends (Story 13.6); land it.
+	WeatherState.of(scene).advance(scene.weather_blend_time)
 
 func test_e_cycles_weather_and_back_to_clear() -> bool:
 	var s: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())

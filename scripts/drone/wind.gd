@@ -30,11 +30,49 @@ const MODES := 3
 
 # [seed, frequencies (rad/s), phases, spatial wave vectors] per axis and mode.
 var _turbulence_cache := []
+# A blend of two winds (Story 13.6): sample mixes what each would blow, so a
+# change of gust period or seed never chirps or jumps. Null when not a blend.
+var _mix_a: Wind
+var _mix_b: Wind
+var _mix_t := 0.0
+## Nested blends kept before a mix flattens to its lerped fields.
+const MAX_MIX_DEPTH := 4
+
+## Makes this wind `a` turned `t` (0..1) of the way into `b`: every field moves
+## linearly, and sample() mixes the two winds' own samples. A blend starting
+## from a blend nests it, up to MAX_MIX_DEPTH deep.
+func mix(a: Wind, b: Wind, t: float) -> void:
+	base = a.base.lerp(b.base, t)
+	gust_amplitude = lerpf(a.gust_amplitude, b.gust_amplitude, t)
+	gust_period = lerpf(a.gust_period, b.gust_period, t)
+	turbulence = lerpf(a.turbulence, b.turbulence, t)
+	shear = lerpf(a.shear, b.shear, t)
+	seed = a.seed if t < 0.5 else b.seed
+	if a == b:
+		# A copy of one wind keeps whatever it already mixes.
+		_mix_a = a._mix_a
+		_mix_b = a._mix_b
+		_mix_t = a._mix_t
+	elif maxi(a.mix_depth(), b.mix_depth()) >= MAX_MIX_DEPTH:
+		_mix_a = null
+		_mix_b = null
+	else:
+		_mix_a = a
+		_mix_b = b
+		_mix_t = t
+
+## How many blends deep this wind is; 0 for a plain wind.
+func mix_depth() -> int:
+	if _mix_a == null:
+		return 0
+	return 1 + maxi(_mix_a.mix_depth(), _mix_b.mix_depth())
 
 ## The wind at `time` and point `at`. Without a point it is the wind at
 ## REFERENCE_HEIGHT; with a `plan` (a city's, in its local space) a point in a
 ## building's lee gets less.
 func sample(time: float, at := Vector3(0.0, REFERENCE_HEIGHT, 0.0), plan: CityPlan = null) -> Vector3:
+	if _mix_a:
+		return _mix_a.sample(time, at, plan).lerp(_mix_b.sample(time, at, plan), _mix_t)
 	var dir := base.normalized() if base.length_squared() > 0.0 else Vector3.RIGHT
 	# Two incommensurate sines so gusts do not feel metronomic.
 	var w := TAU / maxf(gust_period, 0.01)

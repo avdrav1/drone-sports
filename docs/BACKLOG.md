@@ -586,11 +586,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Damage, strikes on drones or crew.
   - Note: `WeatherState` adds a `Lightning` child: strikes come at `lightning_per_minute` (exponential waits, min 0.25 s) seeded by the new `Weather.storm_seed`, at a random bearing and a distance inside `strike_distance` around the scope's origin; `Lightning.plan(w, seconds, centre)` returns the same schedule the node plays. Each strike emits `struck(Lightning.Strike)` (`time` since the storm began, world `position`) for thunder (14.7), flashes ambient and sky energy on the per-scene Environment copy (x2.5, back over `flash_time` 0.35 s), and shows a camera-facing ribbon bolt for 0.2 s; a seed change or storm start restarts the schedule, rate changes apply from the next strike.
 
-- [ ] **13.6 Changing weather**
+- [x] **13.6 Changing weather**
   - Goal: Weather that changes: a scene can blend from one preset to another over a set time, and a job can name a sequence (clear, then fog rolling in).
   - Context: `WeatherState` blends every numeric field linearly and swaps precipitation type at the midpoint (intensity crosses zero there). Free flight's E blends over 3 s instead of snapping.
   - Acceptance: Halfway through a blend every numeric field is halfway between the two presets. A job's sequence runs on its schedule. E in free flight reaches the next preset after the blend time.
   - Out of scope: Forecasts, weather on the map.
+  - Note: `Weather.blend(a, b, t, clear_env, into)` lerps every number, colour, and wind field (null is `Weather.new()`; rain/snow swap at t 0.5 through zero intensity; "keep the scene's" fog colour and sky cover resolve against the clear Environment), and `WeatherState.blend_to(to, seconds, drone, scope)` applies each step with `Weather.apply` (which now reuses the scene's Environment copy), lands on `to` itself, and emits `blended`; `advance(delta)` steps it in tests. `Job.weather_changes` is an `Array[WeatherChange]` (`at` s of live time, `weather`, `blend_time`) that `JobRunner` starts on schedule; free flight's E blends over `weather_blend_time` 3 s. Rain and snow only change particle amount on steps over 1/16 of `max_amount` (each change restarts the emitter); a storm blending in from 0 rolls its first strike at the low early rate, so 13.7 sequences may want to start lightning at a nonzero rate.
 
 - [ ] **13.7 Presets and placement**
   - Goal: A useful set of presets and weather on more jobs: light rain, storm, blizzard, fog bank, clear, and the rescue's whiteout.

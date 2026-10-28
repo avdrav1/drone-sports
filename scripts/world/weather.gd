@@ -50,6 +50,59 @@ func validate() -> Array[String]:
 		out.append("%s: strike distance must run min to max" % label)
 	return out
 
+## `a` turned `t` (0..1) of the way into `b`, written into `into` (a new Weather
+## when null) so a blend can reuse one resource. Every number and colour moves
+## linearly; null is Weather.new(), clear and still. Precipitation keeps one
+## kind: from or to none it fades in or out, and between rain and snow it swaps
+## at the midpoint, where intensity passes through zero. A side that keeps the
+## scene's own fog colour or sky cover blends from `clear`'s (Story 13.6).
+static func blend(a: Weather, b: Weather, t: float, clear: Environment = null, into: Weather = null) -> Weather:
+	a = a if a else Weather.new()
+	b = b if b else Weather.new()
+	t = clampf(t, 0.0, 1.0)
+	var out := into if into else Weather.new()
+	out.label = a.label if t < 0.5 else b.label
+	out.fog_density = lerpf(a.fog_density, b.fog_density, t)
+	out.fog_color = _own_color(a.fog_color, b.fog_color).lerp(_own_color(b.fog_color, a.fog_color), t)
+	out.sky_affect = lerpf(_own_sky(a.sky_affect, b.sky_affect, clear), _own_sky(b.sky_affect, a.sky_affect, clear), t)
+	var pa := a.intensity if a.precipitation != Precipitation.NONE else 0.0
+	var pb := b.intensity if b.precipitation != Precipitation.NONE else 0.0
+	if a.precipitation == b.precipitation or a.precipitation == Precipitation.NONE or b.precipitation == Precipitation.NONE:
+		out.precipitation = b.precipitation if b.precipitation != Precipitation.NONE else a.precipitation
+		out.intensity = lerpf(pa, pb, t)
+	else:
+		out.precipitation = a.precipitation if t < 0.5 else b.precipitation
+		out.intensity = pa * (1.0 - 2.0 * t) if t < 0.5 else pb * (2.0 * t - 1.0)
+	out.temperature = lerpf(a.temperature, b.temperature, t)
+	out.lightning_per_minute = lerpf(a.lightning_per_minute, b.lightning_per_minute, t)
+	out.strike_distance = a.strike_distance.lerp(b.strike_distance, t)
+	# One storm throughout when only one side has one, so it does not restart.
+	var a_storm: bool = a.lightning_per_minute > 0.0 and (t < 0.5 or b.lightning_per_minute <= 0.0)
+	out.storm_seed = a.storm_seed if a_storm else b.storm_seed
+	if a.wind == null and b.wind == null:
+		out.wind = null
+	else:
+		var wa := a.wind if a.wind else Wind.new()
+		var wb := b.wind if b.wind else Wind.new()
+		# A new Wind each step: an older mix may still sample through the last one.
+		out.wind = Wind.new()
+		out.wind.mix(wa, wb, t)
+	return out
+
+## A fog colour that keeps the scene's (alpha 0) takes `other`'s hue at alpha 0,
+## so a blend fades the tint in rather than through black.
+static func _own_color(c: Color, other: Color) -> Color:
+	return c if c.a > 0.0 else Color(other, 0.0)
+
+## A sky cover that keeps the scene's (below 0) resolves to `clear`'s, or to
+## `other`'s with no Environment to ask.
+static func _own_sky(v: float, other: float, clear: Environment) -> float:
+	if v >= 0.0:
+		return v
+	if clear:
+		return clear.fog_sky_affect
+	return other if other >= 0.0 else v
+
 ## Puts `w` on a scene: its wind and weather on the drone, its fog on a copy of each
 ## WorldEnvironment's own Environment, so the shared resource is untouched.
 ## Null clears: still air and the scene's own environment back. The scope's
@@ -68,11 +121,12 @@ static func apply(w: Weather, drone: Drone, scope: Node) -> void:
 		if w == null:
 			env_node.environment = clear
 		else:
-			var env: Environment = clear.duplicate()
+			# Reuse this scene's copy, so a blend does not copy every frame.
+			var env: Environment = env_node.environment if env_node.environment != clear else clear.duplicate()
 			env.fog_density = w.fog_density
-			if w.fog_color.a > 0.0:
-				env.fog_light_color = w.fog_color
-				env.fog_sun_scatter = 0.0
-			if w.sky_affect >= 0.0:
-				env.fog_sky_affect = w.sky_affect
+			# The fog colour's alpha is how much it replaces the scene's.
+			var a := clampf(w.fog_color.a, 0.0, 1.0)
+			env.fog_light_color = Color(w.fog_color, 1.0) if a >= 1.0 else clear.fog_light_color.lerp(Color(w.fog_color, 1.0), a)
+			env.fog_sun_scatter = lerpf(clear.fog_sun_scatter, 0.0, a)
+			env.fog_sky_affect = w.sky_affect if w.sky_affect >= 0.0 else clear.fog_sky_affect
 			env_node.environment = env
