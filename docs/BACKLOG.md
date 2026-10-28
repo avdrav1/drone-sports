@@ -828,7 +828,7 @@ Done when the game opens like an arcade cabinet instead of a spreadsheet, the cr
 
 Order: faces first (17.1, 17.2), since the board and the radio both use them; then the front end (17.3 to 17.6); then the radio (17.7 to 17.10).
 
-- [ ] **17.1 Face rig**
+- [x] **17.1 Face rig**
   - Goal: `CharacterPortrait` draws a real face: brows, eyelids, pupils, and a mouth, with six expressions (neutral, happy, determined, worried, shocked, sad), blinking, and a `talking` flag that moves the mouth.
   - Context: Same shape language as now (round body, big eyes, one silhouette feature per character, colors from the `Character`). A pure `pose(expression, t)` returns the face parameters (brow angle and height, lid openness, pupil offset, mouth width, curve, and openness) so tests check the face without reading pixels. Blinks come from a seeded timer, so tests reproduce. Talking opens and closes the mouth on a rhythm. The dead stay greyed, with eyes closed. Everywhere a portrait already shows (board, pilot select, HUD, results) gets the new face for free.
   - Acceptance: Every expression gives a distinct pose; happy curves the mouth up, sad curves it down, shocked opens it wide. A blink closes the lids for 0.1 to 0.2 s every 2 to 6 s, at the same times for the same seed. While talking, mouth openness changes over time; when not talking, it holds the expression's value. A `portrait` texture still overrides the drawn face. Every character draws without errors at 32, 64, and 128 px. A dead character's lids are closed.
