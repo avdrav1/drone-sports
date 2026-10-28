@@ -281,19 +281,9 @@ func _on_struck(character: StringName, _cause: StringName) -> void:
 			casualties[character] = Roster.status(character)
 	crew_struck.emit(character, before)
 
-## Wind into the drone's sim, fog into the scene's WorldEnvironment (a copy, so the
-## shared Environment resource is untouched). No weather: still air, scene fog as is.
+## The job's weather on the drone and the scene; none is clear and still.
 func _apply_weather() -> void:
-	var w := job.weather
-	if drone:
-		drone.wind = w.wind if w else null
-	if w == null:
-		return
-	var scope: Node = owner if owner else get_parent()
-	for env_node in scope.find_children("*", "WorldEnvironment", true, false):
-		var env: Environment = env_node.environment.duplicate()
-		env.fog_density = w.fog_density
-		env_node.environment = env
+	Weather.apply(job.weather, drone, owner if owner else get_parent())
 
 func _finish_line_reached() -> bool:
 	var any := false

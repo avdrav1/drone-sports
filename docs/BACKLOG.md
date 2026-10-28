@@ -314,6 +314,12 @@ Order: 4.1, 4.4, 4.5, then 7.1 and 7.4, then 4.2 and 4.3. Demolition and rescue 
   - Acceptance: Fog density and gust amplitude load from the Job resource. A job with no weather block runs clear and still.
   - Out of scope: Rain, night.
 
+- [x] **4.6 Weather in free flight**
+  - Goal: A key in free flight cycles the weather: clear, then each preset in `data/weather/`, then clear again.
+  - Context: Asked for after Epic 8. `Weather.apply` (moved out of `JobRunner`) puts a preset's wind on the drone and its fog on a copy of the scene's Environment; null restores the scene's own. The sandbox's `weathers` list is data; E (`cycle_weather`) cycles; the HUD subtitle names the weather. Clear brings back the sandbox breeze. Wind is only felt with the battery and wind assist off (Act 4 on), as everywhere.
+  - Acceptance: E steps clear, fog bank, whiteout, clear, with each preset's fog density and wind, and the HUD names it. Back at clear the Environment is the shared golden-hour resource again, unchanged, and the drone has the sandbox breeze.
+  - Out of scope: Weather on the job board, random weather, saving the choice.
+
 ## Epic 5: Progression, teams, and recruitment gates
 
 Done when the player moves from Act 1 to Act 4 by being recruited, each promotion swaps the assist preset, and the job board shows only what the current team offers.

@@ -19,6 +19,7 @@ const GROUPS := [
 		[[&"toggle_help"], "Show or hide these controls"],
 		[[&"toggle_readout"], "Debug readout"],
 		[[&"cycle_preset"], "Cycle act assists (free flight)"],
+		[[&"cycle_weather"], "Cycle weather (free flight)"],
 	]],
 	["FLEET (COMMAND VIEW)", [
 		[[&"next_drone"], "Select the next drone (or click one)"],

@@ -11,5 +11,6 @@ gust_period = 5.0
 
 [resource]
 script = ExtResource("1_weather")
+label = "Fog bank"
 fog_density = 0.03
 wind = SubResource("gusts")

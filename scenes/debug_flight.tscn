@@ -26,10 +26,13 @@
 [ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="93_roofs"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="97_theme"]
+[ext_resource type="Resource" path="res://data/weather/fog_bank.tres" id="98_fog"]
+[ext_resource type="Resource" path="res://data/weather/whiteout.tres" id="99_whiteout"]
 
 [node name="DebugFlight" type="Node3D"]
 script = ExtResource("1_root")
 presets = Array[Resource]([ExtResource("7_act1"), ExtResource("8_act2"), ExtResource("9_act3"), ExtResource("10_act4"), ExtResource("11_act5")])
+weathers = Array[Resource]([ExtResource("98_fog"), ExtResource("99_whiteout")])
 
 [node name="GoldenHour" parent="." instance=ExtResource("90_world")]
 
