@@ -565,11 +565,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Puddles, splashes, rain sound.
   - Note: `WeatherState` adds a `Rain` child that reads its weather each frame: `CPUParticles3D` streaks (`max_amount` 2400 times intensity, freed with no rain) parented to `get_viewport().get_camera_3d()`, a `wetness` global shader uniform (declared in `project.godot` `[shader_globals]`, ramping over `wet_time` 10 s and drying over `dry_time` 20 s; `Rain.advance(delta)` steps it in tests), and a `LensDrops` CanvasLayer (`scenes/world/lens_drops.gdshader`) shown only in FPV. The city, street, and desert shaders declare `global uniform float wetness`; snow cover (13.3) can follow the same pattern and could share Rain's camera-following setup.
 
-- [ ] **13.3 Snow**
+- [x] **13.3 Snow**
   - Goal: Snow that drifts with the wind and builds up white on the ground and roofs, then melts away when it stops.
   - Context: Same camera-following particles as rain, slower and carried by the scene's wind sample. Cover is a global shader uniform like wetness, read on upward-facing surfaces.
   - Acceptance: Flakes move with the wind's direction. Cover rises while it snows and returns to 0 after. Snow and rain together are rejected by validation.
   - Out of scope: Snow on the drone, footprints, snow sound.
+  - Note: `WeatherState` adds a `Snow` child beside `Rain`: `CPUParticles3D` flakes (`max_amount` 1600 times intensity, freed with no snow) on the camera via the shared static `Rain.follow_camera`, launched along `Snow.flake_velocity()` (1.5 m/s fall plus `weather.wind.sample`, visual only), and a `snow_cover` global shader uniform (in `project.godot`) that builds at intensity / `cover_time` 30 s and melts over `melt_time` 30 s; city roofs, streets, and flat desert whiten with it. `Weather.validate()` returns problems: a stored precipitation of RAIN | SNOW (3) is "rain and snow together", plus intensity outside 0..1 and a backwards strike range; 13.7 can validate presets with it.
 
 - [ ] **13.4 Real wind**
   - Goal: Wind that varies the way air does: turbulence on top of gusts, stronger with height, and calmer in the lee of buildings.

@@ -15,6 +15,8 @@ uniform vec2 window_size = vec2(1.8, 2.1);
 uniform float ground_floor = 4.0;
 // 0 dry to 1 soaked, set by Rain (Story 13.2): roofs darken and turn glossy.
 global uniform float wetness;
+// 0 bare to 1 white, set by Snow (Story 13.3): roofs whiten.
+global uniform float snow_cover;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -40,6 +42,8 @@ void fragment() {
 	if (world_normal.y > 0.5) {
 		ALBEDO = roof_color * mix(vec3(1.0), tint, 0.3) * (1.0 - 0.45 * wetness);
 		ROUGHNESS = mix(0.92, 0.2, wetness);
+		ALBEDO = mix(ALBEDO, vec3(0.92, 0.94, 0.97), snow_cover);
+		ROUGHNESS = mix(ROUGHNESS, 0.8, snow_cover);
 	} else {
 		// Run along the wall: z on east and west faces, x on north and south.
 		bool x_face = abs(world_normal.x) > 0.5;

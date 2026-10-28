@@ -72,14 +72,18 @@ func _place_streaks(n: int) -> void:
 		return
 	if particles == null:
 		particles = _make_streaks()
-	var camera := get_viewport().get_camera_3d() if is_inside_tree() else null
-	var host: Node = camera if camera else self
-	if particles.get_parent() != host:
-		if particles.get_parent():
-			particles.get_parent().remove_child(particles)
-		host.add_child(particles)
+	follow_camera(self, particles)
 	if particles.amount != n:
 		particles.amount = n
+
+## Parents `p` to the active camera, or to `owner_node` with none; snow shares it.
+static func follow_camera(owner_node: Node, p: Node) -> void:
+	var camera := owner_node.get_viewport().get_camera_3d() if owner_node.is_inside_tree() else null
+	var host: Node = camera if camera else owner_node
+	if p.get_parent() != host:
+		if p.get_parent():
+			p.get_parent().remove_child(p)
+		host.add_child(p)
 
 func _make_streaks() -> CPUParticles3D:
 	var p := CPUParticles3D.new()

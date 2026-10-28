@@ -9,6 +9,8 @@ uniform vec3 centre_paint : source_color = vec3(0.95, 0.75, 0.25);
 uniform float dash = 6.0;
 // 0 dry to 1 soaked, set by Rain (Story 13.2).
 global uniform float wetness;
+// 0 bare to 1 white, set by Snow (Story 13.3); streets are flat, so all of them.
+global uniform float snow_cover;
 
 void fragment() {
 	float across = abs(UV.x);
@@ -29,4 +31,6 @@ void fragment() {
 	ALBEDO = c * (1.0 - 0.5 * wetness);
 	ROUGHNESS = mix(0.95, 0.12, wetness);
 	SPECULAR = mix(0.5, 0.8, wetness);
+	ALBEDO = mix(ALBEDO, vec3(0.92, 0.94, 0.97), snow_cover);
+	ROUGHNESS = mix(ROUGHNESS, 0.8, snow_cover);
 }

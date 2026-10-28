@@ -25,6 +25,10 @@ wetness={
 "type": "float",
 "value": 0.0
 }
+snow_cover={
+"type": "float",
+"value": 0.0
+}
 
 [rendering]
 

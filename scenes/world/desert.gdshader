@@ -11,6 +11,8 @@ uniform float ripple_strength = 0.25;
 uniform float ripple_fade = 60.0;
 // 0 dry to 1 soaked, set by Rain (Story 13.2): wet sand darkens, flat ground glistens.
 global uniform float wetness;
+// 0 bare to 1 white, set by Snow (Story 13.3): settles on flat ground, not cliffs.
+global uniform float snow_cover;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -31,6 +33,9 @@ void fragment() {
 	float flat_wet = wetness * smoothstep(0.6, 0.9, world_normal.y);
 	ALBEDO *= 1.0 - 0.4 * wetness;
 	ROUGHNESS = mix(mix(0.92, 0.8, rockiness), 0.25, flat_wet);
+	float flat_snow = snow_cover * smoothstep(0.6, 0.9, world_normal.y);
+	ALBEDO = mix(ALBEDO, vec3(0.92, 0.94, 0.97), flat_snow);
+	ROUGHNESS = mix(ROUGHNESS, 0.8, flat_snow);
 	// Wind ripples on sand: a bent sine across the ground, gone by ripple_fade metres away.
 	float dist = length(world_pos - CAMERA_POSITION_WORLD);
 	float phase = dot(world_pos.xz, vec2(0.8, 0.6)) * ripple_frequency + mid * 9.0;

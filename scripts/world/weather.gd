@@ -32,6 +32,22 @@ enum Precipitation { NONE, RAIN, SNOW }
 ## Nearest and farthest a strike lands from the scene's centre, m.
 @export var strike_distance := Vector2(400.0, 2000.0)
 
+## Problems with this preset; empty when it is valid. Precipitation is one
+## kind at a time: a stored value of RAIN | SNOW (rain and snow together) is
+## rejected, as are intensities outside 0..1 and a strike range that runs backwards.
+func validate() -> Array[String]:
+	var out: Array[String] = []
+	var p := int(precipitation)
+	if p == Precipitation.RAIN | Precipitation.SNOW:
+		out.append("%s: rain and snow together; pick one" % label)
+	elif not p in Precipitation.values():
+		out.append("%s: unknown precipitation %d" % [label, p])
+	if intensity < 0.0 or intensity > 1.0:
+		out.append("%s: intensity %.2f outside 0..1" % [label, intensity])
+	if strike_distance.x < 0.0 or strike_distance.x > strike_distance.y:
+		out.append("%s: strike distance must run min to max" % label)
+	return out
+
 ## Puts `w` on a scene: its wind on the drone, its fog on a copy of each
 ## WorldEnvironment's own Environment, so the shared resource is untouched.
 ## Null clears: still air and the scene's own environment back. The scope's
