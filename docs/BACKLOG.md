@@ -558,11 +558,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Out of scope: Particles, sound, physics effects.
   - Note: `Weather` adds `precipitation` (`Weather.Precipitation` NONE/RAIN/SNOW), `intensity`, `temperature` (default 15 °C, no effect), `lightning_per_minute`, and `strike_distance` (Vector2 min/max m); fog keeps `fog_density`, `fog_color`, `sky_affect`; `Wind` adds `turbulence` and `shear` (power-law exponent), both 0 and not yet used by `Wind.sample` (13.4). `Weather.apply` sets `WeatherState.of(scope).weather`, which finds a `WeatherState` under the scope or adds one, and emits `changed`; read it with `WeatherState.of(node)`.
 
-- [ ] **13.2 Rain**
+- [x] **13.2 Rain**
   - Goal: Rain that reads as rain: streaks around the camera at a density set by intensity, the ground, streets, and roofs going dark and glossy as it falls, and drops on the lens in FPV.
   - Context: A `CPUParticles3D` box parented to the active camera, so it costs the same anywhere. Wetness is a global shader uniform that the terrain, city, and street shaders read and that ramps up while it rains and dries after. The lens drops are a screen overlay in FPV only.
   - Acceptance: Particle amount scales with intensity and is zero with no rain. Wetness rises over about 10 s of rain and falls back to 0 after it stops. The shared golden-hour Environment and the shader resources are not modified on disk.
   - Out of scope: Puddles, splashes, rain sound.
+  - Note: `WeatherState` adds a `Rain` child that reads its weather each frame: `CPUParticles3D` streaks (`max_amount` 2400 times intensity, freed with no rain) parented to `get_viewport().get_camera_3d()`, a `wetness` global shader uniform (declared in `project.godot` `[shader_globals]`, ramping over `wet_time` 10 s and drying over `dry_time` 20 s; `Rain.advance(delta)` steps it in tests), and a `LensDrops` CanvasLayer (`scenes/world/lens_drops.gdshader`) shown only in FPV. The city, street, and desert shaders declare `global uniform float wetness`; snow cover (13.3) can follow the same pattern and could share Rain's camera-following setup.
 
 - [ ] **13.3 Snow**
   - Goal: Snow that drifts with the wind and builds up white on the ground and roofs, then melts away when it stops.

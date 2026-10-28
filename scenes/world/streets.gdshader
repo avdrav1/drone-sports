@@ -7,6 +7,8 @@ uniform vec3 asphalt : source_color = vec3(0.25, 0.23, 0.23);
 uniform vec3 paint : source_color = vec3(0.92, 0.9, 0.84);
 uniform vec3 centre_paint : source_color = vec3(0.95, 0.75, 0.25);
 uniform float dash = 6.0;
+// 0 dry to 1 soaked, set by Rain (Story 13.2).
+global uniform float wetness;
 
 void fragment() {
 	float across = abs(UV.x);
@@ -24,6 +26,7 @@ void fragment() {
 			c = centre_paint;
 		}
 	}
-	ALBEDO = c;
-	ROUGHNESS = 0.95;
+	ALBEDO = c * (1.0 - 0.5 * wetness);
+	ROUGHNESS = mix(0.95, 0.12, wetness);
+	SPECULAR = mix(0.5, 0.8, wetness);
 }

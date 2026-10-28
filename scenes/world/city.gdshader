@@ -13,6 +13,8 @@ uniform vec2 window_cell = vec2(3.0, 3.5);
 uniform vec2 window_size = vec2(1.8, 2.1);
 // No windows below this height: the ground floor reads as a solid base.
 uniform float ground_floor = 4.0;
+// 0 dry to 1 soaked, set by Rain (Story 13.2): roofs darken and turn glossy.
+global uniform float wetness;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -36,8 +38,8 @@ float hash(vec2 p) {
 
 void fragment() {
 	if (world_normal.y > 0.5) {
-		ALBEDO = roof_color * mix(vec3(1.0), tint, 0.3);
-		ROUGHNESS = 0.92;
+		ALBEDO = roof_color * mix(vec3(1.0), tint, 0.3) * (1.0 - 0.45 * wetness);
+		ROUGHNESS = mix(0.92, 0.2, wetness);
 	} else {
 		// Run along the wall: z on east and west faces, x on north and south.
 		bool x_face = abs(world_normal.x) > 0.5;
@@ -54,8 +56,8 @@ void fragment() {
 			ROUGHNESS = 0.15;
 			METALLIC = 0.4;
 		} else {
-			ALBEDO = wall;
-			ROUGHNESS = 0.85;
+			ALBEDO = wall * (1.0 - 0.2 * wetness);
+			ROUGHNESS = mix(0.85, 0.55, wetness);
 		}
 	}
 }

@@ -9,6 +9,8 @@ uniform sampler2D detail_noise : repeat_enable, filter_linear_mipmap;
 uniform float ripple_frequency = 1.4;
 uniform float ripple_strength = 0.25;
 uniform float ripple_fade = 60.0;
+// 0 dry to 1 soaked, set by Rain (Story 13.2): wet sand darkens, flat ground glistens.
+global uniform float wetness;
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -26,7 +28,9 @@ void fragment() {
 	vec3 sand = mix(sand_dark, sand_color, smoothstep(0.3, 0.7, broad * 0.85 + mid * 0.15));
 	vec3 rock = mix(rock_dark, rock_color, mid);
 	ALBEDO = mix(sand, rock, rockiness);
-	ROUGHNESS = mix(0.92, 0.8, rockiness);
+	float flat_wet = wetness * smoothstep(0.6, 0.9, world_normal.y);
+	ALBEDO *= 1.0 - 0.4 * wetness;
+	ROUGHNESS = mix(mix(0.92, 0.8, rockiness), 0.25, flat_wet);
 	// Wind ripples on sand: a bent sine across the ground, gone by ripple_fade metres away.
 	float dist = length(world_pos - CAMERA_POSITION_WORLD);
 	float phase = dot(world_pos.xz, vec2(0.8, 0.6)) * ripple_frequency + mid * 9.0;

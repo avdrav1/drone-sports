@@ -19,6 +19,13 @@ Career="*res://scripts/progression/career.gd"
 Garage="*res://scripts/progression/garage.gd"
 Sfx="*res://scripts/audio/sfx.gd"
 
+[shader_globals]
+
+wetness={
+"type": "float",
+"value": 0.0
+}
+
 [rendering]
 
 renderer/rendering_method="forward_plus"
