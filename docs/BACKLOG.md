@@ -452,11 +452,12 @@ Done when the boss job exists, is beatable by disabling the core, is lethal for 
   - Out of scope: Player flying in phase 1.
   - Note: `scenes/boss/lattice_job.tscn` holds the fight: the city, the Lattice 150 m up, the crew's fleet, the pilot's own drone (frozen until the trench opens), two `Defender`s, and `LatticeFight`. A unit is tagged by staying 3.5 m from it for 0.5 s; T (`tag_unit`) sends the selected drone to the next gap unit. Each freed unit becomes a fleet drone. A defender within 1.4 m disables a fleet drone, and the shell takes back the last unit reclaimed. The four units nearest the shaft (`gap_units`) open it. Seeded through `LatticeFight.seed` (defender patrols).
 
-- [ ] **8.4 Phase 2: the trench**
+- [x] **8.4 Phase 2: the trench**
   - Goal: The player flies the trench with the Act 5 preset while the shell contracts on a timer. Marlo calls turns from `data/dialogue/marlo.json` keyed to trench waypoints. Contact with the shell is a strike on the calling crew member.
   - Context: Reuses gates (3.1) as invisible waypoints and the strike system (7.4). Job is tagged `lethal`.
   - Acceptance: Reaching the shutter emits `phase_complete`. The shell closes the entrance after the configured time and fails the job. A shell contact strikes Marlo. Marlo's death mid-run removes callouts for the rest of the run.
   - Out of scope: Branching trench routes.
+  - Note: When the entrance opens, the pilot's drone unfreezes with the job's assists and the camera rig takes it; the command view sleeps. Waypoints are invisible, collisionless `Gate`s every third point of `Lattice.trench_path()`, each called once from `marlo.json` (`trench`, by index) while Marlo lives. The shell has no physics, so contact is `Lattice.touching()` at 0.3 m. Within 2.5 m of the shell the calling crew member's `HazardZone` (Marlo, else Bea) warns; contact strikes through it, so rule 7's warning always comes first. A shell contact under a second after the warning starts lands no strike.
 
 - [ ] **8.5 Phase 3: override**
   - Goal: Hold station inside a 1 m sphere at the override port for the configured hold time while the Lattice shakes the trench and gusts wind through it. Leaving the sphere resets the hold.

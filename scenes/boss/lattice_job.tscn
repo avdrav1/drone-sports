@@ -21,6 +21,9 @@
 [ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="19_theme"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="20_help"]
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="21_hint"]
+[ext_resource type="Script" path="res://scripts/hazard/hazard_zone.gd" id="22_zone"]
+[ext_resource type="Script" path="res://scripts/ui/crew_warning.gd" id="23_warn"]
+[ext_resource type="Script" path="res://scripts/ui/lattice_hud.gd" id="24_hud"]
 
 [node name="LatticeJob" type="Node3D"]
 
@@ -104,12 +107,26 @@ script = ExtResource("15_reclaim")
 fight = NodePath("../../Fight")
 label = "Trench opened"
 
-[node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders")]
+[node name="MarloZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 37, -32.5)
+script = ExtResource("22_zone")
+character = &"marlo"
+radius = 1.5
+
+[node name="BeaZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 39.5, 43.6)
+script = ExtResource("22_zone")
+character = &"bea"
+radius = 1.5
+
+[node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders", "camera_rig", "bark")]
 script = ExtResource("16_fight")
 runner = NodePath("../JobRunner")
 lattice = NodePath("../Lattice")
 command = NodePath("../CommandView")
 defenders = [NodePath("../Defender1"), NodePath("../Defender2")]
+camera_rig = NodePath("../CameraRig")
+bark = NodePath("../Bark")
 
 [node name="Bark" type="Node" parent="." node_paths=PackedStringArray("runner")]
 script = ExtResource("17_bark")
@@ -127,6 +144,26 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("18_barkbox")
 bark = NodePath("../../Bark")
+
+[node name="CrewWarning" type="Control" parent="HUD" node_paths=PackedStringArray("runner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("23_warn")
+runner = NodePath("../../JobRunner")
+
+[node name="Phase" type="Label" parent="HUD" node_paths=PackedStringArray("fight")]
+offset_left = 28.0
+offset_top = 60.0
+offset_right = 900.0
+offset_bottom = 96.0
+theme = ExtResource("19_theme")
+script = ExtResource("24_hud")
+fight = NodePath("../../Fight")
 
 [node name="State" type="Label" parent="HUD"]
 offset_left = 28.0

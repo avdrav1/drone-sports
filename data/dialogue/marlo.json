@@ -94,5 +94,20 @@
    "Marked. On my way.",
    "Seen it. Going."
   ]
+ },
+ "trench": {
+  "active": [
+   "Down the shaft. Slow. Slower than that.",
+   "Floor's under you. Turn left and follow it round.",
+   "Long left curve. Keep off the top, it's low.",
+   "Steady. Middle of the channel.",
+   "Still curving left. Don't chase it, let it come.",
+   "Walls are close here. Small corrections.",
+   "Halfway. You're doing fine. Breathe.",
+   "Keep the curve. Nothing sudden.",
+   "Nearly there. Easy on the speed.",
+   "Shutter's ahead, on the floor. Ease off.",
+   "There. Drop through the shutter. Gently."
+  ]
  }
 }
