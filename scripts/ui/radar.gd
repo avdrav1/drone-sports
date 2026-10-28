@@ -9,6 +9,8 @@ extends Control
 @export var gps: Gps
 ## Optional: the ground shaded under the blips.
 @export var terrain: DesertTerrain
+## Buildings to draw on the image, if any.
+@export var city: City
 ## Optional: the job's route, drawn dotted.
 @export var route: RouteSource
 ## World metres from the centre to the rim.
@@ -34,7 +36,11 @@ func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	if terrain and gps and gps.map:
 		texture_area = gps.map.bounds.grow(range_m)
-		texture = TerrainImage.bake(terrain, texture_area)
+		texture = TerrainImage.bake(terrain, texture_area, 128, footprints(city))
+
+## Building footprints for the terrain image: the city's lots, or none.
+static func footprints(c: City) -> Array[Rect2]:
+	return CityPlan.build(c.layout).lots if c else ([] as Array[Rect2])
 
 func _process(_delta: float) -> void:
 	queue_redraw()

@@ -1,7 +1,7 @@
 extends RefCounted
 # Story 10.2: radar minimap. Heading-up, scaled, clamped to the rim, and in the
-# test race it shows the opponents and lights the next gate. Story 10.7: the
-# sandbox boxes show too.
+# test race it shows the opponents and lights the next gate. Story 10.7, then
+# 12.5: the sandbox's rooftop pads show too.
 
 const Sim = preload("res://tests/sim.gd")
 
@@ -59,16 +59,16 @@ func test_race_radar_shows_opponents_and_next_gate() -> bool:
 	scene.free()
 	return ok
 
-func test_sandbox_boxes_on_radar() -> bool:
+func test_sandbox_pads_on_radar() -> bool:
 	var scene: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
 	await Sim.process_frames(3)
 	var radar: Radar = scene.get_node("HUD/Radar")
-	var boxes := []
+	var pads := []
 	for b in radar.blips():
-		if (b.marker as MapMarker).get_parent().get_parent() == scene.get_node("Boxes"):
-			boxes.append(b)
-	var ok := boxes.size() == 4
-	for b in boxes:
-		ok = ok and b.marker.icon == &"square" and b.marker.global_position.is_equal_approx(b.marker.get_parent().global_position)
+		if (b.marker as MapMarker).kind == &"pad":
+			pads.append(b)
+	var ok := pads.size() >= 3
+	for b in pads:
+		ok = ok and b.marker.icon == &"circle" and b.marker.global_position.is_equal_approx(b.marker.get_parent().global_position)
 	scene.free()
 	return ok

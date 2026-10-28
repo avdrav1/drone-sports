@@ -8,6 +8,8 @@ extends Control
 @export var gps: Gps
 ## Optional: the ground shaded under the chart.
 @export var terrain: DesertTerrain
+## Buildings to draw on the image, if any.
+@export var city: City
 ## Optional. With a runner, the track records only while Live.
 @export var runner: JobRunner
 ## Optional: the job's route, drawn dashed.
@@ -35,7 +37,7 @@ func _ready() -> void:
 	visible = false
 	font = get_theme_default_font()
 	if terrain and gps and gps.map:
-		texture = TerrainImage.bake(terrain, gps.map.bounds, 256)
+		texture = TerrainImage.bake(terrain, gps.map.bounds, 256, Radar.footprints(city))
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_map"):

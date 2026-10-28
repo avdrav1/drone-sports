@@ -8,5 +8,6 @@ title = "Sandbox"
 bounds = Rect2(-200, -200, 400, 400)
 cell_size = 50.0
 landmarks = {
-"Spawn": Vector3(0, 0, 0)
+"Plaza": Vector3(0, 0, 0),
+"Downtown": Vector3(-6, 0, -44)
 }

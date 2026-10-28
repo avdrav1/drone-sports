@@ -521,8 +521,9 @@ Later phases, not yet stories: districts and landmarks (bridge, stadium, constru
   - Out of scope: Pad-landing objectives, rings, rooftop crew.
   - Note: `Rooftops` is its own scene (`scenes/world/rooftops.tscn`), like `Streets`. Pads go on the broadest roofs at least 40% up the height range; four in the sandbox.
 
-- [ ] **12.5 Sandbox in the city**
+- [x] **12.5 Sandbox in the city**
   - Goal: The sandbox flies in the city: the four boxes are gone, the drone spawns on the plaza, the jammer stands in its clearing, and the radar and map draw building footprints.
   - Context: `scenes/debug_flight.tscn` instances `City` with the sandbox layout. `MapData` landmarks name the plaza and downtown. `TerrainImage` bakes footprints over the terrain so the radar and map show streets and blocks. The recruitment scene (`data/story/recruited.tres`) uses the sandbox as a backdrop and should now show the city; check its camera focus still exists. Sixteen tests load the sandbox; if one needs more room, grow the plaza in the layout rather than changing the test. `test_radar.gd` checks the boxes on the radar; replace that check with the rooftop pads.
   - Acceptance: The sandbox has no `Boxes` node and contains a `City`. Under the Act 1 preset the drone hovers at spawn for 5 s with no contact. The jammer test passes unchanged. The radar shows the rooftop pads, and the map image is darker under building footprints than over open street. Every existing sandbox test passes. The job hotkeys still launch every job.
   - Out of scope: Moving jobs into the city, the hub, landmarks.
+  - Note: The sandbox instances `City`, `Streets`, and `Rooftops` side by side. Radar and Map take an optional `city` and bake its footprints through `TerrainImage.bake(..., footprints)`. The map's landmarks are Plaza and Downtown (the tallest tower). The full sandbox runs at 1.65 ms a frame under GL Compatibility at 1280×720 on the dev desktop; the hand flight on the web build for 12.2 is still open.
