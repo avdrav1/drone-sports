@@ -26,22 +26,12 @@
 [ext_resource type="Script" path="res://scripts/ui/target_marker.gd" id="95_target"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="97_hint"]
+[ext_resource type="Script" path="res://scripts/world/structure.gd" id="structure"]
 
 [sub_resource type="BoxShape3D" id="wall_shape"]
 size = Vector3(16, 8, 2)
 
-[sub_resource type="StandardMaterial3D" id="wall_mat"]
-albedo_color = Color(0.75, 0.45, 0.2, 1)
-
-[sub_resource type="BoxMesh" id="wall_mesh"]
-material = SubResource("wall_mat")
-size = Vector3(16, 8, 2)
-
 [sub_resource type="BoxShape3D" id="post_shape"]
-size = Vector3(3, 12, 3)
-
-[sub_resource type="BoxMesh" id="post_mesh"]
-material = SubResource("wall_mat")
 size = Vector3(3, 12, 3)
 
 [sub_resource type="StandardMaterial3D" id="pad_mat"]
@@ -80,7 +70,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -25)
 shape = SubResource("wall_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="Wall"]
-mesh = SubResource("wall_mesh")
+script = ExtResource("structure")
+kind = 1
+size = Vector3(16, 8, 2)
+surface = &"concrete"
+tint = Color(0.78, 0.76, 0.72, 1)
+grime = 0.7
 
 [node name="PostLeft" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -45)
@@ -89,7 +84,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 6, -45)
 shape = SubResource("post_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="PostLeft"]
-mesh = SubResource("post_mesh")
+script = ExtResource("structure")
+kind = 2
+size = Vector3(3, 12, 3)
+surface = &"concrete"
+tint = Color(0.78, 0.76, 0.72, 1)
+grime = 0.7
 
 [node name="PostRight" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, -52)
@@ -98,7 +98,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, -52)
 shape = SubResource("post_shape")
 
 [node name="Mesh" type="MeshInstance3D" parent="PostRight"]
-mesh = SubResource("post_mesh")
+script = ExtResource("structure")
+kind = 2
+size = Vector3(3, 12, 3)
+surface = &"concrete"
+tint = Color(0.78, 0.76, 0.72, 1)
+grime = 0.7
 
 [node name="DropPad" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -70)

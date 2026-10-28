@@ -734,11 +734,12 @@ Done when the city, desert, and obstacles read as real places at drone height: r
   - Out of scope: Animated or interactive props.
   - Note: `StreetClutter` (`scenes/world/street_clutter.tscn`, a child of `streets.tscn` that reads its parent `Streets`) draws one MultiMesh per kind (`StreetClutter.Kind`: CAR, BENCH, SHELTER, SIGN, TREE, PIT, AC, PIPE) from seed + 9 and lists each piece as {kind, xform, box, lot} in `pieces`; cars sit in `parking` strips `park_width` deep against the kerb (avenues both sides, streets one), clear of crosswalks and lane arrows, and `lanes` is the rest of the road. Pieces taller than the bench model collide with their AABB; models are reworked Poly Haven glTF in `data/models/<model>/` (1.3 MB, texture `.import` files un-ignored and checked in), the tree a low-poly card tree from a rendered leaf atlas; the clutter uses StandardMaterial3D, so `wetness` and `snow_cover` do not reach it, and the existing street lights stay as the lamp posts.
 
-- [ ] **15.10 Obstacles as structures**
+- [x] **15.10 Obstacles as structures**
   - Goal: Race gates, the inspection tower, the demolition's structures, and job props built as real objects (truss frames, beams, signage, lights) instead of plain boxes.
   - Context: `Gate`, the job scenes (`inspection.tscn`, `demolition.tscn`, and the rest), and `Debris`. New meshes are visual; each keeps its existing collision shape and size, so courses and jobs play exactly as before. Debris pieces use the 15.2 materials.
   - Acceptance: Every gate and job prop keeps its collision shape and transform. Every job and race test still completes. No job scene still draws a bare `BoxMesh` for a structure.
   - Out of scope: New obstacles, changes to courses.
+  - Note: `Structure` (`scripts/world/structure.gd`, a MeshInstance3D with `kind`, `size`, `surface`, `tint`/`paint`, `grime`, trim and lamp colours) builds a cached procedural mesh (PANEL, BLOCKS, PIER, BEAM, TRUSS, DECK, WALL) that stays inside its collision box, drawn with `structure.gdshader` (15.2 sets triplanar in object space so debris keeps its texture, rain streaks from vertex COLOR.r, ground dust, `wetness`/`snow_cover`); gates are black box trusses with an LED strip, a numbered banner (Label3D), and the same `_glow` highlight, and the inspection tower, cannery (brick `WALL`s with concrete bands, concrete slabs and debris), and delivery walls and piers now use it. Collision nodes, bodies, masses, and transforms are unchanged (`tests/test_obstacle_structures.gd` fingerprints them per job scene), so a later prop should put a `Structure` beside its `CollisionShape3D` at the same size and transform; the jammer mast and drop pad (cylinders) are unchanged.
 
 ## Epic 16: Music
 

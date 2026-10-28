@@ -28,39 +28,16 @@
 [ext_resource type="Script" path="res://scripts/ui/target_marker.gd" id="95_target"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="97_hint"]
-
-[sub_resource type="StandardMaterial3D" id="steel"]
-albedo_color = Color(0.22, 0.2, 0.22, 1)
-metallic = 0.6
-roughness = 0.5
-
-[sub_resource type="BoxMesh" id="leg_mesh"]
-material = SubResource("steel")
-size = Vector3(0.5, 36, 0.5)
+[ext_resource type="Script" path="res://scripts/world/structure.gd" id="structure"]
 
 [sub_resource type="BoxShape3D" id="leg_shape"]
 size = Vector3(0.5, 36, 0.5)
 
-[sub_resource type="BoxMesh" id="brace_x_mesh"]
-material = SubResource("steel")
-size = Vector3(4.5, 0.3, 0.3)
-
 [sub_resource type="BoxShape3D" id="brace_x_shape"]
 size = Vector3(4.5, 0.3, 0.3)
 
-[sub_resource type="BoxMesh" id="brace_z_mesh"]
-material = SubResource("steel")
-size = Vector3(0.3, 0.3, 4.5)
-
 [sub_resource type="BoxShape3D" id="brace_z_shape"]
 size = Vector3(0.3, 0.3, 4.5)
-
-[sub_resource type="StandardMaterial3D" id="deck_mat"]
-albedo_color = Color(0.75, 0.45, 0.2, 1)
-
-[sub_resource type="BoxMesh" id="deck_mesh"]
-material = SubResource("deck_mat")
-size = Vector3(4.5, 0.4, 3)
 
 [sub_resource type="BoxShape3D" id="deck_shape"]
 size = Vector3(4.5, 0.4, 3)
@@ -83,7 +60,14 @@ shape = SubResource("leg_shape")
 
 [node name="LegMesh0" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, -2)
-mesh = SubResource("leg_mesh")
+script = ExtResource("structure")
+kind = 4
+size = Vector3(0.5, 36, 0.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Leg1" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, -2)
@@ -91,7 +75,14 @@ shape = SubResource("leg_shape")
 
 [node name="LegMesh1" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, -2)
-mesh = SubResource("leg_mesh")
+script = ExtResource("structure")
+kind = 4
+size = Vector3(0.5, 36, 0.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Leg2" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 2)
@@ -99,7 +90,14 @@ shape = SubResource("leg_shape")
 
 [node name="LegMesh2" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 2)
-mesh = SubResource("leg_mesh")
+script = ExtResource("structure")
+kind = 4
+size = Vector3(0.5, 36, 0.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Leg3" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 2)
@@ -107,7 +105,14 @@ shape = SubResource("leg_shape")
 
 [node name="LegMesh3" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 2)
-mesh = SubResource("leg_mesh")
+script = ExtResource("structure")
+kind = 4
+size = Vector3(0.5, 36, 0.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace0" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -2)
@@ -115,7 +120,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh0" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, -2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace1" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 2)
@@ -123,7 +135,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh1" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6, 2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace2" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 0)
@@ -131,7 +150,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh2" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 6, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace3" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 0)
@@ -139,7 +165,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh3" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 6, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace4" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, -2)
@@ -147,7 +180,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh4" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, -2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace5" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 2)
@@ -155,7 +195,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh5" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12, 2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace6" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12, 0)
@@ -163,7 +210,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh6" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 12, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace7" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 12, 0)
@@ -171,7 +225,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh7" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 12, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace8" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, -2)
@@ -179,7 +240,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh8" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, -2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace9" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 2)
@@ -187,7 +255,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh9" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace10" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 0)
@@ -195,7 +270,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh10" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 18, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace11" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 0)
@@ -203,7 +285,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh11" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 18, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace12" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, -2)
@@ -211,7 +300,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh12" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, -2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace13" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 2)
@@ -219,7 +315,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh13" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace14" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 24, 0)
@@ -227,7 +330,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh14" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 24, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace15" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 24, 0)
@@ -235,7 +345,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh15" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 24, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace16" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -2)
@@ -243,7 +360,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh16" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace17" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, 2)
@@ -251,7 +375,14 @@ shape = SubResource("brace_x_shape")
 
 [node name="BraceMesh17" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, 2)
-mesh = SubResource("brace_x_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(4.5, 0.3, 0.3)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace18" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 30, 0)
@@ -259,7 +390,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh18" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 30, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Brace19" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 0)
@@ -267,7 +405,14 @@ shape = SubResource("brace_z_shape")
 
 [node name="BraceMesh19" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 0)
-mesh = SubResource("brace_z_mesh")
+script = ExtResource("structure")
+kind = 3
+size = Vector3(0.3, 0.3, 4.5)
+surface = &"painted_metal"
+tint = Color(0.56, 0.58, 0.6, 1)
+paint = 0.7
+metallic = 0.5
+grime = 0.3
 
 [node name="Deck" type="CollisionShape3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 12, 0)
@@ -275,7 +420,13 @@ shape = SubResource("deck_shape")
 
 [node name="DeckMesh" type="MeshInstance3D" parent="Tower"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.25, 12, 0)
-mesh = SubResource("deck_mesh")
+script = ExtResource("structure")
+kind = 5
+size = Vector3(4.5, 0.4, 3)
+surface = &"painted_metal"
+tint = Color(0.42, 0.42, 0.43, 1)
+paint = 0.8
+grime = 0.3
 
 [node name="MapMarker" type="Node3D" parent="Tower"]
 script = ExtResource("15_marker")

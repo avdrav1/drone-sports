@@ -11,6 +11,7 @@ signal passed(racer: Node3D, forward: bool)
 
 const FRAME := Color(0.08, 0.08, 0.1)
 const LIT := Color(1.0, 0.6, 0.2)
+const BANNER := Color(0.92, 0.9, 0.85)
 
 var index := 0
 var _glow: StandardMaterial3D
@@ -46,10 +47,6 @@ func set_highlight(on: bool) -> void:
 		_marker.highlighted = on
 
 func _build() -> void:
-	var frame := StandardMaterial3D.new()
-	frame.albedo_color = FRAME
-	frame.metallic = 0.4
-	frame.roughness = 0.5
 	_glow = StandardMaterial3D.new()
 	_glow.albedo_color = LIT
 	_glow.emission_enabled = true
@@ -57,7 +54,8 @@ func _build() -> void:
 	_glow.emission_energy_multiplier = 0.6
 	var w := size.x + bar * 2.0
 	var h := size.y + bar * 2.0
-	# Top, bottom, left, right bars, each with a thin lit strip on the inner edge.
+	# Top, bottom, left, right bars, each a black box truss with an LED strip on
+	# its inner face (Story 15.10). The collision is the bar's box.
 	var bars := [
 		[Vector3(w, bar, bar), Vector3(0, (size.y + bar) * 0.5, 0)],
 		[Vector3(w, bar, bar), Vector3(0, -(size.y + bar) * 0.5, 0)],
@@ -65,24 +63,46 @@ func _build() -> void:
 		[Vector3(bar, h, bar), Vector3((size.x + bar) * 0.5, 0, 0)],
 	]
 	for b in bars:
-		var mesh := BoxMesh.new()
-		mesh.size = b[0]
-		var mi := MeshInstance3D.new()
-		mi.mesh = mesh
-		mi.material_override = frame
-		mi.position = b[1]
-		add_child(mi)
+		var truss := Structure.new()
+		truss.kind = Structure.Kind.TRUSS
+		truss.size = b[0]
+		truss.surface = &"painted_metal"
+		truss.tint = FRAME
+		truss.paint = 0.9
+		truss.grime = 0.15
+		truss.position = b[1]
+		add_child(truss)
 		var shape := CollisionShape3D.new()
 		shape.shape = BoxShape3D.new()
 		shape.shape.size = b[0]
 		shape.position = b[1]
 		add_child(shape)
-		var strip := MeshInstance3D.new()
-		var strip_mesh := BoxMesh.new()
 		var s: Vector3 = b[0]
-		strip_mesh.size = Vector3(s.x * 0.98 if s.x > s.y else 0.05, s.y * 0.98 if s.y > s.x else 0.05, bar + 0.02)
-		strip.mesh = strip_mesh
-		strip.material_override = _glow
 		var at: Vector3 = b[1]
-		strip.position = at - at.normalized() * (bar * 0.5)
+		var strip := MeshInstance3D.new()
+		strip.mesh = Structure.build(Structure.Kind.PANEL, Vector3(s.x * 0.9 if s.x > s.y else 0.035, s.y * 0.9 if s.y > s.x else 0.035, bar * 0.5))
+		strip.material_override = _glow
+		strip.position = at - at.normalized() * (bar * 0.5 - 0.018)
 		add_child(strip)
+	_add_sign(w)
+
+## A banner on the top bar, front and back, with the gate's number, laid flat
+## on the truss so it stays inside the bar.
+func _add_sign(w: float) -> void:
+	var y := (size.y + bar) * 0.5
+	for side in [1.0, -1.0]:
+		var banner := MeshInstance3D.new()
+		banner.mesh = Structure.build(Structure.Kind.PANEL, Vector3(minf(w * 0.5, 2.4), bar * 0.8, 0.01))
+		banner.material_override = Structure.material(&"painted_metal", BANNER, 0.95, 0.0, 0.1)
+		banner.position = Vector3(0, y, (bar * 0.5 - 0.006) * side)
+		add_child(banner)
+		var label := Label3D.new()
+		label.text = "%d" % index if index > 0 else "START"
+		label.font_size = 64
+		label.pixel_size = bar * 0.55 / 64.0
+		label.modulate = Color(0.08, 0.08, 0.1)
+		label.outline_size = 0
+		label.double_sided = false
+		label.position = Vector3(0, y, bar * 0.5 * side)
+		label.rotation.y = 0.0 if side > 0.0 else PI
+		add_child(label)
