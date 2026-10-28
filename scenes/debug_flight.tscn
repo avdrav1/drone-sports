@@ -106,17 +106,6 @@ gps = NodePath("../../Gps")
 drone = NodePath("../../Drone")
 title = "Free flight"
 
-[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("radio_box")
-bark = NodePath("../../Bark")
-
 [node name="Readout" type="Label" parent="HUD" node_paths=PackedStringArray("subject")]
 visible = false
 offset_left = 28.0
@@ -173,6 +162,17 @@ city = NodePath("../../City")
 [node name="FlightWatcher" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("flight_watcher")
 drone = NodePath("../Drone")
+
+[node name="BarkBox" type="Control" parent="HUD" node_paths=PackedStringArray("bark")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("radio_box")
+bark = NodePath("../../Bark")
 
 [node name="Bark" type="Node" parent="."]
 script = ExtResource("radio_bark")

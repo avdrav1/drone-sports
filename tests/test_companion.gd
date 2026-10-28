@@ -238,3 +238,13 @@ func test_nothing_saved_from_free_flight() -> bool:
 	await Sim.process_frames(3)
 	root.free()
 	return JSON.stringify(SaveGame.read()) == before and (Wallet.balance if "balance" in Wallet else 0) == wallet
+
+## Free flight opens with the controls panel up and the companion greets within
+## seconds, so the radio has to draw above the panel or the greeting is cut off.
+func test_radio_draws_above_the_controls_panel() -> bool:
+	var s: Node = Sim.add(load(SANDBOX).instantiate())
+	var hud: CanvasLayer = s.get_node("HUD")
+	var ok: bool = s.get_node("HUD/Help").visible \
+		and hud.get_node("BarkBox").get_index() > hud.get_node("Help").get_index()
+	s.free()
+	return ok
