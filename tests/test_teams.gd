@@ -39,7 +39,7 @@ func test_teams_cover_every_job_type() -> bool:
 	var ok := true
 	for t in _job_types():
 		ok = ok and t in covered
-	return ok and _job_types().size() == 5
+	return ok and _job_types().size() >= 5
 
 func test_presets_step_through_the_acts() -> bool:
 	var list: TeamList = load(LIST)

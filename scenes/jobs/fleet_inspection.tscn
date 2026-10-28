@@ -1,0 +1,176 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
+[ext_resource type="PackedScene" path="res://scenes/world/city.tscn" id="3_city"]
+[ext_resource type="PackedScene" path="res://scenes/world/streets.tscn" id="4_streets"]
+[ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="5_roofs"]
+[ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="6_drone"]
+[ext_resource type="Script" path="res://scripts/drone/autopilot.gd" id="7_auto"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="8_rig"]
+[ext_resource type="PackedScene" path="res://scenes/fleet/command_view.tscn" id="9_view"]
+[ext_resource type="Script" path="res://scripts/jobs/job_runner.gd" id="10_runner"]
+[ext_resource type="Resource" path="res://data/jobs/fleet_inspection.tres" id="11_job"]
+[ext_resource type="Script" path="res://scripts/jobs/objectives/fleet_hold.gd" id="12_hold"]
+[ext_resource type="Script" path="res://scripts/jobs/hold_beacon.gd" id="13_beacon"]
+[ext_resource type="Script" path="res://scripts/nav/map_marker.gd" id="14_marker"]
+[ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="15_theme"]
+[ext_resource type="Script" path="res://scripts/ui/fleet_hud.gd" id="16_hud"]
+[ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="17_help"]
+[ext_resource type="Script" path="res://scripts/ui/controls_hint.gd" id="18_hint"]
+
+[node name="FleetInspection" type="Node3D"]
+
+[node name="GoldenHour" parent="." instance=ExtResource("1_world")]
+
+[node name="Ground" parent="." instance=ExtResource("2_desert")]
+
+[node name="City" parent="." instance=ExtResource("3_city")]
+
+[node name="Streets" parent="." instance=ExtResource("4_streets")]
+
+[node name="Rooftops" parent="." instance=ExtResource("5_roofs")]
+
+[node name="Station1" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43.04, 41.24, -32.49)
+
+[node name="MapMarker" type="Node3D" parent="Station1"]
+script = ExtResource("14_marker")
+kind = &"hold"
+label = "Relay 1"
+
+[node name="Beacon" type="Node3D" parent="Station1" node_paths=PackedStringArray("hold")]
+script = ExtResource("13_beacon")
+hold = NodePath("../../JobRunner/Relay1")
+
+[node name="Station2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.58, 43.44, 43.57)
+
+[node name="MapMarker" type="Node3D" parent="Station2"]
+script = ExtResource("14_marker")
+kind = &"hold"
+label = "Relay 2"
+
+[node name="Beacon" type="Node3D" parent="Station2" node_paths=PackedStringArray("hold")]
+script = ExtResource("13_beacon")
+hold = NodePath("../../JobRunner/Relay2")
+
+[node name="Station3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44.23, 42.05, 5)
+
+[node name="MapMarker" type="Node3D" parent="Station3"]
+script = ExtResource("14_marker")
+kind = &"hold"
+label = "Relay 3"
+
+[node name="Beacon" type="Node3D" parent="Station3" node_paths=PackedStringArray("hold")]
+script = ExtResource("13_beacon")
+hold = NodePath("../../JobRunner/Relay3")
+
+[node name="Fleet1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, 0)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet1"]
+script = ExtResource("7_auto")
+
+[node name="Fleet2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet2"]
+script = ExtResource("7_auto")
+
+[node name="Fleet3" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("6_drone")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, 0)
+intent_source = NodePath("Autopilot")
+
+[node name="Autopilot" type="Node" parent="Fleet3"]
+script = ExtResource("7_auto")
+
+[node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("8_rig")]
+target = NodePath("../Fleet1")
+
+[node name="CommandView" parent="." node_paths=PackedStringArray("drones", "camera_rig", "runner") instance=ExtResource("9_view")]
+drones = [NodePath("../Fleet1"), NodePath("../Fleet2"), NodePath("../Fleet3")]
+camera_rig = NodePath("../CameraRig")
+runner = NodePath("../JobRunner")
+height = 130.0
+
+[node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("drone", "camera_rig", "state_label")]
+script = ExtResource("10_runner")
+job = ExtResource("11_job")
+drone = NodePath("../Fleet1")
+camera_rig = NodePath("../CameraRig")
+state_label = NodePath("../HUD/State")
+
+[node name="Relay1" type="Node" parent="JobRunner" node_paths=PackedStringArray("command", "partners", "center")]
+script = ExtResource("12_hold")
+command = NodePath("../../CommandView")
+partners = [NodePath("../Relay2"), NodePath("../Relay3")]
+label = "Relay 1"
+ends_job = true
+center = NodePath("../../Station1")
+radius = 3.0
+hold_time = 6.0
+
+[node name="Relay2" type="Node" parent="JobRunner" node_paths=PackedStringArray("command", "partners", "center")]
+script = ExtResource("12_hold")
+command = NodePath("../../CommandView")
+partners = [NodePath("../Relay1"), NodePath("../Relay3")]
+label = "Relay 2"
+ends_job = true
+center = NodePath("../../Station2")
+radius = 3.0
+hold_time = 6.0
+
+[node name="Relay3" type="Node" parent="JobRunner" node_paths=PackedStringArray("command", "partners", "center")]
+script = ExtResource("12_hold")
+command = NodePath("../../CommandView")
+partners = [NodePath("../Relay1"), NodePath("../Relay2")]
+label = "Relay 3"
+ends_job = true
+center = NodePath("../../Station3")
+radius = 3.0
+hold_time = 6.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="State" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 24.0
+offset_right = 600.0
+offset_bottom = 60.0
+theme = ExtResource("15_theme")
+
+[node name="Stations" type="Label" parent="HUD" node_paths=PackedStringArray("holds")]
+offset_left = 28.0
+offset_top = 64.0
+offset_right = 600.0
+offset_bottom = 200.0
+theme = ExtResource("15_theme")
+script = ExtResource("16_hud")
+holds = [NodePath("../../JobRunner/Relay1"), NodePath("../../JobRunner/Relay2"), NodePath("../../JobRunner/Relay3")]
+
+[node name="Hint" type="Label" parent="HUD" node_paths=PackedStringArray("runner")]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -48.0
+offset_bottom = -20.0
+horizontal_alignment = 1
+theme = ExtResource("15_theme")
+script = ExtResource("18_hint")
+runner = NodePath("../../JobRunner")
+
+[node name="Help" type="PanelContainer" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+mouse_filter = 2
+theme = ExtResource("15_theme")
+script = ExtResource("17_help")

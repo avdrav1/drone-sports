@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
+[ext_resource type="Resource" path="res://data/assists/act5.tres" id="2_act5"]
+
+[resource]
+script = ExtResource("1_job")
+id = &"fleet_inspection"
+title = "Rooftop relay sweep"
+scene = "res://scenes/jobs/fleet_inspection.tscn"
+client = "Meridian Grid"
+job_type = &"fleet"
+faction = &"city"
+required_assists = ExtResource("2_act5")
+time_limit = 180.0
+pay = 1400
+countdown = 3.0
+default_view = 3
+weights = {
+"Relay1": 1.0,
+"Relay2": 1.0,
+"Relay3": 1.0
+}

@@ -366,11 +366,12 @@ Do not start until Epics 3 and 4 have been playtested and the fleet-genre questi
   - Out of scope: Drag-select, groups.
   - Note: `scenes/fleet/command_view.tscn` (CommandView) takes `drones` and a `camera_rig`. Click selects or queues a waypoint 10 m above the ground hit; Tab cycles; F (`drop_in`) moves its PilotInput onto the drone with the career preset, and F again hands back to `Autopilot.of(drone)`, which re-applies its own stack. Jobs in 6.3 and 6.4 instance it.
 
-- [ ] **6.3 Fleet inspection**
+- [x] **6.3 Fleet inspection**
   - Goal: Three structures must each have an inspection hold running at the same time, so three drones must be on station at once.
   - Context: Reuses the `HoldStation` objective from 4.4.
   - Acceptance: Only completable by assigning each structure to a different drone. Grading is per structure, combined as in 2.2.
   - Out of scope: Handoffs between human pilots.
+  - Note: `scenes/jobs/fleet_inspection.tscn` ("Rooftop relay sweep") in the sandbox city: three relays 5 m over rooftop pads. `FleetHold` extends `HoldStation`; a group counts only while every hold has its own drone inside, and each grades 1.0 at dead centre down to 0.5 at the radius edge. `CommandView.runner` holds the fleet still until Live and keeps each drone on its autopilot stack. No team reaches Act 5, so job type `fleet` went to the top city and salvage teams (City Rescue Air, Deadweight); the board lists the job.
 
 - [ ] **6.4 Fleet race**
   - Goal: A team relay where each lap must be flown by a different drone and the handoff is a gate.

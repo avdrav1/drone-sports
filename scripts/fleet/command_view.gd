@@ -22,6 +22,8 @@ signal left(drone: Drone)
 @export var waypoint_altitude := 10.0
 ## What the camera looks down on; the fleet's centre when unset.
 @export var focus: Node3D
+## A fleet job's runner: the fleet holds still until Live, on its autopilots.
+@export var runner: JobRunner
 
 var selected: Drone
 ## The drone being flown by hand, or null when commanding.
@@ -39,6 +41,20 @@ func _ready() -> void:
 	if not drones.is_empty():
 		select(drones[0])
 	_place_camera()
+	if runner:
+		runner.state_changed.connect(_on_runner_state)
+
+func _on_runner_state(state: JobRunner.State, _previous: JobRunner.State) -> void:
+	match state:
+		JobRunner.State.BRIEFING:
+			# The runner gave its drone the job's assists; fleet drones fly their own.
+			for d in drones:
+				d.freeze = true
+				if d != flown:
+					Autopilot.of(d).engage()
+		JobRunner.State.LIVE:
+			for d in drones:
+				d.freeze = false
 
 func _process(_delta: float) -> void:
 	if not flown:
