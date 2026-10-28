@@ -48,13 +48,14 @@ func validate() -> Array[String]:
 		out.append("%s: strike distance must run min to max" % label)
 	return out
 
-## Puts `w` on a scene: its wind on the drone, its fog on a copy of each
+## Puts `w` on a scene: its wind and weather on the drone, its fog on a copy of each
 ## WorldEnvironment's own Environment, so the shared resource is untouched.
 ## Null clears: still air and the scene's own environment back. The scope's
 ## WeatherState then holds `w` as the weather in effect.
 static func apply(w: Weather, drone: Drone, scope: Node) -> void:
 	if drone:
 		drone.wind = w.wind if w else null
+		drone.weather = w
 	if scope == null:
 		return
 	WeatherState.of(scope).weather = w

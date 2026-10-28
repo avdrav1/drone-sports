@@ -1,7 +1,8 @@
 class_name FlightHud
 extends Control
 # Thin-line flight HUD: compass tape at top, speed and altitude at the sides,
-# job panel at top left, assists at bottom left, battery at bottom right,
+# job panel at top left, assists at bottom left, battery at bottom right
+# with an ICING chip beside it while the props carry ice (Story 13.8),
 # GPS fix above the battery, the pilot's portrait at top right (Story 7.2).
 # Reads the drone and an optional JobRunner; draws everything in _draw.
 # Heading: 0 is north (-Z), 90 east (+X), 270 west.
@@ -27,6 +28,8 @@ const ASSIST_NAMES := {
 	&"speed_governor": "GOVERNOR", &"battery_wind": "ENV SIM", &"single_drone_view": "SOLO VIEW",
 }
 const TAPE_SPAN := 120.0
+## Ice on the props, 0..1, above which the ICING chip shows.
+const ICING_SHOWN := 0.05
 
 var font: Font
 ## The chosen pilot avatar's face.
@@ -93,6 +96,10 @@ func assist_states() -> Dictionary:
 	for id in AssistStack.IDS:
 		out[id] = drone.assists.is_enabled(id) if drone.assists and id != &"single_drone_view" else true
 	return out
+
+## True while the props carry enough ice to cost thrust.
+func icing_shown() -> bool:
+	return drone.icing > ICING_SHOWN and drone.intent.environment_sim
 
 func _draw() -> void:
 	if drone == null:
@@ -196,6 +203,13 @@ func _draw_battery(at: Vector2) -> void:
 	_text(Vector2(at.x - 60, at.y - 12), "%d%%" % roundi(pct * 100.0), 15, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 60)
 	draw_rect(Rect2(at.x - w, at.y, w, 4), Color(1, 1, 1, 0.15))
 	draw_rect(Rect2(at.x - w, at.y, w * pct, 4), ACCENT if pct > 0.2 else Color(1, 0.3, 0.2))
+	if icing_shown():
+		var cw := font.get_string_size("ICING", HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 14.0
+		var rect := Rect2(at.x - w - 12.0 - cw, at.y - 14, cw, 22)
+		var ice := Color(0.6, 0.85, 1.0)
+		draw_rect(rect, Color(ice, 0.2))
+		draw_rect(rect, ice, false, 1.0)
+		_text(Vector2(rect.position.x + 7, at.y + 2), "ICING", 12, LINE)
 
 ## Signal bars, then the grid reference, right-aligned at `at`.
 func _draw_gps(at: Vector2) -> void:

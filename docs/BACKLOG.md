@@ -597,11 +597,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
   - Acceptance: Every preset loads and validates. Each job's weather is set in its `.tres`. Every job with weather still completes in its existing test.
   - Out of scope: Random weather.
 
-- [ ] **13.8 Weather in the flight model**
+- [x] **13.8 Weather in the flight model**
   - Goal: Weather the drone feels beyond wind: rain adds drag and load, cold shortens the battery, and wet snow below freezing ices the props, costing thrust until it clears.
   - Context: New environment inputs to the one flight model in `drone.gd`, active only when `intent.environment_sim` is on, exactly like wind and battery today; the battery and wind assist shields them through Act 3. Rain: extra drag scaled by intensity. Cold: battery capacity falls below 10 °C. Icing: accumulates in snow below 0 °C, reduces max thrust up to a cap, and sheds when out of snow or warmer. The HUD shows an ICING chip.
   - Acceptance: With the sim on, heavy rain lowers top speed measurably; −10 °C drains the battery faster than 20 °C; icing builds in snow, lowers climb rate, and sheds after. With the battery and wind assist on, none of these change anything.
   - Out of scope: Water damage, crashes from weather alone.
+  - Note: `Weather.apply` now also sets `Drone.weather`; the drone reads it only with `intent.environment_sim` on: rain adds `rain_drag` (0.15 N per m/s) and `rain_load` (0.3 N) times intensity, `battery_capacity()` falls 2% per °C below 10 °C (floor 0.4), and `icing` (0..1) builds at intensity / `ice_build_time` 20 s in snow below 0 °C, sheds over `ice_shed_time` 8 s, and caps `iced_max_thrust()` at 30% loss. `reset` clears ice; `FlightHud.icing_shown()` draws the ICING chip left of the battery. Code that sets `drone.wind` directly (debug breeze, Lattice gusts) leaves `drone.weather` alone.
 
 ## Epic 14: Sound
 
