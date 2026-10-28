@@ -47,8 +47,10 @@ static func apply(env: Environment, sun: DirectionalLight3D, tier: int = GameSet
 		if not sun.has_meta(&"low_shadow"):
 			sun.set_meta(&"low_shadow", [sun.directional_shadow_max_distance, sun.light_angular_distance])
 		var low: Array = sun.get_meta(&"low_shadow")
-		sun.directional_shadow_max_distance = HIGH_SHADOW_DISTANCE if on else low[0]
-		sun.light_angular_distance = HIGH_SUN_ANGLE if on else low[1]
+		# The scene's SunShadow data may set High's own (Story 15.3).
+		var high: Array = sun.get_meta(&"high_shadow", [HIGH_SHADOW_DISTANCE, HIGH_SUN_ANGLE])
+		sun.directional_shadow_max_distance = high[0] if on else low[0]
+		sun.light_angular_distance = high[1] if on else low[1]
 
 ## Maps `env`'s exponential fog onto its volumetric fog, when that is on, so
 ## weather fog reads on both tiers. Weather.apply calls it after each change.

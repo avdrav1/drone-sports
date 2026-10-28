@@ -1,4 +1,4 @@
-[gd_resource type="Environment" load_steps=5 format=3]
+[gd_resource type="Environment" load_steps=7 format=3]
 
 [ext_resource type="Shader" path="res://scenes/world/golden_sky.gdshader" id="1_sky"]
 
@@ -25,6 +25,13 @@ shader_parameter/cloud_shadow = Color(0.32, 0.22, 0.34, 1)
 shader_parameter/cloud_lit = Color(1, 0.6, 0.32, 1)
 shader_parameter/cloud_noise = SubResource("cloud_tex")
 
+[sub_resource type="Gradient" id="grade_curve"]
+offsets = PackedFloat32Array(0, 0.25, 0.6, 1)
+colors = PackedColorArray(0.01, 0.015, 0.04, 1, 0.235, 0.24, 0.27, 1, 0.62, 0.6, 0.57, 1, 1, 0.98, 0.93, 1)
+
+[sub_resource type="GradientTexture1D" id="grade"]
+gradient = SubResource("grade_curve")
+
 [sub_resource type="Sky" id="sky"]
 sky_material = SubResource("sky_mat")
 
@@ -34,19 +41,26 @@ sky = SubResource("sky")
 ambient_light_source = 3
 ambient_light_color = Color(0.85, 0.6, 0.5, 1)
 ambient_light_sky_contribution = 0.6
-ambient_light_energy = 1.4
+ambient_light_energy = 0.65
 reflected_light_source = 2
-tonemap_mode = 3
-tonemap_exposure = 1.05
-tonemap_white = 8.0
+tonemap_mode = 4
+tonemap_exposure = 1.25
+tonemap_agx_white = 16.0
+tonemap_agx_contrast = 1.35
 ssao_enabled = true
 ssao_intensity = 1.5
 glow_enabled = true
-glow_intensity = 0.45
-glow_strength = 1.1
-glow_bloom = 0.02
+glow_levels/1 = 0.0
+glow_levels/2 = 0.6
+glow_levels/3 = 1.0
+glow_levels/4 = 0.6
+glow_levels/5 = 0.3
+glow_intensity = 0.6
+glow_strength = 1.0
+glow_bloom = 0.0
 glow_blend_mode = 1
 glow_hdr_threshold = 1.2
+glow_hdr_scale = 2.0
 fog_enabled = true
 fog_light_color = Color(0.86, 0.55, 0.38, 1)
 fog_light_energy = 1.0
@@ -55,5 +69,7 @@ fog_density = 0.0016
 fog_aerial_perspective = 0.4
 fog_sky_affect = 0.05
 adjustment_enabled = true
-adjustment_contrast = 1.08
-adjustment_saturation = 1.0
+adjustment_brightness = 1.0
+adjustment_contrast = 1.05
+adjustment_saturation = 1.25
+adjustment_color_correction = SubResource("grade")
