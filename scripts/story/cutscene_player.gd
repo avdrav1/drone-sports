@@ -4,7 +4,9 @@ extends Node3D
 # hidden), a camera that orbits, chases, or holds, and captions over letterbox
 # bars. Any key skips. At the end it sets the seen flag and opens next_scene.
 # Once seen, it forwards straight to next_scene unless `replay` is set. The
-# cutscene's bed loops under every beat until it ends.
+# cutscene's bed loops under every beat until it ends. As `backdrop_only` it is
+# just the moving picture behind another screen (the title, Story 17.3): no
+# overlay, bed, score, or skipping, and the last beat holds for good.
 
 signal finished
 
@@ -17,6 +19,8 @@ static var replay := false
 ## Input ignored for this long, so a key still held from the last scene doesn't skip.
 @export var skip_grace := 0.4
 @export var framing: ArcadeFraming = preload("res://data/framing/act1.tres")
+## Only the backdrop and camera: the screen in front owns input and text.
+@export var backdrop_only := false
 
 var index := -1
 var beat: CutsceneBeat
@@ -41,6 +45,12 @@ var _angle := 0.0
 var _age := 0.0
 
 func _ready() -> void:
+	if backdrop_only:
+		camera = Camera3D.new()
+		camera.far = 4000.0
+		add_child(camera)
+		advance()
+		return
 	if cutscene.seen_flag != &"" and StoryFlags.is_set(cutscene.seen_flag) and not replay:
 		done = true
 		_go_next.call_deferred()
@@ -60,15 +70,16 @@ func _process(delta: float) -> void:
 		return
 	_age += delta
 	t += delta
-	if t >= beat.duration:
+	if t >= beat.duration and not (backdrop_only and index == cutscene.beats.size() - 1):
 		advance()
 		if done:
 			return
 	_place_camera(delta)
-	_fade()
+	if not backdrop_only:
+		_fade()
 
 func _input(event: InputEvent) -> void:
-	if done or _age < skip_grace:
+	if done or backdrop_only or _age < skip_grace:
 		return
 	var pressed := (event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton) \
 		and event.is_pressed() and not event.is_echo()
@@ -87,6 +98,9 @@ func advance() -> void:
 	if beat.backdrop != "" and beat.backdrop != _backdrop_path:
 		_load_backdrop(beat)
 	_angle = 0.0
+	if backdrop_only:
+		_place_camera(0.0, true)
+		return
 	caption.text = beat.caption
 	title_label.text = beat.title
 	card.visible = beat.portrait != &""

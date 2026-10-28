@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Cutscene" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
+[ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
+
+[sub_resource type="Resource" id="beat0"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/debug_flight.tscn"
+camera = 0
+focus = NodePath("City")
+orbit_radius = 230.0
+orbit_height = 40.0
+orbit_speed = 2.0
+duration = 60.0
+
+[resource]
+script = ExtResource("1_cut")
+beats = Array[ExtResource("2_beat")]([SubResource("beat0")])

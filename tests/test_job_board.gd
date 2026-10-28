@@ -21,9 +21,9 @@ func _flyable(b: JobBoard) -> Array:
 func test_reached_at_launch_and_jobs_come_back() -> bool:
 	var runner := JobRunner.new()
 	var results: Control = load("res://scenes/ui/results.tscn").instantiate()
-	# The intro is the main scene and forwards here (Story 11.1).
+	# The intro is the main scene and forwards here (Story 11.1), by way of the title (Story 17.3).
 	var intro: Cutscene = load("res://data/story/intro.tres")
-	var ok: bool = intro.next_scene == BOARD and runner.back_scene == BOARD and results.continue_scene == BOARD
+	var ok: bool = intro.next_scene == JobBoard.TITLE and TitleScreen.BOARD == BOARD and runner.back_scene == BOARD and results.continue_scene == BOARD
 	runner.free()
 	results.free()
 	return ok

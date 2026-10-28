@@ -101,6 +101,8 @@ func test_new_game_reaches_pilot_select() -> bool:
 	var p := Sim.tree().current_scene as CutscenePlayer
 	p.finish()
 	await Sim.process_frames(3)
+	(Sim.tree().current_scene as TitleScreen).start()  # PRESS START (Story 17.3)
+	await Sim.process_frames(3)
 	var b := Sim.tree().current_scene as JobBoard
 	var ok: bool = b != null and b.pilot_select.visible
 	# Keyboard and pad focus cannot leave the screen for the board behind it.

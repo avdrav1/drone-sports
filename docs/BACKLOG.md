@@ -840,7 +840,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: A string line and an object line both load, and the object's `face` is used. A line with no `face` gets its event's default expression. While the text is typing, the portrait is talking; once the full line shows, it is not. The full line shows within 2 s of a 40-character line starting. Every existing bark test passes unchanged.
   - Out of scope: New events (17.8), the radio panel layout (17.7).
 
-- [ ] **17.3 Title screen**
+- [x] **17.3 Title screen**
   - Goal: After the intro (or straight away once it has been seen), a title screen: the game's name, PRESS START (any key, click, or gamepad button), the best score, and the city slowly orbiting behind it.
   - Context: The backdrop reuses the cutscene backdrop system from 11.1 with the sandbox scene and an orbit camera, HUDs hidden. The best score is the player's highest single job payout, read from the save; zero shows as dashes. Start opens the job board (or pilot select on a new game, as now). Esc on the board returns here.
   - Acceptance: Launching with `intro_seen` set opens the title screen, not the board. Any key, a mouse click, or a gamepad button opens the board; with no pilot chosen, it opens pilot select first. The best score matches the save. The backdrop loads with no errors and its camera orbits. Esc on the board returns to the title.

@@ -80,7 +80,7 @@ duration = 6.0
 [resource]
 script = ExtResource("1_cut")
 beats = Array[ExtResource("2_beat")]([SubResource("beat0"), SubResource("beat1"), SubResource("beat2"), SubResource("beat3"), SubResource("beat4"), SubResource("beat5"), SubResource("beat6")])
-next_scene = "res://scenes/ui/job_board.tscn"
+next_scene = "res://scenes/ui/title.tscn"
 bed = &"bed_intro"
 score = ExtResource("3_score")
 seen_flag = &"intro_seen"

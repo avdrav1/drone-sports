@@ -2,11 +2,13 @@ extends RefCounted
 # Story 11.1: intro. Plays on a new game from the first beat; finishing or any
 # key ends it, sets intro_seen, and opens the board; once seen, launch goes
 # straight to the board; the beats hold together; the board marks START HERE
-# and can replay it.
+# and can replay it. Since Story 17.3 the title stands between the intro and
+# the board.
 
 const Sim = preload("res://tests/sim.gd")
 const INTRO := "res://scenes/story/intro.tscn"
 const BOARD := "res://scenes/ui/job_board.tscn"
+const TITLE := "res://scenes/ui/title.tscn"
 
 func _open(path: String) -> Node:
 	Sim.tree().change_scene_to_file(path)
@@ -29,7 +31,7 @@ func test_beats_hold_together() -> bool:
 	var c: Cutscene = load("res://data/story/intro.tres")
 	var total := c.total_time()
 	var ok: bool = c.beats.size() >= 5 and total >= 45.0 and total <= 90.0 and c.beats[0].backdrop != "" \
-		and c.seen_flag == &"intro_seen" and c.next_scene == BOARD
+		and c.seen_flag == &"intro_seen" and c.next_scene == TITLE
 	var backdrop: Node = null
 	for b in c.beats:
 		if b.backdrop != "":
@@ -44,7 +46,7 @@ func test_beats_hold_together() -> bool:
 	backdrop.free()
 	return ok
 
-func test_walks_every_beat_then_opens_the_board() -> bool:
+func test_walks_every_beat_then_opens_the_title() -> bool:
 	var p: CutscenePlayer = await _open(INTRO)
 	var beats := p.cutscene.beats.size()
 	var captions := []
@@ -55,7 +57,7 @@ func test_walks_every_beat_then_opens_the_board() -> bool:
 	await Sim.process_frames(3)
 	var now := Sim.tree().current_scene
 	var ok: bool = captions.size() == beats and StoryFlags.is_set(&"intro_seen") \
-		and now.scene_file_path == BOARD
+		and now.scene_file_path == TITLE
 	await _close()
 	return ok
 
@@ -67,15 +69,15 @@ func test_any_key_skips() -> bool:
 	ev.pressed = true
 	p.get_viewport().push_input(ev)
 	await Sim.process_frames(3)
-	var ok: bool = StoryFlags.is_set(&"intro_seen") and Sim.tree().current_scene.scene_file_path == BOARD
+	var ok: bool = StoryFlags.is_set(&"intro_seen") and Sim.tree().current_scene.scene_file_path == TITLE
 	await _close()
 	return ok
 
-func test_once_seen_launch_goes_to_the_board() -> bool:
+func test_once_seen_launch_goes_to_the_title() -> bool:
 	StoryFlags.set_flag(&"intro_seen")
 	var first: Node = await _open(INTRO)
-	var ok: bool = first == null or first.scene_file_path == BOARD
-	ok = ok and Sim.tree().current_scene != null and Sim.tree().current_scene.scene_file_path == BOARD
+	var ok: bool = first == null or first.scene_file_path == TITLE
+	ok = ok and Sim.tree().current_scene != null and Sim.tree().current_scene.scene_file_path == TITLE
 	await _close()
 	return ok
 

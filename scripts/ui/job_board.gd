@@ -5,11 +5,12 @@ extends Control
 # and who unlocks the rest; the crew and their status. Offers ask here too,
 # and the shop and pilot select open from here. A new game picks a pilot first.
 # A locked faction's jobs leave the board, and the shop shows when it is closed
-# (Story 7.6).
+# (Story 7.6). Esc goes back to the title (Story 17.3).
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
 const INTRO := "res://scenes/story/intro.tscn"
+const TITLE := "res://scenes/ui/title.tscn"
 const ACCENT := Color(1.0, 0.76, 0.25)
 const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
@@ -118,6 +119,19 @@ func fly(job: Job) -> void:
 func set_quality(tier: int) -> void:
 	GameSettings.quality = tier
 	GameSettings.save()
+
+## Esc (or pad B) with nothing open over the board: back to the title.
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel") or pilot_select.visible:
+		return
+	for w in find_children("*", "Window", true, false):
+		if w.visible:
+			return
+	get_viewport().set_input_as_handled()
+	to_title()
+
+func to_title() -> void:
+	get_tree().change_scene_to_file(TITLE)
 
 func free_flight() -> void:
 	get_tree().change_scene_to_file(FREE_FLIGHT)
