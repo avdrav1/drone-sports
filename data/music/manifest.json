@@ -63,6 +63,48 @@
    "tempo": 120.0,
    "tonic": 146.83
   },
+  "act_3": {
+   "bars": 8,
+   "plays": {
+    "cymbals": "cymbals",
+    "drone": "tanpura",
+    "frame_drum": "frame_drum",
+    "mantra_voice": "voice",
+    "pluck": "tanpura",
+    "reed": "reed"
+   },
+   "stems": [
+    "drone",
+    "reed",
+    "pluck",
+    "frame_drum",
+    "cymbals",
+    "mantra_voice"
+   ],
+   "tempo": 104.0,
+   "tonic": 146.83
+  },
+  "act_4": {
+   "bars": 8,
+   "plays": {
+    "cymbals": "cymbals",
+    "drone": "tanpura",
+    "frame_drum": "frame_drum",
+    "mantra_voice": "voice",
+    "pluck": "tanpura",
+    "reed": "reed"
+   },
+   "stems": [
+    "drone",
+    "reed",
+    "pluck",
+    "frame_drum",
+    "cymbals",
+    "mantra_voice"
+   ],
+   "tempo": 132.0,
+   "tonic": 146.83
+  },
   "demo": {
    "bars": 11,
    "instruments": [

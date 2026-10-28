@@ -238,6 +238,66 @@ def act_2():
     write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays})
 
 
+def soft_clip(samples, drive):
+    """`samples` normalized, then driven into tanh: rougher, with no hard edge."""
+    peak = max(1e-9, max(abs(x) for x in samples))
+    return [math.tanh(drive * x / peak) for x in samples]
+
+
+# Story 16.6: Act 3's tempo, and Act 4's, faster, for when the governor comes off.
+ACT_3_TEMPO = 104
+ACT_4_TEMPO = 132
+
+
+def hand_and_voice(score_id, tempo, rough, seed):
+    """Story 16.6: Acts 3 and 4. No kick and no bass: the tanpura drone and
+    pluck, the harmonium, hand percussion (frame drum, finger cymbals) and the
+    hook sung by the formant voice. `rough` (Act 4) plays the drum in busy
+    eighths with rim strokes, the cymbals on every beat, the pluck in eighths,
+    and drives every stem into a soft clip. One hook long."""
+    bars = MANTRA_BARS
+    n = bar_samples(tempo, bars)
+    plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "frame_drum": "frame_drum",
+             "cymbals": "cymbals", "mantra_voice": "voice"}
+    order = ("drone", "reed", "pluck", "frame_drum", "cymbals")
+    tracks = {k: instruments.Track(n, tempo) for k in order}
+    beat = tracks["reed"].seconds(1)
+    low, rim = key.hz(1, -1), 520
+    if rough:
+        drum = ((0, low), (0.5, rim), (1, rim), (1.5, low), (2, low), (2.5, rim), (3, rim), (3.25, rim), (3.5, low), (3.75, rim))
+    else:
+        drum = ((0, low), (1, rim), (1.5, rim), (2, low), (2.75, rim), (3, rim))
+    for bar, chord in enumerate(ACT_1_CHORDS):
+        b = bar * BEATS_PER_BAR
+        sd = seed + bar * 20
+        for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
+            tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, sd + k), 0.8)
+        for d in chord:
+            tracks["reed"].add(b, instruments.reed(key.hz(d, 0), 4 * beat - 0.3, sd), 0.35)
+        steps = 8 if rough else 4
+        for k in range(steps):
+            d = (chord + (chord[0] + 7,))[k % 4]
+            tracks["pluck"].add(b + k * 4 / steps, instruments.tanpura(key.hz(d, 1), beat * 4 / steps, sd + 4 + k), 0.5)
+        for k, (t, f) in enumerate(drum):
+            tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=sd + 12 + k), 0.8)
+        for t in (range(4) if rough else (0, 2)):
+            tracks["cymbals"].add(b + t, instruments.cymbals(key.hz(5, 4), seed=sd), 0.3)
+    stems = [(k, tracks[k].buf) for k in order] + [("mantra_voice", render_mantra("voice", tempo, seed=seed))]
+    if rough:
+        stems = [(k, soft_clip(buf, 2.5)) for k, buf in stems]
+    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "mantra_voice": -9.0}
+    assert not set(plays.values()) & set(SYNTHS + ("kick", "bass"))
+    write_score(score_id, tempo, key.TONIC, bars, [(k, buf, levels[k]) for k, buf in stems], {"plays": plays})
+
+
+def act_3():
+    hand_and_voice("act_3", ACT_3_TEMPO, False, 2000)
+
+
+def act_4():
+    hand_and_voice("act_4", ACT_4_TEMPO, True, 2100)
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -280,6 +340,8 @@ def generate():
     mantra()
     act_1()
     act_2()
+    act_3()
+    act_4()
     write_manifest()
 
 

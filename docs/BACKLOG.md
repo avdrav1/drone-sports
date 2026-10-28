@@ -770,11 +770,12 @@ Done when every act has its own score, all built from one original mantra over o
   - Out of scope: Acts 3 to 5.
   - Note: `act_2()` in `tools/music/generate.py` writes `data/music/act_2.tres` (120 bpm, 8 bars, the `ACT_1_CHORDS` again) with stems `drone` (tanpura), `reed` (harmonium chords, the pad's place), `pluck` (tanpura arpeggio, the arpeggio's place), `kick` (one and three, -14 dB against act 1's -8), `frame_drum` (two and four, the clap's place) and `mantra_reed` (the hook on the harmonium, `MANTRA_OCTAVE["reed"]` 1); no bass. `SYNTHS` (`bass`, `arp`, `pad`, `lead`) is in the manifest as `synths`, and `scores.act_2.plays` maps each stem to its instrument (the generator asserts none is a synth). `MusicDirector.MIXES` adds `reed` wherever `pad` is and `pluck` to `countdown`, so the 16.4 state levels hold for both scores. `CutsceneBeat.score` crossfades a score in (every stem, through `MusicDirector.play_score`) when `CutscenePlayer.advance()` reaches that beat; `data/story/recruited.tres` now plays `act_1` from the start (`Cutscene.score`) and sets `act_2` on beat 2, the first without the bezel. `tests/test_music_act2.gd`.
 
-- [ ] **16.6 Acts 3 and 4: hand and voice**
+- [x] **16.6 Acts 3 and 4: hand and voice**
   - Goal: Act 3 drops the kick and bass for hand percussion and the sung hook. Act 4 is the same group played faster and rougher, for the act where the governor comes off.
   - Context: `data/music/act_3.tres` and `act_4.tres`; act 4's tempo is higher. Same state levels as 16.4.
   - Acceptance: Each act plays its own score. Neither has synth or kick stems. Act 4's tempo is higher than act 3's.
   - Out of scope: Fleet music.
+  - Note: `hand_and_voice(score_id, tempo, rough, seed)` in `tools/music/generate.py` writes both scores (8 bars, `ACT_1_CHORDS`, stems `drone`, `reed`, `pluck`, `frame_drum`, `cymbals` and `mantra_voice`, the hook sung; no kick, no bass; `scores.act_N.plays` in the manifest names each stem's instrument): `act_3()` writes `data/music/act_3.tres` at `ACT_3_TEMPO` 104 bpm, and `act_4()` writes `data/music/act_4.tres` at `ACT_4_TEMPO` 132 with `rough` set (drum in eighths with rim strokes, cymbals every beat, pluck in eighths, every stem through `soft_clip(samples, drive)`). Files are `data/music/act_3_<stem>.ogg` and `act_4_<stem>.ogg`. The director needed no change: its 16.5 `MIXES` already cover `reed` and `pluck`. `tests/test_music_act3_4.gd`.
 
 - [ ] **16.7 Act 5: call and response**
   - Goal: Fleet music in kirtan form: one lead voice sings the call half of the mantra, and a choir sings the answer. The choir grows with the fleet.

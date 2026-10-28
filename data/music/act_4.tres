@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="Score" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
+[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_drone.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_reed.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_pluck.ogg" id="3"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_frame_drum.ogg" id="4"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_cymbals.ogg" id="5"]
+[ext_resource type="AudioStream" path="res://data/music/act_4_mantra_voice.ogg" id="6"]
+
+[sub_resource type="Resource" id="stem_1"]
+script = ExtResource("stem")
+id = &"drone"
+stream = ExtResource("1")
+level_db = -10.0
+
+[sub_resource type="Resource" id="stem_2"]
+script = ExtResource("stem")
+id = &"reed"
+stream = ExtResource("2")
+level_db = -12.0
+
+[sub_resource type="Resource" id="stem_3"]
+script = ExtResource("stem")
+id = &"pluck"
+stream = ExtResource("3")
+level_db = -14.0
+
+[sub_resource type="Resource" id="stem_4"]
+script = ExtResource("stem")
+id = &"frame_drum"
+stream = ExtResource("4")
+level_db = -10.0
+
+[sub_resource type="Resource" id="stem_5"]
+script = ExtResource("stem")
+id = &"cymbals"
+stream = ExtResource("5")
+level_db = -16.0
+
+[sub_resource type="Resource" id="stem_6"]
+script = ExtResource("stem")
+id = &"mantra_voice"
+stream = ExtResource("6")
+level_db = -9.0
+
+[resource]
+script = ExtResource("score")
+id = &"act_4"
+tempo = 132.0
+tonic = 146.83
+bars = 8
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6")])

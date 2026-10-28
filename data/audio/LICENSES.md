@@ -74,3 +74,15 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_2_kick.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_2_frame_drum.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_2_mantra_reed.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_reed.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_pluck.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_frame_drum.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_cymbals.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_mantra_voice.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_drone.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_reed.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_pluck.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_frame_drum.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_cymbals.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_4_mantra_voice.ogg` | `tools/music/generate.py` | generated |
