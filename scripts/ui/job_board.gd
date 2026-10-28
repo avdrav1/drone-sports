@@ -10,6 +10,11 @@ extends Control
 # type icon, pay, assists, best grade, and a crew member on comms pitching it in
 # their own voice. A locked card shows a padlock and one short reason, the full
 # one in its tooltip. It opens on START HERE, else on the last job flown.
+# Story 17.5: one arcade menu (FLY, FREE FLIGHT, GARAGE, PILOT, CREW, OPTIONS)
+# beside the pages. Up and down move through it, left and right flip the cards
+# while FLY has focus, Enter selects, Esc goes back: from a page to the menu,
+# from the menu to the title. CREW is its own page with big faces; OPTIONS
+# holds Sound, Quality, and Watch intro.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -31,15 +36,20 @@ var job_ids: Array[StringName] = []
 var carousel: JobCarousel
 ## Character id -> its row.
 var crew_rows := {}
+## The menu's buttons, top to bottom.
+var menu: VBoxContainer
+## The page showing beside the menu: jobs, crew, or options.
+var page := &"jobs"
+var pages := {}
 
 var _header: Label
 ## Shows SaveGame.warning, once, when the save had to be reset.
 var warning_label: Label
 var _money: Label
 var _crew_box: VBoxContainer
-var _footer: HBoxContainer
 var _pilot_button: Button
 var _shop_button: Button
+var _crew_scroll: ScrollContainer
 
 func _ready() -> void:
 	jobs = load(JOBS)
@@ -60,12 +70,16 @@ func _ready() -> void:
 	pilot_select.visible = false
 	pilot_select.chosen.connect(func(_id):
 		refresh()
-		carousel.grab_focus())
+		menu_button(&"Fly").grab_focus())
 	add_child(pilot_select)
+	# Closed without a choice (Back), focus comes back to the menu.
+	pilot_select.visibility_changed.connect(func():
+		if not pilot_select.visible and get_viewport().gui_get_focus_owner() == null:
+			menu_button(&"Fly").grab_focus())
 	if not PlayerProfile.has_pilot():
 		pilot_select.open()
 	else:
-		carousel.grab_focus()
+		menu_button(&"Fly").grab_focus()
 	UiSounds.wire(self)
 	MusicDirector.board()
 	Career.check_offers()
@@ -86,11 +100,13 @@ static func preset_label(job: Job) -> String:
 ## A job's row: [title, details, Fly button or lock text].
 func refresh() -> void:
 	_header.text = Career.label()
-	_pilot_button.text = "Pilot: %s" % PlayerProfile.pilot().name
+	_pilot_button.text = "PILOT  ·  %s" % PlayerProfile.pilot().name
 	_money.text = money_text()
 	var closed := Consequences.shop_closed_jobs()
 	_shop_button.disabled = closed > 0
-	_shop_button.text = "Shop" if closed == 0 else "Shop closed: %d more job%s" % [closed, "" if closed == 1 else "s"]
+	# Disabled, it is skipped by keyboard and pad focus.
+	_shop_button.focus_mode = FOCUS_NONE if closed > 0 else FOCUS_ALL
+	_shop_button.text = "GARAGE" if closed == 0 else "GARAGE  closed %d more job%s" % [closed, "" if closed == 1 else "s"]
 	_shop_button.tooltip_text = "" if closed == 0 else "Closed since %s died." % \
 		", ".join(Consequences.causes(&"shop_closed").map(func(c): return c.name))
 	for c in _crew_box.get_children():
@@ -109,7 +125,6 @@ func refresh() -> void:
 		cards.append(_card(BossGate.data().job, true))
 	var open_on := job_ids.find(showing if showing != &"" else opening_job())
 	carousel.set_cards(cards, maxi(open_on, 0))
-	_crew_box.add_child(_heading("CREW"))
 	for id in Roster.ids():
 		var row := crew_row(id)
 		crew_rows[id] = row
@@ -128,7 +143,8 @@ func set_quality(tier: int) -> void:
 	GameSettings.quality = tier
 	GameSettings.save()
 
-## Esc (or pad B) with nothing open over the board: back to the title.
+## Esc (or pad B) with nothing open over the board: from a page back to the
+## menu, from the menu back to the title.
 ## Left and right flip the carousel even when nothing has focus.
 func _unhandled_input(event: InputEvent) -> void:
 	if pilot_select.visible:
@@ -144,7 +160,47 @@ func _unhandled_input(event: InputEvent) -> void:
 		if w.visible:
 			return
 	get_viewport().set_input_as_handled()
-	to_title()
+	if page != &"jobs":
+		back_to_menu()
+	else:
+		to_title()
+
+func menu_button(n: StringName) -> Button:
+	return menu.get_node_or_null(NodePath(n))
+
+## Shows a page beside the menu: jobs, crew, or options.
+func show_page(p: StringName) -> void:
+	page = p
+	for k in pages:
+		pages[k].visible = k == p
+
+## Shows the jobs again and puts focus back on the menu item that left them.
+func back_to_menu() -> void:
+	var from := {&"crew": &"Crew", &"options": &"Options"}.get(page, &"Fly") as StringName
+	show_page(&"jobs")
+	menu_button(from).grab_focus()
+
+func open_crew() -> void:
+	show_page(&"crew")
+	pages[&"crew"].grab_focus()
+
+func open_options() -> void:
+	show_page(&"options")
+	pages[&"options"].get_node("Box/Sound").grab_focus()
+
+## FLY flies the card showing; from another page it shows the cards first.
+func _on_fly_item() -> void:
+	if page != &"jobs":
+		show_page(&"jobs")
+	else:
+		fly_current()
+
+## Left and right on FLY flip the cards instead of moving focus.
+func _on_fly_item_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_right", true) or event.is_action_pressed("ui_left", true):
+		show_page(&"jobs")
+		carousel.go(carousel.index + (1 if event.is_action_pressed("ui_right", true) else -1))
+		menu_button(&"Fly").accept_event()
 
 func to_title() -> void:
 	get_tree().change_scene_to_file(TITLE)
@@ -353,7 +409,7 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.greyed = not Roster.is_alive(id)
-	face.custom_minimum_size = Vector2(44, 44)
+	face.custom_minimum_size = Vector2(88, 88)
 	row.add_child(face)
 	var text := Label.new()
 	text.name = "Status"
@@ -369,9 +425,10 @@ static func crew_row(id: StringName) -> HBoxContainer:
 			color = DIM
 	text.text = "%s  ·  %s\n%s" % [c.name, c.role, status]
 	text.add_theme_color_override("font_color", color)
-	text.add_theme_font_size_override("font_size", 14)
+	text.add_theme_font_size_override("font_size", 18)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	text.custom_minimum_size.x = 320
+	text.size_flags_horizontal = SIZE_EXPAND_FILL
+	text.custom_minimum_size.x = 240
 	text.size_flags_vertical = SIZE_SHRINK_CENTER
 	row.add_child(text)
 	return row
@@ -419,38 +476,94 @@ func _build() -> void:
 	page.add_child(warning_label)
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 24)
+	body.add_theme_constant_override("separation", 28)
 	page.add_child(body)
+	_build_menu(body)
+	var stack := Control.new()
+	stack.name = "Pages"
+	stack.size_flags_horizontal = SIZE_EXPAND_FILL
+	body.add_child(stack)
 	carousel = JobCarousel.new()
 	carousel.name = "Carousel"
-	carousel.size_flags_horizontal = SIZE_EXPAND_FILL
-	carousel.size_flags_stretch_ratio = 1.6
+	carousel.set_anchors_preset(PRESET_FULL_RECT)
 	carousel.activated.connect(func(_i): fly_current())
-	body.add_child(carousel)
-	_crew_box = _panel(body, false)
-	_footer = HBoxContainer.new()
-	_footer.name = "Footer"
-	_footer.add_theme_constant_override("separation", 12)
-	page.add_child(_footer)
-	var free := Button.new()
-	free.name = "FreeFlight"
-	free.text = "Free flight"
-	free.pressed.connect(free_flight)
-	_footer.add_child(free)
-	_shop_button = Button.new()
-	_shop_button.name = "Shop"
-	_shop_button.text = "Shop"
-	_shop_button.pressed.connect(func(): shop.open())
-	_footer.add_child(_shop_button)
-	_pilot_button = Button.new()
-	_pilot_button.name = "Pilot"
-	_pilot_button.pressed.connect(func(): pilot_select.open())
-	_footer.add_child(_pilot_button)
+	stack.add_child(carousel)
+	pages[&"jobs"] = carousel
+	_crew_box = _panel(stack, &"crew")
+	_crew_scroll = _crew_box.get_parent() as ScrollContainer
+	# The page itself takes focus (a ScrollContainer only does while it can
+	# scroll); up and down scroll it, and its border lights while focused.
+	var crew_page: PanelContainer = pages[&"crew"]
+	crew_page.focus_mode = FOCUS_ALL
+	crew_page.gui_input.connect(_on_crew_scroll_input)
+	crew_page.focus_entered.connect(func():
+		var lit: StyleBoxFlat = crew_page.get_theme_stylebox("panel").duplicate()
+		lit.border_color = ACCENT
+		crew_page.add_theme_stylebox_override("panel", lit))
+	crew_page.focus_exited.connect(func(): crew_page.remove_theme_stylebox_override("panel"))
+	_crew_box.add_theme_constant_override("separation", 16)
+	_build_options(stack)
+	# Keyboard and pad focus leaving the cards goes back to FLY.
+	var fly_path := carousel.get_path_to(menu_button(&"Fly"))
+	for side in [SIDE_LEFT, SIDE_TOP, SIDE_BOTTOM]:
+		carousel.set_focus_neighbor(side, fly_path)
+	show_page(&"jobs")
+
+func _build_menu(parent: Control) -> void:
+	menu = VBoxContainer.new()
+	menu.name = "Menu"
+	menu.custom_minimum_size.x = 250
+	menu.alignment = BoxContainer.ALIGNMENT_CENTER
+	menu.add_theme_constant_override("separation", 12)
+	parent.add_child(menu)
+	var items := [["Fly", "FLY", _on_fly_item], ["FreeFlight", "FREE FLIGHT", free_flight],
+		["Garage", "GARAGE", func(): shop.open()], ["Pilot", "PILOT", func(): pilot_select.open()],
+		["Crew", "CREW", open_crew], ["Options", "OPTIONS", open_options]]
+	for it in items:
+		var b := Button.new()
+		b.name = it[0]
+		b.text = it[1]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.add_theme_font_size_override("font_size", 24)
+		b.add_theme_stylebox_override("focus", _focus_box())
+		b.pressed.connect(it[2])
+		menu.add_child(b)
+		# The theme has no disabled look; a faded normal one reads as off.
+		var off: StyleBoxFlat = b.get_theme_stylebox("normal").duplicate()
+		off.bg_color.a = 0.35
+		off.border_color.a = 0.2
+		b.add_theme_stylebox_override("disabled", off)
+	_shop_button = menu_button(&"Garage")
+	_pilot_button = menu_button(&"Pilot")
+	menu_button(&"Fly").gui_input.connect(_on_fly_item_input)
+	menu_button(&"Fly").focus_entered.connect(func(): carousel.highlight = true)
+	menu_button(&"Fly").focus_exited.connect(func(): carousel.highlight = false)
+	# The menu wraps top to bottom, and left and right never wander off it.
+	var buttons := menu.get_children()
+	for i in buttons.size():
+		var b: Button = buttons[i]
+		b.focus_neighbor_left = b.get_path_to(b)
+		b.focus_neighbor_right = b.get_path_to(b)
+	buttons[0].focus_neighbor_top = buttons[0].get_path_to(buttons[-1])
+	buttons[-1].focus_neighbor_bottom = buttons[-1].get_path_to(buttons[0])
+
+func _build_options(stack: Control) -> void:
+	var panel := PanelContainer.new()
+	panel.name = "Options"
+	panel.set_anchors_preset(PRESET_FULL_RECT)
+	stack.add_child(panel)
+	pages[&"options"] = panel
+	var box := VBoxContainer.new()
+	box.name = "Box"
+	box.add_theme_constant_override("separation", 16)
+	panel.add_child(box)
+	box.add_child(_heading("OPTIONS"))
 	var sound_button := Button.new()
 	sound_button.name = "Sound"
 	sound_button.text = "Sound"
 	sound_button.pressed.connect(func(): sound.open())
-	_footer.add_child(sound_button)
+	box.add_child(sound_button)
 	# Renderer extras (Story 15.1); the web build is always Low, so no choice there.
 	var quality := OptionButton.new()
 	quality.name = "Quality"
@@ -459,21 +572,60 @@ func _build() -> void:
 	quality.select(quality.get_item_index(GameSettings.quality))
 	quality.item_selected.connect(func(i): set_quality(quality.get_item_id(i)))
 	quality.visible = not OS.has_feature("web")
-	_footer.add_child(quality)
+	box.add_child(quality)
 	var intro := Button.new()
 	intro.name = "WatchIntro"
 	intro.text = "Watch intro"
 	intro.pressed.connect(watch_intro)
-	_footer.add_child(intro)
+	box.add_child(intro)
+	for c in [sound_button, quality, intro]:
+		c.size_flags_horizontal = SIZE_SHRINK_BEGIN
+		c.custom_minimum_size.x = 280
+		c.add_theme_stylebox_override("focus", _focus_box())
+		# Left goes back to the menu item that opened the page.
+		c.focus_neighbor_left = c.get_path_to(menu_button(&"Options"))
+	var esc := Label.new()
+	esc.text = "Esc to go back"
+	esc.add_theme_color_override("font_color", DIM)
+	esc.add_theme_font_size_override("font_size", 14)
+	box.add_child(esc)
 
-func _panel(parent: Control, wide: bool) -> VBoxContainer:
+## Up and down scroll the crew page.
+func _on_crew_scroll_input(event: InputEvent) -> void:
+	var step := 0
+	if event.is_action_pressed("ui_down", true):
+		step = 1
+	elif event.is_action_pressed("ui_up", true):
+		step = -1
+	if step != 0:
+		_crew_scroll.scroll_vertical += step * 120
+		pages[&"crew"].accept_event()
+
+## A focused control's outline: thick, bright, drawn over its normal look.
+func _focus_box() -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.draw_center = false
+	box.border_color = ACCENT
+	box.set_border_width_all(3)
+	box.set_corner_radius_all(4)
+	box.set_expand_margin_all(2)
+	return box
+
+## A page holding a scrolling list, e.g. the crew.
+func _panel(stack: Control, key: StringName) -> VBoxContainer:
 	var panel := PanelContainer.new()
-	panel.size_flags_horizontal = SIZE_EXPAND_FILL
-	panel.size_flags_stretch_ratio = 1.6 if wide else 1.0
-	parent.add_child(panel)
+	panel.name = String(key).capitalize()
+	panel.set_anchors_preset(PRESET_FULL_RECT)
+	stack.add_child(panel)
+	pages[key] = panel
+	var outer := VBoxContainer.new()
+	outer.add_theme_constant_override("separation", 12)
+	panel.add_child(outer)
+	outer.add_child(_heading(String(key).to_upper()))
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	panel.add_child(scroll)
+	scroll.size_flags_vertical = SIZE_EXPAND_FILL
+	outer.add_child(scroll)
 	var box := VBoxContainer.new()
 	box.size_flags_horizontal = SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 12)

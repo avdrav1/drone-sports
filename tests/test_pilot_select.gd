@@ -112,17 +112,17 @@ func test_new_game_reaches_pilot_select() -> bool:
 	ok = ok and ps.is_ancestor_of(last.find_next_valid_focus())
 	ok = ok and ps.is_ancestor_of(first.find_prev_valid_focus())
 	b.pilot_select.choose(&"fen")
-	ok = ok and not b.pilot_select.visible and b._footer.get_node("Pilot").text == "Pilot: Fen"
+	ok = ok and not b.pilot_select.visible and b.menu_button(&"Pilot").text == "PILOT  ·  Fen"
 	# Closed, the board's own buttons take focus again.
-	ok = ok and b._footer.get_node("Pilot").focus_mode != Control.FOCUS_NONE
-	ok = ok and b._footer.get_node("Pilot").get_focus_mode_with_override() == Control.FOCUS_ALL
+	ok = ok and b.menu_button(&"Pilot").focus_mode != Control.FOCUS_NONE
+	ok = ok and b.menu_button(&"Pilot").get_focus_mode_with_override() == Control.FOCUS_ALL
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
-	# Once chosen, the board opens straight to the jobs, and the footer reopens the screen.
+	# Once chosen, the board opens straight to the jobs, and the menu reopens the screen.
 	var b2: JobBoard = load(BOARD).instantiate()
 	Sim.add(b2)
 	ok = ok and not b2.pilot_select.visible
-	b2._footer.get_node("Pilot").pressed.emit()
+	b2.menu_button(&"Pilot").pressed.emit()
 	ok = ok and b2.pilot_select.visible and b2.pilot_select.find_child("Back", true, false).visible
 	b2.free()
 	return ok

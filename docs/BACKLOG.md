@@ -852,7 +852,7 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Acceptance: Right moves to the next card and wraps at the end; left does the reverse; the dots mark the current card. Enter on an unlocked card opens its job scene; on a locked card it does nothing and shakes the card. A locked card shows one short reason. The card's comms face belongs to a living crew member in that job's field or on its comms. The carousel opens on START HERE for a new career. Every existing job board acceptance still holds.
   - Out of scope: Job art beyond a type icon, sorting and filtering.
 
-- [ ] **17.5 Menu and navigation**
+- [x] **17.5 Menu and navigation**
   - Goal: The six small footer buttons become one arcade menu (FLY, FREE FLIGHT, GARAGE, PILOT, CREW, OPTIONS), and the crew roster moves to its own CREW page with big faces.
   - Context: Up and down move between menu items, left and right move within the carousel, Enter selects, Esc goes back; mouse and gamepad do the same. The focused item is always visible. GARAGE is the shop, OPTIONS holds Sound, Quality, and Watch intro, and CREW shows each crew member's face, role, status, and memorial line (taking over what the board's crew panel shows now). Offers from teams still ask on the board. Wallet, reputation, team, and act stay in the header.
   - Acceptance: Every action the old footer offered is reachable from the menu by keyboard alone. Focus never lands on a hidden or disabled control. At 960×720 and 1920×1080 no control or label is clipped and nothing needs scrolling except the CREW page. The CREW page shows every roster member, with the dead greyed and memorial lines shown. Esc from any page returns to the menu, and from the menu to the title.

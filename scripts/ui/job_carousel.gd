@@ -20,6 +20,11 @@ var cards: Array[Control] = []
 var index := 0
 ## Times a card has shaken; tests read it.
 var shakes := 0
+## Lights the card as if focused, e.g. while the menu's FLY item has focus.
+var highlight := false:
+	set(v):
+		highlight = v
+		_restyle()
 
 var prev_button: Button
 var next_button: Button
@@ -127,8 +132,9 @@ func _restyle() -> void:
 	var box := c.get_theme_stylebox("panel")
 	if box is StyleBoxFlat:
 		var lit: StyleBoxFlat = box.duplicate()
-		lit.border_color = ACCENT if has_focus() else box.border_color
-		lit.set_border_width_all(4 if has_focus() else 2)
+		var on := has_focus() or highlight
+		lit.border_color = ACCENT if on else box.border_color
+		lit.set_border_width_all(4 if on else 2)
 		c.add_theme_stylebox_override("panel", lit)
 
 func _arrow(n: String, text: String, action: Callable) -> Button:

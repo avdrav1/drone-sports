@@ -199,3 +199,147 @@ func test_opens_on_start_here_then_the_last_job_flown() -> bool:
 	b.free()
 	Career.team_id = &""
 	return fresh and last
+
+# Story 17.5: menu and navigation.
+
+func _act(b: JobBoard, action: StringName) -> Control:
+	var e := InputEventAction.new()
+	e.action = action
+	e.pressed = true
+	b.get_viewport().push_input(e)
+	# Buttons fire on release.
+	var up := e.duplicate()
+	up.pressed = false
+	b.get_viewport().push_input(up)
+	await Sim.process_frames(1)
+	return b.get_viewport().gui_get_focus_owner()
+
+func test_every_old_footer_action_is_reachable_by_keyboard() -> bool:
+	PlayerProfile.choose_pilot(&"pip")
+	Sim.tree().change_scene_to_file(BOARD)
+	await Sim.process_frames(3)
+	var b: JobBoard = Sim.tree().current_scene
+	var f := b.get_viewport().gui_get_focus_owner()
+	var ok: bool = f == b.menu_button(&"Fly") and b.page == &"jobs"
+	# Left and right on FLY flip the cards; focus stays.
+	f = await _act(b, &"ui_right")
+	ok = ok and f == b.menu_button(&"Fly") and b.carousel.index == 1
+	f = await _act(b, &"ui_left")
+	ok = ok and b.carousel.index == 0
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"FreeFlight")
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"Garage")
+	await _act(b, &"ui_accept")
+	ok = ok and b.shop.visible
+	b.shop.hide()
+	b.menu_button(&"Garage").grab_focus()
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"Pilot")
+	await _act(b, &"ui_accept")
+	ok = ok and b.pilot_select.visible
+	b.pilot_select.hide()
+	await Sim.process_frames(1)
+	b.menu_button(&"Pilot").grab_focus()
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"Crew")
+	f = await _act(b, &"ui_accept")
+	ok = ok and b.page == &"crew" and b.pages[&"crew"].visible and f == b.pages[&"crew"]
+	f = await _act(b, &"ui_cancel")
+	ok = ok and b.page == &"jobs" and f == b.menu_button(&"Crew")
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"Options")
+	f = await _act(b, &"ui_accept")
+	ok = ok and b.page == &"options" and f.name == "Sound"
+	await _act(b, &"ui_accept")
+	ok = ok and b.sound.visible
+	b.sound.hide()
+	f.grab_focus()
+	f = await _act(b, &"ui_down")
+	ok = ok and f.name == "Quality"
+	f = await _act(b, &"ui_down")
+	ok = ok and f.name == "WatchIntro"
+	f = await _act(b, &"ui_cancel")
+	ok = ok and b.page == &"jobs" and f == b.menu_button(&"Options")
+	# The menu wraps, and Esc from the menu is the title.
+	f = await _act(b, &"ui_down")
+	ok = ok and f == b.menu_button(&"Fly")
+	var esc := InputEventAction.new()
+	esc.action = &"ui_cancel"
+	esc.pressed = true
+	b.get_viewport().push_input(esc)
+	await Sim.process_frames(3)
+	ok = ok and Sim.tree().current_scene is TitleScreen
+	Sim.tree().unload_current_scene()
+	await Sim.process_frames(1)
+	return ok
+
+func test_focus_never_lands_on_hidden_or_disabled() -> bool:
+	PlayerProfile.choose_pilot(&"pip")
+	Roster.kill(&"dot")
+	var b := _board()
+	await Sim.process_frames(1)
+	var ok: bool = b.menu_button(&"Garage").disabled
+	b.menu_button(&"Fly").grab_focus()
+	for action in [&"ui_down", &"ui_down", &"ui_down", &"ui_down", &"ui_down", &"ui_down", &"ui_up", &"ui_up", &"ui_left", &"ui_right"]:
+		var f := await _act(b, action)
+		ok = ok and f != null and f.is_visible_in_tree() and not (f is BaseButton and f.disabled)
+	b.open_options()
+	for action in [&"ui_down", &"ui_down", &"ui_down", &"ui_up", &"ui_left"]:
+		var f := await _act(b, action)
+		ok = ok and f != null and f.is_visible_in_tree() and not (f is BaseButton and f.disabled)
+	b.free()
+	return ok
+
+## Labels and buttons of the board at `size` that leave the screen or are
+## squeezed under their own minimum size.
+func _clipped(size: Vector2i, open_page: StringName) -> Array:
+	var sv := SubViewport.new()
+	sv.size = size
+	Sim.add(sv)
+	var b: JobBoard = load(BOARD).instantiate()
+	sv.add_child(b)
+	await Sim.process_frames(2)
+	if open_page == &"options":
+		b.open_options()
+	await Sim.process_frames(2)
+	var screen := Rect2(Vector2.ZERO, Vector2(size)).grow(1.0)
+	var out := []
+	for c in b.find_children("*", "Control", true, false):
+		if not (c is Label or c is BaseButton) or not c.is_visible_in_tree():
+			continue
+		var r: Rect2 = c.get_global_rect()
+		var squeezed: bool = c.size.x + 1.0 < c.get_combined_minimum_size().x or c.size.y + 1.0 < c.get_combined_minimum_size().y
+		if not screen.encloses(r) or squeezed:
+			out.append("%s %s" % [b.get_path_to(c), r])
+	sv.free()
+	return out
+
+func test_nothing_clipped_at_960_and_1920() -> bool:
+	PlayerProfile.choose_pilot(&"pip")
+	Roster.injure(&"marlo")
+	Career.team_id = &"harbor_couriers"
+	var bad := []
+	for size in [Vector2i(960, 720), Vector2i(1920, 1080)]:
+		for p in [&"jobs", &"options"]:
+			bad.append_array(await _clipped(size, p))
+	Career.team_id = &""
+	if not bad.is_empty():
+		print("        ", bad)
+	return bad.is_empty()
+
+func test_crew_page_shows_everyone_with_big_faces() -> bool:
+	PlayerProfile.choose_pilot(&"pip")
+	Roster.kill(&"bea")
+	var b := _board()
+	await Sim.process_frames(1)
+	b.open_crew()
+	var ok: bool = b.pages[&"crew"].visible and not b.carousel.visible and b.crew_rows.size() == Roster.ids().size() \
+		and b.get_viewport().gui_get_focus_owner() == b.pages[&"crew"]
+	for id in Roster.ids():
+		var face: CharacterPortrait = b.crew_rows[id].get_node("Face")
+		ok = ok and b.pages[&"crew"].is_ancestor_of(face) and face.custom_minimum_size.x >= 80
+	ok = ok and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
+		and (b.crew_rows[&"bea"].get_node("Status") as Label).text.contains(Bark.memorial(&"bea"))
+	b.free()
+	return ok

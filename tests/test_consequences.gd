@@ -70,7 +70,7 @@ func test_dot_dead_closes_shop_for_three_jobs_then_dearer() -> bool:
 		and not Garage.buy(&"thrust") and Garage.level(&"thrust") == 0 and Wallet.balance == 100000
 	var b := _board()
 	await Sim.process_frames(1)
-	var button: Button = b._footer.get_node("Shop")
+	var button: Button = b.menu_button(&"Garage")
 	var shown := button.disabled and button.text.contains("3 more jobs") and button.tooltip_text.contains("Dot")
 	b.free()
 	Roster.job_done()
@@ -81,8 +81,8 @@ func test_dot_dead_closes_shop_for_three_jobs_then_dearer() -> bool:
 	var bought := Garage.buy(&"thrust") and Wallet.balance == 100000 - ceili(stock * 1.25)
 	b = _board()
 	await Sim.process_frames(1)
-	button = b._footer.get_node("Shop")
-	var open := not button.disabled and button.text == "Shop"
+	button = b.menu_button(&"Garage")
+	var open := not button.disabled and button.text == "GARAGE"
 	b.free()
 	Wallet.balance = 0
 	return closed and shown and still and dearer and bought and open
