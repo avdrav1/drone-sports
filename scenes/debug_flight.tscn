@@ -48,7 +48,7 @@ weathers = Array[Resource]([ExtResource("98_fog"), ExtResource("99_whiteout"), E
 [node name="Rooftops" parent="." instance=ExtResource("93_roofs")]
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("4_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(-0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, -0.866025, 95, 1.8, -165)
 intent_source = NodePath("PilotInput")
 wind = ExtResource("6_wind")
 

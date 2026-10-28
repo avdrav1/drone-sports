@@ -21,10 +21,28 @@ func test_act1_hover_at_spawn_has_no_contact() -> bool:
 	d.max_contacts_reported = 4
 	var hits := []
 	d.body_entered.connect(func(b): hits.append(b))
+	var spawn := d.global_position
 	await Sim.physics_frames(2)
 	var act1: bool = s.preset_index == 0
 	await Sim.physics_frames(300)
-	var ok: bool = act1 and hits.is_empty() and d.global_position.distance_to(Vector3(0, 1, 0)) < 1.5
+	var ok: bool = act1 and hits.is_empty() and d.global_position.distance_to(spawn) < 1.5
+	s.free()
+	return ok
+
+## The drone starts in the open desert just outside the city, a metre or so above
+## the sand, facing the skyline so the first view is the whole city.
+func test_spawn_is_in_the_desert_facing_the_city() -> bool:
+	var s := _sandbox()
+	var d: Drone = s.get_node("Drone")
+	var city: City = s.get_node("City")
+	var ground: DesertTerrain = s.get_node("Ground")
+	var p := d.global_position
+	var flat := Vector2(p.x, p.z)
+	var outside := flat.length() > city.layout.core_radius + 30.0
+	var clearance := p.y - ground.height_at(p.x, p.z)
+	var to_city := (city.global_position - p) * Vector3(1, 0, 1)
+	var facing := (-d.global_basis.z).dot(to_city.normalized()) > 0.95
+	var ok := outside and clearance > 0.5 and clearance < 2.0 and facing
 	s.free()
 	return ok
 

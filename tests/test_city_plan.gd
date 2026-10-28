@@ -74,12 +74,3 @@ func test_heights_in_range_and_tallest_downtown() -> bool:
 	var mean := func(xs: Array[float]) -> float:
 		return xs.reduce(func(s, x): return s + x, 0.0) / xs.size()
 	return mean.call(inner) > mean.call(outer)
-
-## The sandbox drone spawns at the origin facing north (-Z). It should look down an
-## open boulevard, not into a wall: no lot stands in a 20 m wide lane for 120 m ahead.
-func test_sandbox_spawn_looks_down_a_boulevard() -> bool:
-	var lane := Rect2(-10.0, -120.0, 20.0, 120.0)
-	for lot in _plan().lots:
-		if lot.intersects(lane):
-			return false
-	return true
