@@ -18,6 +18,7 @@ var jobs: JobList
 var offer_dialog: OfferDialog
 var shop: ShopDialog
 var pilot_select: PilotSelect
+var sound: SoundDialog
 ## Job id -> its row, rebuilt on every refresh.
 var job_rows := {}
 ## Character id -> its row.
@@ -44,6 +45,9 @@ func _ready() -> void:
 	shop = ShopDialog.new()
 	shop.purchased.connect(refresh)
 	add_child(shop)
+	sound = SoundDialog.new()
+	sound.name = "SoundDialog"
+	add_child(sound)
 	pilot_select = PilotSelect.new()
 	pilot_select.name = "PilotSelect"
 	pilot_select.visible = false
@@ -308,6 +312,11 @@ func _build() -> void:
 	_pilot_button.name = "Pilot"
 	_pilot_button.pressed.connect(func(): pilot_select.open())
 	_footer.add_child(_pilot_button)
+	var sound_button := Button.new()
+	sound_button.name = "Sound"
+	sound_button.text = "Sound"
+	sound_button.pressed.connect(func(): sound.open())
+	_footer.add_child(sound_button)
 	var intro := Button.new()
 	intro.name = "WatchIntro"
 	intro.text = "Watch intro"

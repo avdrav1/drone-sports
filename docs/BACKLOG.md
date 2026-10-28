@@ -603,11 +603,12 @@ Done when weather is layered and changing: rain, snow, fog, real wind, and light
 
 Done when everything that happens has a sound. Sounds are files, not live synthesis: the web build has no threads, so it plays samples only and live bus effects are out; anything filtered (snow's muffled mix) is baked. Two sources: `tools/sfx/` generates most effects from a checked-in script (deterministic, no licence), and CC0 recordings cover what synthesis does badly (rain, thunder, wind, rain on a roof). `data/audio/LICENSES.md` lists every file with its source and licence. Sound is never needed to play: every cue that matters already has a visual. No music yet.
 
-- [ ] **14.1 Sound foundation**
+- [x] **14.1 Sound foundation**
   - Goal: A `Sfx` autoload that plays named events from data, buses for master, flight, world, weather, UI, and voice, and volume sliders plus a mute key saved with the settings.
   - Context: A `SoundBank` resource maps an event id to one or more streams with volume, pitch variation, and bus. `Sfx.play(id, at := null)` picks a stream (2D, or 3D at a position) and logs the event so headless tests can assert on it. Settings section of the save holds the volumes. The web build starts audio on the first input (the intro's any key).
   - Acceptance: Playing a known event logs it with its bus. An unknown event warns without crashing. Volume and mute save and reload. Every file under `data/audio/` is listed in `LICENSES.md` as generated or CC0.
   - Out of scope: Any specific sound.
+  - Note: Buses live in `default_bus_layout.tres` (Master, Flight, World, Weather, UI, Voice). `Sfx` keeps 12 flat players and makes a self-freeing 3D player per placed sound. Volumes are linear 0..1 per bus in `GameSettings.volumes`, saved with `muted` in the settings section; N mutes, and the board has a Sound dialog. `SaveGame.load_all` reapplies them. The bank (`data/audio/bank.tres`) and `LICENSES.md` start empty.
 
 - [ ] **14.2 The drone**
   - Goal: Each drone sounds like a drone: motor hum whose pitch and level follow its motors' thrust, prop wash near the ground, and impacts by speed.

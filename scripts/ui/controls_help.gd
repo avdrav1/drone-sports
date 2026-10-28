@@ -20,6 +20,7 @@ const GROUPS := [
 		[[&"toggle_readout"], "Debug readout"],
 		[[&"cycle_preset"], "Cycle act assists (free flight)"],
 		[[&"cycle_weather"], "Cycle weather (free flight)"],
+		[[&"toggle_mute"], "Sound on or off"],
 	]],
 	["FLEET (COMMAND VIEW)", [
 		[[&"next_drone"], "Select the next drone (or click one)"],
