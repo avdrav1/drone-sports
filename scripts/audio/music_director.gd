@@ -12,6 +12,9 @@ extends Node
 # assists are Act 5's, plays act_5. In Act 5 (Story 16.7) a CommandView hands
 # itself to command(): of the choir stems only the one sized nearest the fleet
 # sounds, and while a drone is flown by hand the lead voice comes forward.
+# Tension (Story 16.8): while any source (a HazardZone warning, a HazardScene
+# collapse) holds tense(), every stem but the drone and the pulse falls away,
+# whatever the mix; when the last lets go the mix comes back.
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
@@ -24,6 +27,7 @@ const MIXES := {
 	&"countdown": [&"drone", &"pad", &"arp", &"reed", &"pluck"],
 	&"live": ALL,
 	&"results": [&"drone", &"pad", &"reed"],
+	&"tension": [&"drone", &"pulse"],
 }
 ## The mix for each runner state.
 const STATE_MIX := {
@@ -45,6 +49,7 @@ const LEAD_FORWARD_DB := 6.0
 var mix: StringName = &""
 ## The fleet layer in use, or null.
 var fleet: CommandView
+var _tension := {}  # instance id of each source holding tension -> true
 
 ## The score for `act`: its own, or the nearest earlier act's. Null if none.
 func score_for(act: int) -> Score:
@@ -75,7 +80,7 @@ func set_mix(m: StringName, time := -1.0) -> void:
 	mix = m
 	if Music.score == null:
 		return
-	var levels := command_levels(levels_for(Music.score, m), fleet_size(), flying())
+	var levels := command_levels(levels_for(Music.score, &"tension" if tense() else m), fleet_size(), flying())
 	for id in levels:
 		if not is_equal_approx(Music.level(id), levels[id]):
 			Music.set_level(id, levels[id], time)
@@ -126,6 +131,23 @@ func command(view: CommandView) -> void:
 func _on_fleet(_arg = null) -> void:
 	if mix != &"":
 		set_mix(mix)
+
+## `source` raises (`on`) or lets go of tension. Freed sources let go.
+func set_tension(source: Object, on: bool) -> void:
+	var was := tense()
+	if on:
+		_tension[source.get_instance_id()] = true
+	else:
+		_tension.erase(source.get_instance_id())
+	if tense() != was and mix != &"":
+		set_mix(mix)
+
+## Something holds tension: only the drone and the pulse play.
+func tense() -> bool:
+	for id in _tension.keys():
+		if not is_instance_id_valid(id):
+			_tension.erase(id)
+	return not _tension.is_empty()
 
 ## The job board: the act's score, drone and pad.
 func board() -> void:

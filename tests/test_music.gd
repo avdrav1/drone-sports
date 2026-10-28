@@ -99,6 +99,10 @@ func test_every_score_plays_with_same_length_stems() -> bool:
 			var file := (s.stream as Resource).resource_path
 			lengths[_ogg_samples(file)] = true
 			ok = ok and s.stream is AudioStreamOggVorbis and s.id != &""
+			# Its muffled copy for snow (Story 16.8) is the same length too.
+			ok = ok and s.muffled is AudioStreamOggVorbis
+			if s.muffled:
+				lengths[_ogg_samples((s.muffled as Resource).resource_path)] = true
 		if sc.stems.is_empty() or lengths.size() != 1 or lengths.has(-1):
 			print("        %s: stem lengths %s" % [path, lengths.keys()])
 			ok = false

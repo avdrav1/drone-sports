@@ -5,7 +5,7 @@ extends RefCounted
 
 const Sim = preload("res://tests/sim.gd")
 const ACT_1 := "res://data/music/act_1.tres"
-const STEMS := [&"drone", &"pad", &"arp", &"bass", &"kick", &"clap", &"mantra_lead"]
+const STEMS := [&"drone", &"pad", &"arp", &"bass", &"kick", &"clap", &"mantra_lead", &"pulse"]
 
 func _stop() -> void:
 	Music.play(null, 0.0)

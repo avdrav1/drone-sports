@@ -6,6 +6,7 @@ extends Area3D
 # lands after the zone has been warning for at least `min_warning` seconds, and
 # only on a live job that lists the character in Job.crew_in_field (CLAUDE.md
 # rule 7). The JobRunner arms its zones on Briefing and counts the strikes.
+# While it warns, the music strips to its drone and pulse (MusicDirector tension).
 
 ## The warning just started: the HUD flashes the character's portrait.
 signal warning_started(character: StringName)
@@ -47,6 +48,9 @@ func _ready() -> void:
 		shape.shape.radius = radius
 		add_child(shape)
 	body_entered.connect(_on_body_entered)
+
+func _exit_tree() -> void:
+	MusicDirector.set_tension(self, false)
 
 ## A live job that lists this character: the only time a strike can land.
 func armed() -> bool:
@@ -91,9 +95,11 @@ func _physics_process(delta: float) -> void:
 		if not warning():
 			_warning_since = _clock
 			warning_started.emit(character)
+			MusicDirector.set_tension(self, true)
 	elif warning() and _clock - _last_threat > clear_after:
 		_warning_since = -1.0
 		warning_ended.emit(character)
+		MusicDirector.set_tension(self, false)
 	if drone:
 		var inside := contains(drone.global_position)
 		if inside and not _was_inside and _velocity.length() >= speed_threshold:

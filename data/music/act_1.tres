@@ -1,56 +1,79 @@
-[gd_resource type="Resource" script_class="Score" load_steps=17 format=3]
+[gd_resource type="Resource" script_class="Score" load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
 [ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_drone.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_drone_muffled.ogg" id="m1"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_pad.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_pad_muffled.ogg" id="m2"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_arp.ogg" id="3"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_arp_muffled.ogg" id="m3"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_bass.ogg" id="4"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_bass_muffled.ogg" id="m4"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_kick.ogg" id="5"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_kick_muffled.ogg" id="m5"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_clap.ogg" id="6"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_clap_muffled.ogg" id="m6"]
 [ext_resource type="AudioStream" path="res://data/music/act_1_mantra_lead.ogg" id="7"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_mantra_lead_muffled.ogg" id="m7"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_pulse.ogg" id="8"]
+[ext_resource type="AudioStream" path="res://data/music/act_1_pulse_muffled.ogg" id="m8"]
 
 [sub_resource type="Resource" id="stem_1"]
 script = ExtResource("stem")
 id = &"drone"
 stream = ExtResource("1")
 level_db = -10.0
+muffled = ExtResource("m1")
 
 [sub_resource type="Resource" id="stem_2"]
 script = ExtResource("stem")
 id = &"pad"
 stream = ExtResource("2")
 level_db = -12.0
+muffled = ExtResource("m2")
 
 [sub_resource type="Resource" id="stem_3"]
 script = ExtResource("stem")
 id = &"arp"
 stream = ExtResource("3")
 level_db = -15.0
+muffled = ExtResource("m3")
 
 [sub_resource type="Resource" id="stem_4"]
 script = ExtResource("stem")
 id = &"bass"
 stream = ExtResource("4")
 level_db = -10.0
+muffled = ExtResource("m4")
 
 [sub_resource type="Resource" id="stem_5"]
 script = ExtResource("stem")
 id = &"kick"
 stream = ExtResource("5")
 level_db = -8.0
+muffled = ExtResource("m5")
 
 [sub_resource type="Resource" id="stem_6"]
 script = ExtResource("stem")
 id = &"clap"
 stream = ExtResource("6")
 level_db = -14.0
+muffled = ExtResource("m6")
 
 [sub_resource type="Resource" id="stem_7"]
 script = ExtResource("stem")
 id = &"mantra_lead"
 stream = ExtResource("7")
 level_db = -10.0
+muffled = ExtResource("m7")
+
+[sub_resource type="Resource" id="stem_8"]
+script = ExtResource("stem")
+id = &"pulse"
+stream = ExtResource("8")
+level_db = -12.0
+muffled = ExtResource("m8")
 
 [resource]
 script = ExtResource("score")
@@ -58,4 +81,4 @@ id = &"act_1"
 tempo = 120.0
 tonic = 146.83
 bars = 8
-stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6"), SubResource("stem_7")])
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6"), SubResource("stem_7"), SubResource("stem_8")])

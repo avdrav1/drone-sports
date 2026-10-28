@@ -6,8 +6,9 @@ extends Node
 # overhead of the drone. A wind loop follows the wind measured where the drone
 # is (what the air is doing, whether or not the sim lets it push). Snow hushes
 # the mix: the place's Ambience loops and the wind crossfade to baked muffled
-# copies, since the web build has no live filters. Thunder follows each
-# lightning strike after the time sound takes to arrive: distance / 343 s.
+# copies, since the web build has no live filters, and so does the music
+# (Music.hush, Story 16.8). Thunder follows each lightning strike after the
+# time sound takes to arrive: distance / 343 s.
 # Sound only; nothing here touches flight.
 
 const RAIN := &"weather_rain"
@@ -72,6 +73,7 @@ func _exit_tree() -> void:
 	for a in _ambience:
 		if is_instance_valid(a):
 			a.hush = 0.0
+	Music.hush = 0.0
 
 func _process(delta: float) -> void:
 	advance(delta)
@@ -96,6 +98,8 @@ func advance(delta: float) -> void:
 	wind_speed = d.measured_wind().length() if d else 0.0
 	wind_level = clampf(wind_speed / full_wind, 0.0, 1.0)
 	hush = move_toward(hush, snow, delta / hush_time if hush_time > 0.0 else 1.0)
+	if not is_equal_approx(Music.hush, hush):
+		Music.hush = hush
 	_level(rain_player, RAIN, rain_level)
 	_level(roof_player, ROOF, roof_level)
 	if wind_muffled:

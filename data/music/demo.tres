@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="Score" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="Score" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
 [ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
 [ext_resource type="AudioStream" path="res://data/music/demo_demo.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/demo_demo_muffled.ogg" id="m1"]
 
 [sub_resource type="Resource" id="stem_1"]
 script = ExtResource("stem")
 id = &"demo"
 stream = ExtResource("1")
 level_db = -6.0
+muffled = ExtResource("m1")
 
 [resource]
 script = ExtResource("score")

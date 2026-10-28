@@ -37,7 +37,8 @@
     "bass",
     "kick",
     "clap",
-    "mantra_lead"
+    "mantra_lead",
+    "pulse"
    ],
    "tempo": 120.0,
    "tonic": 146.83
@@ -50,6 +51,7 @@
     "kick": "kick",
     "mantra_reed": "reed",
     "pluck": "tanpura",
+    "pulse": "frame_drum",
     "reed": "reed"
    },
    "stems": [
@@ -58,7 +60,8 @@
     "pluck",
     "kick",
     "frame_drum",
-    "mantra_reed"
+    "mantra_reed",
+    "pulse"
    ],
    "tempo": 120.0,
    "tonic": 146.83
@@ -71,6 +74,7 @@
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
     "pluck": "tanpura",
+    "pulse": "frame_drum",
     "reed": "reed"
    },
    "stems": [
@@ -79,7 +83,8 @@
     "pluck",
     "frame_drum",
     "cymbals",
-    "mantra_voice"
+    "mantra_voice",
+    "pulse"
    ],
    "tempo": 104.0,
    "tonic": 146.83
@@ -92,6 +97,7 @@
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
     "pluck": "tanpura",
+    "pulse": "frame_drum",
     "reed": "reed"
    },
    "stems": [
@@ -100,7 +106,8 @@
     "pluck",
     "frame_drum",
     "cymbals",
-    "mantra_voice"
+    "mantra_voice",
+    "pulse"
    ],
    "tempo": 132.0,
    "tonic": 146.83
@@ -119,6 +126,7 @@
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_lead": "voice",
+    "pulse": "frame_drum",
     "reed": "reed"
    },
    "stems": [
@@ -128,7 +136,8 @@
     "mantra_lead",
     "choir_3",
     "choir_10",
-    "choir_50"
+    "choir_50",
+    "pulse"
    ],
    "tempo": 96.0,
    "tonic": 146.83

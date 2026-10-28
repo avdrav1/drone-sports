@@ -7,3 +7,6 @@ extends Resource
 @export var stream: AudioStream
 ## Where the stem sits when nothing has set it (dB).
 @export var level_db := 0.0
+## A baked low-passed copy of the stream for snow's hush (Story 16.8), the same
+## length so the two play in step; Music crossfades to it by Music.hush.
+@export var muffled: AudioStream

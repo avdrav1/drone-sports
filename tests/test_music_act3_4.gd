@@ -6,7 +6,7 @@ extends RefCounted
 const SCORES := {3: "res://data/music/act_3.tres", 4: "res://data/music/act_4.tres"}
 ## A team of each act, to put the career there.
 const TEAMS := {3: &"cannery_row", 4: &"halcyon_racing"}
-const STEMS := [&"drone", &"reed", &"pluck", &"frame_drum", &"cymbals", &"mantra_voice"]
+const STEMS := [&"drone", &"reed", &"pluck", &"frame_drum", &"cymbals", &"mantra_voice", &"pulse"]
 
 func _stop() -> void:
 	Music.play(null, 0.0)

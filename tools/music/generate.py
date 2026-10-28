@@ -50,9 +50,10 @@ def bar_samples(tempo, bars):
     return round(bars * BEATS_PER_BAR * 60.0 / tempo * RATE)
 
 
-def write_wav(path, samples):
+def write_wav(path, samples, peak=None):
+    """Writes `samples` normalized so `peak` (their own by default) is 0.9."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    peak = max(1e-9, max(abs(s) for s in samples))
+    peak = peak or max(1e-9, max(abs(s) for s in samples))
     scale = 0.9 / peak
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
@@ -70,10 +71,32 @@ def encode(wav_path, ogg_path):
                    check=True)
 
 
+def lowpass_loop(samples, a):
+    """One-pole low-pass run twice around a loop, so its end meets its start."""
+    y = 0.0
+    out = list(samples)
+    for _ in range(2):
+        for i, x in enumerate(samples):
+            y += a * (x - y)
+            out[i] = y
+    return out
+
+
+def muffle(samples):
+    """Snow's hush for music (Story 16.8), as tools/sfx/generate.py muffles the
+    ambience loops: the stem with its highs gone, baked (the web build has no
+    live filters). Same length, so it plays in step with the stem."""
+    for _ in range(2):
+        samples = lowpass_loop(samples, 0.08)
+    return samples
+
+
 def write_score(score_id, tempo, tonic, bars, stems, extra=None):
-    """Writes each stem (id, samples, level_db) as WAV and Ogg, then the Score
-    resource data/music/<score_id>.tres naming them, and lists the score (plus
-    `extra` fields) in the manifest."""
+    """Writes each stem (id, samples, level_db) as WAV and Ogg, and its muffled
+    copy (<score>_<stem>_muffled.ogg, normalized with the stem so it is as much
+    quieter as the highs it lost), then the Score resource
+    data/music/<score_id>.tres naming them, and lists the score (plus `extra`
+    fields) in the manifest."""
     MANIFEST["scores"][score_id] = dict({"tempo": float(tempo), "tonic": float(tonic), "bars": bars,
                                          "stems": [stem_id for stem_id, _, _ in stems]}, **(extra or {}))
     if score_id.startswith("act_"):
@@ -89,11 +112,16 @@ def write_score(score_id, tempo, tonic, bars, stems, extra=None):
         wav = os.path.join(WAV_DIR, name + ".wav")
         write_wav(wav, samples)
         encode(wav, os.path.join(OUT, name + ".ogg"))
+        wav = os.path.join(WAV_DIR, name + "_muffled.wav")
+        write_wav(wav, muffle(samples), max(1e-9, max(abs(x) for x in samples)))
+        encode(wav, os.path.join(OUT, name + "_muffled.ogg"))
         ext.append('[ext_resource type="AudioStream" path="res://data/music/%s.ogg" id="%d"]' % (name, k + 1))
+        ext.append('[ext_resource type="AudioStream" path="res://data/music/%s_muffled.ogg" id="m%d"]' % (name, k + 1))
         subs.append('[sub_resource type="Resource" id="stem_%d"]\nscript = ExtResource("stem")\n'
-                    'id = &"%s"\nstream = ExtResource("%d")\nlevel_db = %s\n' % (k + 1, stem_id, k + 1, float(level_db)))
+                    'id = &"%s"\nstream = ExtResource("%d")\nlevel_db = %s\nmuffled = ExtResource("m%d")\n'
+                    % (k + 1, stem_id, k + 1, float(level_db), k + 1))
         refs.append('SubResource("stem_%d")' % (k + 1))
-    text = '[gd_resource type="Resource" script_class="Score" load_steps=%d format=3]\n\n' % (len(stems) * 2 + 3)
+    text = '[gd_resource type="Resource" script_class="Score" load_steps=%d format=3]\n\n' % (len(stems) * 3 + 3)
     text += '[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]\n'
     text += '[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]\n'
     text += "\n".join(ext) + "\n\n" + "\n".join(subs) + "\n"
@@ -198,7 +226,25 @@ def act_1():
     levels = {"drone": -10.0, "pad": -12.0, "arp": -15.0, "bass": -10.0, "kick": -8.0, "clap": -14.0}
     stems = [(k, tracks[k].buf, levels[k]) for k in ("drone", "pad", "arp", "bass", "kick", "clap")]
     stems.append(("mantra_lead", render_mantra("lead", tempo), -10.0))
+    stems.append(("pulse", pulse(tempo, bars, 1880), PULSE_DB))
     write_score("act_1", tempo, key.TONIC, bars, stems)
+
+
+# Story 16.8: the level of every act's `pulse` stem, a heartbeat on the low
+# frame drum that, with the drone, is all that plays through a hazard warning.
+PULSE_DB = -12.0
+
+
+def pulse(tempo, bars, seed):
+    """Two heartbeats a bar on the low frame drum (lub on the beat, dub an
+    eighth after), on beats one and three."""
+    track = instruments.Track(bar_samples(tempo, bars), tempo)
+    for bar in range(bars):
+        for t in (0, 2):
+            b = bar * BEATS_PER_BAR + t
+            track.add(b, instruments.frame_drum(key.hz(1, -1), seed=seed + bar * 4 + t), 1.0)
+            track.add(b + 0.5, instruments.frame_drum(key.hz(1, -1), seed=seed + bar * 4 + t + 1), 0.6)
+    return track.buf
 
 
 # The pop kit's synths. From Act 2 on no act score has a stem played on one.
@@ -214,7 +260,7 @@ def act_2():
     tempo, bars = 120, MANTRA_BARS
     n = bar_samples(tempo, bars)
     plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "kick": "kick",
-             "frame_drum": "frame_drum", "mantra_reed": "reed"}
+             "frame_drum": "frame_drum", "mantra_reed": "reed", "pulse": "frame_drum"}
     order = ("drone", "reed", "pluck", "kick", "frame_drum")
     tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["reed"].seconds(1)
@@ -235,6 +281,7 @@ def act_2():
     levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "kick": -14.0, "frame_drum": -12.0}
     stems = [(k, tracks[k].buf, levels[k]) for k in order]
     stems.append(("mantra_reed", render_mantra("reed", tempo), -11.0))
+    stems.append(("pulse", pulse(tempo, bars, 1980), PULSE_DB))
     assert not set(plays.values()) & set(SYNTHS)
     write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays})
 
@@ -259,7 +306,7 @@ def hand_and_voice(score_id, tempo, rough, seed):
     bars = MANTRA_BARS
     n = bar_samples(tempo, bars)
     plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "frame_drum": "frame_drum",
-             "cymbals": "cymbals", "mantra_voice": "voice"}
+             "cymbals": "cymbals", "mantra_voice": "voice", "pulse": "frame_drum"}
     order = ("drone", "reed", "pluck", "frame_drum", "cymbals")
     tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["reed"].seconds(1)
@@ -283,10 +330,12 @@ def hand_and_voice(score_id, tempo, rough, seed):
             tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=sd + 12 + k), 0.8)
         for t in (range(4) if rough else (0, 2)):
             tracks["cymbals"].add(b + t, instruments.cymbals(key.hz(5, 4), seed=sd), 0.3)
-    stems = [(k, tracks[k].buf) for k in order] + [("mantra_voice", render_mantra("voice", tempo, seed=seed))]
+    stems = [(k, tracks[k].buf) for k in order] + [("mantra_voice", render_mantra("voice", tempo, seed=seed)),
+                                                   ("pulse", pulse(tempo, bars, seed + 180))]
     if rough:
         stems = [(k, soft_clip(buf, 2.5)) for k, buf in stems]
-    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "mantra_voice": -9.0}
+    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "mantra_voice": -9.0,
+              "pulse": PULSE_DB}
     assert not set(plays.values()) & set(SYNTHS + ("kick", "bass"))
     write_score(score_id, tempo, key.TONIC, bars, [(k, buf, levels[k]) for k, buf in stems], {"plays": plays})
 
@@ -355,7 +404,8 @@ def act_5():
     tempo, bars = ACT_5_TEMPO, MANTRA_BARS
     n = bar_samples(tempo, bars)
     order = ("drone", "reed", "frame_drum")
-    plays = {"drone": "tanpura", "reed": "reed", "frame_drum": "frame_drum", "mantra_lead": "voice"}
+    plays = {"drone": "tanpura", "reed": "reed", "frame_drum": "frame_drum", "mantra_lead": "voice",
+             "pulse": "frame_drum"}
     tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["reed"].seconds(1)
     low, rim = key.hz(1, -1), 520
@@ -375,6 +425,7 @@ def act_5():
     for size, buf in sorted(choirs(tempo, bars, CHOIR_SIZES, 2400).items()):
         stems.append(("choir_%d" % size, buf, -9.0))
         plays["choir_%d" % size] = "voice"
+    stems.append(("pulse", pulse(tempo, bars, 2280), PULSE_DB))
     write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES)})
 
 
