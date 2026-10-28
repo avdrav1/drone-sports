@@ -1,6 +1,8 @@
 # Godot
 .godot/
 *.import
+# Material library textures keep their import settings (VRAM compressed, mipmaps)
+!data/materials/*.import
 build/
 export_presets.cfg.bak
 

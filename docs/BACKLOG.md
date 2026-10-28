@@ -677,11 +677,12 @@ Done when the city, desert, and obstacles read as real places at drone height: r
   - Acceptance: Quality saves and reloads. On High under Forward+ every extra is on; on Low, or under GL Compatibility, every extra is off. The shared `golden_hour.tres` is not modified on disk. Weather fog still applies on both tiers.
   - Out of scope: Resolution scaling, per-feature toggles.
 
-- [ ] **15.2 Material library**
+- [x] **15.2 Material library**
   - Goal: About ten CC0 surface sets at 1K (colour, normal, roughness, packed where possible): concrete, brick, metal cladding, glass, stone paving, asphalt, kerb stone, sand, rock, and painted metal, in `data/materials/`.
   - Context: From ambientCG and Poly Haven, checked CC0 page by page as the audio was. `*.import` is gitignored, so textures import on the defaults: VRAM-compressed with mipmaps once a 3D material uses them; any import change goes in code or un-ignores that one file, decided here. A `SurfaceSet` resource names each set's maps and its real-world tile size in metres.
   - Acceptance: Every set loads and names existing textures. Every file under `data/materials/` is in `data/LICENSES.md` as CC0 with a URL. A size test fails if `data/materials/` plus `data/models/` exceeds 25 MB.
   - Out of scope: Using the sets anywhere.
+  - Note: `SurfaceSet` (`scripts/world/surface_set.gd`; `SurfaceSet.named(id)`, `SurfaceSet.ids()`) has `albedo` (sRGB; null for glass), `normal_rough` (R, G = OpenGL normal X, Y with Z rebuilt, so `NORMAL_MAP = vec3(nr.rg, 1.0)` works; B = linear roughness), `tile_size` in metres, and `metallic`; the ten sets are `data/materials/<id>.tres` (concrete, brick, cladding, glass, paving, asphalt, kerb, sand, rock, painted_metal), ambientCG 1K repacked to 6.4 MB of JPG and listed in `data/LICENSES.md`. Their `.import` files are un-ignored and checked in (VRAM compressed, mipmaps, 3D detection off, normal-map detection off for `*_nr.jpg` so a `hint_normal` sampler cannot turn them into two-channel RGTC and drop roughness), so a new art file needs its `.import` committed too; only S3TC is imported (no ETC2/ASTC), so mobile web would decompress on load. `tests/test_material_library.gd` checks sets, imports, licences (texture and model files under `data/materials/` and `data/models/`), and the 25 MB budget.
 
 - [ ] **15.3 Light and grade**
   - Goal: Golden hour that looks lit rather than flat: AgX tonemapping with tuned exposure, a colour grade, glow kept to hot spots (sun, lit windows, wet highlights), and sun shadows that are crisp near the drone and soft far out.
