@@ -1,5 +1,6 @@
 extends RefCounted
 # Story 12.2: buildings. Box towers from the plan, one collision box per lot.
+# Story 15.6 stacks each lot's boxes: one collision box per stacked box, plant room, and parapet.
 
 const Sim = preload("res://tests/sim.gd")
 const CITY := preload("res://scenes/world/city.tscn")
@@ -14,17 +15,19 @@ func _boxes(c: City) -> Array[CollisionShape3D]:
 			out.append(n)
 	return out
 
-func test_one_collision_box_per_lot() -> bool:
+func test_one_collision_box_per_stacked_box() -> bool:
 	var c := _city()
 	var boxes := _boxes(c)
-	var ok := boxes.size() == c.plan.lots.size() and boxes.size() > 0
-	for i in mini(boxes.size(), c.plan.lots.size()):
-		var lot := c.plan.lots[i]
-		var h := c.plan.heights[i]
-		var box := boxes[i].shape as BoxShape3D
-		var want := Vector3(lot.get_center().x, h * 0.5, lot.get_center().y)
-		ok = ok and box != null and box.size.is_equal_approx(Vector3(lot.size.x, h, lot.size.y)) \
-			and boxes[i].global_position.is_equal_approx(want)
+	var want: Array[AABB] = []
+	for s in c.plan.shapes:
+		want.append_array(s.boxes)
+		for j in s.trims.size():
+			if s.trim_kinds[j] == CityPlan.Trim.PLANT or s.trim_kinds[j] == CityPlan.Trim.PARAPET:
+				want.append(s.trims[j])
+	var ok := boxes.size() == want.size() and boxes.size() > c.plan.lots.size()
+	for b in want:
+		ok = ok and boxes.any(func(n): return (n.shape as BoxShape3D).size.is_equal_approx(b.size) \
+			and n.global_position.is_equal_approx(b.get_center()))
 	c.free()
 	return ok
 
@@ -33,8 +36,9 @@ func test_ray_down_hits_roof() -> bool:
 	await Sim.physics_frames(2)
 	var space := c.get_world_3d().direct_space_state
 	var ok := true
+	# Down onto each top roof, clear of its plant room.
 	for i in c.plan.lots.size():
-		var at := c.plan.lots[i].get_center()
+		var at := c.plan.shapes[i].roof_clear.get_center()
 		var from := Vector3(at.x + 0.13, 200.0, at.y + 0.07)
 		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 400.0))
 		if hit.is_empty() or absf(hit.position.y - c.plan.heights[i]) > 0.01:
@@ -72,7 +76,10 @@ func test_renders_through_few_multimeshes() -> bool:
 	var total := 0
 	for m in meshes:
 		total += (m as MultiMeshInstance3D).multimesh.instance_count
-	var ok := meshes.size() >= 1 and meshes.size() <= 4 and total == c.plan.lots.size()
+	var parts := 0
+	for s in c.plan.shapes:
+		parts += s.boxes.size() + s.trims.size()
+	var ok := meshes.size() >= 1 and meshes.size() <= 4 and total == parts
 	c.free()
 	return ok
 

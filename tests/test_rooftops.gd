@@ -1,5 +1,6 @@
 extends RefCounted
 # Story 12.4: rooftops. Seeded clutter on the roofs, landing pads with markers.
+# Story 15.6: both sit on each lot's top box, clear of its plant room.
 
 const Sim = preload("res://tests/sim.gd")
 const ROOFTOPS := preload("res://scenes/world/rooftops.tscn")
@@ -11,7 +12,8 @@ func test_clutter_sits_on_its_roof_clear_of_pads() -> bool:
 	var r := _roofs()
 	var ok := r.pieces.size() > 50
 	for f in r.pieces:
-		var lot: Rect2 = r.plan.lots[f.lot]
+		var top: AABB = r.plan.shapes[f.lot].top()
+		var lot := Rect2(top.position.x, top.position.z, top.size.x, top.size.z)
 		var base: Vector3 = f.base
 		var foot := Rect2(base.x - f.size.x * 0.5, base.z - f.size.z * 0.5, f.size.x, f.size.z)
 		if not is_equal_approx(base.y, r.plan.heights[f.lot]) or not lot.encloses(foot):

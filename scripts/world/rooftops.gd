@@ -3,7 +3,8 @@ extends StaticBody3D
 # Roof clutter and landing pads for a CityPlan. AC units, water tanks, and
 # antennas draw through one MultiMesh each; anything taller than collide_above
 # gets a collision box. Pads go on the broadest tall roofs, clear of clutter,
-# each with a map marker. All seeded and cached per layout, like City.
+# each with a map marker. All seeded and cached per layout, like City. Everything
+# sits on each lot's top box, clear of its plant room (Story 15.6).
 
 enum Kind { AC, TANK, ANTENNA }
 
@@ -68,6 +69,9 @@ func build() -> void:
 		marker.label = "Pad"
 		pad.add_child(marker)
 
+static func _side(r: Rect2) -> float:
+	return minf(r.size.x, r.size.y)
+
 ## True when a piece (centre p, half-extent r) stays clear of every pad.
 func _clear_of_pads(p: Vector3, r: float, at: PackedVector3Array) -> bool:
 	for c in at:
@@ -78,23 +82,24 @@ func _clear_of_pads(p: Vector3, r: float, at: PackedVector3Array) -> bool:
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = layout.seed + 2
-	# Pads: the broadest roofs among the tall ones.
+	# Pads: the broadest clear roofs among the tall ones.
 	var tall := layout.height_min + (layout.height_max - layout.height_min) * pad_min_height
 	var order := range(plan.lots.size()).filter(func(i):
-		return plan.heights[i] >= tall and minf(plan.lots[i].size.x, plan.lots[i].size.y) >= (pad_radius + edge_margin) * 2.0)
+		return plan.heights[i] >= tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
 	order.sort_custom(func(a, b):
-		var sa := minf(plan.lots[a].size.x, plan.lots[a].size.y)
-		var sb := minf(plan.lots[b].size.x, plan.lots[b].size.y)
+		var sa := _side(plan.shapes[a].roof_clear)
+		var sb := _side(plan.shapes[b].roof_clear)
 		return sa > sb if not is_equal_approx(sa, sb) else a < b)
 	var pad_at := PackedVector3Array()
 	for i in order.slice(0, pad_count):
-		var c := plan.lots[i].get_center()
+		var c := plan.shapes[i].roof_clear.get_center()
 		pad_at.append(Vector3(c.x, plan.heights[i], c.y))
 	var found: Array = []
 	for i in plan.lots.size():
-		var lot := plan.lots[i]
+		var shape := plan.shapes[i]
+		var top := shape.top()
 		var h := plan.heights[i]
-		var inner := lot.grow(-edge_margin)
+		var inner := Rect2(top.position.x, top.position.z, top.size.x, top.size.z).grow(-edge_margin)
 		if inner.size.x <= 0.0 or inner.size.y <= 0.0:
 			continue
 		for n in rng.randi_range(1, 4):
@@ -114,6 +119,11 @@ func _generate() -> Array:
 				rng.randf_range(inner.position.y + size.z * 0.5, inner.end.y - size.z * 0.5))
 			var foot := Rect2(p.x - size.x * 0.5, p.z - size.z * 0.5, size.x, size.z)
 			var free := _clear_of_pads(p, maxf(size.x, size.z) * 0.5, pad_at)
+			for j in shape.trims.size():
+				var t := shape.trims[j]
+				if shape.trim_kinds[j] == CityPlan.Trim.PLANT \
+						and Rect2(t.position.x, t.position.z, t.size.x, t.size.z).grow(0.3).intersects(foot):
+					free = false
 			for other in found:
 				if other.lot == i and other.foot.grow(0.3).intersects(foot):
 					free = false

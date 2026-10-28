@@ -93,18 +93,18 @@ func test_each_city_sets_its_own_material() -> bool:
 	return ok
 
 func test_plan_and_collision_unchanged() -> bool:
+	# Story 15.6 replaced one box per lot with stacked boxes; collision follows
+	# them (test_building_shapes.gd), and every stacked box comes first in order.
 	var c := _city()
 	var plan := CityPlan.build(c.layout)
 	var ok: bool = plan.lots == c.plan.lots and plan.heights == c.plan.heights
 	var i := 0
 	for n in c.get_children():
-		if n is CollisionShape3D:
-			var lot := plan.lots[i]
-			var h := plan.heights[i]
-			ok = ok and (n.shape as BoxShape3D).size.is_equal_approx(Vector3(lot.size.x, h, lot.size.y)) \
-				and n.position.is_equal_approx(Vector3(lot.get_center().x, h * 0.5, lot.get_center().y))
+		if n is CollisionShape3D and i < c.parts.size():
+			var b := c.parts[i]
+			ok = ok and (n.shape as BoxShape3D).size.is_equal_approx(b.size) and n.position.is_equal_approx(b.get_center())
 			i += 1
-	ok = ok and i == plan.lots.size()
+	ok = ok and i == c.parts.size()
 	c.free()
 	return ok
 

@@ -3,7 +3,7 @@ extends RefCounted
 # keeps the fraction within lit_min to lit_max; every window's choice (lit,
 # blind, room, lamp) repeats with the seed; the shader compiles under GL
 # Compatibility. City.window_at mirrors the shader's choice, since a MultiMesh
-# cannot be read back.
+# cannot be read back. Story 15.6 lays windows out per stacked box (part).
 
 const Sim = preload("res://tests/sim.gd")
 const CITY := preload("res://scenes/world/city.tscn")
@@ -16,16 +16,15 @@ func _city(layout: CityLayout = null) -> City:
 		c.layout = layout
 	return Sim.add(c)
 
-func _size(c: City, i: int) -> Vector3:
-	var lot := c.plan.lots[i]
-	return Vector3(lot.size.x, c.plan.heights[i], lot.size.y)
+func _count(c: City, i: int) -> int:
+	return c.window_count(c.parts[i].size, c.parts[i].position.y)
 
-## Every window choice of a city, lot by lot.
+## Every window choice of a city, part by part.
 func _choices(c: City) -> Array:
 	var out := []
-	for i in c.plan.lots.size():
+	for i in c.parts.size():
 		var row := []
-		for k in c.window_count(_size(c, i)):
+		for k in _count(c, i):
 			row.append(c.window_at(i, k))
 		out.append(row)
 	return out
@@ -34,8 +33,10 @@ func test_lit_fraction_stays_within_range() -> bool:
 	var c := _city()
 	var ok := true
 	var windowed := 0
-	for i in c.plan.lots.size():
-		var n := c.window_count(_size(c, i))
+	# Per building: windows and lit windows over all its parts.
+	var totals := {}
+	for i in c.parts.size():
+		var n := _count(c, i)
 		# The shader reads counts and seeds as whole numbers from custom data;
 		# keep them where even half floats are exact.
 		ok = ok and n < 2048 and c.lit_counts[i] < 2048 and c.window_seeds[i] < 2048
@@ -47,10 +48,15 @@ func test_lit_fraction_stays_within_range() -> bool:
 			lit += c.window_at(i, k).x
 		var fraction := float(lit) / n
 		if lit != c.lit_counts[i] or fraction < c.lit_min or fraction > c.lit_max:
-			print("        lot %d: %d of %d lit, want %d" % [i, lit, n, c.lit_counts[i]])
+			print("        part %d: %d of %d lit, want %d" % [i, lit, n, c.lit_counts[i]])
 			ok = false
+		var t: Vector2i = totals.get(c.part_lot[i], Vector2i.ZERO)
+		totals[c.part_lot[i]] = t + Vector2i(lit, n)
+	for lot in totals:
+		var f: float = float(totals[lot].x) / totals[lot].y
+		ok = ok and f >= c.lit_min and f <= c.lit_max
 	# Most towers have windows, and lit counts differ between them.
-	ok = ok and windowed > c.plan.lots.size() / 2
+	ok = ok and totals.size() > c.plan.lots.size() / 2 and windowed > c.parts.size() / 2
 	var counts := {}
 	for k in c.lit_counts:
 		counts[k] = true
@@ -65,6 +71,8 @@ func test_window_count_matches_the_grid() -> bool:
 	var ok: bool = g == Vector3i(3, 4, 6) and c.window_count(Vector3(12.0, 25.0, 9.0)) == 2 * 6 * 7
 	# A tower no taller than the ground floor has none.
 	ok = ok and c.window_count(Vector3(12.0, 4.0, 9.0)) == 0
+	# A box standing on a 7.5 m podium has the storeys above it: rows 1 to 5.
+	ok = ok and c.window_grid(Vector3(12.0, 17.5, 9.0), 7.5) == Vector3i(3, 4, 5)
 	# The shader gets the same grid.
 	ok = ok and c.material.get_shader_parameter("window_cell") == c.window_cell \
 		and c.material.get_shader_parameter("ground_floor") == c.ground_floor

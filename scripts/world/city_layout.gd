@@ -24,10 +24,14 @@ extends Resource
 @export var height_max := 80.0
 ## Higher keeps tall towers closer to the centre.
 @export var height_falloff := 1.5
+## Building shapes (Story 15.6) step at storey lines: the ground floor's top, then
+## every storey above it. Keep in step with City.ground_floor and window_cell.y.
+@export var ground_floor := 4.0
+@export var storey := 3.5
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
 ## Everything that shapes the plan, for caches built from it.
 func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
-		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, clearings]
+		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings]

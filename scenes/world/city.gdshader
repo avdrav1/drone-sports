@@ -9,7 +9,10 @@ shader_type spatial;
 // instance: COLOR tints the walls, INSTANCE_CUSTOM.x seeds the weathering, .y is
 // how many windows are lit, .z is the wall surface (0 to 3) and .w seeds the
 // windows. City mirrors the window choice in GDScript (window_at); keep the two
-// in step. Only features GL Compatibility has.
+// in step. Each instance is one box of a building (Story 15.6): a stacked part
+// (podium, tower, setback) with windows in the whole storeys inside it, or a
+// trim (parapet, ledge, plant room) drawn with `trim` set. Only features GL
+// Compatibility has.
 
 // Wall surfaces, set by City from its `walls` list. tile is metres per repeat.
 uniform sampler2D wall_albedo_0 : source_color, filter_linear_mipmap, repeat_enable;
@@ -50,6 +53,8 @@ uniform vec2 window_cell = vec2(3.0, 3.5);
 uniform vec2 window_size = vec2(1.8, 2.1);
 // No windows below this height: the ground floor reads as a solid base.
 uniform float ground_floor = 4.0;
+// Trims have no windows and no contact shadow at their foot.
+uniform bool trim = false;
 // How much the per-building COLOR tint shows through the texture.
 uniform float tint_amount = 0.35;
 uniform vec3 grime_color : source_color = vec3(0.24, 0.22, 0.2);
@@ -64,8 +69,9 @@ varying vec3 world_normal;
 // Flat: interpolation noise would flicker the lit-window hash.
 varying flat vec3 tint;
 varying flat vec4 custom;
-// Building height and footprint centre, from the instance transform.
+// Box height, base, and footprint centre, from the instance transform.
 varying flat float height;
+varying flat float base;
 varying flat vec2 centre;
 varying flat vec2 half_size;
 
@@ -75,6 +81,7 @@ void vertex() {
 	tint = COLOR.rgb;
 	custom = INSTANCE_CUSTOM;
 	height = length(MODEL_MATRIX[1].xyz);
+	base = MODEL_MATRIX[3].y - height * 0.5;
 	centre = MODEL_MATRIX[3].xz;
 	half_size = vec2(length(MODEL_MATRIX[0].xyz), length(MODEL_MATRIX[2].xyz)) * 0.5;
 	// Tangent frame matching the world-space UVs in fragment(): walls run along
@@ -192,12 +199,14 @@ void fragment() {
 		// Run along the wall: z on east and west faces, x on north and south.
 		bool x_face = abs(world_normal.x) > 0.5;
 		float along = x_face ? world_pos.z : world_pos.x;
-		// Whole window cells centred on the face, from the ground floor up to
-		// the last full storey, so no window is cut at a corner or the roof.
-		// City.window_grid counts them the same way.
+		// Whole window cells centred on the face, in the whole storeys above
+		// the ground floor that lie inside this box, so no window is cut at a
+		// corner, a setback, or the roof. City.window_grid counts them the same way.
 		int cols_x = int(floor(2.0 * half_size.y / window_cell.x + 0.001));
 		int cols_z = int(floor(2.0 * half_size.x / window_cell.x + 0.001));
-		int rows = max(int(floor((height - ground_floor) / window_cell.y + 0.001)), 0);
+		int row0 = int(ceil((max(base, ground_floor) - ground_floor) / window_cell.y - 0.001));
+		int row1 = int(floor((base + height - ground_floor) / window_cell.y + 0.001));
+		int rows = trim ? 0 : max(row1 - row0, 0);
 		int cols = x_face ? cols_x : cols_z;
 		float face_mid = x_face ? centre.y : centre.x;
 		vec2 uv = vec2(along - face_mid + float(cols) * window_cell.x * 0.5, world_pos.y - ground_floor);
@@ -205,7 +214,7 @@ void fragment() {
 		vec2 in_cell = uv - cell * window_cell;
 		vec2 inside = abs(in_cell - window_cell * 0.5);
 		bool in_col = cell.x >= 0.0 && cell.x < float(cols);
-		bool window = in_col && cell.y >= 0.0 && cell.y < float(rows)
+		bool window = in_col && cell.y >= float(row0) && cell.y < float(row0 + rows)
 			&& inside.x < window_size.x * 0.5 && inside.y < window_size.y * 0.5;
 		int set = int(custom.z + 0.5);
 		vec2 tile = wall_tile[set];
@@ -217,7 +226,7 @@ void fragment() {
 			// Window index: faces +x, -x, +z, -z in turn, row by row.
 			int face = x_face ? (world_normal.x > 0.0 ? 0 : 1) : (world_normal.z > 0.0 ? 2 : 3);
 			int first = face == 0 ? 0 : face == 1 ? rows * cols_x : face == 2 ? 2 * rows * cols_x : 2 * rows * cols_x + rows * cols_z;
-			uint index = uint(first + int(cell.y) * cols + int(cell.x));
+			uint index = uint(first + (int(cell.y) - row0) * cols + int(cell.x));
 			uint key = uint(custom.w + 0.5);
 			bool lit = window_rank(index, uint(2 * rows * (cols_x + cols_z)), key) < uint(custom.y + 0.5);
 			uint pick = hash32(index ^ (key << 16u));
@@ -301,10 +310,10 @@ void fragment() {
 			float streak = value_noise(vec2(along * 3.0 + seed, world_pos.y * 0.08));
 			// Metres below the sill of the window above, in that window's column.
 			float below = mod((window_cell.y - window_size.y) * 0.5 - (uv.y - cell.y * window_cell.y), window_cell.y);
-			bool under_window = in_col && inside.x < window_size.x * 0.5 && uv.y + below > 0.0
-				&& uv.y + below < float(rows) * window_cell.y;
+			bool under_window = in_col && inside.x < window_size.x * 0.5
+				&& uv.y + below > float(row0) * window_cell.y && uv.y + below < float(row0 + rows) * window_cell.y;
 			float drip = under_window ? 1.0 - smoothstep(0.0, 2.5, below) : 0.0;
-			float roof_run = 1.0 - smoothstep(0.0, 6.0 + 6.0 * streak, height - world_pos.y);
+			float roof_run = 1.0 - smoothstep(0.0, 6.0 + 6.0 * streak, base + height - world_pos.y);
 			float grime = clamp((drip * 0.6 + roof_run) * smoothstep(0.35, 0.75, streak), 0.0, 1.0);
 			albedo = mix(albedo, albedo * grime_color * 2.0, grime * 0.55);
 			// Dust splashed up from the street, and the contact shadow where
@@ -312,9 +321,12 @@ void fragment() {
 			float dust = (1.0 - smoothstep(0.0, 1.6 + streak, world_pos.y)) * 0.6;
 			albedo = mix(albedo, dust_color * dot(albedo, vec3(0.33)) * 1.6, dust);
 			rough = mix(rough, 0.95, dust);
-			AO = mix(0.45, 1.0, smoothstep(0.0, 2.5, world_pos.y));
+			// The contact shadow sits where a part meets the street or the roof
+			// below it.
+			float above = trim ? 10.0 : world_pos.y - base;
+			AO = mix(0.45, 1.0, smoothstep(0.0, 2.5, above));
 			AO_LIGHT_AFFECT = 0.5;
-			albedo *= mix(0.65, 1.0, smoothstep(0.0, 1.2, world_pos.y));
+			albedo *= mix(0.65, 1.0, smoothstep(0.0, 1.2, above));
 		}
 	}
 	// Weather, the same on every surface: wet darkens and glosses, snow whitens
