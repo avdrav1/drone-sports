@@ -33,3 +33,9 @@ Every audio file under `data/audio/` is listed here. Two sources only:
 | `generated/ui_click.wav` | `tools/sfx/generate.py` | generated |
 | `generated/ui_focus.wav` | `tools/sfx/generate.py` | generated |
 | `generated/ui_confirm.wav` | `tools/sfx/generate.py` | generated |
+| `generated/city_hum.wav` | `tools/sfx/generate.py` | generated |
+| `generated/desert_wind.wav` | `tools/sfx/generate.py` | generated |
+| `generated/room_tone.wav` | `tools/sfx/generate.py` | generated |
+| `generated/debris_impact_1.wav` | `tools/sfx/generate.py` | generated |
+| `generated/debris_impact_2.wav` | `tools/sfx/generate.py` | generated |
+| `generated/debris_impact_3.wav` | `tools/sfx/generate.py` | generated |

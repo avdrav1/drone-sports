@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/desert_terrain.gd" id="1_terrain"]
 [ext_resource type="Shader" path="res://scenes/world/desert.gdshader" id="2_shader"]
+[ext_resource type="Script" path="res://scripts/audio/ambience.gd" id="9_ambience"]
 
 [sub_resource type="FastNoiseLite" id="detail"]
 seed = 3
@@ -22,3 +23,7 @@ shader_parameter/detail_noise = SubResource("detail_tex")
 [node name="Ground" type="StaticBody3D"]
 script = ExtResource("1_terrain")
 material = SubResource("sand")
+
+[node name="Ambience" type="AudioStreamPlayer" parent="."]
+script = ExtResource("9_ambience")
+event = &"desert_wind"

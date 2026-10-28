@@ -276,6 +276,68 @@ def ui_confirm():
     return tone_seq([(880, 0.06), (1320, 0.16)], decay=22.0)
 
 
+def city_hum():
+    """Three seconds of a city heard from above: a low traffic rumble that
+    swells, mains hum from the towers, and a faint airy hiss."""
+    rng = random.Random(1460)
+    n = RATE * 3
+    rumble = lowpass_loop(lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.02), 0.05)
+    hiss = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.3)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        swell = 0.75 + 0.25 * math.sin(2 * math.pi * t / 3.0)  # one swell per loop
+        mains = math.sin(2 * math.pi * 60 * t) + 0.4 * math.sin(2 * math.pi * 120 * t)
+        out.append(rumble[i] * 3.0 * swell + mains * 0.05 + hiss[i] * 0.08)
+    return out
+
+
+def desert_wind():
+    """Three seconds of open-desert wind: soft low noise with gusts that rise
+    and fall twice per loop, and a faint whistle riding the gusts."""
+    rng = random.Random(1461)
+    n = RATE * 3
+    body = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.04)
+    air = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.15)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        gust = 0.6 + 0.4 * math.sin(2 * math.pi * t * 2 / 3.0) ** 2
+        whistle = math.sin(2 * math.pi * 620 * t + 3 * math.sin(2 * math.pi * t / 3.0))
+        out.append(body[i] * 2.0 * gust + air[i] * 0.4 * gust * gust + whistle * 0.015 * gust)
+    return out
+
+
+def room_tone():
+    """Two seconds of the job board's room: ventilation hush and a faint
+    fluorescent buzz."""
+    rng = random.Random(1462)
+    n = RATE * 2
+    vent = lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.06)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        buzz = math.sin(2 * math.pi * 120 * t) + 0.3 * math.sin(2 * math.pi * 240 * t)
+        out.append(vent[i] * 1.5 + buzz * 0.04)
+    return out
+
+
+def debris_impact(seed):
+    """A chunk of masonry landing: a dull thud and a gritty crumble."""
+    rng = random.Random(seed)
+    n = int(RATE * 0.45)
+    thud_f = rng.uniform(50, 70)
+    y = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        y += 0.5 * (rng.uniform(-1, 1) - y)
+        thud = math.sin(2 * math.pi * thud_f * t) * math.exp(-t * 14)
+        grit = y * math.exp(-t * 9) * (0.6 + 0.4 * (rng.random() < 0.08))
+        out.append(thud * 1.0 + grit * 0.7)
+    return out
+
+
 def main():
     write("drone_hum.wav", drone_hum(), loop=True)
     write("drone_wash.wav", drone_wash(), loop=True)
@@ -290,6 +352,10 @@ def main():
                  "job_hold_done", "job_complete", "job_fail", "job_payout",
                  "hazard_warning", "hazard_strike", "ui_click", "ui_focus", "ui_confirm"):
         write(name + ".wav", globals()[name]())
+    for name in ("city_hum", "desert_wind", "room_tone"):
+        write(name + ".wav", globals()[name](), loop=True)
+    for k in range(3):
+        write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
 
 
 if __name__ == "__main__":

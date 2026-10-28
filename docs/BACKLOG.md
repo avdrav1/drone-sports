@@ -646,11 +646,12 @@ Done when everything that happens has a sound. Sounds are files, not live synthe
   - Out of scope: Menu music.
   - Note: `UiSounds.wire(root)` (`scripts/audio/ui_sounds.gd`) adds an internal node that wires every `BaseButton` under `root`, now and as nodes enter later (rebuilt rows, dialogs' internal OK/Cancel): `ui_click` on press, `ui_focus` on keyboard or pad focus (not while the mouse is down), and `ui_confirm` on each `AcceptDialog.confirmed`; a meta flag keeps nested wiring from doubling. `JobBoard` and `JobRunner` (its launch and leave dialogs and the results screen) call it; any new screen just calls it too. All three cues are on the UI bus.
 
-- [ ] **14.6 The world**
+- [x] **14.6 The world**
   - Goal: Places sound like places: city hum, desert wind, the demolition's debris, the job board's room tone.
   - Context: Ambience loops per scene on the world bus; debris impacts from the demolition's `Debris`.
   - Acceptance: Every flying scene has an ambience playing. Debris impacts play one sound each.
   - Out of scope: Traffic, crowds.
+  - Note: `Ambience` (`scripts/audio/ambience.gd`, an `AudioStreamPlayer` with an `event` id) plays a bank loop on its event's bus from `_ready`; one sits in `desert.tscn` (`desert_wind`), `city.tscn` (`city_hum`, layered over the desert wind), and `job_board.tscn` (`room_tone`), all on the World bus, so any scene built on those places sounds like them. `Debris` now turns on `contact_monitor` and plays `debris_impact` (3D, gain by speed change) once per contact above `quiet_impact` m/s; it stays silent while frozen, leaves drone contacts to `DroneSound`, and between two loose pieces only one plays. 14.7 can add weather loops the same way or crossfade against `Ambience.volume_db`.
 
 - [ ] **14.7 Weather sound**
   - Goal: Weather you hear: rain that grows with intensity, rain drumming on a roof when the drone is under one, wind that follows the measured wind speed, snow that hushes the mix, and thunder after each lightning flash.
