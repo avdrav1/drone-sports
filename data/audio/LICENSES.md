@@ -55,6 +55,8 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `generated/babble_rin.wav` | `tools/sfx/generate.py` | generated |
 | `generated/babble_tally.wav` | `tools/sfx/generate.py` | generated |
 | `generated/radio_static.wav` | `tools/sfx/generate.py` | generated |
+| `generated/radio_chime.wav` | `tools/sfx/generate.py` | generated |
+| `generated/radio_alert.wav` | `tools/sfx/generate.py` | generated |
 | `generated/lattice_tone.wav` | `tools/sfx/generate.py` | generated |
 | `generated/lattice_drone.wav` | `tools/sfx/generate.py` | generated |
 | `generated/lattice_power_down.wav` | `tools/sfx/generate.py` | generated |

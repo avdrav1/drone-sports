@@ -48,6 +48,10 @@ PITCHED = {
     "crew_chirp_sad": (1, 2),
     # Story 18.10: a crew drone in trouble beeps from the fifth down to the third.
     "crew_alarm": (5, 2),
+    # Story 18.9: the incoming-call chime rises from the third to the fifth; the
+    # urgent alert pips on the fifth.
+    "radio_chime": (3, 2),
+    "radio_alert": (5, 2),
 }
 
 
@@ -576,6 +580,28 @@ def radio_static():
     return out
 
 
+def radio_chime():
+    """Someone is about to talk (Story 18.9): a quick bell-like "ding-ding" up
+    from the third to the fifth, round partials ringing out, short enough to
+    sit just ahead of the static and chirp."""
+    f = key.hz(*PITCHED["radio_chime"])
+    out = []
+    for g, length in ((f, 0.07), (f * key.SCALE[4] / key.SCALE[2], 0.16)):
+        n = int(RATE * length)
+        for i in range(n):
+            t = i / RATE
+            s = math.sin(2 * math.pi * g * t) + 0.35 * math.sin(4 * math.pi * g * t) + 0.12 * math.sin(2 * math.pi * 3.01 * g * t)
+            out.append(s * min(1.0, t / 0.003) * math.exp(-t * 18) * min(1.0, (n - i) / (RATE * 0.01)))
+    return out
+
+
+def radio_alert():
+    """An urgent line (Story 18.9: warnings and strikes): three sharp, clipped
+    pips on the fifth, buzzier than the chime so it cannot be mistaken for it."""
+    f = key.hz(*PITCHED["radio_alert"])
+    return chirp_notes([(f, 0.045, 0.03), (f, 0.045, 0.03), (f, 0.06, 0.0)], bright=3.0)
+
+
 def lattice_tone():
     """The chorus under each of its lines: a flat cluster of close sine tones,
     many voices on the key's fifth with the tonic and fifth above, swelling in
@@ -659,7 +685,7 @@ def main():
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
     for name in ("crew_chirp", "crew_chirp_happy", "crew_chirp_celebrate", "crew_chirp_worried",
-                 "crew_chirp_sad", "crew_alarm", "radio_static", "lattice_tone", "lattice_power_down"):
+                 "crew_chirp_sad", "crew_alarm", "radio_static", "radio_chime", "radio_alert", "lattice_tone", "lattice_power_down"):
         write(name + ".wav", globals()[name]())
     write("lattice_drone.wav", lattice_drone(), loop=True)
     write("coin_chime.wav", coin_chime())

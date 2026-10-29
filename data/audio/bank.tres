@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=114 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=118 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -54,6 +54,8 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp_worried.wav" id="63_crew_chirp_worried"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp_sad.wav" id="64_crew_chirp_sad"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_alarm.wav" id="80_crew_alarm"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/radio_chime.wav" id="81_radio_chime"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/radio_alert.wav" id="82_radio_alert"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/babble_bea.wav" id="70_babble_bea"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/babble_dot.wav" id="71_babble_dot"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/babble_fen.wav" id="72_babble_fen"]
@@ -367,6 +369,20 @@ volume_db = -16.0
 pitch_variance = 0.06
 bus = &"Voice"
 
+[sub_resource type="Resource" id="radio_chime"]
+script = ExtResource("2_event")
+id = &"radio_chime"
+streams = Array[AudioStream]([ExtResource("81_radio_chime")])
+volume_db = -14.0
+bus = &"UI"
+
+[sub_resource type="Resource" id="radio_alert"]
+script = ExtResource("2_event")
+id = &"radio_alert"
+streams = Array[AudioStream]([ExtResource("82_radio_alert")])
+volume_db = -12.0
+bus = &"UI"
+
 [sub_resource type="Resource" id="lattice_tone"]
 script = ExtResource("2_event")
 id = &"lattice_tone"
@@ -442,4 +458,4 @@ bus = &"UI"
 
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("crew_alarm"), SubResource("babble_bea"), SubResource("babble_dot"), SubResource("babble_fen"), SubResource("babble_marlo"), SubResource("babble_moss"), SubResource("babble_ozzie"), SubResource("babble_pip"), SubResource("babble_rin"), SubResource("babble_tally"), SubResource("radio_static"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("crew_alarm"), SubResource("babble_bea"), SubResource("babble_dot"), SubResource("babble_fen"), SubResource("babble_marlo"), SubResource("babble_moss"), SubResource("babble_ozzie"), SubResource("babble_pip"), SubResource("babble_rin"), SubResource("babble_tally"), SubResource("radio_static"), SubResource("radio_chime"), SubResource("radio_alert"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])

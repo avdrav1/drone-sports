@@ -15,6 +15,8 @@ extends Control
 # Story 18.10: a DISTRESS face (a wince and a shake) for a drone in trouble, and
 # `signal_lost` fills the portrait with TV static while its drone is down. The
 # dead never show either.
+# Story 18.9: pop_in() springs the face in when a radio line opens, from small
+# to a little too big and back to rest within POP_IN_TIME.
 
 const EXPRESSIONS: Array[StringName] = [&"neutral", &"happy", &"determined", &"worried", &"shocked", &"sad"]
 
@@ -63,6 +65,10 @@ const BOB_DEFAULT := 0.025
 const HOP_TIME := 0.45
 ## Seconds the shocked eye pop takes to settle.
 const POP_TIME := 0.5
+## Seconds a pop_in() takes to overshoot and settle at rest.
+const POP_IN_TIME := 0.32
+## The pop-in's starting size, per the face at rest.
+const POP_IN_FROM := 0.3
 ## Longest combined pupil offset (pose plus look), in pose pupil units.
 const PUPIL_REACH := 0.9
 ## A point this many face sizes away turns the pupils fully toward it.
@@ -92,6 +98,7 @@ var time := 0.0
 var look := Vector2.ZERO
 var _expression_at := 0.0
 var _hop_at := -INF
+var _pop_at := -INF
 
 func _ready() -> void:
 	if custom_minimum_size == Vector2.ZERO:
@@ -123,9 +130,9 @@ static func pose(expr: StringName, t: float, is_talking := false, rng_seed := 0)
 ## The whole face's motion for `expr` at `t` seconds: `scale` (around the
 ## bottom of the head), `offset` (per face size, negative is up) and `eye_pop`
 ## (multiplies eye_scale). `bounce` is the character's Character.bounce,
-## `hop_age` the seconds since hop(), `expr_age` since the expression was set.
-## Pure, so tests read motion, not pixels.
-static func motion(expr: StringName, t: float, is_talking := false, bounce := Vector2(0.7, 0.0), hop_age := INF, expr_age := INF) -> Dictionary:
+## `hop_age` the seconds since hop(), `expr_age` since the expression was set,
+## `pop_age` since pop_in(). Pure, so tests read motion, not pixels.
+static func motion(expr: StringName, t: float, is_talking := false, bounce := Vector2(0.7, 0.0), hop_age := INF, expr_age := INF, pop_age := INF) -> Dictionary:
 	var wave := sin(TAU * (t * bounce.x + bounce.y))
 	var y := -float(BOB.get(expr, BOB_DEFAULT)) * wave
 	# Stretch a little on the way up, squash on the way down.
@@ -159,7 +166,16 @@ static func motion(expr: StringName, t: float, is_talking := false, bounce := Ve
 		else:
 			sy *= 1.0 - 0.12 * sin(PI * (hop_age - land) / (HOP_TIME - land))
 	# Width answers height, so the face keeps its area.
-	return {"scale": Vector2(1.0 / sy, sy), "offset": Vector2(x, y), "eye_pop": pop}
+	var sc := Vector2(1.0 / sy, sy)
+	if pop_age >= 0.0 and pop_age < POP_IN_TIME:
+		# Springs up from small, overshoots, and lands exactly at rest; stretched
+		# tall on the way up and squashed wide on the overshoot.
+		var u := pop_age / POP_IN_TIME
+		var k := pow(1.0 - u, 1.5) * cos(PI * 1.5 * u)
+		var grow := 1.0 - (1.0 - POP_IN_FROM) * k
+		var stretch := 1.0 + 0.25 * pow(1.0 - u, 2.0) * sin(PI * 3.0 * u)
+		sc *= grow * Vector2(1.0 / stretch, stretch)
+	return {"scale": sc, "offset": Vector2(x, y), "eye_pop": pop}
 
 ## The motion at rest: what a dead face always has.
 static func still() -> Dictionary:
@@ -169,6 +185,11 @@ static func still() -> Dictionary:
 func hop() -> void:
 	if not is_dead():
 		_hop_at = time
+
+## Springs the face in, e.g. as a radio line opens. The dead stay still.
+func pop_in() -> void:
+	if not is_dead():
+		_pop_at = time
 
 ## Turns the pupils toward `point`, in global canvas coordinates.
 func look_at(point: Vector2) -> void:
@@ -180,7 +201,7 @@ func look_at(point: Vector2) -> void:
 func current_motion() -> Dictionary:
 	if character == null or is_dead():
 		return still()
-	return motion(expression, time, talking, character.bounce, time - _hop_at, time - _expression_at)
+	return motion(expression, time, talking, character.bounce, time - _hop_at, time - _expression_at, time - _pop_at)
 
 ## A pupil's centre for an eye at `eye` with half size `half`, given the pose's
 ## pupil offset: clamped to PUPIL_REACH so it never leaves the eye.

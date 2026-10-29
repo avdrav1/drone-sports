@@ -16,6 +16,9 @@ extends Control
 # Story 18.8: the speaker babbles while their line types out (Bark.babble_for):
 # their loop starts with the typing, after the chirp, and stops on the last
 # character, when the line is skipped, or when another replaces it.
+# Story 18.9: an incoming call. Every line that opens the panel plays its cue
+# first (cue_for: a sharp alert for warnings and strikes, a chime otherwise),
+# and the face pops in, overshooting and settling, instead of appearing.
 
 @export var bark: Bark
 ## Seconds a line stays up after it has typed out.
@@ -46,6 +49,10 @@ const STATIC_TIME := 0.18
 const FONT: Font = preload("res://data/ui/fonts/PixelOperatorMonoHB.ttf")
 const NAME_FONT: Font = preload("res://data/ui/fonts/PixelOperatorMono-Bold.ttf")
 const FONT_SIZE := 16
+## The cue before every line, and the sharper one for ALERT_EVENTS.
+const CHIME := &"radio_chime"
+const ALERT := &"radio_alert"
+const ALERT_EVENTS: Array[StringName] = [&"warning", &"strike"]
 
 var portrait: CharacterPortrait
 var emote: EmoteBubble
@@ -117,7 +124,11 @@ func _next() -> void:
 		_open(line)
 		return
 
-## Puts a line on air: static, the speaker's chirp, and the face.
+## The cue that rings before a line on `event` opens the panel.
+static func cue_for(event: StringName) -> StringName:
+	return ALERT if event in ALERT_EVENTS else CHIME
+
+## Puts a line on air: its cue, static, the speaker's chirp, and the face.
 func _open(line: Dictionary) -> void:
 	current = line
 	_age = 0.0
@@ -127,6 +138,7 @@ func _open(line: Dictionary) -> void:
 	# Heard only while the HUD is shown: not under a cutscene or the title.
 	var layer := get_canvas_layer_node()
 	if layer == null or layer.visible:
+		Sfx.play(cue_for(line.event))
 		Sfx.play(&"radio_static")
 		Bark.chirp(line.id, line.get("face", &"neutral"), line.event)
 		var b := Bark.babble_for(line.id, line.event)
@@ -135,6 +147,7 @@ func _open(line: Dictionary) -> void:
 	var c: Character = Roster.character(line.id)
 	portrait.character = c
 	portrait.expression = line.get("face", &"neutral")
+	portrait.pop_in()
 	portrait.queue_redraw()
 	emote.play_line(_emote_event(line.event), portrait.expression, _job_type())
 	name_label.text = ("%s  ·  %s" % [c.name, c.role] if c else String(line.id)).to_upper()
