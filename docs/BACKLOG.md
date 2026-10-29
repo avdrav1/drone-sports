@@ -933,3 +933,33 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Context: A `DroneFace` child of `DroneLook`, shown only on drones a living crew member flies (`CommandView.pilots`, the relay, the Lattice's returned drones); the player's own drone stays faceless. Drawn by a cheap unshaded shader on a quad, driven by the same `CharacterPortrait.pose()` values, so it matches the portrait. Reactions come from 17.8's flight events for that drone. Visual only: no mass, collision, or flight value changes.
   - Acceptance: A crew-flown drone shows its pilot's face; the player's drone and unpiloted drones show none. The panel's pose matches `pose()` for the same expression and time. Each mapped flight event changes its expression, then it returns to rest. The drone's mass, collision shapes, and flight values are unchanged with a face on. It compiles and draws under GL Compatibility.
   - Out of scope: Faces on AI racers or the Lattice's units.
+
+- [ ] **18.8 Babble voices**
+  - Goal: Every crew member talks in their own babble: a short looping gibberish voice that runs while their line types out and stops when it finishes. Pitch, speed, and timbre carry personality (a quick high chatter, a slow low rumble).
+  - Context: Generated offline from 16.2's formant voice (vowel syllables, never real words), one loop per character from data on `Character` (`babble_pitch`, `babble_rate`, `babble_vowels`), under the Epic 14 sample-only rules and on the music's scale. `BarkBox` and the radio panel start it with the typing and stop it on the last character; 18.6's chirp still opens the line. Serious lines (warning, strike, injury) babble slower and lower; memorials and the dead are silent.
+  - Acceptance: A line's babble plays while it types and stops within 0.1 s of the last character. Each character's babble differs in pitch or rate from every other's. A skipped or replaced line stops its babble. The dead never babble. The generator stays deterministic and every file is in `LICENSES.md`.
+  - Out of scope: Real speech, lip sync to audio.
+
+- [ ] **18.9 Incoming call**
+  - Goal: You always know someone is about to talk: a short chime plays just before the radio panel opens, and the face pops in cartoon-style (scale overshoot and settle) instead of appearing. Urgent lines (warning, strike) use a sharper alert tone.
+  - Context: The 17.7 radio panel, its queue, and its static burst. Chime and alert are generated sounds on the UI bus. The pop-in uses 18.2's motion.
+  - Acceptance: Every line opening the panel plays its cue first: the alert for warnings and strikes, the chime otherwise. The face reaches rest within 0.4 s of opening. A line that replaces the current one replays the cue. Every existing radio test passes.
+  - Out of scope: Player replies.
+
+- [ ] **18.10 Distress and signal lost**
+  - Goal: When a crew member's drone is in trouble (battery low, a near miss, a crash, close to a hazard), their face shows distress: a wince, a sweat drop, a shake, with a repeating alarm while it lasts. When their drone goes down, their portrait fills with animated TV static and SIGNAL LOST until it is back in the air.
+  - Context: A new `distress` expression on `CharacterPortrait`, driven by 17.8's flight events for that crew member's drone. The static overlay is drawn in code on the portrait. A drone going down is not a death: the dead keep their greyed, quiet portrait from 17.1 and never get static, distress, or alarms.
+  - Acceptance: Each trouble event shows distress and starts the alarm; it stops when the trouble ends. A downed drone shows static until it flies again, then the face returns. The alarm never plays for the player's own drone or for the dead. The flight model, assists, and grading are untouched.
+  - Out of scope: New ways for crew to be harmed (rule 7 is unchanged).
+
+- [ ] **18.11 Flying with personality**
+  - Goal: You can tell who is who by how they fly: one bold flyer cuts corners and pulls ahead, one steady flyer holds formation and radios advice, one eager but clumsy flyer wobbles and drifts wide, each true to `docs/CHARACTERS.md`.
+  - Context: A `FlightStyle` resource on each flying character (corner speed, formation spacing, how far ahead they push, line wobble, reaction delay) that the 6.1 autopilot reads. The autopilot is an intent source, so this changes only the intent it writes (rules 1 and 2); every drone keeps the one flight model. The steady flyer gets advice lines on fleet events.
+  - Acceptance: Over the same route, the bold style finishes ahead of the steady one and the clumsy style deviates from the line the most. Each fleet job still completes in its existing test with every style. Flight model, mass, and assist values are unchanged.
+  - Out of scope: Crew calling for rescue, new failure states.
+
+- [ ] **18.12 Radio font**
+  - Goal: Radio lines in a chunky, highly legible monospaced pixel font, so typing out reads like a cabinet's comm screen; names in a bolder cut.
+  - Context: A CC0 pixel font (for example one of Kenney's), listed in `data/LICENSES.md`, used by the radio panel and `BarkBox` in both front-end skins (17.6). Text still fits the panel at 960×720 and 1920×1080.
+  - Acceptance: The radio panel and bark box use the font. The longest existing line fits without clipping at both resolutions. The font file is listed as CC0 with a URL.
+  - Out of scope: Changing fonts elsewhere.
