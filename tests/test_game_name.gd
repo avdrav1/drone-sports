@@ -33,7 +33,7 @@ func _shown_with(path: String, name: String) -> String:
 		scene.cutscene.beats = scene.cutscene.beats.filter(func(b): return b.game_title)
 	Sim.tree().root.add_child(scene)
 	Sim.tree().current_scene = scene
-	var text: String = scene.title_label.text
+	var text: String = scene.title_mark.word
 	ProjectSettings.set_setting(GameName.SETTING, was)
 	await _close()
 	return text

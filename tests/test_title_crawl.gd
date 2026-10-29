@@ -26,7 +26,7 @@ func test_crawl_sits_between_logo_and_press_start() -> bool:
 	var t := await _open()
 	var crawl := t.crawl
 	var ok := crawl != null and crawl.is_visible_in_tree() \
-		and crawl.anchor_top >= t.title_label.anchor_bottom - 0.05 \
+		and crawl.anchor_top >= t.title_mark.anchor_bottom - 0.05 \
 		and crawl.anchor_bottom <= t.press_start.anchor_top + 0.001 \
 		and crawl.mouse_filter == Control.MOUSE_FILTER_IGNORE \
 		and crawl.paragraphs().size() == (load(TitleScreen.CRAWL) as Crawl).text.split("\n\n", false).size() \

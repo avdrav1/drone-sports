@@ -10,6 +10,7 @@ extends Node
 # into the distance: why you are playing. It loops until you press start.
 # Story 18.5: come from the board, a crew member waves goodbye on the radio.
 # Story 24.1: the logo is the game's name from the project settings.
+# Story 24.6: lettered like Hindi, hanging from a headline bar (TitleMark).
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
@@ -22,7 +23,7 @@ const CRAWL := "res://data/ui/crawl.tres"
 @export var blink := 1.1
 
 var started := false
-var title_label: Label
+var title_mark: TitleMark
 var press_start: Label
 var best_label: Label
 var crawl: StoryCrawl
@@ -52,7 +53,7 @@ func goodbye() -> Dictionary:
 		add_child(bark)
 		radio = BarkBox.new()
 		radio.bark = bark
-		title_label.get_parent().add_child(radio)
+		title_mark.get_parent().add_child(radio)
 		radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return bark.moment(&"goodbye")
 
@@ -99,11 +100,16 @@ func _build() -> void:
 		shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		shade.texture = _fade_texture(top)
 		root.add_child(shade)
-	title_label = _label(GameName.title(), 96, skin.accent, 14)
-	title_label.name = "Title"
-	title_label.theme_type_variation = &"Display"
-	_place(title_label, 0.12, 0.32)
-	root.add_child(title_label)
+	title_mark = TitleMark.new()
+	title_mark.name = "Title"
+	title_mark.font_size = 128
+	title_mark.add_theme_color_override("font_color", skin.accent)
+	title_mark.add_theme_color_override("font_outline_color", Color.BLACK)
+	title_mark.add_theme_constant_override("outline_size", 14)
+	title_mark.anchor_right = 1.0
+	title_mark.anchor_top = 0.1
+	title_mark.anchor_bottom = 0.32
+	root.add_child(title_mark)
 	crawl = StoryCrawl.new()
 	crawl.name = "Crawl"
 	crawl.crawl = load(CRAWL)

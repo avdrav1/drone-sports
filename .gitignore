@@ -7,6 +7,8 @@
 !data/models/*/*.import
 # The radio's pixel font keeps its crisp settings (Story 18.12)
 !data/ui/fonts/PixelOperatorMono*.import
+# The title's font too (Story 24.6)
+!data/ui/fonts/YatraOne*.import
 build/
 export_presets.cfg.bak
 

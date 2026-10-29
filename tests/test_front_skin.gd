@@ -43,7 +43,7 @@ func test_every_front_end_screen_wears_the_cabinet_in_act_1() -> bool:
 		and (crew.get_theme_stylebox("panel") as StyleBoxFlat).border_color == b.skin.border
 	await _close()
 	var t: TitleScreen = await _open(TITLE)
-	ok = ok and t.skin.id == &"cabinet" and _wears(t.title_label.get_parent().theme, t.skin) \
+	ok = ok and t.skin.id == &"cabinet" and _wears(t.title_mark.get_parent().theme, t.skin) \
 		and t.find_child("Scanlines", true, false) != null
 	var chimes := Sfx.count(&"coin_chime")
 	t.start()
@@ -62,7 +62,7 @@ func test_ops_skin_in_the_team_colors_from_act_2() -> bool:
 	await _close()
 	var t: TitleScreen = await _open(TITLE)
 	var chimes := Sfx.count(&"coin_chime")
-	ok = ok and t.skin.id == &"ops" and t.title_label.get_theme_color("font_color") == colors[0] \
+	ok = ok and t.skin.id == &"ops" and t.title_mark.get_theme_color("font_color") == colors[0] \
 		and t.find_child("Scanlines", true, false) == null
 	t.start()
 	ok = ok and Sfx.count(&"coin_chime") == chimes

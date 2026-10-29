@@ -31,6 +31,8 @@ var camera: Camera3D
 var backdrop: Node
 var caption: Label
 var title_label: Label
+## The game's name on a title card beat (Story 24.6).
+var title_mark: TitleMark
 var portrait: CharacterPortrait
 ## The card behind a portrait; "UNKNOWN" for a silhouette.
 var card: PanelContainer
@@ -102,7 +104,8 @@ func advance() -> void:
 		_place_camera(0.0, true)
 		return
 	caption.text = beat.caption
-	title_label.text = GameName.title() if beat.game_title else beat.title
+	title_label.text = "" if beat.game_title else beat.title
+	title_mark.visible = beat.game_title
 	card.visible = beat.portrait != &""
 	if card.visible:
 		var c: Character = Roster.character(beat.portrait)
@@ -207,6 +210,7 @@ func _fade() -> void:
 	var text_alpha := clampf(minf(into, out) / 0.5, 0.0, 1.0)
 	caption.modulate.a = text_alpha
 	title_label.modulate.a = text_alpha
+	title_mark.modulate.a = text_alpha
 	card.modulate.a = text_alpha
 
 func _build_overlay() -> void:
@@ -254,6 +258,14 @@ func _build_overlay() -> void:
 	title_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	title_label.add_theme_constant_override("outline_size", 12)
 	root.add_child(title_label)
+	title_mark = TitleMark.new()
+	title_mark.set_anchors_preset(Control.PRESET_FULL_RECT)
+	title_mark.font_size = 112
+	title_mark.add_theme_color_override("font_color", Color(1.0, 0.76, 0.25))
+	title_mark.add_theme_color_override("font_outline_color", Color.BLACK)
+	title_mark.add_theme_constant_override("outline_size", 12)
+	title_mark.visible = false
+	root.add_child(title_mark)
 	card = PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.32, 0.34, 0.4, 0.92)
