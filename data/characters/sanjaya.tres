@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/steady.tres" id="2_style"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
-[ext_resource type="Resource" path="res://data/crew/looks/marlo.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/crew/looks/sanjaya.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -13,14 +13,14 @@ name = "spotting"
 
 [resource]
 script = ExtResource("1_char")
-id = &"marlo"
+id = &"sanjaya"
 name = "Sanjaya"
 role = "Spotter"
 named_for = "Named for the one who saw the whole battle from afar and told it"
 look = ExtResource("9_look")
 shape = &"antenna"
 colors = PackedColorArray(0.95, 0.55, 0.25, 1, 1, 0.92, 0.85, 1, 0.3, 0.3, 0.35, 1)
-lines = "res://data/dialogue/marlo.json"
+lines = "res://data/dialogue/sanjaya.json"
 calls_you = PackedStringArray("pilot", "kid", "champ")
 chirp_pitch = 1.0
 babble_pitch = 1.0
@@ -28,7 +28,7 @@ babble_rate = 8.5
 babble_vowels = PackedStringArray("ah", "ee")
 bounce = Vector2(0.7,0.83)
 speaks_on = Array[StringName]([&"gate_passed", &"near_miss", &"low_pass"])
-motif = &"motif_marlo"
+motif = &"motif_sanjaya"
 death_consequence = &"no_spotter"
 can_be_harmed = true
 tags = Array[StringName]([&"can_fly"])

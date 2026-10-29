@@ -22,4 +22,4 @@ weights = {
 "CleanLap": 1.0,
 "FinishPosition": 2.0
 }
-requires_living = Array[StringName]([&"marlo"])
+requires_living = Array[StringName]([&"sanjaya"])

@@ -55,7 +55,7 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## None for the pilots and anyone else who brings nothing on a job.
 @export var perk: CrewPerk
 ## Their voice in the score (Story 16.10): the id of a stem in the act scores
-## from the tryout on, e.g. motif_bea. The MusicDirector plays it only while
+## from the tryout on, e.g. motif_bhima. The MusicDirector plays it only while
 ## they are active, quieter while injured, never again once dead. Empty for
 ## anyone who is not crew.
 @export var motif: StringName

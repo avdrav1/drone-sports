@@ -4,7 +4,7 @@ extends RefCounted
 # 32, 64 and 128 px, and the dead keep their eyes shut.
 
 const Sim = preload("res://tests/sim.gd")
-const CHARACTERS := ["pip", "marlo", "dot", "bea", "ozzie", "rin", "tally", "fen", "moss"]
+const CHARACTERS := ["arjuna", "sanjaya", "nala", "bhima", "sushena", "drona", "hanuman", "abhimanyu", "jatayu"]
 
 func test_every_expression_is_distinct() -> bool:
 	var ok := CharacterPortrait.EXPRESSIONS.size() == 6
@@ -53,7 +53,7 @@ func test_talking_moves_the_mouth() -> bool:
 	return ok
 
 func test_portrait_texture_overrides_face() -> bool:
-	var c: Character = Roster.character(&"marlo").duplicate()
+	var c: Character = Roster.character(&"sanjaya").duplicate()
 	var p := CharacterPortrait.new()
 	p.character = c
 	var drawn_before := p.drawn()
@@ -86,14 +86,14 @@ func test_every_character_draws_at_every_size() -> bool:
 
 func test_the_dead_have_closed_lids() -> bool:
 	var p := CharacterPortrait.new()
-	p.character = Roster.character(&"marlo")
+	p.character = Roster.character(&"sanjaya")
 	p.expression = &"shocked"
 	p.talking = true
 	var open_alive: float = p.current_pose().lid
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var dead := p.current_pose()
 	var greyed := CharacterPortrait.new()
-	greyed.character = Roster.character(&"dot")
+	greyed.character = Roster.character(&"nala")
 	greyed.greyed = true
 	var ok: bool = open_alive > 0.0 and dead.lid == 0.0 and p.is_dead() and greyed.current_pose().lid == 0.0
 	p.free()

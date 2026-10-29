@@ -13,7 +13,7 @@ camera = 1
 focus = NodePath("Opponent1")
 offset = Vector3(0, 1.6, 5)
 bezel = true
-portrait = &"rin"
+portrait = &"drona"
 caption = "That line through the last gate wasn't luck. I've watched it a hundred times."
 duration = 6.0
 
@@ -23,7 +23,7 @@ camera = 1
 focus = NodePath("Opponent1")
 offset = Vector3(0, 1.6, 5)
 bezel = true
-portrait = &"rin"
+portrait = &"drona"
 caption = "So stop playing at it. Come fly a real one."
 duration = 5.0
 
@@ -46,7 +46,7 @@ focus = NodePath("Drone")
 orbit_radius = 4.0
 orbit_height = 1.2
 orbit_speed = 12.0
-portrait = &"rin"
+portrait = &"drona"
 caption = "Collision guard comes off on a real team. Mind the walls. Everything else, you already know."
 duration = 7.0
 

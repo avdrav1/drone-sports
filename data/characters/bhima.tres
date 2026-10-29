@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
-[ext_resource type="Resource" path="res://data/crew/looks/bea.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/crew/looks/bhima.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -12,21 +12,21 @@ name = "site rates"
 
 [resource]
 script = ExtResource("1_char")
-id = &"bea"
+id = &"bhima"
 name = "Bhima"
 role = "Demolition foreman"
 named_for = "Named for the strongest of the five brothers"
 look = ExtResource("9_look")
 shape = &"hardhat"
 colors = PackedColorArray(0.85, 0.32, 0.27, 1, 1, 0.88, 0.8, 1, 1, 0.82, 0.2, 1)
-lines = "res://data/dialogue/bea.json"
+lines = "res://data/dialogue/bhima.json"
 calls_you = PackedStringArray("ace", "hard hat", "chief")
 chirp_pitch = 0.8333333
 babble_pitch = 0.8333333
 babble_rate = 7.5
 babble_vowels = PackedStringArray("ah", "oo")
 bounce = Vector2(0.55,0.62)
-motif = &"motif_bea"
+motif = &"motif_bhima"
 death_consequence = &"salvage_locked"
 can_be_harmed = true
 tags = Array[StringName]([])

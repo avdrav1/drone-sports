@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 [ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
-[ext_resource type="Resource" path="res://data/crew/looks/fen.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/crew/looks/abhimanyu.tres" id="9_look"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
@@ -35,14 +35,14 @@ assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource
 
 [resource]
 script = ExtResource("1_char")
-id = &"fen"
+id = &"abhimanyu"
 name = "Abhimanyu"
 role = "Sprint pilot"
 named_for = "Named for the young warrior who charged straight in"
 look = ExtResource("9_look")
 shape = &"visor"
 colors = PackedColorArray(0.95, 0.5, 0.55, 1, 1, 0.94, 0.92, 1, 0.18, 0.22, 0.38, 1)
-lines = "res://data/dialogue/fen.json"
+lines = "res://data/dialogue/abhimanyu.json"
 calls_you = PackedStringArray("speedy", "racer")
 chirp_pitch = 1.3333333
 babble_pitch = 1.3333333

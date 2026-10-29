@@ -31,7 +31,7 @@ func _tilt(axis: JoyAxis, value: float) -> void:
 	await _parse(ev)
 
 func test_reached_and_left_by_pad() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = load(BOARD).instantiate()
 	Sim.add(b)
 	await Sim.process_frames(1)
@@ -69,7 +69,7 @@ func test_reached_and_left_by_pad() -> bool:
 	return ok
 
 func test_shows_sticks_triggers_and_button_names() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = load(BOARD).instantiate()
 	Sim.add(b)
 	await Sim.process_frames(1)

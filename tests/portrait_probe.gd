@@ -5,7 +5,7 @@ extends SceneTree
 # by the first user argument, how many pixels of each show the look's skin, hair
 # and top colours, how different each pair of faces is, and any engine errors.
 
-const IDS := ["pip", "marlo", "dot", "bea", "ozzie", "rin", "tally", "fen", "moss"]
+const IDS := ["arjuna", "sanjaya", "nala", "bhima", "sushena", "drona", "hanuman", "abhimanyu", "jatayu"]
 const SIZES := [32, 64, 128]
 ## A pixel shows a colour when its r, g and b differ from it by this much in all.
 const MATCH := 0.03

@@ -44,20 +44,20 @@ func test_each_face_plays_its_chirp_variant() -> bool:
 	var expect := {&"neutral": &"crew_chirp", &"happy": &"crew_chirp_happy", &"determined": &"crew_chirp_happy",
 		&"worried": &"crew_chirp_worried", &"shocked": &"crew_chirp_worried", &"sad": &"crew_chirp_sad"}
 	var ok := expect.size() == CharacterPortrait.EXPRESSIONS.size()
-	var c: Character = Roster.character(&"bea")
+	var c: Character = Roster.character(&"bhima")
 	for face in CharacterPortrait.EXPRESSIONS:
-		var heard := _say_with_face(b, &"bea", &"briefing", face)
+		var heard := _say_with_face(b, &"bhima", &"briefing", face)
 		if heard.size() != 1 or heard[0].id != expect.get(face, &"") or not is_equal_approx(heard[0].pitch, c.chirp_pitch) \
 				or heard[0].bus != &"Voice":
 			print("        %s: %s" % [face, heard])
 			ok = false
 	# Celebrating: a happy finish giggles.
-	var done := _say_with_face(b, &"bea", &"complete", &"happy")
+	var done := _say_with_face(b, &"bhima", &"complete", &"happy")
 	ok = ok and done.size() == 1 and done[0].id == &"crew_chirp_celebrate"
 	# Serious lines keep the plain chirp, whatever their face.
 	for e in [&"warning", &"strike", &"hurt"]:
 		for face in [&"sad", &"worried", &"happy"]:
-			var heard := _say_with_face(b, &"bea", e, face)
+			var heard := _say_with_face(b, &"bhima", e, face)
 			if heard.size() != 1 or heard[0].id != &"crew_chirp":
 				print("        %s %s: %s" % [e, face, heard])
 				ok = false
@@ -71,10 +71,10 @@ func test_each_face_plays_its_chirp_variant() -> bool:
 			streams[ev.streams[0].resource_path] = true
 	ok = ok and streams.size() == CHIRP_IDS.size()
 	# The dead never chirp, in any variant.
-	Roster.kill(&"bea")
+	Roster.kill(&"bhima")
 	Sfx.clear_log()
 	for face in CharacterPortrait.EXPRESSIONS:
-		Bark.chirp(&"bea", face, &"complete")
+		Bark.chirp(&"bhima", face, &"complete")
 	ok = ok and _chirps().is_empty()
 	b.free()
 	_fresh()
@@ -89,7 +89,7 @@ func test_radio_and_results_chirp_by_face() -> bool:
 	var box := BarkBox.new()
 	box.bark = b
 	Sim.add(box)
-	var heard := _say_with_face(b, &"marlo", &"briefing", &"sad")
+	var heard := _say_with_face(b, &"sanjaya", &"briefing", &"sad")
 	var ok: bool = heard.size() == 1 and heard[0].id == &"crew_chirp_sad"
 	box.free()
 	b.free()
@@ -99,9 +99,9 @@ func test_radio_and_results_chirp_by_face() -> bool:
 	await Sim.process_frames(1)
 	var r := JobResult.new()
 	r.job = load("res://data/jobs/sample_delivery.tres")
-	r.bark = {"id": &"rin", "event": &"results", "text": "Good flying.", "face": &"happy"}
-	r.casualties = {&"marlo": Roster.Status.INJURED}
-	r.casualty_lines = {&"marlo": "Just a scratch."}
+	r.bark = {"id": &"drona", "event": &"results", "text": "Good flying.", "face": &"happy"}
+	r.casualties = {&"sanjaya": Roster.Status.INJURED}
+	r.casualty_lines = {&"sanjaya": "Just a scratch."}
 	Sfx.clear_log()
 	screen.show_result(r)
 	var ids: Array = _chirps().map(func(l): return l.id)

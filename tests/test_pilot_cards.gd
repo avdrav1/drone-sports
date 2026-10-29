@@ -7,7 +7,7 @@ extends RefCounted
 const Sim = preload("res://tests/sim.gd")
 
 ## Each specialist's best bar.
-const SPECIALTY := {&"fen": &"speed", &"moss": &"cornering", &"tally": &"climb"}
+const SPECIALTY := {&"abhimanyu": &"speed", &"jatayu": &"cornering", &"hanuman": &"climb"}
 
 func _bars(s: PilotSelect, id: StringName) -> Dictionary:
 	var out := {}
@@ -28,9 +28,9 @@ func test_every_card_shows_best_at_edge_and_four_bars() -> bool:
 		ok = ok and _bars(s, c.id).keys() == PilotEdge.BARS.keys()
 		# One line per assist setting, then the stat steps, all filled in.
 		ok = ok and edge.text.split("\n").size() == c.edge.assists.size() + 1 and not "{" in edge.text
-	# The words name this pilot's number and the stock one, e.g. Fen's governor.
-	var fen: String = s.cards[&"fen"].find_child("Edge", true, false).text
-	ok = ok and fen.contains("15 m") and fen.contains("governor") and fen.contains("others 12")
+	# The words name this pilot's number and the stock one, e.g. Abhimanyu's governor.
+	var abhimanyu: String = s.cards[&"abhimanyu"].find_child("Edge", true, false).text
+	ok = ok and abhimanyu.contains("15 m") and abhimanyu.contains("governor") and abhimanyu.contains("others 12")
 	s.free()
 	return ok
 
@@ -46,18 +46,18 @@ func test_bars_come_from_the_edge() -> bool:
 		if SPECIALTY.has(c.id):
 			for id in bars:
 				ok = ok and (id == SPECIALTY[c.id] or bars[id] < bars[SPECIALTY[c.id]])
-	# Change the data and the bar follows: Moss with a much bigger battery.
-	var moss: Character = PlayerProfile.pilots().filter(func(c): return c.id == &"moss")[0]
-	var before: float = _bars(s, &"moss")[&"endurance"]
+	# Change the data and the bar follows: Jatayu with a much bigger battery.
+	var jatayu: Character = PlayerProfile.pilots().filter(func(c): return c.id == &"jatayu")[0]
+	var before: float = _bars(s, &"jatayu")[&"endurance"]
 	var step := StatStep.new()
 	step.stat = &"battery_flight_time"
 	step.step = 120.0
-	moss.edge.stats.append(step)
+	jatayu.edge.stats.append(step)
 	s.refresh()
-	var after: float = _bars(s, &"moss")[&"endurance"]
-	moss.edge.stats.erase(step)
+	var after: float = _bars(s, &"jatayu")[&"endurance"]
+	jatayu.edge.stats.erase(step)
 	s.free()
-	return ok and moss.id == &"moss" and after > before + 0.2
+	return ok and jatayu.id == &"jatayu" and after > before + 0.2
 
 ## Every control on the screen, inside it, and no text wider or taller than its box.
 func _fits(s: PilotSelect, screen: Vector2) -> bool:
@@ -79,7 +79,7 @@ func _fits(s: PilotSelect, screen: Vector2) -> bool:
 
 func test_text_fits_at_960_and_1080_in_both_skins() -> bool:
 	var ok := true
-	PlayerProfile.choose_pilot(&"pip")  # Back showing: the tallest the page gets
+	PlayerProfile.choose_pilot(&"arjuna")  # Back showing: the tallest the page gets
 	for act in [1, 2]:
 		for screen in [Vector2(960, 720), Vector2(1920, 1080)]:
 			var root := Control.new()

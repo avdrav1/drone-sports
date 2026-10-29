@@ -1,6 +1,6 @@
 extends RefCounted
 # Story 8.4: phase 2, the trench. The pilot flies in to the shutter while the
-# entrance counts down; Marlo calls the turns; touching the shell strikes Marlo.
+# entrance counts down; Sanjaya calls the turns; touching the shell strikes Sanjaya.
 
 const Sim = preload("res://tests/sim.gd")
 const SCENE := "res://scenes/boss/lattice_job.tscn"
@@ -85,7 +85,7 @@ func test_entrance_closes_on_time_and_fails() -> bool:
 	s.free()
 	return ok
 
-func test_shell_contact_strikes_marlo() -> bool:
+func test_shell_contact_strikes_sanjaya() -> bool:
 	var s := _job()
 	var fight: LatticeFight = s.get_node("Fight")
 	var runner: JobRunner = s.get_node("JobRunner")
@@ -99,29 +99,29 @@ func test_shell_contact_strikes_marlo() -> bool:
 	var near := l.to_global(Lattice.toward(a) * (l.tunnel_span().y - 1.5))
 	pilot.global_position = near
 	await Sim.physics_frames(80)
-	var warned := fight.zone_of(&"marlo").warning()
+	var warned := fight.zone_of(&"sanjaya").warning()
 	pilot.global_position = l.to_global(Lattice.toward(a) * (l.tunnel_span().y + 0.5))
 	await Sim.physics_frames(3)
-	var ok: bool = warned and runner.strikes.get(&"marlo", 0) == 1 and runner.strikes.get(&"bea", 0) == 0 and fight.contacts == 1
+	var ok: bool = warned and runner.strikes.get(&"sanjaya", 0) == 1 and runner.strikes.get(&"bhima", 0) == 0 and fight.contacts == 1
 	if not ok:
 		print("        warned %s strikes %s contacts %d (mid %.1f)" % [warned, runner.strikes, fight.contacts, mid])
 	s.free()
 	return ok
 
-func test_marlos_death_ends_the_callouts() -> bool:
+func test_sanjayas_death_ends_the_callouts() -> bool:
 	var s := _job()
 	var fight: LatticeFight = s.get_node("Fight")
 	var calls := []
 	var lines := []
 	fight.called.connect(func(i, t): calls.append(i))
-	(s.get_node("Bark") as Bark).spoke.connect(func(id, e, t): if id == &"marlo" and e == &"trench": lines.append(t))
+	(s.get_node("Bark") as Bark).spoke.connect(func(id, e, t): if id == &"sanjaya" and e == &"trench": lines.append(t))
 	await _trench(s)
 	_fly_trench(s)
 	await _until(s, 30.0, func(): return calls.size() >= 2)
 	var before := calls.size()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	await _until(s, 70.0, func(): return fight.phase != LatticeFight.Phase.TRENCH)
-	var ok: bool = before >= 2 and calls.size() == before and lines.size() == before and fight.caller() == &"bea"
+	var ok: bool = before >= 2 and calls.size() == before and lines.size() == before and fight.caller() == &"bhima"
 	if not ok:
 		print("        before %d after %d lines %d" % [before, calls.size(), lines.size()])
 	s.free()

@@ -1282,7 +1282,7 @@ Owner decisions (all decided):
   - Acceptance: No player-facing text under `data/` or `scripts/` holds an old name (a test checks every character's old name, case-insensitive and as a whole word, with an allow-list for ids). The title, board, CREW page, radio, cutscenes and results show the new names. Every character's "named for" line exists and fits its row at 960×720 and 1920×1080. Every existing test passes.
   - Out of scope: Ids, the boss (25.3), new lines beyond the renames.
 
-- [ ] **25.2 New ids, and saves that follow**
+- [x] **25.2 New ids, and saves that follow**
   - Goal: The ids match the names (`arjuna`, `drona`, and so on), and a save made with the old ids loads with everything intact.
   - Context: Ids are keys in the save (roster status, strikes, injuries, the chosen pilot, crew assignments), in jobs' `crew_in_field`, in teams, in the music motifs (`motif_bea` becomes `motif_bhima`: `tools/music/generate.py` names the stems, and the regenerated files' names change, not their sound), in `data/dialogue/<id>.json` file names, and across `tests/`. `SaveGame` gains a one-time id migration (old → new map) at load, so a dead character stays dead under the new id (rule 7). `.tres` files are renamed to the new ids, and every `res://` path follows.
   - Acceptance: No `.tres`, `.json`, `.gd` or `.py` file holds an old id except the migration map and its test. An old-id save loads with the same statuses, strikes, chosen pilot, wallet and reputation under the new ids, and saves back with new ids only. The music check (`generate.py --check`) passes with the renamed motif stems, and data/music stays under its size cap. Every existing test passes.

@@ -14,20 +14,20 @@ The crew is the heart of the story. They are small, round, expressive, and they 
 
 | Id | Name | Role | Where they stand on a job | Risk | Named for |
 | --- | --- | --- | --- | --- | --- |
-| `pip` | Arjuna | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) | The student archer every teacher wanted to train |
-| `marlo` | Sanjaya | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High | The one who saw the whole battle from afar and told it |
-| `dot` | Nala | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium | The engineer who bridged the sea to Lanka |
-| `bea` | Bhima | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs | The strongest of the five brothers |
-| `ozzie` | Sushena | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs | The healer who sent for the life-giving herb |
-| `rin` | Drona | The scout who recruits you. Story voice | Never in the field | None | The teacher who found and trained the great archers |
+| `arjuna` | Arjuna | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) | The student archer every teacher wanted to train |
+| `sanjaya` | Sanjaya | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High | The one who saw the whole battle from afar and told it |
+| `nala` | Nala | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium | The engineer who bridged the sea to Lanka |
+| `bhima` | Bhima | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs | The strongest of the five brothers |
+| `sushena` | Sushena | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs | The healer who sent for the life-giving herb |
+| `drona` | Drona | The scout who recruits you. Story voice | Never in the field | None | The teacher who found and trained the great archers |
 
 Every name comes from the Ramayana or the Mahabharata and echoes the character's job; the CREW page (or, for a pilot with no CREW row, their pilot card) shows each "named for" line. The namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs. The ids are the code's keys (saves, jobs, file names); a save from before the rename is carried over to them on load.
 
-Three more pilot avatars (so "play as" means a choice) are data beside Arjuna: Abhimanyu (`fen`, the young warrior who charged straight in), Jatayu (`moss`, the great bird who rode the high winds) and Hanuman (`tally`, who leapt the ocean to Lanka). Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
+Three more pilot avatars (so "play as" means a choice) are data beside Arjuna: Abhimanyu (`abhimanyu`, the young warrior who charged straight in), Jatayu (`jatayu`, the great bird who rode the high winds) and Hanuman (`hanuman`, who leapt the ocean to Lanka). Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
 
 ## Strike system
 
-- A job declares `crew_in_field: [marlo, bea]` (Sanjaya and Bhima) and places a `HazardZone` for each.
+- A job declares `crew_in_field: [sanjaya, bhima]` (Sanjaya and Bhima) and places a `HazardZone` for each.
 - Entering a zone at speed, debris landing in it, or a rescue timer expiring is a strike. The HUD flashes the character's portrait one second before it lands, so the player always had a chance.
 - First strike: injured. The character is benched for the next two jobs and their lines change. The results screen shows it.
 - Second strike while injured, or a strike on a job tagged `lethal`: dead. Confirmation dialog before launching any job with an injured crew member in the field.

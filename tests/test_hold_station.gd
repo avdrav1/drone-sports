@@ -100,7 +100,7 @@ func test_inspection_job_completes_and_grades() -> bool:
 		await _pin(d, scene.get_node("Station%d" % i).global_position, 185)
 	var ok: bool = orbit and runner.state == JobRunner.State.COMPLETE and runner.result != null \
 		and runner.result.letter == "A" and runner.result.objectives.size() == 5
-	var zone: HazardZone = scene.get_node("MarloZone")
-	ok = ok and zone.character == &"marlo" and zone.find_children("*", "CrewProp").size() == 1
+	var zone: HazardZone = scene.get_node("SanjayaZone")
+	ok = ok and zone.character == &"sanjaya" and zone.find_children("*", "CrewProp").size() == 1
 	scene.free()
 	return ok

@@ -59,7 +59,7 @@ func test_bold_finishes_ahead_and_clumsy_strays_most() -> bool:
 	return ok
 
 func test_crew_fly_true_to_character() -> bool:
-	var want := {&"dot": "bold", &"marlo": "steady", &"pip": "clumsy", &"ozzie": "gentle"}
+	var want := {&"nala": "bold", &"sanjaya": "steady", &"arjuna": "clumsy", &"sushena": "gentle"}
 	var ok := true
 	for id in FleetCrew.tagged():
 		var c: Character = Roster.character(id)
@@ -171,7 +171,7 @@ func test_steady_flyer_radios_advice_on_fleet_events() -> bool:
 	(s.get_node("Bark") as Bark).spoke.connect(func(id, e, text): said.append([id, e, text]))
 	await Sim.process_frames(2)
 	relay.leg_done.emit(0, relay.drones[0], 30.0)
-	var ok: bool = crew.adviser() == &"marlo" and said.size() == 1 and said[0][0] == &"marlo" \
+	var ok: bool = crew.adviser() == &"sanjaya" and said.size() == 1 and said[0][0] == &"sanjaya" \
 		and said[0][1] == &"advice" and said[0][2] != "" and not said[0][2].contains("{")
 	# Not twice inside the gap, then again on a bad lap once it has passed.
 	relay.lap_invalid.emit(relay.drones[1], "missed a gate")
@@ -180,8 +180,8 @@ func test_steady_flyer_radios_advice_on_fleet_events() -> bool:
 	relay.lap_invalid.emit(relay.drones[1], "missed a gate")
 	ok = ok and said.size() == 2 and said[1][1] == &"advice"
 	s.free()
-	# The dead never advise: with Marlo gone nobody does.
-	Roster.kill(&"marlo")
+	# The dead never advise: with Sanjaya gone nobody does.
+	Roster.kill(&"sanjaya")
 	s = _relay()
 	crew = s.get_node("FleetCrew")
 	said.clear()

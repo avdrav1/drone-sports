@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 [ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
-[ext_resource type="Resource" path="res://data/crew/looks/pip.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/crew/looks/arjuna.tres" id="9_look"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
@@ -70,14 +70,14 @@ assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource
 
 [resource]
 script = ExtResource("1_char")
-id = &"pip"
+id = &"arjuna"
 name = "Arjuna"
 role = "Rookie pilot"
 named_for = "Named for the student archer every teacher wanted to train"
 look = ExtResource("9_look")
 shape = &"round"
 colors = PackedColorArray(1, 0.8, 0.3, 1, 1, 0.95, 0.8, 1)
-lines = "res://data/dialogue/pip.json"
+lines = "res://data/dialogue/arjuna.json"
 calls_you = PackedStringArray("partner", "teammate", "pal")
 chirp_pitch = 1.5
 babble_pitch = 1.5

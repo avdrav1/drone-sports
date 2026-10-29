@@ -12,7 +12,7 @@ func _fresh() -> void:
 	SaveGame.write_section("roster", {})
 	Roster.load_saved()
 
-func _face(id := &"marlo") -> CharacterPortrait:
+func _face(id := &"sanjaya") -> CharacterPortrait:
 	var p := CharacterPortrait.new()
 	p.character = Roster.character(id)
 	p.size = Vector2(64, 64)
@@ -99,7 +99,7 @@ func test_every_lattice_line_shows_no_emote() -> bool:
 	_fresh()
 	var lattice: Job = load("res://data/boss/lattice_job.tres")
 	var ok := lattice.job_type in TABLE.quiet_job_types
-	# Every crew line on the Lattice job, Marlo's trench calls too, through the radio.
+	# Every crew line on the Lattice job, Sanjaya's trench calls too, through the radio.
 	var runner := JobRunner.new()
 	runner.job = lattice
 	var bark := Bark.new()
@@ -115,7 +115,7 @@ func test_every_lattice_line_shows_no_emote() -> bool:
 		events.append(StringName(chorus_event))
 	for event in events:
 		for expr in CharacterPortrait.EXPRESSIONS:
-			box._open({"id": &"marlo", "event": event, "text": "Line.", "face": expr})
+			box._open({"id": &"sanjaya", "event": event, "text": "Line.", "face": expr})
 			ok = ok and box.portrait.character != null and not box.emote.showing()
 			ok = ok and TABLE.for_line(event, expr, lattice.job_type) == null
 	box.free()
@@ -134,18 +134,18 @@ func test_radio_shows_emotes_and_hearts_only_on_a_clean_finish() -> bool:
 	var box := BarkBox.new()
 	box.bark = bark
 	Sim.add(box)
-	box._open({"id": &"marlo", "event": &"near_miss", "text": "Whoa.", "face": &"shocked"})
+	box._open({"id": &"sanjaya", "event": &"near_miss", "text": "Whoa.", "face": &"shocked"})
 	var ok: bool = box.emote.current == TABLE.find(&"near_miss")
-	box._open({"id": &"marlo", "event": &"complete", "text": "Done.", "face": &"happy"})
+	box._open({"id": &"sanjaya", "event": &"complete", "text": "Done.", "face": &"happy"})
 	ok = ok and box.emote.current == TABLE.find(&"clean_finish")
-	box._open({"id": &"marlo", "event": &"warning", "text": "Careful.", "face": &"worried"})
+	box._open({"id": &"sanjaya", "event": &"warning", "text": "Careful.", "face": &"worried"})
 	ok = ok and box.emote.current == null
-	runner.strikes[&"marlo"] = 1
-	box._open({"id": &"marlo", "event": &"complete", "text": "Done.", "face": &"neutral"})
+	runner.strikes[&"sanjaya"] = 1
+	box._open({"id": &"sanjaya", "event": &"complete", "text": "Done.", "face": &"neutral"})
 	ok = ok and box.emote.current == null
 	# Once someone is hurt the radio stays sincere.
-	runner.casualties[&"marlo"] = Roster.Status.INJURED
-	box._open({"id": &"marlo", "event": &"crash", "text": "Ow.", "face": &"worried"})
+	runner.casualties[&"sanjaya"] = Roster.Status.INJURED
+	box._open({"id": &"sanjaya", "event": &"crash", "text": "Ow.", "face": &"worried"})
 	ok = ok and box.emote.current == null
 	box.free()
 	bark.free()
@@ -158,14 +158,14 @@ func test_results_sparkle_on_best_hearts_on_clean_quiet_after_casualty() -> bool
 	var r := JobResult.new()
 	r.job = Job.new()
 	r.completed = true
-	var line := {"id": &"rin", "event": &"results", "text": "Nice.", "face": &"neutral"}
+	var line := {"id": &"drona", "event": &"results", "text": "Nice.", "face": &"neutral"}
 	var ok: bool = Results.emote_event(r) == &"clean_finish"
 	r.new_best = true
 	var row: HBoxContainer = Results.bark_row(line, r)
 	var bubble: EmoteBubble = row.get_child(0).get_child(0)
 	ok = ok and bubble.current == TABLE.find(&"best")
 	row.free()
-	r.casualties[&"marlo"] = Roster.Status.DEAD
+	r.casualties[&"sanjaya"] = Roster.Status.DEAD
 	row = Results.bark_row(line, r)
 	ok = ok and (row.get_child(0).get_child(0) as EmoteBubble).current == null
 	row.free()
@@ -184,7 +184,7 @@ func test_the_dead_never_emote() -> bool:
 	b.play(&"crash")
 	var ok := b.showing()
 	# Dying mid-emote clears it.
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	b._process(STEP)
 	ok = ok and b.current == null
 	for e in TABLE.emotes:
@@ -193,7 +193,7 @@ func test_the_dead_never_emote() -> bool:
 	face.free()
 	# Greyed (e.g. on the roster) is dead too.
 	_fresh()
-	var grey := _face(&"rin")
+	var grey := _face(&"drona")
 	grey.greyed = true
 	var gb := EmoteBubble.attach(grey)
 	gb.play(&"best")

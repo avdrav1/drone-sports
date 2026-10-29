@@ -32,11 +32,11 @@ func test_every_member_has_three_lines_per_event() -> bool:
 func test_injured_uses_injured_variant() -> bool:
 	_fresh()
 	var b := _bark()
-	var active: Array = Bark.lines_of(&"marlo").strike.active
-	var injured: Array = Bark.lines_of(&"marlo").strike.injured
-	var before := b.say(&"strike", &"marlo")
-	Roster.injure(&"marlo")
-	var after := b.say(&"strike", &"marlo")
+	var active: Array = Bark.lines_of(&"sanjaya").strike.active
+	var injured: Array = Bark.lines_of(&"sanjaya").strike.injured
+	var before := b.say(&"strike", &"sanjaya")
+	Roster.injure(&"sanjaya")
+	var after := b.say(&"strike", &"sanjaya")
 	var ok: bool = before.text in active and after.text in injured
 	b.free()
 	_fresh()
@@ -45,10 +45,10 @@ func test_injured_uses_injured_variant() -> bool:
 func test_dead_never_speak() -> bool:
 	_fresh()
 	var b := _bark()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var ok := true
 	for e in Bark.EVENTS:
-		ok = ok and b.say(e, &"marlo").is_empty() and not &"marlo" in b.speakers(e).filter(func(id): return not b.available(id, e).is_empty())
+		ok = ok and b.say(e, &"sanjaya").is_empty() and not &"sanjaya" in b.speakers(e).filter(func(id): return not b.available(id, e).is_empty())
 	# Gate callouts belong to the spotter alone, so a dead spotter means silence.
 	ok = ok and b.say(&"gate_passed").is_empty()
 	b.free()
@@ -58,11 +58,11 @@ func test_dead_never_speak() -> bool:
 func test_no_repeat_within_a_job() -> bool:
 	_fresh()
 	var b := _bark(7)
-	var pool := Bark.pool(&"marlo", &"gate_passed")
+	var pool := Bark.pool(&"sanjaya", &"gate_passed")
 	var said := []
 	for i in pool.size():
-		said.append(b.say(&"gate_passed", &"marlo").get("text", ""))
-	var exhausted := b.say(&"gate_passed", &"marlo")
+		said.append(b.say(&"gate_passed", &"sanjaya").get("text", ""))
+	var exhausted := b.say(&"gate_passed", &"sanjaya")
 	var distinct := true
 	for t in said:
 		distinct = distinct and said.count(t) == 1 and t in pool
@@ -71,12 +71,12 @@ func test_no_repeat_within_a_job() -> bool:
 
 func test_single_line_may_repeat() -> bool:
 	_fresh()
-	var saved: Dictionary = Bark.lines_of(&"marlo")
-	Bark._cache[&"marlo"] = {"gate_passed": {"active": ["Only this."]}}
+	var saved: Dictionary = Bark.lines_of(&"sanjaya")
+	Bark._cache[&"sanjaya"] = {"gate_passed": {"active": ["Only this."]}}
 	var b := _bark()
-	var a := b.say(&"gate_passed", &"marlo")
-	var c := b.say(&"gate_passed", &"marlo")
-	Bark._cache[&"marlo"] = saved
+	var a := b.say(&"gate_passed", &"sanjaya")
+	var c := b.say(&"gate_passed", &"sanjaya")
+	Bark._cache[&"sanjaya"] = saved
 	b.free()
 	return a.get("text", "") == "Only this." and c.get("text", "") == "Only this."
 
@@ -116,7 +116,7 @@ func test_race_gate_callout() -> bool:
 	course.gate_passed.emit(scene.get_node("Drone"), 1)
 	course.gate_passed.emit(course.racers()[1], 2)
 	scene.free()
-	return heard == [[&"marlo", &"gate_passed"]]
+	return heard == [[&"sanjaya", &"gate_passed"]]
 
 # Story 17.4: every pitch line names a face the rig can make.
 func test_pitch_lines_set_a_valid_face() -> bool:
@@ -127,7 +127,7 @@ func test_pitch_lines_set_a_valid_face() -> bool:
 		for line in e.get("active", []) + e.get("injured", []):
 			ok = ok and line is Dictionary and StringName(line.get("face", "")) in CharacterPortrait.EXPRESSIONS
 		ok = ok and not Bark.pitch(id, &"test_race").is_empty()
-	Roster.kill(&"marlo")
-	ok = ok and Bark.pitch(&"marlo", &"test_race").is_empty()
+	Roster.kill(&"sanjaya")
+	ok = ok and Bark.pitch(&"sanjaya", &"test_race").is_empty()
 	_fresh()
 	return ok

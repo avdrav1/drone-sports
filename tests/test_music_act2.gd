@@ -10,7 +10,7 @@ const ACT_2 := "res://data/music/act_2.tres"
 const SCENE := "res://scenes/story/recruited.tscn"
 # Story 21.3 adds strings and the song's hats on a shaker.
 const STEMS := [&"drone", &"reed", &"strings", &"pluck", &"kick", &"frame_drum", &"shaker", &"mantra_reed", &"pulse",
-	&"motif_bea", &"motif_dot", &"motif_marlo", &"motif_ozzie"]
+	&"motif_bhima", &"motif_nala", &"motif_sanjaya", &"motif_sushena"]
 
 func _stop() -> void:
 	Music.play(null, 0.0)

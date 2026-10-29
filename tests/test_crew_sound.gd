@@ -50,16 +50,16 @@ func test_every_bark_plays_its_speakers_chirp() -> bool:
 	# Each speaker sounds like themselves.
 	for i in pitches.size():
 		ok = ok and pitches.count(pitches[i]) == 1
-	# A line emitted straight onto `spoke` (Marlo's trench calls) chirps too.
+	# A line emitted straight onto `spoke` (Sanjaya's trench calls) chirps too.
 	Sfx.clear_log()
-	b.spoke.emit(&"marlo", &"trench", "Left.")
-	ok = ok and _chirps().size() == 1 and is_equal_approx(_chirps()[0].pitch, Roster.character(&"marlo").chirp_pitch)
+	b.spoke.emit(&"sanjaya", &"trench", "Left.")
+	ok = ok and _chirps().size() == 1 and is_equal_approx(_chirps()[0].pitch, Roster.character(&"sanjaya").chirp_pitch)
 	# A silent say (kept for the results screen) chirps there, not here; the dead never chirp.
 	Sfx.clear_log()
-	b.say(&"results", &"rin", false)
-	Roster.kill(&"marlo")
-	b.say(&"strike", &"marlo")
-	Bark.chirp(&"marlo")
+	b.say(&"results", &"drona", false)
+	Roster.kill(&"sanjaya")
+	b.say(&"strike", &"sanjaya")
+	Bark.chirp(&"sanjaya")
 	ok = ok and _chirps().is_empty()
 	b.free()
 	_fresh()
@@ -72,14 +72,14 @@ func test_results_bark_plays_its_speakers_chirp() -> bool:
 	await Sim.process_frames(1)
 	var r := JobResult.new()
 	r.job = load("res://data/jobs/sample_delivery.tres")
-	r.bark = {"id": &"rin", "event": &"results", "text": "Good flying."}
-	r.casualties = {&"marlo": Roster.Status.INJURED}
-	r.casualty_lines = {&"marlo": "Just a scratch."}
+	r.bark = {"id": &"drona", "event": &"results", "text": "Good flying."}
+	r.casualties = {&"sanjaya": Roster.Status.INJURED}
+	r.casualty_lines = {&"sanjaya": "Just a scratch."}
 	Sfx.clear_log()
 	screen.show_result(r)
 	var pitches: Array = _chirps().map(func(l): return l.pitch)
-	var ok: bool = pitches.size() == 2 and pitches.has(Roster.character(&"rin").chirp_pitch) \
-		and pitches.has(Roster.character(&"marlo").chirp_pitch)
+	var ok: bool = pitches.size() == 2 and pitches.has(Roster.character(&"drona").chirp_pitch) \
+		and pitches.has(Roster.character(&"sanjaya").chirp_pitch)
 	if not ok:
 		print("        %s" % [pitches])
 	screen.free()

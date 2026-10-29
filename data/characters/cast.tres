@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="Cast" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/cast.gd" id="1_cast"]
-[ext_resource type="Resource" path="res://data/characters/pip.tres" id="2_pip"]
-[ext_resource type="Resource" path="res://data/characters/marlo.tres" id="3_marlo"]
-[ext_resource type="Resource" path="res://data/characters/dot.tres" id="4_dot"]
-[ext_resource type="Resource" path="res://data/characters/bea.tres" id="5_bea"]
-[ext_resource type="Resource" path="res://data/characters/ozzie.tres" id="6_ozzie"]
-[ext_resource type="Resource" path="res://data/characters/rin.tres" id="7_rin"]
+[ext_resource type="Resource" path="res://data/characters/arjuna.tres" id="2_arjuna"]
+[ext_resource type="Resource" path="res://data/characters/sanjaya.tres" id="3_sanjaya"]
+[ext_resource type="Resource" path="res://data/characters/nala.tres" id="4_nala"]
+[ext_resource type="Resource" path="res://data/characters/bhima.tres" id="5_bhima"]
+[ext_resource type="Resource" path="res://data/characters/sushena.tres" id="6_sushena"]
+[ext_resource type="Resource" path="res://data/characters/drona.tres" id="7_drona"]
 
 [resource]
 script = ExtResource("1_cast")
-characters = Array[Resource]([ExtResource("2_pip"), ExtResource("3_marlo"), ExtResource("4_dot"), ExtResource("5_bea"), ExtResource("6_ozzie"), ExtResource("7_rin")])
+characters = Array[Resource]([ExtResource("2_arjuna"), ExtResource("3_sanjaya"), ExtResource("4_nala"), ExtResource("5_bhima"), ExtResource("6_sushena"), ExtResource("7_drona")])

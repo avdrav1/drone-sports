@@ -37,7 +37,7 @@ func test_launch_with_intro_seen_opens_the_title() -> bool:
 	return ok
 
 func test_any_key_click_or_pad_button_opens_the_board() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var ok := true
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_X
@@ -120,7 +120,7 @@ func test_backdrop_loads_and_orbits() -> bool:
 	return ok
 
 func test_esc_on_the_board_returns_to_the_title() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = await _open(BOARD)
 	var ok: bool = b is JobBoard and not b.pilot_select.visible
 	var esc := InputEventAction.new()

@@ -65,7 +65,7 @@ func test_debris_in_zone_emits() -> bool:
 	var hz := HazardScene.new()
 	root.add_child(hz)
 	var zone := HazardZone.new()
-	zone.character = &"bea"
+	zone.character = &"bhima"
 	var zs := CollisionShape3D.new()
 	zs.shape = BoxShape3D.new()
 	zs.shape.size = Vector3(4, 4, 4)

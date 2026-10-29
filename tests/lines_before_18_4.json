@@ -1,5 +1,5 @@
 {
- "bea": {
+ "bhima": {
   "briefing": {
    "active": [
     "Building's coming down on schedule. Be out before it does.",
@@ -224,7 +224,7 @@
    ]
   }
  },
- "dot": {
+ "nala": {
   "briefing": {
    "active": [
     "Props are balanced. Don't make me redo them.",
@@ -456,7 +456,7 @@
    ]
   }
  },
- "fen": {
+ "abhimanyu": {
   "briefing": {
    "active": [
     "Let's make this quick.",
@@ -507,7 +507,7 @@
    ]
   }
  },
- "marlo": {
+ "sanjaya": {
   "briefing": {
    "active": [
     "I'm on the line. Eyes up, call it as I see it.",
@@ -758,7 +758,7 @@
    ]
   }
  },
- "moss": {
+ "jatayu": {
   "briefing": {
    "active": [
     "Let the air do the work.",
@@ -809,7 +809,7 @@
    ]
   }
  },
- "ozzie": {
+ "sushena": {
   "briefing": {
    "active": [
     "Follow the beacon. I'll keep the flare lit.",
@@ -1041,7 +1041,7 @@
    ]
   }
  },
- "pip": {
+ "arjuna": {
   "briefing": {
    "active": [
     "Okay. Okay. Same as the sim, right?",
@@ -1174,7 +1174,7 @@
    ]
   }
  },
- "rin": {
+ "drona": {
   "briefing": {
    "active": [
     "Read the brief. Then read it again.",
@@ -1314,7 +1314,7 @@
    ]
   }
  },
- "tally": {
+ "hanuman": {
   "briefing": {
    "active": [
     "Plenty in the tank. Let's not waste it.",

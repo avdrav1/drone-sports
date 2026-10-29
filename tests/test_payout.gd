@@ -1,6 +1,6 @@
 extends RefCounted
-# Story 2.4: payout and reputation. The whole crew is fit, so pay carries Bea's
-# +15 percent and reputation gains Rin's +25 percent (Story 19.5).
+# Story 2.4: payout and reputation. The whole crew is fit, so pay carries Bhima's
+# +15 percent and reputation gains Drona's +25 percent (Story 19.5).
 
 const Sim = preload("res://tests/sim.gd")
 const TEST_SAVE := "user://test_save.json"

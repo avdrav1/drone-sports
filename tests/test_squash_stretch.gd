@@ -13,7 +13,7 @@ func _fresh() -> void:
 
 func _crew() -> Array[Character]:
 	var out: Array[Character] = []
-	for id in [&"pip", &"marlo", &"dot", &"bea", &"ozzie", &"rin", &"fen", &"moss", &"tally"]:
+	for id in [&"arjuna", &"sanjaya", &"nala", &"bhima", &"sushena", &"drona", &"abhimanyu", &"jatayu", &"hanuman"]:
 		out.append(load("res://data/characters/%s.tres" % id))
 	return out
 
@@ -94,7 +94,7 @@ func test_hop_returns_to_rest_within_0_6_s() -> bool:
 		ok = ok and _same(CharacterPortrait.motion(&"neutral", 5.0 + age, false, b, age), CharacterPortrait.motion(&"neutral", 5.0 + age, false, b))
 	# A live face hops off the ground, then is back on its idle bob by 0.6 s.
 	_fresh()
-	var c: Character = load("res://data/characters/dot.tres")
+	var c: Character = load("res://data/characters/nala.tres")
 	var f := _face(c)
 	f.time = 3.0
 	f.hop()
@@ -120,7 +120,7 @@ func test_shocked_pops_and_sad_droops() -> bool:
 
 func test_pupils_follow_a_point_and_never_leave_the_eye() -> bool:
 	_fresh()
-	var c: Character = load("res://data/characters/bea.tres")
+	var c: Character = load("res://data/characters/bhima.tres")
 	var f := _face(c)
 	f.position = Vector2(100, 100)
 	var mid := f.position + Vector2(32, 32 + 64 * 0.08)
@@ -150,7 +150,7 @@ func test_pupils_follow_a_point_and_never_leave_the_eye() -> bool:
 
 func test_dead_face_does_not_move() -> bool:
 	_fresh()
-	var c: Character = load("res://data/characters/ozzie.tres")
+	var c: Character = load("res://data/characters/sushena.tres")
 	var f := _face(c)
 	f.greyed = true
 	f.talking = true
@@ -169,7 +169,7 @@ func test_dead_face_does_not_move() -> bool:
 	g.hop()
 	g.time = 0.2
 	ok = ok and not _same(g.current_motion(), CharacterPortrait.still())
-	Roster.kill(&"ozzie")
+	Roster.kill(&"sushena")
 	ok = ok and _same(g.current_motion(), CharacterPortrait.still())
 	g.free()
 	_fresh()
@@ -179,9 +179,9 @@ func test_pilot_select_and_board_hop_on_a_pick() -> bool:
 	_fresh()
 	var s := PilotSelect.new()
 	Sim.add(s)
-	var face: CharacterPortrait = s.cards[&"fen"].find_child("Face", true, false)
+	var face: CharacterPortrait = s.cards[&"abhimanyu"].find_child("Face", true, false)
 	face.time = 4.0
-	s.choose_button(&"fen").focus_entered.emit()
+	s.choose_button(&"abhimanyu").focus_entered.emit()
 	face.time += 0.2
 	var ok: bool = face.follow_mouse and (face.current_motion().offset as Vector2).y < -0.06
 	s.free()

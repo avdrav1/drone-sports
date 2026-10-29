@@ -7,13 +7,13 @@ const Sim = preload("res://tests/sim.gd")
 const RESULTS := preload("res://scripts/ui/results.gd")
 const ZONE_AT := Vector3(0, 5, -30)
 
-## A live job rig with a Marlo zone at ZONE_AT (radius 3) and a crew warning HUD.
+## A live job rig with a Sanjaya zone at ZONE_AT (radius 3) and a crew warning HUD.
 func _setup(crew: Array[StringName]) -> Array:
 	var job := Job.new()
 	job.crew_in_field = crew
 	var root := Sim.job_setup(job)
 	var zone := HazardZone.new()
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = ZONE_AT
 	var runner: JobRunner = root.get_node("Runner")
@@ -43,11 +43,11 @@ func _fly(s: Array, from: Vector3, to: Vector3, speed: float) -> void:
 		d.global_position = from.lerp(to, float(i) / steps)
 		await Sim.physics_frames(1)
 		log.frame += 1
-		if s[3].warned().has(&"marlo"):
+		if s[3].warned().has(&"sanjaya"):
 			log.hud = true
 
 func test_fast_entry_strikes_after_a_warning() -> bool:
-	var s := await _setup([&"marlo"])
+	var s := await _setup([&"sanjaya"])
 	await _fly(s, Vector3(0, 5, 0), ZONE_AT, 10.0)
 	var log: Dictionary = s[4]
 	s[0].free()
@@ -55,7 +55,7 @@ func test_fast_entry_strikes_after_a_warning() -> bool:
 		and log.struck[0][0] - log.warned >= 60 and log.hud
 
 func test_slow_entry_does_not_strike() -> bool:
-	var s := await _setup([&"marlo"])
+	var s := await _setup([&"sanjaya"])
 	await _fly(s, Vector3(0, 5, -22), ZONE_AT, 1.0)
 	var log: Dictionary = s[4]
 	s[0].free()
@@ -87,12 +87,12 @@ func _drop(s: Array, height: float) -> void:
 
 func test_debris_strikes_only_after_a_full_warning() -> bool:
 	# From 12 m up it takes about 1.36 s to reach the zone: warned in time, strikes.
-	var high := await _setup([&"marlo"])
+	var high := await _setup([&"sanjaya"])
 	await _drop(high, 12.0)
 	var hl: Dictionary = high[4]
 	high[0].free()
 	# From 4.5 m up it arrives in about 0.55 s: too soon to warn a full second, no strike.
-	var low := await _setup([&"marlo"])
+	var low := await _setup([&"sanjaya"])
 	await _drop(low, 4.5)
 	var ll: Dictionary = low[4]
 	low[0].free()
@@ -100,7 +100,7 @@ func test_debris_strikes_only_after_a_full_warning() -> bool:
 		and ll.struck.is_empty()
 
 func test_scripted_strike_needs_a_warning() -> bool:
-	var s := await _setup([&"marlo"])
+	var s := await _setup([&"sanjaya"])
 	var zone: HazardZone = s[2]
 	var early := zone.strike(&"timer")
 	for i in 66:
@@ -111,13 +111,13 @@ func test_scripted_strike_needs_a_warning() -> bool:
 	return not early and late
 
 func test_results_list_strikes_per_character() -> bool:
-	var s := await _setup([&"marlo"])
+	var s := await _setup([&"sanjaya"])
 	await _fly(s, Vector3(0, 5, 0), ZONE_AT, 10.0)
 	var runner: JobRunner = s[1]
 	runner.results_scene = null
 	runner.pays_out = false
 	runner.fail("test")
 	var lines: Array[String] = RESULTS.strike_lines(runner.result)
-	var ok: bool = runner.result.strikes == {&"marlo": 1} and lines == ["Sanjaya struck 1x"]
+	var ok: bool = runner.result.strikes == {&"sanjaya": 1} and lines == ["Sanjaya struck 1x"]
 	s[0].free()
 	return ok

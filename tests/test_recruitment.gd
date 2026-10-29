@@ -1,5 +1,5 @@
 extends RefCounted
-# Story 5.2: recruitment. A top-three Act 1 race gets Coach Rin's offer; joining
+# Story 5.2: recruitment. A top-three Act 1 race gets Drona's offer; joining
 # moves the pilot to Act 2 and the HUD shows it; offers are one-shot.
 
 const Sim = preload("res://tests/sim.gd")

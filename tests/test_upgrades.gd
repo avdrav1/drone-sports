@@ -1,7 +1,7 @@
 extends RefCounted
 # Story 5.5: upgrades. Buying max thrust raises the climb rate in the debug
 # scene; prices and effects come from data; no money, no sale; assists untouched.
-# Dot is fit throughout, so every price is Dot's 20 percent off (Story 19.5).
+# Nala is fit throughout, so every price is Nala's 20 percent off (Story 19.5).
 
 const Sim = preload("res://tests/sim.gd")
 

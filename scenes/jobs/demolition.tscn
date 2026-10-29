@@ -696,17 +696,17 @@ surface = &"concrete"
 tint = Color(0.8, 0.78, 0.74, 1)
 grime = 0.8
 
-[node name="BeaZone" type="Area3D" parent="."]
+[node name="BhimaZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -37.4)
 script = ExtResource("zone")
-character = &"bea"
+character = &"bhima"
 
-[node name="Bea" type="Node3D" parent="BeaZone"]
+[node name="Bhima" type="Node3D" parent="BhimaZone"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 script = ExtResource("crew")
-character = &"bea"
+character = &"bhima"
 
-[node name="MapMarker" type="Node3D" parent="BeaZone"]
+[node name="MapMarker" type="Node3D" parent="BhimaZone"]
 script = ExtResource("marker")
 kind = &"crew"
 label = "Bhima"

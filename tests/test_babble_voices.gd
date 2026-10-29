@@ -28,7 +28,7 @@ func _free(box: BarkBox) -> void:
 	box.bark.free()
 	box.free()
 
-func _line(event: StringName, text: String, id := &"marlo") -> Dictionary:
+func _line(event: StringName, text: String, id := &"sanjaya") -> Dictionary:
 	return {"id": id, "event": event, "text": text, "face": &"neutral"}
 
 func _babbles() -> Array:
@@ -43,8 +43,8 @@ func test_babble_runs_while_typing_and_stops_on_the_last_character() -> bool:
 	# The chirp still opens the line; the babble starts with the typing.
 	var ids: Array = Sfx.log.map(func(l): return String(l.id))
 	var chirp := ids.find("crew_chirp_happy") if ids.has("crew_chirp_happy") else ids.find("crew_chirp")
-	var ok: bool = box.babbling == &"babble_marlo" and box.voice.playing and chirp >= 0 \
-		and ids.find("babble_marlo") > chirp and _babbles().size() == 1 and is_equal_approx(_babbles()[0].pitch, 1.0) \
+	var ok: bool = box.babbling == &"babble_sanjaya" and box.voice.playing and chirp >= 0 \
+		and ids.find("babble_sanjaya") > chirp and _babbles().size() == 1 and is_equal_approx(_babbles()[0].pitch, 1.0) \
 		and _babbles()[0].bus == &"Voice"
 	var stopped_at := -1.0
 	for i in 60 * 3:
@@ -102,14 +102,14 @@ func test_serious_lines_babble_slower_and_lower_and_memorials_are_silent() -> bo
 	_fresh()
 	var ok := true
 	for e in [&"warning", &"strike", &"hurt"]:
-		var b := Bark.babble_for(&"bea", e)
-		ok = ok and b.get("event") == &"babble_bea" and b.get("pitch", 1.0) < 1.0
-	ok = ok and Bark.babble_for(&"bea", &"briefing").get("pitch", 0.0) == 1.0
-	ok = ok and Bark.babble_for(&"bea", &"memorial").is_empty()
+		var b := Bark.babble_for(&"bhima", e)
+		ok = ok and b.get("event") == &"babble_bhima" and b.get("pitch", 1.0) < 1.0
+	ok = ok and Bark.babble_for(&"bhima", &"briefing").get("pitch", 0.0) == 1.0
+	ok = ok and Bark.babble_for(&"bhima", &"memorial").is_empty()
 	# On the radio: a warning's babble plays at the lower pitch.
 	var box := _radio()
 	Sfx.clear_log()
-	box.bark.said.emit(_line(&"warning", "Hold back, crew under the wall.", &"bea"))
+	box.bark.said.emit(_line(&"warning", "Hold back, crew under the wall.", &"bhima"))
 	var heard := _babbles()
 	ok = ok and heard.size() == 1 and is_equal_approx(heard[0].pitch, Bark.SERIOUS_BABBLE_PITCH) \
 		and is_equal_approx(box.voice.pitch_scale, Bark.SERIOUS_BABBLE_PITCH)
@@ -120,31 +120,31 @@ func test_skipped_or_replaced_line_stops_its_babble() -> bool:
 	_fresh()
 	var box := _radio()
 	box.bark.said.emit(_line(&"gate_passed", "Clean gate, keep that line going now."))
-	var ok: bool = box.babbling == &"babble_marlo" and box.voice.playing
+	var ok: bool = box.babbling == &"babble_sanjaya" and box.voice.playing
 	box.skip()
 	ok = ok and box.babbling == &"" and not box.voice.playing and not box.typing() \
 		and box.label.visible_characters == -1
 	# A warning replaces a line mid-type: the new speaker babbles instead.
 	box.beat = 0.0
 	box.bark.said.emit(_line(&"briefing", "Long one today, so pace the battery."))
-	var first: bool = box.babbling == &"babble_marlo"
-	box.bark.said.emit(_line(&"warning", "Heads up, crew below.", &"dot"))
-	ok = ok and first and box.babbling == &"babble_dot" and box.voice.playing
+	var first: bool = box.babbling == &"babble_sanjaya"
+	box.bark.said.emit(_line(&"warning", "Heads up, crew below.", &"nala"))
+	ok = ok and first and box.babbling == &"babble_nala" and box.voice.playing
 	# Replaced by a silent line: the old babble stops and none starts.
-	box.bark.said.emit(_line(&"strike", "", &"dot"))
+	box.bark.said.emit(_line(&"strike", "", &"nala"))
 	ok = ok and box.babbling == &"" and not box.voice.playing
 	_free(box)
 	return ok
 
 func test_the_dead_never_babble() -> bool:
 	_fresh()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var box := _radio()
 	Sfx.clear_log()
 	box.bark.said.emit(_line(&"briefing", "This should never be heard at all."))
 	var ok: bool = box.babbling == &"" and not box.voice.playing and _babbles().is_empty()
 	for e in Bark.EVENTS:
-		ok = ok and Bark.babble_for(&"marlo", e).is_empty()
+		ok = ok and Bark.babble_for(&"sanjaya", e).is_empty()
 	_free(box)
 	_fresh()
 	return ok

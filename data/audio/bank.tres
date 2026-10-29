@@ -56,15 +56,15 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_alarm.wav" id="80_crew_alarm"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/radio_chime.wav" id="81_radio_chime"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/radio_alert.wav" id="82_radio_alert"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_bea.wav" id="70_babble_bea"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_dot.wav" id="71_babble_dot"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_fen.wav" id="72_babble_fen"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_marlo.wav" id="73_babble_marlo"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_moss.wav" id="74_babble_moss"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_ozzie.wav" id="75_babble_ozzie"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_pip.wav" id="76_babble_pip"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_rin.wav" id="77_babble_rin"]
-[ext_resource type="AudioStream" path="res://data/audio/generated/babble_tally.wav" id="78_babble_tally"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_bhima.wav" id="70_babble_bhima"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_nala.wav" id="71_babble_nala"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_abhimanyu.wav" id="72_babble_abhimanyu"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_sanjaya.wav" id="73_babble_sanjaya"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_jatayu.wav" id="74_babble_jatayu"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_sushena.wav" id="75_babble_sushena"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_arjuna.wav" id="76_babble_arjuna"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_drona.wav" id="77_babble_drona"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/babble_hanuman.wav" id="78_babble_hanuman"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -298,66 +298,66 @@ streams = Array[AudioStream]([ExtResource("80_crew_alarm")])
 volume_db = -10.0
 bus = &"UI"
 
-[sub_resource type="Resource" id="babble_bea"]
+[sub_resource type="Resource" id="babble_bhima"]
 script = ExtResource("2_event")
-id = &"babble_bea"
-streams = Array[AudioStream]([ExtResource("70_babble_bea")])
+id = &"babble_bhima"
+streams = Array[AudioStream]([ExtResource("70_babble_bhima")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_dot"]
+[sub_resource type="Resource" id="babble_nala"]
 script = ExtResource("2_event")
-id = &"babble_dot"
-streams = Array[AudioStream]([ExtResource("71_babble_dot")])
+id = &"babble_nala"
+streams = Array[AudioStream]([ExtResource("71_babble_nala")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_fen"]
+[sub_resource type="Resource" id="babble_abhimanyu"]
 script = ExtResource("2_event")
-id = &"babble_fen"
-streams = Array[AudioStream]([ExtResource("72_babble_fen")])
+id = &"babble_abhimanyu"
+streams = Array[AudioStream]([ExtResource("72_babble_abhimanyu")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_marlo"]
+[sub_resource type="Resource" id="babble_sanjaya"]
 script = ExtResource("2_event")
-id = &"babble_marlo"
-streams = Array[AudioStream]([ExtResource("73_babble_marlo")])
+id = &"babble_sanjaya"
+streams = Array[AudioStream]([ExtResource("73_babble_sanjaya")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_moss"]
+[sub_resource type="Resource" id="babble_jatayu"]
 script = ExtResource("2_event")
-id = &"babble_moss"
-streams = Array[AudioStream]([ExtResource("74_babble_moss")])
+id = &"babble_jatayu"
+streams = Array[AudioStream]([ExtResource("74_babble_jatayu")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_ozzie"]
+[sub_resource type="Resource" id="babble_sushena"]
 script = ExtResource("2_event")
-id = &"babble_ozzie"
-streams = Array[AudioStream]([ExtResource("75_babble_ozzie")])
+id = &"babble_sushena"
+streams = Array[AudioStream]([ExtResource("75_babble_sushena")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_pip"]
+[sub_resource type="Resource" id="babble_arjuna"]
 script = ExtResource("2_event")
-id = &"babble_pip"
-streams = Array[AudioStream]([ExtResource("76_babble_pip")])
+id = &"babble_arjuna"
+streams = Array[AudioStream]([ExtResource("76_babble_arjuna")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_rin"]
+[sub_resource type="Resource" id="babble_drona"]
 script = ExtResource("2_event")
-id = &"babble_rin"
-streams = Array[AudioStream]([ExtResource("77_babble_rin")])
+id = &"babble_drona"
+streams = Array[AudioStream]([ExtResource("77_babble_drona")])
 volume_db = -14.0
 bus = &"Voice"
 
-[sub_resource type="Resource" id="babble_tally"]
+[sub_resource type="Resource" id="babble_hanuman"]
 script = ExtResource("2_event")
-id = &"babble_tally"
-streams = Array[AudioStream]([ExtResource("78_babble_tally")])
+id = &"babble_hanuman"
+streams = Array[AudioStream]([ExtResource("78_babble_hanuman")])
 volume_db = -14.0
 bus = &"Voice"
 
@@ -458,4 +458,4 @@ bus = &"UI"
 
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("crew_alarm"), SubResource("babble_bea"), SubResource("babble_dot"), SubResource("babble_fen"), SubResource("babble_marlo"), SubResource("babble_moss"), SubResource("babble_ozzie"), SubResource("babble_pip"), SubResource("babble_rin"), SubResource("babble_tally"), SubResource("radio_static"), SubResource("radio_chime"), SubResource("radio_alert"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("crew_alarm"), SubResource("babble_bhima"), SubResource("babble_nala"), SubResource("babble_abhimanyu"), SubResource("babble_sanjaya"), SubResource("babble_jatayu"), SubResource("babble_sushena"), SubResource("babble_arjuna"), SubResource("babble_drona"), SubResource("babble_hanuman"), SubResource("radio_static"), SubResource("radio_chime"), SubResource("radio_alert"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])

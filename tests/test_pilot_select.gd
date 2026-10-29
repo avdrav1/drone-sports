@@ -1,5 +1,5 @@
 extends RefCounted
-# Story 7.2: pilot select. Pip by default; the choice persists in the save; the
+# Story 7.2: pilot select. Arjuna by default; the choice persists in the save; the
 # race HUD and the flight HUD show the chosen portrait; switching pilots changes
 # only that pilot's edge stats; only pilot-tagged characters are offered; a new
 # game reaches the screen before the first job.
@@ -9,39 +9,39 @@ const BOARD := "res://scenes/ui/job_board.tscn"
 const INTRO := "res://scenes/story/intro.tscn"
 const ACT1 := preload("res://data/assists/act1.tres")
 
-func test_default_is_pip_and_every_pilot_validates() -> bool:
-	var ok: bool = not PlayerProfile.has_pilot() and PlayerProfile.pilot().id == &"pip"
+func test_default_is_arjuna_and_every_pilot_validates() -> bool:
+	var ok: bool = not PlayerProfile.has_pilot() and PlayerProfile.pilot().id == &"arjuna"
 	var pilots := PlayerProfile.pilots()
-	ok = ok and pilots.size() >= 4 and pilots[0].id == &"pip"
+	ok = ok and pilots.size() >= 4 and pilots[0].id == &"arjuna"
 	for c in pilots:
 		ok = ok and c.validate().is_empty() and not c.can_be_harmed and ResourceLoader.exists(c.lines)
-		if c.id != &"pip":
+		if c.id != &"arjuna":
 			ok = ok and c.edge != null and Roster.character(c.id) == null  # the crew of six is unchanged
 	return ok and Roster.ids().size() == 6
 
 func test_choice_persists_across_load() -> bool:
-	var ok := PlayerProfile.choose_pilot(&"fen") and not PlayerProfile.choose_pilot(&"marlo")
+	var ok := PlayerProfile.choose_pilot(&"abhimanyu") and not PlayerProfile.choose_pilot(&"sanjaya")
 	SaveGame.load_all(Sim.tree())
 	var profile: Dictionary = SaveGame.read_section("profile", {})
-	return ok and PlayerProfile.has_pilot() and PlayerProfile.pilot().id == &"fen" and profile.pilot == "fen" \
+	return ok and PlayerProfile.has_pilot() and PlayerProfile.pilot().id == &"abhimanyu" and profile.pilot == "abhimanyu" \
 		and PlayerProfile.handle() == PlayerProfile.DEFAULT_HANDLE
 
 func test_screen_lists_only_pilots() -> bool:
 	var s := PilotSelect.new()
 	Sim.add(s)
-	var ok: bool = s.ids() == [&"pip", &"tally", &"fen", &"moss"]
+	var ok: bool = s.ids() == [&"arjuna", &"hanuman", &"abhimanyu", &"jatayu"]
 	for id in s.ids():
 		ok = ok and &"pilot" in s.cards[id].find_child("Face", true, false).character.tags
 	for id in Roster.ids():
-		ok = ok and (id == &"pip") == s.cards.has(id)
+		ok = ok and (id == &"arjuna") == s.cards.has(id)
 	ok = ok and not s.find_child("Back", true, false).visible  # nothing chosen yet
-	s.choose_button(&"moss").pressed.emit()
-	ok = ok and PlayerProfile.pilot().id == &"moss" and not s.visible
+	s.choose_button(&"jatayu").pressed.emit()
+	ok = ok and PlayerProfile.pilot().id == &"jatayu" and not s.visible
 	s.free()
 	return ok
 
 func test_race_hud_and_flight_hud_show_the_pilot() -> bool:
-	PlayerProfile.choose_pilot(&"tally")
+	PlayerProfile.choose_pilot(&"hanuman")
 	var d := Sim.drone(Sim.intent(), Vector3(0, 20, 0))
 	d.freeze = true
 	var course := Course.new()
@@ -56,8 +56,8 @@ func test_race_hud_and_flight_hud_show_the_pilot() -> bool:
 	flight.drone = d
 	Sim.add(flight)
 	await Sim.process_frames(2)
-	var ok: bool = race.pilot_face.character.id == &"tally" and race.pilot_face.visible \
-		and flight.pilot_face.character.id == &"tally" and flight.pilot_face.visible
+	var ok: bool = race.pilot_face.character.id == &"hanuman" and race.pilot_face.visible \
+		and flight.pilot_face.character.id == &"hanuman" and flight.pilot_face.visible
 	# In the race scene the race HUD owns the corner, so the flight HUD's stays hidden.
 	var scene: Node = load("res://scenes/jobs/test_race.tscn").instantiate()
 	ok = ok and scene.get_node("HUD/Flight").show_pilot == false and scene.get_node("HUD/Race") is RaceHud
@@ -83,11 +83,11 @@ func _fingerprint() -> Dictionary:
 	return out
 
 func test_switching_pilot_changes_only_the_edge_stats() -> bool:
-	var pip := PlayerProfile.pilot()
-	var own := pip.edge
-	pip.edge = null  # the drone with no edge at all
+	var arjuna := PlayerProfile.pilot()
+	var own := arjuna.edge
+	arjuna.edge = null  # the drone with no edge at all
 	var base := _fingerprint()
-	pip.edge = own
+	arjuna.edge = own
 	var ok := base.size() > 6
 	for c in PlayerProfile.pilots():
 		PlayerProfile.choose_pilot(c.id)
@@ -115,7 +115,7 @@ func test_new_game_reaches_pilot_select() -> bool:
 	var last := ps.choose_button(ps.ids()[-1])
 	ok = ok and ps.is_ancestor_of(last.find_next_valid_focus())
 	ok = ok and ps.is_ancestor_of(first.find_prev_valid_focus())
-	b.pilot_select.choose(&"fen")
+	b.pilot_select.choose(&"abhimanyu")
 	ok = ok and not b.pilot_select.visible and b.menu_button(&"Pilot").text == "PILOT  ·  Abhimanyu"
 	# Closed, the board's own buttons take focus again.
 	ok = ok and b.menu_button(&"Pilot").focus_mode != Control.FOCUS_NONE

@@ -1,7 +1,7 @@
 extends RefCounted
 # Story 19.2: four pilots, four edges. The real drone, flown headless with
 # scripted sticks: every pilot side by side in their own lane, plus one with no
-# edge at all. In Act 1 each specialist is best at their thing and Pip is never
+# edge at all. In Act 1 each specialist is best at their thing and Arjuna is never
 # last; in Act 5, with no assists, each stat bump still shows.
 
 const Sim = preload("res://tests/sim.gd")
@@ -34,7 +34,7 @@ func _lanes(stack: AssistStack, source: Callable) -> Dictionary:
 		ids.append(c.id)
 	for i in ids.size():
 		var id := ids[i]
-		PlayerProfile.choose_pilot(&"pip" if id == BASELINE else id)
+		PlayerProfile.choose_pilot(&"arjuna" if id == BASELINE else id)
 		var c := PlayerProfile.pilot()
 		var own := c.edge
 		if id == BASELINE:
@@ -92,8 +92,8 @@ func _print(what: String, score: Dictionary) -> void:
 		parts.append("%s %.2f" % [id, score[id]])
 	print("        %s: %s" % [what, ", ".join(parts)])
 
-## Fen tops out fastest on a 150 m straight at full stick, and covers it first.
-func test_act1_straight_is_fens() -> bool:
+## Abhimanyu tops out fastest on a 150 m straight at full stick, and covers it first.
+func test_act1_straight_is_abhimanyus() -> bool:
 	var lanes := _lanes(ACT1, _sticks(Sim.intent(0.0, 1.0)))
 	var top := {}
 	for id in lanes:
@@ -106,11 +106,11 @@ func test_act1_straight_is_fens() -> bool:
 	_print("top speed, m/s", top)
 	var by_time := _ranked(times, false)
 	var by_top := _ranked(top, true)
-	return by_time[0] == &"fen" and by_top[0] == &"fen" and top[&"fen"] > top[by_top[1]] + 0.5 \
-		and by_time[-1] != &"pip" and times[&"fen"] < INF
+	return by_time[0] == &"abhimanyu" and by_top[0] == &"abhimanyu" and top[&"abhimanyu"] > top[by_top[1]] + 0.5 \
+		and by_time[-1] != &"arjuna" and times[&"abhimanyu"] < INF
 
-## Moss turns through 180° first at full roll and yaw stick.
-func test_act1_turn_is_moss() -> bool:
+## Jatayu turns through 180° first at full roll and yaw stick.
+func test_act1_turn_is_jatayu() -> bool:
 	var lanes := _lanes(ACT1, _sticks(Sim.intent(0.0, 0.0, 1.0, 1.0)))
 	var turned := {}
 	for id in lanes:
@@ -121,20 +121,20 @@ func test_act1_turn_is_moss() -> bool:
 	_free(lanes)
 	_print("180° turn, s", times)
 	var ranked := _ranked(times, false)
-	return ranked[0] == &"moss" and ranked[-1] != &"pip" and times[ranked[-1]] < INF
+	return ranked[0] == &"jatayu" and ranked[-1] != &"arjuna" and times[ranked[-1]] < INF
 
-## Tally climbs 30 m first at full throttle stick.
-func test_act1_climb_is_tallys() -> bool:
+## Hanuman climbs 30 m first at full throttle stick.
+func test_act1_climb_is_hanumans() -> bool:
 	var lanes := _lanes(ACT1, _sticks(Sim.intent(1.0)))
 	var times := await _race(lanes, 10.0, func(d: Drone) -> bool: return d.global_position.y >= HEIGHT + 30.0)
 	_free(lanes)
 	_print("30 m climb, s", times)
 	var ranked := _ranked(times, false)
-	return ranked[0] == &"tally" and ranked[-1] != &"pip" and times[ranked[-1]] < INF
+	return ranked[0] == &"hanuman" and ranked[-1] != &"arjuna" and times[ranked[-1]] < INF
 
-## Flown at a wall at full stick, the collision guard stops Pip furthest from it
+## Flown at a wall at full stick, the collision guard stops Arjuna furthest from it
 ## and stops everyone short of it.
-func test_act1_wall_stop_is_pips() -> bool:
+func test_act1_wall_stop_is_arjunas() -> bool:
 	var wall_z := -40.0
 	var wall := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
@@ -156,9 +156,9 @@ func test_act1_wall_stop_is_pips() -> bool:
 	await _race(lanes, 8.0, func(d: Drone) -> bool: return not moving.call(d), watch)
 	_free(lanes, [wall])
 	_print("stopped short of the wall, m", stop)
-	return _ranked(stop, true)[0] == &"pip" and stop.values().all(func(g): return g > 0.0 and g < INF)
+	return _ranked(stop, true)[0] == &"arjuna" and stop.values().all(func(g): return g > 0.0 and g < INF)
 
-## With no assists: Fen climbs fastest, Moss tops out fastest, Tally's battery
+## With no assists: Abhimanyu climbs fastest, Jatayu tops out fastest, Hanuman's battery
 ## lasts longest; each beats the drone with no edge.
 func test_act5_stat_bumps_show() -> bool:
 	var lanes := _lanes(ACT5, _sticks(Sim.intent(1.0)))
@@ -181,9 +181,9 @@ func test_act5_stat_bumps_show() -> bool:
 	_print("climb rate after 0.5 s, m/s", climb)
 	_print("speed after 4 s at 30°, m/s", speed)
 	_print("battery after 4 s", battery)
-	return _ranked(climb, true)[0] == &"fen" and climb[&"fen"] > climb[BASELINE] \
-		and _ranked(speed, true)[0] == &"moss" and speed[&"moss"] > speed[BASELINE] \
-		and _ranked(battery, true)[0] == &"tally" and battery[&"tally"] > battery[BASELINE]
+	return _ranked(climb, true)[0] == &"abhimanyu" and climb[&"abhimanyu"] > climb[BASELINE] \
+		and _ranked(speed, true)[0] == &"jatayu" and speed[&"jatayu"] > speed[BASELINE] \
+		and _ranked(battery, true)[0] == &"hanuman" and battery[&"hanuman"] > battery[BASELINE]
 
 func _id(lanes: Dictionary, d: Drone) -> StringName:
 	return lanes.find_key(d)

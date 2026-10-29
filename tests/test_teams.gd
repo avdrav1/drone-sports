@@ -51,7 +51,7 @@ func test_presets_step_through_the_acts() -> bool:
 		var first: String = teams[0].preset.label
 		var second: String = teams[1].preset.label
 		ok = ok and first < second and first in ["Act 2", "Act 3"] and second in ["Act 3", "Act 4"]
-	# The league's first team is the one Coach Rin scouts for: it asks for nothing.
+	# The league's first team is the one Drona scouts for: it asks for nothing.
 	return ok and list.by_id(&"skyline_juniors").reputation_needed == 0 \
 		and list.by_id(&"skyline_juniors").preset.label == "Act 2"
 

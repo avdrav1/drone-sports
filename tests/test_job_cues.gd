@@ -127,11 +127,11 @@ func test_hold_ticks_and_chimes() -> bool:
 
 func test_every_hazard_warning_and_strike_plays() -> bool:
 	var job := Job.new()
-	job.crew_in_field = [&"marlo"]
+	job.crew_in_field = [&"sanjaya"]
 	var s := _setup(job)
 	var root: Node = s[0]
 	var zone := HazardZone.new()
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = Vector3(0, 5, -60)
 	var warned := [0]

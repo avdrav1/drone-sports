@@ -7,16 +7,17 @@ const Sim = preload("res://tests/sim.gd")
 const JOBS := "res://scenes/jobs/"
 const EXTRA := ["res://scenes/boss/lattice_job.tscn"]
 # md5 of each scene's collision fingerprint (see fingerprint), taken before 15.10.
+# Story 25.2 renamed the crew nodes and ids in four of them: only names changed.
 const FINGERPRINTS := {
-	"res://scenes/jobs/demolition.tscn": "3d91fe07b24ca16fe1ba71dd24da646c",
+	"res://scenes/jobs/demolition.tscn": "223f2d3e11e2205511838e5b7de63af9",
 	"res://scenes/jobs/fleet_inspection.tscn": "d41d8cd98f00b204e9800998ecf8427e",
 	"res://scenes/jobs/fleet_race.tscn": "ceb6061fd0ed316a304f4088fe93e820",
-	"res://scenes/jobs/inspection.tscn": "1261c60e7dd76c75468771614673d4c9",
-	"res://scenes/jobs/rescue.tscn": "6ce6b686220f419c32248a1c0ee6594e",
+	"res://scenes/jobs/inspection.tscn": "beec427a41451b4f25bff96b6af2235d",
+	"res://scenes/jobs/rescue.tscn": "cf47afb16a8d566538fcafe3b2b29638",
 	"res://scenes/jobs/sample_delivery.tscn": "a28c6661a910b01c6a47bae0b613470f",
 	"res://scenes/jobs/spotter_drill.tscn": "ceb6061fd0ed316a304f4088fe93e820",
 	"res://scenes/jobs/test_race.tscn": "ceb6061fd0ed316a304f4088fe93e820",
-	"res://scenes/boss/lattice_job.tscn": "56c36d0f305ba5b5e17bc85354fb79b9",
+	"res://scenes/boss/lattice_job.tscn": "9cb600e1c91cfd24dfb88c55c9dd9a34",
 }
 
 static func scenes() -> Array[String]:

@@ -128,12 +128,12 @@ func test_the_flown_drones_hits_shake_the_pad() -> bool:
 func test_gates_hazards_and_the_end_shake_the_pad() -> bool:
 	_pad()
 	var job := Job.new()
-	job.crew_in_field = [&"marlo"]
+	job.crew_in_field = [&"sanjaya"]
 	var s := _setup(job)
 	var root: Node = s[0]
 	var runner: JobRunner = s[1]
 	var zone := HazardZone.new()
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = Vector3(0, 5, -60)
 	var course := Course.new()

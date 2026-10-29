@@ -16,12 +16,18 @@ const CARRIED := "carried_over.txt"
 const NO_CARRY := "DRONE_NO_CARRY"
 ## Set when a corrupt save was moved aside; the board shows it once.
 static var warning := ""
+## Story 25.2: each character's id before the cast took names from the epics,
+## and the id it has now. The only place the old ids live.
+const RENAMED_IDS := {"pip": "arjuna", "rin": "drona", "marlo": "sanjaya", "dot": "nala", "bea": "bhima",
+	"ozzie": "sushena", "fen": "abhimanyu", "moss": "jatayu", "tally": "hanuman"}
 
 static func read() -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {}
 	var json := JSON.new()
 	if json.parse(FileAccess.get_file_as_string(path)) == OK and json.data is Dictionary:
+		if migrate_ids(json.data):
+			_store(json.data)
 		return json.data
 	_set_aside()
 	return {}
@@ -32,11 +38,43 @@ static func read_section(key: String, fallback = null):
 static func write_section(key: String, value) -> void:
 	var data := read()
 	data[key] = value
+	_store(data)
+
+static func _store(data: Dictionary) -> void:
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		push_warning("Could not write the save: %s" % error_string(FileAccess.get_open_error()))
 		return
 	f.store_string(JSON.stringify(data, "\t"))
+
+## Story 25.2: a save from before the ids were renamed holds the old ones, as
+## the roster's keys (status, injuries, the dead) and the chosen pilot. Renames
+## them in `data` once, at load; true if anything changed, so read() stores it
+## and the old ids are gone from the file. An entry already under the new id
+## wins over one under the old.
+static func migrate_ids(data: Dictionary) -> bool:
+	var changed := false
+	var roster = data.get("roster")
+	if roster is Dictionary:
+		for old in RENAMED_IDS:
+			if roster.has(old):
+				var new_id: String = RENAMED_IDS[old]
+				# Both kept (only by a hand-edited save): the worse status wins, so
+				# no one dead comes back (rule 7).
+				if not roster.has(new_id) or _hurt(roster[old]) > _hurt(roster[new_id]):
+					roster[new_id] = roster[old]
+				roster.erase(old)
+				changed = true
+	var profile = data.get("profile")
+	if profile is Dictionary and RENAMED_IDS.has(str(profile.get("pilot", ""))):
+		profile["pilot"] = RENAMED_IDS[str(profile["pilot"])]
+		changed = true
+	return changed
+
+## 0 active, 1 injured, 2 dead.
+static func _hurt(entry) -> int:
+	var status := String(entry.get("status", "active")) if entry is Dictionary else "active"
+	return ["active", "injured", "dead"].find(status.to_lower())
 
 ## Every system reads its section again, as on a fresh launch.
 static func load_all(tree: SceneTree) -> void:

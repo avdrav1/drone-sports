@@ -14,7 +14,7 @@ leaderboard = {
 "NOVA_RUST": 55.6,
 "TINCANTOM": 58.4
 }
-scout_id = &"rin"
+scout_id = &"drona"
 scout_name = "Coach Drona"
 scout_line = "Saw your run. That line through the last gate wasn't luck. Want to try it with a real drone?"
 scout_flag = &"scouted"

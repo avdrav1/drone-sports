@@ -61,17 +61,17 @@ func test_header_shows_wallet_reputation_and_team() -> bool:
 		and header.contains("Act 1")
 
 func test_crew_shows_status_and_the_dead_greyed_with_memorial() -> bool:
-	Roster.injure(&"marlo")  # one job with Ozzie fit (Story 19.6)
-	Roster.kill(&"bea")
+	Roster.injure(&"sanjaya")  # one job with Sushena fit (Story 19.6)
+	Roster.kill(&"bhima")
 	var b := _board()
 	await Sim.process_frames(1)
-	var marlo: String = (b.crew_rows[&"marlo"].get_node("Info/Status") as Label).text
-	var bea: String = (b.crew_rows[&"bea"].get_node("Info/Status") as Label).text
-	var ok: bool = b.crew_rows.size() == 6 and marlo.contains("Injured") and marlo.contains("1 more job") \
-		and bea.contains("Died.") and bea.contains(Bark.memorial(&"bea")) \
-		and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
-		and not (b.crew_rows[&"marlo"].get_node("Face") as CharacterPortrait).greyed \
-		and (b.crew_rows[&"pip"].get_node("Info/Status") as Label).text.contains("Active")
+	var sanjaya: String = (b.crew_rows[&"sanjaya"].get_node("Info/Status") as Label).text
+	var bhima: String = (b.crew_rows[&"bhima"].get_node("Info/Status") as Label).text
+	var ok: bool = b.crew_rows.size() == 6 and sanjaya.contains("Injured") and sanjaya.contains("1 more job") \
+		and bhima.contains("Died.") and bhima.contains(Bark.memorial(&"bhima")) \
+		and (b.crew_rows[&"bhima"].get_node("Face") as CharacterPortrait).greyed \
+		and not (b.crew_rows[&"sanjaya"].get_node("Face") as CharacterPortrait).greyed \
+		and (b.crew_rows[&"arjuna"].get_node("Info/Status") as Label).text.contains("Active")
 	b.free()
 	return ok
 
@@ -110,7 +110,7 @@ func _press(b: JobBoard, action: StringName) -> void:
 	b.get_viewport().push_input(e)
 
 func test_carousel_flips_and_wraps_with_dots() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b := _board()
 	await Sim.process_frames(1)
 	var c := b.carousel
@@ -134,7 +134,7 @@ func test_carousel_flips_and_wraps_with_dots() -> bool:
 	return ok
 
 func test_enter_flies_an_unlocked_card_and_shakes_a_locked_one() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Sim.tree().change_scene_to_file(BOARD)
 	await Sim.process_frames(3)
 	var b: JobBoard = Sim.tree().current_scene
@@ -171,13 +171,13 @@ func test_comms_face_is_living_crew_on_that_job() -> bool:
 			and face.expression in CharacterPortrait.EXPRESSIONS \
 			and (comms.find_child("Pitch", true, false) as Label).text.contains(Bark.pitch(who, id).text)
 	var inspection: CharacterPortrait = b.job_rows[&"inspection"].get_child(0).get_node("Comms/Face")
-	ok = ok and inspection.character.id == &"marlo"
+	ok = ok and inspection.character.id == &"sanjaya"
 	b.free()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	b = _board()
 	await Sim.process_frames(1)
 	var stand_in: CharacterPortrait = b.job_rows[&"inspection"].get_child(0).get_node("Comms/Face")
-	ok = ok and stand_in.character.id != &"marlo" and Roster.is_alive(stand_in.character.id)
+	ok = ok and stand_in.character.id != &"sanjaya" and Roster.is_alive(stand_in.character.id)
 	b.free()
 	Career.team_id = &""
 	return ok
@@ -215,7 +215,7 @@ func _act(b: JobBoard, action: StringName) -> Control:
 	return b.get_viewport().gui_get_focus_owner()
 
 func test_every_old_footer_action_is_reachable_by_keyboard() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Sim.tree().change_scene_to_file(BOARD)
 	await Sim.process_frames(3)
 	var b: JobBoard = Sim.tree().current_scene
@@ -275,8 +275,8 @@ func test_every_old_footer_action_is_reachable_by_keyboard() -> bool:
 	return ok
 
 func test_focus_never_lands_on_hidden_or_disabled() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
-	Roster.kill(&"dot")
+	PlayerProfile.choose_pilot(&"arjuna")
+	Roster.kill(&"nala")
 	var b := _board()
 	await Sim.process_frames(1)
 	var ok: bool = b.menu_button(&"Garage").disabled
@@ -316,8 +316,8 @@ func _clipped(size: Vector2i, open_page: StringName) -> Array:
 	return out
 
 func test_nothing_clipped_at_960_and_1920() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
-	Roster.injure(&"marlo")
+	PlayerProfile.choose_pilot(&"arjuna")
+	Roster.injure(&"sanjaya")
 	Career.team_id = &"harbor_couriers"
 	var bad := []
 	for size in [Vector2i(960, 720), Vector2i(1920, 1080)]:
@@ -329,8 +329,8 @@ func test_nothing_clipped_at_960_and_1920() -> bool:
 	return bad.is_empty()
 
 func test_crew_page_shows_everyone_with_big_faces() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
-	Roster.kill(&"bea")
+	PlayerProfile.choose_pilot(&"arjuna")
+	Roster.kill(&"bhima")
 	var b := _board()
 	await Sim.process_frames(1)
 	b.open_crew()
@@ -339,7 +339,7 @@ func test_crew_page_shows_everyone_with_big_faces() -> bool:
 	for id in Roster.ids():
 		var face: CharacterPortrait = b.crew_rows[id].get_node("Face")
 		ok = ok and b.pages[&"crew"].is_ancestor_of(face) and face.custom_minimum_size.x >= 80
-	ok = ok and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
-		and (b.crew_rows[&"bea"].get_node("Info/Status") as Label).text.contains(Bark.memorial(&"bea"))
+	ok = ok and (b.crew_rows[&"bhima"].get_node("Face") as CharacterPortrait).greyed \
+		and (b.crew_rows[&"bhima"].get_node("Info/Status") as Label).text.contains(Bark.memorial(&"bhima"))
 	b.free()
 	return ok

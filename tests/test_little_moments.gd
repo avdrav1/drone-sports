@@ -65,7 +65,7 @@ func test_each_moment_is_said_by_the_living_never_the_dead() -> bool:
 		ok = ok and not line.is_empty() and Roster.is_alive(line.id) and line.text in Bark.pool(line.id, e)
 		# Never the pilot you fly as.
 		ok = ok and line.id != PlayerProfile.pilot().id
-	for id in [&"marlo", &"dot", &"bea", &"ozzie"]:
+	for id in [&"sanjaya", &"nala", &"bhima", &"sushena"]:
 		Roster.kill(id)
 	for i in 40:
 		for e in Bark.MOMENTS:
@@ -73,25 +73,25 @@ func test_each_moment_is_said_by_the_living_never_the_dead() -> bool:
 			b.used.clear()
 			var line := b.say(e)
 			ok = ok and not line.is_empty() and Roster.is_alive(line.id)
-			ok = ok and b.say(e, &"marlo").is_empty()
+			ok = ok and b.say(e, &"sanjaya").is_empty()
 	b.free()
 	return ok
 
 func test_board_says_hello_unless_someone_just_died() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Bark.moment_times.clear()
 	var board: JobBoard = await _board()
 	var ok: bool = _said(board.bark, &"hello") and board.radio.current.get("event") == &"hello"
 	await _close()
 	Bark.moment_times.clear()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	board = await _board()
 	ok = ok and not _said(board.bark, &"hello") and JobBoard.death_on_last_job()
 	await _close()
 	return ok
 
 func test_board_cheers_an_upgrade_and_an_unlock() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var board: JobBoard = await _board()
 	Bark.moment_times.clear()
 	board.bark.used.clear()
@@ -111,15 +111,15 @@ func test_board_cheers_an_upgrade_and_an_unlock() -> bool:
 	return ok
 
 func test_no_cheer_for_jobs_a_death_opens() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Career.pending.append(&"cannery_row")
 	Career.accept(&"cannery_row")
 	var board: JobBoard = await _board()
 	board.refresh()
 	await _close()
 	var before := JobBoard.flyable_seen.duplicate()
-	# Bea's death locks salvage, so the home jobs open again: nobody cheers that.
-	Roster.kill(&"bea")
+	# Bhima's death locks salvage, so the home jobs open again: nobody cheers that.
+	Roster.kill(&"bhima")
 	Bark.moment_times.clear()
 	board = await _board()
 	var ok: bool = JobBoard.death_on_last_job() and Career.team_locked()
@@ -133,8 +133,8 @@ func test_no_cheer_for_jobs_a_death_opens() -> bool:
 	return ok
 
 func test_no_goodbye_off_a_board_held_quiet_for_a_death() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
-	Roster.kill(&"marlo")
+	PlayerProfile.choose_pilot(&"arjuna")
+	Roster.kill(&"sanjaya")
 	var board: JobBoard = await _board()
 	Bark.moment_times.clear()
 	board.to_title()
@@ -145,7 +145,7 @@ func test_no_goodbye_off_a_board_held_quiet_for_a_death() -> bool:
 	return ok
 
 func test_leaving_the_board_waves_goodbye() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var board: JobBoard = await _board()
 	Bark.moment_times.clear()
 	board.to_title()
@@ -174,7 +174,7 @@ func test_streak_fires_once_per_streak() -> bool:
 	for i in b.streak_gates:
 		b._on_gate(gate, i)
 	ok = ok and streaks.call() == 2
-	b._on_struck(&"marlo", Roster.Status.ACTIVE)
+	b._on_struck(&"sanjaya", Roster.Status.ACTIVE)
 	for i in b.streak_gates - 1:
 		b._on_gate(gate, i)
 	ok = ok and streaks.call() == 2
@@ -184,7 +184,7 @@ func test_streak_fires_once_per_streak() -> bool:
 
 func test_no_streak_once_the_crew_is_hurt() -> bool:
 	var runner := JobRunner.new()
-	runner.casualties[&"marlo"] = Roster.Status.DEAD
+	runner.casualties[&"sanjaya"] = Roster.Status.DEAD
 	var b := _bark(2)
 	b.runner = runner
 	var heard := _record(b)
@@ -202,7 +202,7 @@ func _run(job_id: StringName, states: Array, job_type := &"race", hurt := false)
 	runner.job.id = job_id
 	runner.job.job_type = job_type
 	if hurt:
-		runner.casualties[&"marlo"] = Roster.Status.INJURED
+		runner.casualties[&"sanjaya"] = Roster.Status.INJURED
 	var b := Bark.new()
 	b.seed = 5
 	b.runner = runner
@@ -243,14 +243,14 @@ func test_retry_only_on_relaunching_the_job_just_failed() -> bool:
 
 func test_cooldowns_hold() -> bool:
 	var b := _bark(6)
-	var ok: bool = not b.say(&"hello", &"marlo").is_empty()
-	ok = ok and b.say(&"hello", &"marlo").is_empty() and not Bark.cooled(&"marlo", &"hello")
+	var ok: bool = not b.say(&"hello", &"sanjaya").is_empty()
+	ok = ok and b.say(&"hello", &"sanjaya").is_empty() and not Bark.cooled(&"sanjaya", &"hello")
 	# Another moment, or another character, is not held back.
-	ok = ok and not b.say(&"goodbye", &"marlo").is_empty() and not b.say(&"hello", &"dot").is_empty()
+	ok = ok and not b.say(&"goodbye", &"sanjaya").is_empty() and not b.say(&"hello", &"nala").is_empty()
 	# Held across scenes: a new Bark (the board built again) still waits.
 	var again := Bark.new()
 	Sim.add(again)
-	ok = ok and again.say(&"hello", &"marlo").is_empty()
+	ok = ok and again.say(&"hello", &"sanjaya").is_empty()
 	# Everyone greets at most once a minute.
 	var who := []
 	for i in 20:
@@ -260,10 +260,10 @@ func test_cooldowns_hold() -> bool:
 			who.append(line.id)
 	ok = ok and again.say(&"hello").is_empty()
 	# A minute on, they may again.
-	Bark.moment_times["marlo/hello"] = Bark.now() - Bark.MOMENT_COOLDOWN - 0.1
-	ok = ok and Bark.cooled(&"marlo", &"hello") and not again.say(&"hello", &"marlo").is_empty()
+	Bark.moment_times["sanjaya/hello"] = Bark.now() - Bark.MOMENT_COOLDOWN - 0.1
+	ok = ok and Bark.cooled(&"sanjaya", &"hello") and not again.say(&"hello", &"sanjaya").is_empty()
 	# Ordinary events have no cooldown.
-	ok = ok and not b.say(&"gate_passed", &"marlo").is_empty() and not b.say(&"gate_passed", &"marlo").is_empty()
+	ok = ok and not b.say(&"gate_passed", &"sanjaya").is_empty() and not b.say(&"gate_passed", &"sanjaya").is_empty()
 	again.free()
 	b.free()
 	Bark.moment_times.clear()

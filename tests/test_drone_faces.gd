@@ -39,10 +39,10 @@ func test_crew_flown_drones_wear_their_pilots_face() -> bool:
 	var freed: Drone = Sim.DRONE.instantiate()
 	s.add_child(home)
 	s.add_child(freed)
-	var dot: Character = Roster.character(&"dot")
-	view.add(home, dot)
+	var nala: Character = Roster.character(&"nala")
+	view.add(home, nala)
 	view.add(freed)
-	ok = ok and DroneFace.of(home) != null and DroneFace.of(home).character == dot and DroneFace.of(freed) == null
+	ok = ok and DroneFace.of(home) != null and DroneFace.of(home).character == nala and DroneFace.of(freed) == null
 	s.free()
 	return ok
 
@@ -59,21 +59,21 @@ func test_player_and_unpiloted_drones_show_none() -> bool:
 
 func test_the_dead_never_appear_on_a_drone() -> bool:
 	var d := _still_drone()
-	var face := DroneFace.wear(d, Roster.character(&"marlo"))
+	var face := DroneFace.wear(d, Roster.character(&"sanjaya"))
 	face.advance(0.1)
 	var ok := face.visible
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	face.advance(0.1)
 	ok = ok and not face.visible and not face.react(&"crash")
 	var other := _still_drone()
-	ok = ok and DroneFace.wear(other, Roster.character(&"marlo")) == null
+	ok = ok and DroneFace.wear(other, Roster.character(&"sanjaya")) == null
 	d.free()
 	other.free()
 	return ok
 
 func test_panel_pose_matches_portrait_pose() -> bool:
 	var d := _still_drone()
-	var c: Character = Roster.character(&"pip")
+	var c: Character = Roster.character(&"arjuna")
 	var face := DroneFace.wear(d, c)
 	var ok := true
 	for e in CharacterPortrait.EXPRESSIONS:
@@ -97,7 +97,7 @@ func test_panel_pose_matches_portrait_pose() -> bool:
 
 func test_flight_events_change_the_face_then_it_rests() -> bool:
 	var d := _still_drone()
-	var face := DroneFace.wear(d, Roster.character(&"rin"))
+	var face := DroneFace.wear(d, Roster.character(&"drona"))
 	await Sim.process_frames(2)
 	var ok := face.watcher != null and face.watcher.watched() == d and face.expression == DroneFace.REST
 	for event in DroneFace.REACTIONS:
@@ -141,7 +141,7 @@ func test_a_face_changes_nothing_about_flight() -> bool:
 	var plain := Sim.drone(Sim.intent(0.6, 0.2, 0.1), Vector3(-20, 20, 0))
 	var faced := Sim.drone(Sim.intent(0.6, 0.2, 0.1), Vector3(20, 20, 0))
 	var before := _physics_of(faced)
-	DroneFace.wear(faced, Roster.character(&"pip"))
+	DroneFace.wear(faced, Roster.character(&"arjuna"))
 	var ok := _physics_of(faced) == before and _physics_of(faced) == _physics_of(plain)
 	await Sim.physics_frames(90)
 	# Flown the same, they end the same, a face or not.

@@ -95,20 +95,20 @@
     "Bb"
    ],
    "motifs": [
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "plays": {
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "kick": "kick",
     "mantra_reed": "reed",
-    "motif_bea": "reed",
-    "motif_dot": "frame_drum",
-    "motif_marlo": "tanpura",
-    "motif_ozzie": "voice",
+    "motif_bhima": "reed",
+    "motif_nala": "frame_drum",
+    "motif_sanjaya": "tanpura",
+    "motif_sushena": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed",
@@ -125,10 +125,10 @@
     "shaker",
     "mantra_reed",
     "pulse",
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "tempo": 160.0,
    "tempo_multiple": 1.0,
@@ -147,20 +147,20 @@
     "Bb"
    ],
    "motifs": [
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "plays": {
     "cymbals": "cymbals",
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
-    "motif_bea": "reed",
-    "motif_dot": "frame_drum",
-    "motif_marlo": "tanpura",
-    "motif_ozzie": "voice",
+    "motif_bhima": "reed",
+    "motif_nala": "frame_drum",
+    "motif_sanjaya": "tanpura",
+    "motif_sushena": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed",
@@ -175,10 +175,10 @@
     "shaker",
     "mantra_voice",
     "pulse",
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "tempo": 80.0,
    "tempo_multiple": 0.5,
@@ -197,20 +197,20 @@
     "Bb"
    ],
    "motifs": [
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "plays": {
     "cymbals": "cymbals",
     "drone": "tanpura",
     "frame_drum": "frame_drum",
     "mantra_voice": "voice",
-    "motif_bea": "reed",
-    "motif_dot": "frame_drum",
-    "motif_marlo": "tanpura",
-    "motif_ozzie": "voice",
+    "motif_bhima": "reed",
+    "motif_nala": "frame_drum",
+    "motif_sanjaya": "tanpura",
+    "motif_sushena": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
     "reed": "reed"
@@ -223,10 +223,10 @@
     "cymbals",
     "mantra_voice",
     "pulse",
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "tempo": 160.0,
    "tempo_multiple": 1.0,
@@ -240,10 +240,10 @@
     50
    ],
    "motifs": [
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "plays": {
     "choir_10": "voice",
@@ -251,10 +251,10 @@
     "choir_50": "voice",
     "drone": "tanpura",
     "mantra_lead": "voice",
-    "motif_bea": "reed",
-    "motif_dot": "frame_drum",
-    "motif_marlo": "tanpura",
-    "motif_ozzie": "voice",
+    "motif_bhima": "reed",
+    "motif_nala": "frame_drum",
+    "motif_sanjaya": "tanpura",
+    "motif_sushena": "voice",
     "pulse": "frame_drum"
    },
    "stems": [
@@ -264,10 +264,10 @@
     "choir_10",
     "choir_50",
     "pulse",
-    "motif_bea",
-    "motif_dot",
-    "motif_marlo",
-    "motif_ozzie"
+    "motif_bhima",
+    "motif_nala",
+    "motif_sanjaya",
+    "motif_sushena"
    ],
    "tempo": 80.0,
    "tempo_multiple": 0.5,

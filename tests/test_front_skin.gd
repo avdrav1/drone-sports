@@ -34,7 +34,7 @@ func test_act_picks_the_skin() -> bool:
 		and FrontSkin.current().id == &"cabinet"
 
 func test_every_front_end_screen_wears_the_cabinet_in_act_1() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = await _open(BOARD)
 	# The CREW page, unfocused, is a panel in the skin's colors.
 	var crew: PanelContainer = b.pages[&"crew"]
@@ -53,7 +53,7 @@ func test_every_front_end_screen_wears_the_cabinet_in_act_1() -> bool:
 	return ok
 
 func test_ops_skin_in_the_team_colors_from_act_2() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Career.team_id = &"harbor_couriers"
 	var colors: PackedColorArray = Career.team().colors
 	var b: JobBoard = await _open(BOARD)
@@ -72,7 +72,7 @@ func test_ops_skin_in_the_team_colors_from_act_2() -> bool:
 	return ok
 
 func test_board_after_the_recruitment_scene_wears_ops() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	StoryFlags.set_flag(&"intro_seen")
 	StoryFlags.set_flag(&"scouted")
 	var before: JobBoard = await _open(BOARD)

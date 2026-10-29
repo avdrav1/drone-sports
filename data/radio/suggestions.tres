@@ -33,5 +33,5 @@ reach = 30.0
 
 [resource]
 script = ExtResource("1_list")
-companions = Array[StringName]([&"marlo", &"dot", &"bea", &"ozzie", &"rin"])
+companions = Array[StringName]([&"sanjaya", &"nala", &"bhima", &"sushena", &"drona"])
 suggestions = Array[ExtResource("2_suggestion")]([SubResource("pad"), SubResource("plaza"), SubResource("downtown"), SubResource("jammer")])

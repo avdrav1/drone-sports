@@ -9,10 +9,10 @@ const Sim = preload("res://tests/sim.gd")
 const JOBS := ["res://scenes/jobs/inspection.tscn", "res://scenes/jobs/rescue.tscn", "res://scenes/jobs/demolition.tscn"]
 const ZONE_AT := Vector3(0, 0, -30)
 
-## A job rig with Marlo standing in a zone, a Bark and a BarkBox radio.
+## A job rig with Sanjaya standing in a zone, a Bark and a BarkBox radio.
 func _rig() -> Node:
 	var job := Job.new()
-	job.crew_in_field = [&"marlo"]
+	job.crew_in_field = [&"sanjaya"]
 	var root := Sim.job_setup(job)
 	var runner: JobRunner = root.get_node("Runner")
 	runner.results_scene = null
@@ -33,12 +33,12 @@ func _rig() -> Node:
 	hud.add_child(box)
 	var zone := HazardZone.new()
 	zone.name = "Zone"
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = ZONE_AT
 	var prop := CrewProp.new()
 	prop.name = "Prop"
-	prop.character = &"marlo"
+	prop.character = &"sanjaya"
 	zone.add_child(prop)
 	return root
 
@@ -72,7 +72,7 @@ func test_each_job_figure_wears_a_face_on_the_radio() -> bool:
 		scene.free()
 	return ok
 
-## Each line of Marlo's on the radio puts its face on the figure, which talks
+## Each line of Sanjaya's on the radio puts its face on the figure, which talks
 ## while the line types out and goes back to neutral once the line is done.
 func test_face_follows_each_line_then_neutral() -> bool:
 	var root := _rig()
@@ -82,7 +82,7 @@ func test_face_follows_each_line_then_neutral() -> bool:
 	var box: BarkBox = root.get_node("HUD/BarkBox")
 	var ok := face != null and face.radio == box and face.expression == CrewFace.REST
 	for expr in CharacterPortrait.EXPRESSIONS:
-		bark.announce_line({"id": &"marlo", "event": &"complete", "text": "Line with a face to make.", "face": expr})
+		bark.announce_line({"id": &"sanjaya", "event": &"complete", "text": "Line with a face to make.", "face": expr})
 		face.advance(0.0)
 		var during := face.expression == expr and face.talking and _matches(face, expr)
 		box.skip()
@@ -94,8 +94,8 @@ func test_face_follows_each_line_then_neutral() -> bool:
 		if not (during and held and after):
 			print("        %s: during %s held %s after %s" % [expr, during, held, after])
 			ok = false
-	# Someone else's line leaves Marlo's face alone.
-	bark.announce_line({"id": &"bea", "event": &"complete", "text": "Not Sanjaya.", "face": &"shocked"})
+	# Someone else's line leaves Sanjaya's face alone.
+	bark.announce_line({"id": &"bhima", "event": &"complete", "text": "Not Sanjaya.", "face": &"shocked"})
 	face.advance(0.0)
 	ok = ok and face.expression == CrewFace.REST and not face.talking
 	root.free()
@@ -114,13 +114,13 @@ func test_blinks_on_its_own_rhythm() -> bool:
 	for i in 600:
 		face.advance(0.05)
 		var lid := float(_drawn(face).lid)
-		var want := CharacterPortrait.blinking(hash(&"marlo"), face.time)
+		var want := CharacterPortrait.blinking(hash(&"sanjaya"), face.time)
 		ok = ok and (lid == 0.0) == want
 		if lid == 0.0:
 			shut += 1
 		else:
 			open += 1
-	var own := CharacterPortrait.blinks(hash(&"marlo"), 30.0) != CharacterPortrait.blinks(hash(&"bea"), 30.0)
+	var own := CharacterPortrait.blinks(hash(&"sanjaya"), 30.0) != CharacterPortrait.blinks(hash(&"bhima"), 30.0)
 	root.free()
 	return ok and shut > 0 and open > shut and own
 
@@ -132,10 +132,10 @@ func test_dead_face_never_shows() -> bool:
 	var prop: CrewProp = root.get_node("Zone/Prop")
 	var face := prop.face
 	var alive_shown := face.visible
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	face.advance(0.0)
 	var hidden := not face.visible
-	var none := CrewFace.wear(prop.figure, Roster.character(&"marlo")) == null
+	var none := CrewFace.wear(prop.figure, Roster.character(&"sanjaya")) == null
 	root.free()
 	var again := _rig()
 	(again.get_node("Runner") as JobRunner).begin()

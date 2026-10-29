@@ -1,13 +1,13 @@
 extends RefCounted
 # Story 4.3: search and rescue. Beacon strength follows distance; holding over
-# Ozzie completes; the timer strikes (after a warning) and fails; seeded spot.
+# Sushena completes; the timer strikes (after a warning) and fails; seeded spot.
 
 const Sim = preload("res://tests/sim.gd")
 const SCENE := "res://scenes/jobs/rescue.tscn"
 
 func _scene(seed := 7, seconds := 90.0) -> Node:
 	var scene: Node = load(SCENE).instantiate()
-	scene.get_node("Ozzie").seed = seed
+	scene.get_node("Sushena").seed = seed
 	scene.get_node("RescueTimer").seconds = seconds
 	return Sim.add(scene)
 
@@ -38,12 +38,12 @@ func test_beacon_strength_follows_distance() -> bool:
 	listener.free()
 	return ok
 
-func test_holding_over_ozzie_completes() -> bool:
+func test_holding_over_sushena_completes() -> bool:
 	var scene := _scene()
 	await Sim.process_frames(2)
 	var runner: JobRunner = scene.get_node("JobRunner")
 	var d: Drone = scene.get_node("Drone")
-	var over: Vector3 = scene.get_node("Ozzie/HoldPoint").global_position
+	var over: Vector3 = scene.get_node("Sushena/HoldPoint").global_position
 	await _live(scene)
 	for i in 185:
 		d.freeze = true
@@ -57,7 +57,7 @@ func test_timer_expiry_strikes_and_fails() -> bool:
 	var scene := _scene(7, 3.0)
 	await Sim.process_frames(2)
 	var runner: JobRunner = scene.get_node("JobRunner")
-	var zone: HazardZone = scene.get_node("Ozzie/Zone")
+	var zone: HazardZone = scene.get_node("Sushena/Zone")
 	var log := {"frame": 0, "warned": -1, "struck": -1}
 	zone.warning_started.connect(func(_c): if log.warned < 0: log.warned = log.frame)
 	zone.struck.connect(func(_c, cause): log.struck = log.frame)
@@ -67,7 +67,7 @@ func test_timer_expiry_strikes_and_fails() -> bool:
 		await Sim.physics_frames(1)
 		log.frame += 1
 	var ok: bool = runner.state == JobRunner.State.FAILED and runner.fail_reason == "time ran out" \
-		and runner.result.strikes == {&"ozzie": 1} and log.struck - log.warned >= 60
+		and runner.result.strikes == {&"sushena": 1} and log.struck - log.warned >= 60
 	scene.free()
 	return ok
 
@@ -76,11 +76,11 @@ func test_spot_reproducible_with_seed() -> bool:
 	for seed in [7, 7, 8]:
 		var scene := _scene(seed)
 		await Sim.process_frames(1)
-		spots.append(scene.get_node("Ozzie").global_position)
+		spots.append(scene.get_node("Sushena").global_position)
 		scene.free()
 	return spots[0] == spots[1] and spots[0] != spots[2] and spots[0].distance_to(Vector3.ZERO) >= 50.0
 
-func test_ozzie_is_not_on_the_map() -> bool:
+func test_sushena_is_not_on_the_map() -> bool:
 	var scene := _scene()
 	await Sim.process_frames(2)
 	var kinds := MapMarker.collect(scene).map(func(m): return m.kind)

@@ -39,10 +39,10 @@ func test_a_warning_drops_all_but_drone_and_pulse() -> bool:
 	Career.team_id = &""
 	var job := Job.new()
 	job.countdown = 0.2
-	job.crew_in_field = [&"marlo"] as Array[StringName]
+	job.crew_in_field = [&"sanjaya"] as Array[StringName]
 	var root := Sim.job_setup(job)
 	var zone := HazardZone.new()
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = Vector3(0, 5, -60)
 	await Sim.go_live(root)

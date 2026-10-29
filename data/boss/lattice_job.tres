@@ -16,4 +16,4 @@ pay = 5000
 countdown = 3.0
 default_view = 3
 tags = Array[StringName]([&"lethal"])
-crew_in_field = Array[StringName]([&"marlo", &"bea"])
+crew_in_field = Array[StringName]([&"sanjaya", &"bhima"])

@@ -1,8 +1,8 @@
 extends RefCounted
 # Story 7.1: character roster. The six cast members load and validate; injury,
-# death, and Rin's immunity follow the rules; status survives a save; no revive.
+# death, and Drona's immunity follow the rules; status survives a save; no revive.
 
-const CAST_IDS := [&"pip", &"marlo", &"dot", &"bea", &"ozzie", &"rin"]
+const CAST_IDS := [&"arjuna", &"sanjaya", &"nala", &"bhima", &"sushena", &"drona"]
 
 func _fresh() -> void:
 	SaveGame.write_section("roster", {})
@@ -17,53 +17,53 @@ func test_cast_loads_and_validates() -> bool:
 
 func test_injure_twice_kills() -> bool:
 	_fresh()
-	Roster.injure(&"bea")
-	# One job, not two: Ozzie is fit (Story 19.6).
-	var injured: bool = Roster.status(&"bea") == Roster.Status.INJURED and Roster.jobs_benched(&"bea") == 1
-	Roster.injure(&"bea")
-	var ok := injured and Roster.status(&"bea") == Roster.Status.DEAD and not Roster.is_alive(&"bea")
+	Roster.injure(&"bhima")
+	# One job, not two: Sushena is fit (Story 19.6).
+	var injured: bool = Roster.status(&"bhima") == Roster.Status.INJURED and Roster.jobs_benched(&"bhima") == 1
+	Roster.injure(&"bhima")
+	var ok := injured and Roster.status(&"bhima") == Roster.Status.DEAD and not Roster.is_alive(&"bhima")
 	_fresh()
 	return ok
 
-func test_kill_and_rin_cannot_be_harmed() -> bool:
+func test_kill_and_drona_cannot_be_harmed() -> bool:
 	_fresh()
-	Roster.kill(&"ozzie")
-	Roster.injure(&"rin")
-	Roster.injure(&"rin")
-	Roster.kill(&"rin")
-	var ok: bool = Roster.status(&"ozzie") == Roster.Status.DEAD and Roster.status(&"rin") == Roster.Status.ACTIVE
+	Roster.kill(&"sushena")
+	Roster.injure(&"drona")
+	Roster.injure(&"drona")
+	Roster.kill(&"drona")
+	var ok: bool = Roster.status(&"sushena") == Roster.Status.DEAD and Roster.status(&"drona") == Roster.Status.ACTIVE
 	_fresh()
 	return ok
 
-## Ozzie's own injury takes the full two jobs (Story 19.6).
+## Sushena's own injury takes the full two jobs (Story 19.6).
 func test_injury_heals_after_two_jobs() -> bool:
 	_fresh()
-	Roster.injure(&"ozzie")
+	Roster.injure(&"sushena")
 	Roster.job_done()
-	var one: bool = Roster.status(&"ozzie") == Roster.Status.INJURED and Roster.jobs_benched(&"ozzie") == 1
+	var one: bool = Roster.status(&"sushena") == Roster.Status.INJURED and Roster.jobs_benched(&"sushena") == 1
 	Roster.job_done()
-	var ok := one and Roster.status(&"ozzie") == Roster.Status.ACTIVE
+	var ok := one and Roster.status(&"sushena") == Roster.Status.ACTIVE
 	_fresh()
 	return ok
 
 func test_status_survives_save_and_load() -> bool:
 	_fresh()
-	Roster.injure(&"marlo")
-	Roster.kill(&"bea")
+	Roster.injure(&"sanjaya")
+	Roster.kill(&"bhima")
 	Roster.load_saved()
-	var ok: bool = Roster.status(&"marlo") == Roster.Status.INJURED and Roster.jobs_benched(&"marlo") == Roster.injury_jobs(&"marlo") \
-		and Roster.status(&"bea") == Roster.Status.DEAD and Roster.status(&"dot") == Roster.Status.ACTIVE \
-		and SaveGame.read_section("roster", {}).has("bea")
+	var ok: bool = Roster.status(&"sanjaya") == Roster.Status.INJURED and Roster.jobs_benched(&"sanjaya") == Roster.injury_jobs(&"sanjaya") \
+		and Roster.status(&"bhima") == Roster.Status.DEAD and Roster.status(&"nala") == Roster.Status.ACTIVE \
+		and SaveGame.read_section("roster", {}).has("bhima")
 	_fresh()
 	return ok
 
 func test_death_is_permanent() -> bool:
 	_fresh()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	for i in 3:
 		Roster.job_done()
-	Roster.injure(&"marlo")
-	var ok: bool = Roster.status(&"marlo") == Roster.Status.DEAD
+	Roster.injure(&"sanjaya")
+	var ok: bool = Roster.status(&"sanjaya") == Roster.Status.DEAD
 	for m in Roster.get_method_list():
 		var name := String(m.name)
 		for banned in ["revive", "resurrect", "heal", "set_status", "restore"]:

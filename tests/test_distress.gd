@@ -26,7 +26,7 @@ func _free(parts: Array) -> void:
 func test_each_trouble_event_shows_distress_and_alarm_until_it_ends() -> bool:
 	var ok := true
 	for event in CrewDistress.TROUBLE:
-		var parts := _setup(&"rin")
+		var parts := _setup(&"drona")
 		var face: CharacterPortrait = parts[1]
 		var cd: CrewDistress = parts[2]
 		await Sim.process_frames(1)
@@ -49,7 +49,7 @@ func test_each_trouble_event_shows_distress_and_alarm_until_it_ends() -> bool:
 			ok = false
 		_free(parts)
 	# Events that are not trouble leave the face alone.
-	var parts := _setup(&"rin")
+	var parts := _setup(&"drona")
 	var cd2: CrewDistress = parts[2]
 	await Sim.process_frames(1)
 	for e in [&"takeoff", &"low_pass", &"top_speed", &"long_hover", &"weather_change"]:
@@ -60,7 +60,7 @@ func test_each_trouble_event_shows_distress_and_alarm_until_it_ends() -> bool:
 	return ok
 
 func test_flight_trouble_shows_a_sweat_drop_and_a_shake() -> bool:
-	var parts := _setup(&"dot")
+	var parts := _setup(&"nala")
 	var face: CharacterPortrait = parts[1]
 	var cd: CrewDistress = parts[2]
 	await Sim.process_frames(1)
@@ -87,7 +87,7 @@ func test_flight_trouble_shows_a_sweat_drop_and_a_shake() -> bool:
 	return ok
 
 func test_a_hazard_close_by_is_trouble_while_it_lasts() -> bool:
-	var parts := _setup(&"marlo")
+	var parts := _setup(&"sanjaya")
 	var d: Drone = parts[0]
 	var face: CharacterPortrait = parts[1]
 	var cd: CrewDistress = parts[2]
@@ -111,7 +111,7 @@ func test_a_hazard_close_by_is_trouble_while_it_lasts() -> bool:
 	return ok
 
 func test_a_downed_drone_shows_static_until_it_flies_again() -> bool:
-	var parts := _setup(&"pip")
+	var parts := _setup(&"arjuna")
 	var d: Drone = parts[0]
 	var face: CharacterPortrait = parts[1]
 	var cd: CrewDistress = parts[2]
@@ -149,7 +149,7 @@ func test_a_downed_drone_shows_static_until_it_flies_again() -> bool:
 	return ok
 
 func test_no_alarm_for_the_players_drone() -> bool:
-	var parts := _setup(&"dot")
+	var parts := _setup(&"nala")
 	var d: Drone = parts[0]
 	var cd: CrewDistress = parts[2]
 	var pilot := PilotInput.new()
@@ -177,14 +177,14 @@ func test_no_alarm_for_the_players_drone() -> bool:
 	return ok
 
 func test_the_dead_get_no_distress_static_or_alarm() -> bool:
-	var parts := _setup(&"marlo")
+	var parts := _setup(&"sanjaya")
 	var face: CharacterPortrait = parts[1]
 	var cd: CrewDistress = parts[2]
 	await Sim.process_frames(1)
 	cd.on_event(&"crash")
 	cd.advance(0.01)
 	var ok := face.shows_static()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	Sfx.clear_log()
 	cd.advance(0.01)
 	ok = ok and not face.shows_static() and face.expression != CharacterPortrait.DISTRESS and not cd.alarm_on()
@@ -195,7 +195,7 @@ func test_the_dead_get_no_distress_static_or_alarm() -> bool:
 	ok = ok and Sfx.count(CrewDistress.ALARM) == 0 and not cd.troubled() and not face.shows_static()
 	# Greyed (the roster's dead) never shows static even when told to.
 	var grey := CharacterPortrait.new()
-	grey.character = Roster.character(&"dot")
+	grey.character = Roster.character(&"nala")
 	grey.greyed = true
 	grey.signal_lost = true
 	ok = ok and not grey.shows_static()
@@ -241,7 +241,7 @@ func test_flight_assists_and_grading_untouched() -> bool:
 	var watched := Sim.drone(Sim.intent(0.6, 0.2, 0.1), Vector3(20, 20, 0))
 	var before := _flight_of(watched)
 	var face := CharacterPortrait.new()
-	face.character = Roster.character(&"pip")
+	face.character = Roster.character(&"arjuna")
 	Sim.add(face)
 	var cd := CrewDistress.watch(face, watched)
 	await Sim.process_frames(1)

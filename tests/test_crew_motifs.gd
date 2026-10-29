@@ -37,7 +37,7 @@ func test_every_motif_exists_in_the_act_scores_that_use_it() -> bool:
 	var scores: Dictionary = _manifest().get("scores", {})
 	# The crew have one each, distinct; nobody outside the crew has one.
 	var ok: bool = motifs.size() == 4 and motifs.values().size() == motifs.size()
-	for id in [&"bea", &"dot", &"marlo", &"ozzie"]:
+	for id in [&"bhima", &"nala", &"sanjaya", &"sushena"]:
 		ok = ok and motifs.has(id)
 	for id in Roster.characters:
 		var c: Character = Roster.characters[id]
@@ -83,46 +83,46 @@ func test_active_crew_motifs_play_in_the_live_mix_only() -> bool:
 func test_dead_motif_stays_silent_in_every_later_score_and_after_reload() -> bool:
 	_reset()
 	var sc := _play(2)
-	var ok: bool = Music.level(&"motif_bea") > Music.SILENT_DB
-	# Bea dies mid-score: her line falls away at once, the rest play on.
-	Roster.kill(&"bea")
-	ok = ok and Music.level(&"motif_bea") == Music.SILENT_DB \
-		and is_equal_approx(Music.level(&"motif_dot"), sc.find(&"motif_dot").level_db)
+	var ok: bool = Music.level(&"motif_bhima") > Music.SILENT_DB
+	# Bhima dies mid-score: their line falls away at once, the rest play on.
+	Roster.kill(&"bhima")
+	ok = ok and Music.level(&"motif_bhima") == Music.SILENT_DB \
+		and is_equal_approx(Music.level(&"motif_nala"), sc.find(&"motif_nala").level_db)
 	for n in range(2, 6):
 		for m in [&"live", &"board", &"countdown", &"results"]:
 			_play(n, m)
-			ok = ok and Music.level(&"motif_bea") == Music.SILENT_DB
+			ok = ok and Music.level(&"motif_bhima") == Music.SILENT_DB
 	# Saved and loaded again, and jobs go by: still gone.
 	Roster.load_saved()
 	for i in 5:
 		Roster.job_done()
-	ok = ok and Roster.status(&"bea") == Roster.Status.DEAD
+	ok = ok and Roster.status(&"bhima") == Roster.Status.DEAD
 	for n in range(2, 6):
 		sc = _play(n)
-		ok = ok and Music.level(&"motif_bea") == Music.SILENT_DB \
-			and is_equal_approx(Music.level(&"motif_marlo"), sc.find(&"motif_marlo").level_db)
+		ok = ok and Music.level(&"motif_bhima") == Music.SILENT_DB \
+			and is_equal_approx(Music.level(&"motif_sanjaya"), sc.find(&"motif_sanjaya").level_db)
 	# Nothing in the log ever raised it after the death.
 	for e in Music.log:
-		if e.event == "level" and e.stem == &"motif_bea" and e.db > Music.SILENT_DB:
+		if e.event == "level" and e.stem == &"motif_bhima" and e.db > Music.SILENT_DB:
 			ok = false
 	_reset()
 	return ok
 
 func test_injured_motif_plays_below_its_level() -> bool:
 	_reset()
-	Roster.injure(&"dot")
+	Roster.injure(&"nala")
 	var ok := true
 	for n in range(2, 6):
 		var sc := _play(n)
-		var base: float = sc.find(&"motif_dot").level_db
-		ok = ok and Music.level(&"motif_dot") < base and Music.level(&"motif_dot") > Music.SILENT_DB \
-			and is_equal_approx(Music.level(&"motif_dot"), base - MusicDirector.INJURED_DB) \
-			and is_equal_approx(Music.level(&"motif_ozzie"), sc.find(&"motif_ozzie").level_db)
+		var base: float = sc.find(&"motif_nala").level_db
+		ok = ok and Music.level(&"motif_nala") < base and Music.level(&"motif_nala") > Music.SILENT_DB \
+			and is_equal_approx(Music.level(&"motif_nala"), base - MusicDirector.INJURED_DB) \
+			and is_equal_approx(Music.level(&"motif_sushena"), sc.find(&"motif_sushena").level_db)
 	# Back on their feet after the bench: back to full.
 	var sc5 := MusicDirector.score_for(5)
 	for i in Roster.INJURY_JOBS:
 		Roster.job_done()
-	ok = ok and Roster.status(&"dot") == Roster.Status.ACTIVE \
-		and is_equal_approx(Music.level(&"motif_dot"), sc5.find(&"motif_dot").level_db)
+	ok = ok and Roster.status(&"nala") == Roster.Status.ACTIVE \
+		and is_equal_approx(Music.level(&"motif_nala"), sc5.find(&"motif_nala").level_db)
 	_reset()
 	return ok

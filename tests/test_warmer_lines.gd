@@ -95,11 +95,11 @@ func test_every_you_resolves() -> bool:
 		for e in Bark.EVENTS:
 			for t in Bark.pool(id, e) + Bark.pool(id, e, Roster.Status.INJURED):
 				ok = ok and not t.contains("{") and not t.contains("}")
-	var pool := Bark.pool(&"marlo", &"complete")
+	var pool := Bark.pool(&"sanjaya", &"complete")
 	for i in pool.size():
-		var line := b.say(&"complete", &"marlo")
-		if Bark.lines_of(&"marlo").complete.active.any(func(l): return l is Dictionary and Bark.text_of(l).contains("{you}") \
-				and Bark.fill(Roster.character(&"marlo"), Bark.text_of(l)) == line.text):
+		var line := b.say(&"complete", &"sanjaya")
+		if Bark.lines_of(&"sanjaya").complete.active.any(func(l): return l is Dictionary and Bark.text_of(l).contains("{you}") \
+				and Bark.fill(Roster.character(&"sanjaya"), Bark.text_of(l)) == line.text):
 			ok = ok and line.face == &"happy"
 	b.free()
 	return ok and filled > 100

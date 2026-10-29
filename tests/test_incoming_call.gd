@@ -27,7 +27,7 @@ func _free(box: BarkBox) -> void:
 	box.bark.free()
 	box.free()
 
-func _line(event: StringName, text: String, id := &"marlo") -> Dictionary:
+func _line(event: StringName, text: String, id := &"sanjaya") -> Dictionary:
 	return {"id": id, "event": event, "text": text, "face": &"neutral"}
 
 func _cues() -> Array:
@@ -53,7 +53,7 @@ func test_a_queued_line_rings_when_it_opens_not_when_said() -> bool:
 	_fresh()
 	var box := _radio()
 	var a := _line(&"briefing", "Package is at the yard.")
-	var b := _line(&"order", "On my way.", &"rin")
+	var b := _line(&"order", "On my way.", &"drona")
 	box.bark.said.emit(a)
 	Sfx.clear_log()
 	box.bark.said.emit(b)
@@ -72,11 +72,11 @@ func test_a_replacing_line_replays_the_cue() -> bool:
 	Sfx.clear_log()
 	box.bark.said.emit(_line(&"gate_passed", "Clean gate, keep it up."))
 	await Sim.process_frames(3)
-	box.bark.said.emit(_line(&"warning", "Heads up.", &"dot"))
+	box.bark.said.emit(_line(&"warning", "Heads up.", &"nala"))
 	await Sim.process_frames(3)
-	box.bark.said.emit(_line(&"complete", "That's the job.", &"rin"))
+	box.bark.said.emit(_line(&"complete", "That's the job.", &"drona"))
 	var ids := _cues().map(func(l): return l.id)
-	var ok: bool = ids == [BarkBox.CHIME, BarkBox.ALERT, BarkBox.CHIME] and box.current.id == &"rin"
+	var ok: bool = ids == [BarkBox.CHIME, BarkBox.ALERT, BarkBox.CHIME] and box.current.id == &"drona"
 	if not ok:
 		print("        cues %s" % [ids])
 	_free(box)
@@ -127,10 +127,10 @@ func test_babble_keeps_running_under_the_cue() -> bool:
 	var ids: Array = Sfx.log.map(func(l): return l.id)
 	await Sim.process_frames(5)
 	var ok: bool = ids.size() >= 4 and ids[0] == BarkBox.CHIME and box.typing() \
-		and box.babbling == Roster.character(&"marlo").babble_event() and String(ids.back()).begins_with("babble_")
+		and box.babbling == Roster.character(&"sanjaya").babble_event() and String(ids.back()).begins_with("babble_")
 	# A warning cutting in rings the alert and starts the new speaker's babble.
-	box.bark.said.emit(_line(&"warning", "Heads up.", &"dot"))
-	ok = ok and box.babbling == Roster.character(&"dot").babble_event()
+	box.bark.said.emit(_line(&"warning", "Heads up.", &"nala"))
+	ok = ok and box.babbling == Roster.character(&"nala").babble_event()
 	if not ok:
 		print("        %s, babbling %s" % [ids, box.babbling])
 	_free(box)

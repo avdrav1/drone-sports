@@ -19,7 +19,7 @@ pay = 1200
 countdown = 3.0
 weather = ExtResource("3_weather")
 default_view = 1
-crew_in_field = Array[StringName]([&"bea"])
+crew_in_field = Array[StringName]([&"bhima"])
 weights = {
 "Entry": 1.0,
 "Shaft": 1.0,

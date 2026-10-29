@@ -130,18 +130,18 @@ func test_settings_name_real_assist_properties() -> bool:
 func test_on_a_job_an_edge_changes_only_what_it_lists() -> bool:
 	var ok := true
 	for stack in [ACT1, ACT3]:
-		var base := await _as(&"pip", null, _on_job.bind(stack))
+		var base := await _as(&"arjuna", null, _on_job.bind(stack))
 		for c in PlayerProfile.pilots():
 			ok = ok and _same(await _as(c.id, c.edge, _on_job.bind(stack)), _expected(base, c.edge))
-		var tuned := await _as(&"fen", _test_edge(), _on_job.bind(stack))
+		var tuned := await _as(&"abhimanyu", _test_edge(), _on_job.bind(stack))
 		ok = ok and _same(tuned, _expected(base, _test_edge()))
 		# The governor is on in both acts and takes the setting.
 		ok = ok and is_equal_approx(tuned["speed_governor.max_speed"], 15.0)
 	return ok
 
 func test_an_assist_the_preset_removed_stays_off_and_unchanged() -> bool:
-	var base := await _as(&"pip", null, _on_job.bind(ACT3))
-	var tuned := await _as(&"fen", _test_edge(), _on_job.bind(ACT3))
+	var base := await _as(&"arjuna", null, _on_job.bind(ACT3))
+	var tuned := await _as(&"abhimanyu", _test_edge(), _on_job.bind(ACT3))
 	return not tuned["altitude_hold.enabled"] and not tuned["auto_level.enabled"] \
 		and tuned["altitude_hold.climb_rate"] == base["altitude_hold.climb_rate"] \
 		and tuned["auto_level.max_angle"] == base["auto_level.max_angle"]
@@ -151,8 +151,8 @@ func test_in_free_flight_an_edge_changes_only_what_it_lists() -> bool:
 	# Act 1 (where the career starts), then F2 to Act 3 and on round to Act 1 again:
 	# switching an assist off gives back its own value, switching it on the edge's.
 	for cycles in [0, 2, 5]:
-		var base := await _as(&"pip", null, _in_free_flight.bind(cycles))
-		var tuned := await _as(&"fen", _test_edge(), _in_free_flight.bind(cycles))
+		var base := await _as(&"arjuna", null, _in_free_flight.bind(cycles))
+		var tuned := await _as(&"abhimanyu", _test_edge(), _in_free_flight.bind(cycles))
 		ok = ok and _same(tuned, _expected(base, _test_edge()))
 		ok = ok and tuned["altitude_hold.enabled"] == (cycles != 2)
 	return ok

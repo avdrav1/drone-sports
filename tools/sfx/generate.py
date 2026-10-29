@@ -504,6 +504,11 @@ def crew_chirp_sad():
 # move from the speaker's note (0 most often, so the voice centres on it).
 BABBLE_SYLLABLES = 12
 BABBLE_STEPS = (0, 0, 0, 1, 2, -1, 1, -2)
+# Story 25.2: each voice's seed, as it was baked before the ids were renamed,
+# so a new id keeps the same babble. A character not listed seeds from its id.
+BABBLE_SEEDS = {"arjuna": 1334448272, "drona": 3053582749, "sanjaya": 1730818267, "nala": 93485219,
+                "bhima": 2519533680, "sushena": 155451334, "abhimanyu": 26983741, "jatayu": 1721595500,
+                "hanuman": 3904306691}
 
 
 def characters():
@@ -693,7 +698,8 @@ def main():
     write("bed_intro.wav", bed(1490, (110, 165, 220, 277), 2.0), loop=True)
     write("bed_recruited.wav", bed(1491, (98, 147, 196, 247), 1.2), loop=True)
     for cid, (pitch, rate, vowels) in sorted(characters().items()):
-        write("babble_%s.wav" % cid, babble(pitch, rate, vowels, zlib.crc32(cid.encode())), loop=True)
+        seed = BABBLE_SEEDS.get(cid, zlib.crc32(cid.encode()))
+        write("babble_%s.wav" % cid, babble(pitch, rate, vowels, seed), loop=True)
     write_pitches()
 
 

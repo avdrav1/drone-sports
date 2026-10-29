@@ -246,7 +246,7 @@ func test_pad_walk_from_the_title_to_a_job_and_back() -> bool:
 ## Opens the board and backs out of each page and dialog with `back`, noting
 ## where it lands each time.
 func _back_out(back: Callable) -> Array:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	Sim.tree().change_scene_to_file(BOARD)
 	await Sim.process_frames(3)
 	var b: JobBoard = _scene()
@@ -296,7 +296,7 @@ func _job(path: String) -> JobRunner:
 	return runner
 
 func test_b_answers_the_crew_risk_and_leave_dialogs_as_esc_does() -> bool:
-	Roster.injure(&"marlo")
+	Roster.injure(&"sanjaya")
 	var ok := true
 	for back in [func(): await _key(KEY_ESCAPE), func(): await _pad(JOY_BUTTON_B)]:
 		# Crew at risk: backing out is focused, and B backs out to the board.
@@ -324,7 +324,7 @@ func test_b_answers_the_crew_risk_and_leave_dialogs_as_esc_does() -> bool:
 	return ok
 
 func test_offer_dialog_takes_the_pad() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var team: Team = Career.teams.teams[0]
 	var ok := true
 	# A answers Join on the focused button; B declines, as Esc does.
@@ -356,7 +356,7 @@ func _held(seconds: float) -> void:
 	await Sim.process_frames(1)
 
 func test_held_stick_moves_one_item_then_repeats() -> bool:
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = (load(BOARD) as PackedScene).instantiate()
 	Sim.add(b)
 	await Sim.process_frames(2)

@@ -55,7 +55,7 @@ const DRONE := preload("res://scenes/drone/drone.tscn")
 @export var camera_rig: CameraRig
 @export var bark: Bark
 ## Who calls the turns, and who takes a strike when they cannot.
-@export var callers: Array[StringName] = [&"marlo", &"bea"]
+@export var callers: Array[StringName] = [&"sanjaya", &"bhima"]
 ## Within this of the shell the calling crew member's warning runs, m.
 @export var warn_distance := 2.5
 ## The drone's own size against the shell, m.
@@ -342,15 +342,15 @@ func _trench_step(delta: float) -> void:
 
 ## Sanjaya's call at a waypoint, while Sanjaya is alive to make it.
 func _call(index: int) -> void:
-	if not Roster.is_alive(&"marlo"):
+	if not Roster.is_alive(&"sanjaya"):
 		return
-	var lines: Array = Bark.lines_of(&"marlo").get("trench", {}).get("active", [])
+	var lines: Array = Bark.lines_of(&"sanjaya").get("trench", {}).get("active", [])
 	if lines.is_empty():
 		return
 	var text := Bark.text_of(lines[mini(index, lines.size() - 1)])
 	called.emit(index, text)
 	if bark:
-		bark.spoke.emit(&"marlo", &"trench", text)
+		bark.spoke.emit(&"sanjaya", &"trench", text)
 
 # --- Phase 3: override -----------------------------------------------------
 

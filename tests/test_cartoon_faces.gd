@@ -67,15 +67,15 @@ func test_every_character_draws_at_32_64_128() -> bool:
 func test_dead_face_shut_no_blush_no_shine() -> bool:
 	_fresh()
 	var p := CharacterPortrait.new()
-	p.character = Roster.character(&"marlo")
+	p.character = Roster.character(&"sanjaya")
 	p.expression = &"happy"
 	var alive: bool = p.shows_shine() and float(p.current_pose().blush) > 0.0
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var dead := p.current_pose()
 	var ok: bool = alive and p.is_dead() and float(dead.lid) == 0.0 and float(dead.blush) == 0.0 and not p.shows_shine()
 	ok = ok and float(dead.mouth_curve) == 0.0 and float(dead.mouth_open) == 0.0
 	var greyed := CharacterPortrait.new()
-	greyed.character = Roster.character(&"dot")
+	greyed.character = Roster.character(&"nala")
 	greyed.greyed = true
 	for e in CharacterPortrait.EXPRESSIONS:
 		# The dead never emote: whatever the expression, a shut, flat face.

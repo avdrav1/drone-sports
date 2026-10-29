@@ -166,7 +166,7 @@ func test_expo_and_deadzone_reach_pilot_input_and_input_map() -> bool:
 
 func test_section_works_by_pad() -> bool:
 	_defaults()
-	PlayerProfile.choose_pilot(&"pip")
+	PlayerProfile.choose_pilot(&"arjuna")
 	var b: JobBoard = load(BOARD).instantiate()
 	Sim.add(b)
 	await Sim.process_frames(1)

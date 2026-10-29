@@ -33,12 +33,12 @@ func test_fleet_size_is_living_flying_crew() -> bool:
 	var full := _flyers()
 	ok = ok and sizes == [full, full]
 	# A dead crew member is one fewer drone, everywhere.
-	Roster.kill(&"dot")
+	Roster.kill(&"nala")
 	for path in SCENES:
 		var s := _job(path)
 		var view: CommandView = s.get_node("CommandView")
 		ok = ok and view.drones.size() == full - 1 and view.drones.size() == _flyers() \
-			and not view.pilots.values().any(func(c): return c.id == &"dot")
+			and not view.pilots.values().any(func(c): return c.id == &"nala")
 		if path.ends_with("fleet_race.tscn"):
 			ok = ok and (s.get_node("Relay") as Relay).drones == view.drones
 		ok = ok and (s.get_node("JobRunner") as JobRunner).drone == view.drones[0]

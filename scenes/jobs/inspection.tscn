@@ -435,20 +435,20 @@ kind = &"structure"
 label = "Relay tower"
 icon = &"square"
 
-[node name="MarloZone" type="Area3D" parent="."]
+[node name="SanjayaZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 13, -40)
 script = ExtResource("21_zone")
-character = &"marlo"
+character = &"sanjaya"
 
-[node name="Shape" type="CollisionShape3D" parent="MarloZone"]
+[node name="Shape" type="CollisionShape3D" parent="SanjayaZone"]
 shape = SubResource("zone_shape")
 
-[node name="Marlo" type="Node3D" parent="MarloZone"]
+[node name="Sanjaya" type="Node3D" parent="SanjayaZone"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
 script = ExtResource("22_crew")
-character = &"marlo"
+character = &"sanjaya"
 
-[node name="MapMarker" type="Node3D" parent="MarloZone"]
+[node name="MapMarker" type="Node3D" parent="SanjayaZone"]
 script = ExtResource("15_marker")
 kind = &"crew"
 label = "Sanjaya"

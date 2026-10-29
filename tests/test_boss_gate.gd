@@ -34,7 +34,7 @@ func _cached_boss_scenes() -> Array:
 
 func test_shipped_data_is_the_flag() -> bool:
 	var b: Boss = load(BossGate.DATA)
-	return b.enabled and b.required_characters == [&"marlo"] and b.min_fleet == 2 \
+	return b.enabled and b.required_characters == [&"sanjaya"] and b.min_fleet == 2 \
 		and b.job.tags.has(&"lethal") and b.chorus.ends_with("lattice.json") and b.hold_time > 0.0
 
 func test_disabled_never_listed_or_loaded() -> bool:
@@ -58,8 +58,8 @@ func test_unmet_requirements_show_why() -> bool:
 	var first: String = row.get_node("Locked").text if row and row.has_node("Locked") else ""
 	b.free()
 	Career.job_completed(&"fleet_race")
-	Roster.kill(&"marlo")
-	for id in [&"dot", &"ozzie"]:
+	Roster.kill(&"sanjaya")
+	for id in [&"nala", &"sushena"]:
 		Roster.kill(id)
 	b = _board()
 	await Sim.process_frames(1)

@@ -22,5 +22,5 @@ weights = {
 "UnderTime": 1.0
 }
 guidance = 2
-crew_in_field = Array[StringName]([&"ozzie"])
+crew_in_field = Array[StringName]([&"sushena"])
 weather = ExtResource("3_weather")

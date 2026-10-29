@@ -113,7 +113,7 @@ func test_a_figure_builds_from_every_look() -> bool:
 	return ok
 
 func test_figure_stands_at_its_height() -> bool:
-	var c: Character = load("res://data/characters/bea.tres")
+	var c: Character = load("res://data/characters/bhima.tres")
 	var a := CrewFigure.build(c.look, 1.75)
 	var b := CrewFigure.build(c.look, 3.5)
 	var ok: bool = is_equal_approx(b.get_node("Body").scale.x, a.get_node("Body").scale.x * 2.0) \

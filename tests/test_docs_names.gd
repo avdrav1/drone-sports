@@ -1,8 +1,8 @@
 extends RefCounted
 # Story 25.4: the docs and the rules use the new cast and Ravana. No .md file
 # outside the backlog names a character by an old name or calls the boss the
-# Lattice, outside `code` spans (ids, paths and class names keep their spelling
-# until Story 25.2). CLAUDE.md rule 9 names Ravana and keeps the boss
+# Lattice, outside `code` spans (paths and class names such as `lattice.tres`
+# keep their spelling). CLAUDE.md rule 9 names Ravana and keeps the boss
 # disable-only, and the docs give the cast no he or she.
 
 const NAMES = preload("res://tests/test_new_names.gd")
@@ -47,9 +47,9 @@ func test_no_doc_uses_an_old_name() -> bool:
 
 ## The scan reads past code spans and still catches names in prose.
 func test_the_scan_skips_code_and_catches_names() -> bool:
-	return not NAMES.has_old_name(prose("| `marlo` | Sanjaya | Spotter |")) \
+	return not NAMES.has_old_name(prose("| `sanjaya` | Sanjaya | Spotter |")) \
 		and not has_lattice(prose("`data/boss/lattice.tres` has `enabled`")) \
-		and NAMES.has_old_name(prose("Marlo and `bea` are in the field")) \
+		and NAMES.has_old_name(prose("%s and `bhima` are in the field" % NAMES.old_name("sanjaya"))) \
 		and has_lattice(prose("the job board shows the Lattice"))
 
 func test_the_cast_doc_names_everyone() -> bool:

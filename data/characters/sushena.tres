@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/gentle.tres" id="2_style"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
-[ext_resource type="Resource" path="res://data/crew/looks/ozzie.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/crew/looks/sushena.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -13,14 +13,14 @@ name = "quick patch-ups"
 
 [resource]
 script = ExtResource("1_char")
-id = &"ozzie"
+id = &"sushena"
 name = "Sushena"
 role = "Medic"
 named_for = "Named for the healer who sent for the life-giving herb"
 look = ExtResource("9_look")
 shape = &"ears"
 colors = PackedColorArray(0.4, 0.58, 0.92, 1, 0.95, 0.97, 1, 1)
-lines = "res://data/dialogue/ozzie.json"
+lines = "res://data/dialogue/sushena.json"
 speaks_on = Array[StringName]([&"weather_change"])
 calls_you = PackedStringArray("buddy", "friend", "pal")
 chirp_pitch = 0.9375
@@ -28,7 +28,7 @@ babble_pitch = 0.9375
 babble_rate = 7.0
 babble_vowels = PackedStringArray("oo", "mm", "ah")
 bounce = Vector2(0.65,0.17)
-motif = &"motif_ozzie"
+motif = &"motif_sushena"
 death_consequence = &"city_locked"
 can_be_harmed = true
 tags = Array[StringName]([&"can_fly"])

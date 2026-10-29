@@ -5,11 +5,11 @@ extends RefCounted
 
 ## The epic table: id -> [kind, amount].
 const TABLE := {
-	&"rin": [&"reputation", 0.25],
-	&"marlo": [&"guidance", 1.0],
-	&"dot": [&"price", 0.2],
-	&"bea": [&"pay", 0.15],
-	&"ozzie": [&"recovery", 1.0],
+	&"drona": [&"reputation", 0.25],
+	&"sanjaya": [&"guidance", 1.0],
+	&"nala": [&"price", 0.2],
+	&"bhima": [&"pay", 0.15],
+	&"sushena": [&"recovery", 1.0],
 }
 
 func test_perks_round_trip_from_data() -> bool:
@@ -27,12 +27,12 @@ func test_perks_round_trip_from_data() -> bool:
 
 func test_on_while_active_off_while_benched_gone_once_dead() -> bool:
 	var active := is_equal_approx(Perks.amount(&"pay"), 0.15)
-	Roster.injure(&"bea")
+	Roster.injure(&"bhima")
 	var benched := Perks.amount(&"pay") == 0.0
 	Roster.job_done()
 	Roster.job_done()
 	var back := is_equal_approx(Perks.amount(&"pay"), 0.15)
-	Roster.kill(&"bea")
+	Roster.kill(&"bhima")
 	var dead := Perks.amount(&"pay") == 0.0
 	Roster.job_done()
 	Roster.job_done()
@@ -43,20 +43,20 @@ func test_on_while_active_off_while_benched_gone_once_dead() -> bool:
 	return active and benched and back and dead and still_dead and others
 
 func test_same_kind_adds_up() -> bool:
-	var dot: Character = Roster.character(&"dot")
-	var own := dot.perk
+	var nala: Character = Roster.character(&"nala")
+	var own := nala.perk
 	var stand_in := CrewPerk.new()
 	stand_in.kind = &"pay"
 	stand_in.amount = 0.1
-	dot.perk = stand_in
+	nala.perk = stand_in
 	var both := is_equal_approx(Perks.amount(&"pay"), 0.25) and Perks.owners(&"pay").size() == 2
-	Roster.injure(&"bea")
+	Roster.injure(&"bhima")
 	var one := is_equal_approx(Perks.amount(&"pay"), 0.1)
-	dot.perk = own
+	nala.perk = own
 	return both and one and Perks.amount(&"unknown") == 0.0
 
 func test_bad_perk_fails_validation() -> bool:
-	var c: Character = Roster.character(&"bea").duplicate()
+	var c: Character = Roster.character(&"bhima").duplicate()
 	var p := CrewPerk.new()
 	p.kind = &"luck"
 	p.amount = 0.5

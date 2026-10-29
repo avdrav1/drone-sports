@@ -1,6 +1,6 @@
 extends RefCounted
-# Story 19.5: pay, reputation, and prices. Bea's site rates add 15 percent to a
-# job's pay, Rin's good word 25 percent to reputation gains, and Dot's trade
+# Story 19.5: pay, reputation, and prices. Bhima's site rates add 15 percent to a
+# job's pay, Drona's good word 25 percent to reputation gains, and Nala's trade
 # prices take 20 percent off every Garage price, each only while fit. The
 # results screen names each bonus.
 
@@ -19,46 +19,46 @@ func _settle(letter := "A") -> JobResult:
 	Wallet.save()
 	return r
 
-func _without_rin(f: Callable):
-	var rin: Character = Roster.character(&"rin")
-	var perk := rin.perk
-	rin.perk = null
+func _without_drona(f: Callable):
+	var drona: Character = Roster.character(&"drona")
+	var perk := drona.perk
+	drona.perk = null
 	var out = f.call()
-	rin.perk = perk
+	drona.perk = perk
 	return out
 
-func test_bea_fit_pays_15_percent_more() -> bool:
+func test_bhima_fit_pays_15_percent_more() -> bool:
 	var fit := _settle()
 	var named := fit.bonuses.any(func(b): return b.text == "Bhima's site rates" and b.amount == 150)
-	Roster.injure(&"bea")
+	Roster.injure(&"bhima")
 	var benched := _settle()
-	Roster.kill(&"bea")
+	Roster.kill(&"bhima")
 	var dead := _settle()
 	return fit.pay == 1150 and named and benched.pay == 1000 and dead.pay == 1000 \
 		and benched.bonuses.all(func(b): return b.unit != "")
 
-func test_rin_fit_raises_reputation_gains_by_25_percent() -> bool:
-	var with_rin := _settle("A")
-	var without: JobResult = _without_rin(func(): return _settle("A"))
+func test_drona_fit_raises_reputation_gains_by_25_percent() -> bool:
+	var with_drona := _settle("A")
+	var without: JobResult = _without_drona(func(): return _settle("A"))
 	var b_grade := _settle("B")
 	var loss := _settle("F")
-	return without.reputation_change == 10 and with_rin.reputation_change == 13 \
+	return without.reputation_change == 10 and with_drona.reputation_change == 13 \
 		and b_grade.reputation_change == 6 + roundi(6 * 0.25) \
 		and loss.reputation_change == -5 and loss.bonuses.is_empty() \
-		and with_rin.bonuses.any(func(b): return b.text == "Drona's good word" and b.unit == " reputation")
+		and with_drona.bonuses.any(func(b): return b.text == "Drona's good word" and b.unit == " reputation")
 
-func test_dot_fit_takes_20_percent_off_every_price() -> bool:
+func test_nala_fit_takes_20_percent_off_every_price() -> bool:
 	var fit := true
 	for u in Garage.upgrades.upgrades:
 		fit = fit and Garage.price(u.id) == roundi(u.prices[0] * 0.8)
-	Roster.injure(&"dot")
+	Roster.injure(&"nala")
 	var benched := true
 	for u in Garage.upgrades.upgrades:
 		benched = benched and Garage.price(u.id) == u.prices[0]
 	return fit and benched
 
-func test_after_dot_dies_prices_follow_the_closed_then_markup_rule() -> bool:
-	Roster.kill(&"dot")
+func test_after_nala_dies_prices_follow_the_closed_then_markup_rule() -> bool:
+	Roster.kill(&"nala")
 	var closed := Consequences.shop_closed_jobs() == 3
 	for i in 3:
 		Roster.job_done()

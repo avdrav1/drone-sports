@@ -39,7 +39,7 @@ func test_relaunch_restores_the_board_exactly() -> bool:
 	Career.accept(&"skyline_juniors")
 	Career.job_completed(&"test_race")
 	Career.job_completed(&"test_race")
-	Roster.injure(&"dot")
+	Roster.injure(&"nala")
 	GameSettings.expert_all_assists_off = true
 	GameSettings.save()
 	var before := _snapshot()

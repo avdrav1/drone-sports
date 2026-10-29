@@ -423,30 +423,30 @@ def act_2():
 # Story 16.10: crew motifs. Each crew member's voice in the score, a stem named
 # by their Character.motif (data/characters/), in every act score from the
 # tryout on (MOTIF_ACTS), at MOTIF_DB. Stem id -> the instrument that plays it.
-MOTIFS = {"motif_bea": "reed", "motif_dot": "frame_drum", "motif_marlo": "tanpura", "motif_ozzie": "voice"}
+MOTIFS = {"motif_bhima": "reed", "motif_nala": "frame_drum", "motif_sanjaya": "tanpura", "motif_sushena": "voice"}
 MOTIF_ACTS = ("act_2", "act_3", "act_4", "act_5")
 MOTIF_DB = -13.0
 
 
 def motifs(tempo, bars, seed):
-    """Each MOTIFS stem, once per half of the hook: Bea's harmonium line rising
-    into the half's last bar, Dot's frame drum fill over its last two beats,
-    Marlo's high plucked look-out call in its second bar, and Ozzie humming
+    """Each MOTIFS stem, once per half of the hook: Bhima's harmonium line rising
+    into the half's last bar, Nala's frame drum fill over its last two beats,
+    Sanjaya's high plucked look-out call in its second bar, and Sushena humming
     "mm" on the third under its third bar. {stem id: samples}."""
     n = bar_samples(tempo, bars)
     t = {k: instruments.Track(n, tempo) for k in MOTIFS}
-    beat = t["motif_bea"].seconds(1)
+    beat = t["motif_bhima"].seconds(1)
     for half in range(bars * BEATS_PER_BAR // 16):
         b = half * 16
         sd = seed + half * 40
         for k, (at, d, beats) in enumerate(((12, 3, 1), (13, 5, 1), (14, 6, 2))):
-            t["motif_bea"].add(b + at, instruments.reed(key.hz(d, 1), beats * beat * 0.95, sd + k), 0.5)
+            t["motif_bhima"].add(b + at, instruments.reed(key.hz(d, 1), beats * beat * 0.95, sd + k), 0.5)
         for k in range(8):
             f = 520 if k % 2 else key.hz(1, -1)
-            t["motif_dot"].add(b + 14 + k * 0.25, instruments.frame_drum(f, seed=sd + 10 + k), 0.5 + 0.06 * k)
+            t["motif_nala"].add(b + 14 + k * 0.25, instruments.frame_drum(f, seed=sd + 10 + k), 0.5 + 0.06 * k)
         for k, (at, d) in enumerate(((4, 8), (4.5, 6), (5, 5), (6, 8))):
-            t["motif_marlo"].add(b + at, instruments.tanpura(key.hz(d, 1), beat, sd + 20 + k), 0.6)
-        t["motif_ozzie"].add(b + 8, instruments.voice(key.hz(3, 0), 3 * beat * 0.95, "mm", sd + 30), 0.6)
+            t["motif_sanjaya"].add(b + at, instruments.tanpura(key.hz(d, 1), beat, sd + 20 + k), 0.6)
+        t["motif_sushena"].add(b + 8, instruments.voice(key.hz(3, 0), 3 * beat * 0.95, "mm", sd + 30), 0.6)
     return {k: t[k].buf for k in MOTIFS}
 
 

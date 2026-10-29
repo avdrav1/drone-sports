@@ -7,7 +7,7 @@ extends Resource
 ## The boss job. Its scene is a path, so loading this never loads the scene.
 @export var job: Job
 ## Crew who must be alive to attempt it.
-@export var required_characters: Array[StringName] = [&"marlo"]
+@export var required_characters: Array[StringName] = [&"sanjaya"]
 ## A job that must be completed first: the fleet final, so the Lattice ends Act 5.
 @export var after_job: StringName = &"fleet_race"
 ## Living crew tagged can_fly needed for the fleet phase.

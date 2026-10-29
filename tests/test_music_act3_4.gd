@@ -7,7 +7,7 @@ const SCORES := {3: "res://data/music/act_3.tres", 4: "res://data/music/act_4.tr
 ## A team of each act, to put the career there.
 const TEAMS := {3: &"cannery_row", 4: &"halcyon_racing"}
 const STEMS := [&"drone", &"reed", &"pluck", &"frame_drum", &"cymbals", &"mantra_voice", &"pulse",
-	&"motif_bea", &"motif_dot", &"motif_marlo", &"motif_ozzie"]
+	&"motif_bhima", &"motif_nala", &"motif_sanjaya", &"motif_sushena"]
 ## Story 21.3: Act 3 also keeps the song's hats on a shaker, which Act 4 drops,
 ## so each act has fewer stems than the last.
 const EXTRA := {3: [&"shaker"], 4: []}

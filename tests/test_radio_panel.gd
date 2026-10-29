@@ -19,7 +19,7 @@ func _free(box: BarkBox) -> void:
 	box.bark.free()
 	box.free()
 
-func _line(event: StringName, text: String, id := &"marlo") -> Dictionary:
+func _line(event: StringName, text: String, id := &"sanjaya") -> Dictionary:
 	return {"id": id, "event": event, "text": text, "face": &"neutral"}
 
 ## Frames until `box` shows a line other than `line`, up to `limit`.
@@ -36,15 +36,15 @@ func test_warning_replaces_chatter_at_once() -> bool:
 	box.bark.said.emit(chat)
 	await Sim.process_frames(2)
 	var chatting: bool = box.current == chat and box.typing()
-	box.bark.said.emit(_line(&"warning", "Heads up!", &"dot"))
-	var ok: bool = chatting and box.current.event == &"warning" and box.current.id == &"dot" and box.typing()
+	box.bark.said.emit(_line(&"warning", "Heads up!", &"nala"))
+	var ok: bool = chatting and box.current.event == &"warning" and box.current.id == &"nala" and box.typing()
 	_free(box)
 	return ok
 
 func test_two_chatter_lines_play_one_after_the_other() -> bool:
 	var box := _radio(0.0)
 	var a := _line(&"gate_passed", "One.")
-	var b := _line(&"gate_passed", "Two.", &"rin")
+	var b := _line(&"gate_passed", "Two.", &"drona")
 	box.bark.said.emit(a)
 	box.bark.said.emit(b)
 	var first: bool = box.current == a and box.queue.size() == 1
@@ -59,7 +59,7 @@ func test_two_chatter_lines_play_one_after_the_other() -> bool:
 func test_stale_chatter_is_dropped() -> bool:
 	var box := _radio(6.0)
 	var a := _line(&"gate_passed", "One.")
-	var b := _line(&"gate_passed", "Two.", &"rin")
+	var b := _line(&"gate_passed", "Two.", &"drona")
 	box.bark.said.emit(a)
 	box.bark.said.emit(b)
 	var heard := [box.current]
@@ -93,7 +93,7 @@ func test_chatter_keeps_its_gap() -> bool:
 func test_other_lines_wait_their_turn() -> bool:
 	var box := _radio()
 	var brief := _line(&"briefing", "Package is at the yard, take it slow.")
-	var order := _line(&"order", "On my way.", &"bea")
+	var order := _line(&"order", "On my way.", &"bhima")
 	box.bark.said.emit(brief)
 	box.bark.said.emit(order)
 	var waiting: bool = box.current == brief and box.queue.size() == 1
@@ -106,11 +106,11 @@ func test_line_opens_with_static_chirp_face_and_role() -> bool:
 	SaveGame.write_section("roster", {})
 	Roster.load_saved()
 	var box := _radio()
-	var saved: Dictionary = Bark.lines_of(&"marlo")
-	Bark._cache[&"marlo"] = JSON.parse_string('{"briefing": {"active": [{"text": "Grim line.", "face": "worried"}]}}')
+	var saved: Dictionary = Bark.lines_of(&"sanjaya")
+	Bark._cache[&"sanjaya"] = JSON.parse_string('{"briefing": {"active": [{"text": "Grim line.", "face": "worried"}]}}')
 	Sfx.clear_log()
-	var said := box.bark.say(&"briefing", &"marlo")
-	Bark._cache[&"marlo"] = saved
+	var said := box.bark.say(&"briefing", &"sanjaya")
+	Bark._cache[&"sanjaya"] = saved
 	var chirps := Sfx.log.filter(func(l): return String(l.id).begins_with("crew_chirp"))
 	var ok: bool = box.current == said and box.portrait.expression == &"worried" \
 		and box.portrait.size.x >= 72 and Sfx.count(&"radio_static") == 1 and chirps.size() == 1 \
@@ -119,7 +119,7 @@ func test_line_opens_with_static_chirp_face_and_role() -> bool:
 		and box.label.text == "Grim line."
 	# A queued line chirps when it opens, not when it is said.
 	Sfx.clear_log()
-	box.bark.say(&"briefing", &"rin")
+	box.bark.say(&"briefing", &"drona")
 	ok = ok and Sfx.log.filter(func(l): return String(l.id).begins_with("crew_chirp")).is_empty() and Sfx.count(&"radio_static") == 0
 	_free(box)
 	return ok

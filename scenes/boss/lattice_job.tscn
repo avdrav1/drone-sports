@@ -129,16 +129,16 @@ fight = NodePath("../../Fight")
 label = "Ravana is down"
 ends_job = true
 
-[node name="MarloZone" type="Area3D" parent="."]
+[node name="SanjayaZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 37, -32.5)
 script = ExtResource("22_zone")
-character = &"marlo"
+character = &"sanjaya"
 radius = 1.5
 
-[node name="BeaZone" type="Area3D" parent="."]
+[node name="BhimaZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.6, 39.5, 43.6)
 script = ExtResource("22_zone")
-character = &"bea"
+character = &"bhima"
 radius = 1.5
 
 [node name="Fight" type="Node" parent="." node_paths=PackedStringArray("runner", "lattice", "command", "defenders", "camera_rig", "bark", "override")]

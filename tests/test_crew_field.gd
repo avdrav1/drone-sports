@@ -9,24 +9,24 @@ const Sim = preload("res://tests/sim.gd")
 const JOBS := ["res://scenes/jobs/inspection.tscn", "res://scenes/jobs/rescue.tscn", "res://scenes/jobs/demolition.tscn"]
 const ZONE_AT := Vector3(0, 0, -30)
 
-## A job rig with Marlo standing in a zone, and the drone parked far off and
+## A job rig with Sanjaya standing in a zone, and the drone parked far off and
 ## frozen unless `fly` is set.
 func _rig(fly := false, with_prop := true) -> Node:
 	var job := Job.new()
-	job.crew_in_field = [&"marlo"]
+	job.crew_in_field = [&"sanjaya"]
 	var root := Sim.job_setup(job)
 	var runner: JobRunner = root.get_node("Runner")
 	runner.results_scene = null
 	runner.back_scene = ""
 	var zone := HazardZone.new()
 	zone.name = "Zone"
-	zone.character = &"marlo"
+	zone.character = &"sanjaya"
 	root.add_child(zone)
 	zone.global_position = ZONE_AT
 	if with_prop:
 		var prop := CrewProp.new()
 		prop.name = "Prop"
-		prop.character = &"marlo"
+		prop.character = &"sanjaya"
 		zone.add_child(prop)
 	if not fly:
 		var d: Drone = root.get_node("Drone")
@@ -123,7 +123,7 @@ func test_hurt_after_strike() -> bool:
 ## A strike that kills leaves no figure: it never sits down and is gone from the job.
 func _killing_strike(lethal: bool, injured_first: bool) -> bool:
 	if injured_first:
-		Roster.injure(&"marlo")
+		Roster.injure(&"sanjaya")
 	var root := _rig()
 	var runner: JobRunner = root.get_node("Runner")
 	runner.confirm_risk = false
@@ -138,7 +138,7 @@ func _killing_strike(lethal: bool, injured_first: bool) -> bool:
 		await Sim.physics_frames(1)
 	runner.crew_struck.connect(func(_id: StringName, _b: Roster.Status) -> void: actions.append(prop.action()))
 	var struck := zone.strike(&"timer")
-	var dead := not Roster.is_alive(&"marlo")
+	var dead := not Roster.is_alive(&"sanjaya")
 	var hidden := not prop.visible
 	await Sim.physics_frames(30)
 	var gone := not is_instance_valid(prop) and root.find_children("*", "CrewProp", true, false).is_empty()
@@ -195,7 +195,7 @@ func test_never_changes_the_drone() -> bool:
 		and with[2].is_equal_approx(without[2])
 
 func test_dead_character_prop_never_spawns() -> bool:
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var root := _rig()
 	var runner: JobRunner = root.get_node("Runner")
 	runner.begin()

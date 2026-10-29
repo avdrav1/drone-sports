@@ -6,7 +6,7 @@ extends RefCounted
 
 const DEFAULT_HANDLE := "ARJUNA_07"
 const PILOTS := "res://data/characters/pilots.tres"
-const DEFAULT_PILOT := &"pip"
+const DEFAULT_PILOT := &"arjuna"
 
 static func handle() -> String:
 	return _profile().get("handle", DEFAULT_HANDLE)

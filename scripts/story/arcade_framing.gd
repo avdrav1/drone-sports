@@ -10,7 +10,7 @@ extends Resource
 ## Fake leaderboard: handle -> race time in seconds.
 @export var leaderboard := {}
 ## Character id of the scout, and the name shown until characters are data (Epic 7).
-@export var scout_id: StringName = &"rin"
+@export var scout_id: StringName = &"drona"
 @export var scout_name := ""
 @export_multiline var scout_line := ""
 ## Story flag set when the scout message fires.

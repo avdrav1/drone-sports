@@ -18,15 +18,15 @@ func _bark(seed := 1) -> Bark:
 
 func test_string_and_object_lines_load() -> bool:
 	_fresh()
-	var saved: Dictionary = Bark.lines_of(&"marlo")
-	Bark._cache[&"marlo"] = JSON.parse_string('{"briefing": {"active": ["Plain line.", {"text": "Grim line.", "face": "worried"}, {"text": "Odd line.", "face": "smug"}]}}')
-	var pool := Bark.pool(&"marlo", &"briefing")
+	var saved: Dictionary = Bark.lines_of(&"sanjaya")
+	Bark._cache[&"sanjaya"] = JSON.parse_string('{"briefing": {"active": ["Plain line.", {"text": "Grim line.", "face": "worried"}, {"text": "Odd line.", "face": "smug"}]}}')
+	var pool := Bark.pool(&"sanjaya", &"briefing")
 	var b := _bark()
 	var said := {}
 	for i in 3:
-		var l := b.say(&"briefing", &"marlo")
+		var l := b.say(&"briefing", &"sanjaya")
 		said[l.get("text", "")] = l.get("face", &"")
-	Bark._cache[&"marlo"] = saved
+	Bark._cache[&"sanjaya"] = saved
 	b.free()
 	return pool == ["Plain line.", "Grim line.", "Odd line."] \
 		and said == {"Plain line.": &"determined", "Grim line.": &"worried", "Odd line.": &"determined"}
@@ -38,8 +38,8 @@ func test_default_face_per_event() -> bool:
 	var ok := true
 	for e in want:
 		var b := _bark()
-		var l := b.say(e, &"marlo")
-		ok = ok and l.get("face") == want[e] and Bark.face_of(&"marlo", e, l.text) == want[e]
+		var l := b.say(e, &"sanjaya")
+		ok = ok and l.get("face") == want[e] and Bark.face_of(&"sanjaya", e, l.text) == want[e]
 		b.free()
 	return ok
 
@@ -50,7 +50,7 @@ func test_box_talks_while_typing_then_holds() -> bool:
 	box.bark = b
 	Sim.add(box)
 	var text := "Forty characters of radio chatter, okay."
-	b.spoke.emit(&"marlo", &"fail", text)
+	b.spoke.emit(&"sanjaya", &"fail", text)
 	await Sim.process_frames(2)
 	var early: bool = box.typing() and box.portrait.talking and box.portrait.expression == &"sad" \
 		and box.label.visible_characters >= 0 and box.label.visible_characters < box.label.text.length()
@@ -71,7 +71,7 @@ func test_box_talks_while_typing_then_holds() -> bool:
 
 func test_results_row_shows_face() -> bool:
 	_fresh()
-	var row := Results.bark_row({"id": &"marlo", "event": &"results", "text": "Fine.", "face": &"worried"})
+	var row := Results.bark_row({"id": &"sanjaya", "event": &"results", "text": "Fine.", "face": &"worried"})
 	var face := row.get_child(0) as CharacterPortrait
 	var ok: bool = face.expression == &"worried"
 	row.free()

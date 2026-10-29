@@ -38,7 +38,7 @@ func _finish(dead: Array) -> Array:
 	return [s, results[0] if not results.is_empty() else null]
 
 func test_living_crews_drones_come_home_the_dead_stay_gone() -> bool:
-	var out := await _finish([&"dot"])
+	var out := await _finish([&"nala"])
 	var s: Node = out[0]
 	var r: JobResult = out[1]
 	var fight: LatticeFight = s.get_node("Fight")
@@ -50,22 +50,22 @@ func test_living_crews_drones_come_home_the_dead_stay_gone() -> bool:
 			ok = ok and d != null and d in view.drones and view.pilots.get(d) == Roster.character(id)
 		else:
 			ok = ok and not fight.returned.has(id)
-	ok = ok and fight.returned.size() == FleetCrew.flyers().size() and not fight.returned.has(&"dot")
+	ok = ok and fight.returned.size() == FleetCrew.flyers().size() and not fight.returned.has(&"nala")
 	if not ok:
 		print("        returned %s, remaining %d, phase %s" % [fight.returned.keys(), fight.lattice.remaining(), fight.phase])
 	s.free()
 	return ok
 
 func test_results_account_for_living_and_dead() -> bool:
-	var out := await _finish([&"dot"])
+	var out := await _finish([&"nala"])
 	var s: Node = out[0]
 	var r: JobResult = out[1]
 	var ok := r != null and r.epilogue.size() == Roster.ids().size()
 	if ok:
 		for e in r.epilogue:
 			ok = ok and e.alive == Roster.is_alive(e.id) and e.text != ""
-			if e.id == &"dot":
-				ok = ok and not e.alive and e.text == Bark.memorial(&"dot")
+			if e.id == &"nala":
+				ok = ok and not e.alive and e.text == Bark.memorial(&"nala")
 		var screen: Control = load("res://scenes/ui/results.tscn").instantiate()
 		Sim.add(screen)
 		screen.show_result(r)

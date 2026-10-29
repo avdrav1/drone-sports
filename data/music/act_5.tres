@@ -14,14 +14,14 @@
 [ext_resource type="AudioStream" path="res://data/music/act_5_choir_50_muffled.ogg" id="m5"]
 [ext_resource type="AudioStream" path="res://data/music/act_5_pulse.ogg" id="6"]
 [ext_resource type="AudioStream" path="res://data/music/act_5_pulse_muffled.ogg" id="m6"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_bea.ogg" id="7"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_bea_muffled.ogg" id="m7"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_dot.ogg" id="8"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_dot_muffled.ogg" id="m8"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_marlo.ogg" id="9"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_marlo_muffled.ogg" id="m9"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_ozzie.ogg" id="10"]
-[ext_resource type="AudioStream" path="res://data/music/act_5_motif_ozzie_muffled.ogg" id="m10"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_bhima.ogg" id="7"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_bhima_muffled.ogg" id="m7"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_nala.ogg" id="8"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_nala_muffled.ogg" id="m8"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_sanjaya.ogg" id="9"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_sanjaya_muffled.ogg" id="m9"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_sushena.ogg" id="10"]
+[ext_resource type="AudioStream" path="res://data/music/act_5_motif_sushena_muffled.ogg" id="m10"]
 
 [sub_resource type="Resource" id="stem_1"]
 script = ExtResource("stem")
@@ -67,28 +67,28 @@ muffled = ExtResource("m6")
 
 [sub_resource type="Resource" id="stem_7"]
 script = ExtResource("stem")
-id = &"motif_bea"
+id = &"motif_bhima"
 stream = ExtResource("7")
 level_db = -13.0
 muffled = ExtResource("m7")
 
 [sub_resource type="Resource" id="stem_8"]
 script = ExtResource("stem")
-id = &"motif_dot"
+id = &"motif_nala"
 stream = ExtResource("8")
 level_db = -13.0
 muffled = ExtResource("m8")
 
 [sub_resource type="Resource" id="stem_9"]
 script = ExtResource("stem")
-id = &"motif_marlo"
+id = &"motif_sanjaya"
 stream = ExtResource("9")
 level_db = -13.0
 muffled = ExtResource("m9")
 
 [sub_resource type="Resource" id="stem_10"]
 script = ExtResource("stem")
-id = &"motif_ozzie"
+id = &"motif_sushena"
 stream = ExtResource("10")
 level_db = -13.0
 muffled = ExtResource("m10")

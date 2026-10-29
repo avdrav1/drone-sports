@@ -1,7 +1,7 @@
 extends RefCounted
 # Story 17.9: flight lines. The flight events are bark events, every line for
 # them makes a face, speaks_on decides who reacts from afar, and on a job with
-# Marlo on comms a near miss puts Marlo on the radio, unless Marlo is dead.
+# Sanjaya on comms a near miss puts Sanjaya on the radio, unless Sanjaya is dead.
 
 const Sim = preload("res://tests/sim.gd")
 
@@ -27,19 +27,19 @@ func test_every_new_line_has_a_valid_face() -> bool:
 	return ok
 
 func test_speaks_on_decides_who_reacts() -> bool:
-	var marlo: Character = Roster.character(&"marlo")
-	var dot: Character = Roster.character(&"dot")
-	var rin: Character = Roster.character(&"rin")
+	var sanjaya: Character = Roster.character(&"sanjaya")
+	var nala: Character = Roster.character(&"nala")
+	var drona: Character = Roster.character(&"drona")
 	# Off the job, nobody is in the field: only speaks_on reacts.
 	var b := Bark.new()
 	var near := b.speakers(&"near_miss")
 	var crash := b.speakers(&"crash")
 	var fast := b.speakers(&"top_speed")
 	b.free()
-	return &"near_miss" in marlo.speaks_on and &"crash" in dot.speaks_on and &"battery_low" in dot.speaks_on \
-		and &"top_speed" in rin.speaks_on and near == [&"marlo"] and crash == [&"dot"] and fast == [&"rin"]
+	return &"near_miss" in sanjaya.speaks_on and &"crash" in nala.speaks_on and &"battery_low" in nala.speaks_on \
+		and &"top_speed" in drona.speaks_on and near == [&"sanjaya"] and crash == [&"nala"] and fast == [&"drona"]
 
-## The inspection job (Marlo in the field) gone live, its drone coasting past a
+## The inspection job (Sanjaya in the field) gone live, its drone coasting past a
 ## wall high above the site so the watcher sees a near miss. Returns the radio's
 ## lines from the near miss on, and what the panel showed.
 func _near_miss_on_inspection() -> Dictionary:
@@ -85,21 +85,21 @@ func _near_miss_on_inspection() -> Dictionary:
 	scene.free()
 	return {"heard": heard, "shown": shown}
 
-func test_marlo_calls_a_near_miss_on_the_radio() -> bool:
+func test_sanjaya_calls_a_near_miss_on_the_radio() -> bool:
 	_fresh()
 	var r: Dictionary = await _near_miss_on_inspection()
 	var near: Array = r.heard.filter(func(l): return l.event == &"near_miss")
-	var ok: bool = near.size() == 1 and near[0].id == &"marlo" and near[0] in r.shown \
-		and near[0].text in Bark.pool(&"marlo", &"near_miss")
+	var ok: bool = near.size() == 1 and near[0].id == &"sanjaya" and near[0] in r.shown \
+		and near[0].text in Bark.pool(&"sanjaya", &"near_miss")
 	if not ok:
 		print("        heard %s, shown %s" % [r.heard, r.shown])
 	return ok
 
-func test_dead_marlo_calls_no_near_miss() -> bool:
+func test_dead_sanjaya_calls_no_near_miss() -> bool:
 	_fresh()
-	Roster.kill(&"marlo")
+	Roster.kill(&"sanjaya")
 	var r: Dictionary = await _near_miss_on_inspection()
-	var ok: bool = not r.heard.any(func(l): return l.id == &"marlo") \
-		and not r.shown.any(func(l): return l.id == &"marlo")
+	var ok: bool = not r.heard.any(func(l): return l.id == &"sanjaya") \
+		and not r.shown.any(func(l): return l.id == &"sanjaya")
 	_fresh()
 	return ok

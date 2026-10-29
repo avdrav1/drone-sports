@@ -9,7 +9,7 @@ extends RefCounted
 const Sim = preload("res://tests/sim.gd")
 const PROBE := "res://tests/portrait_probe.gd"
 const PROBE_TIMEOUT_MS := 90000
-const CHARACTERS := ["pip", "marlo", "dot", "bea", "ozzie", "rin", "tally", "fen", "moss"]
+const CHARACTERS := ["arjuna", "sanjaya", "nala", "bhima", "sushena", "drona", "hanuman", "abhimanyu", "jatayu"]
 
 static var _probe: Dictionary = {}
 
@@ -116,11 +116,11 @@ func test_every_look_draws_at_every_size() -> bool:
 func test_the_dead_are_shut_eyed_and_still() -> bool:
 	_fresh()
 	var p := CharacterPortrait.new()
-	p.character = Roster.character(&"ozzie")
+	p.character = Roster.character(&"sushena")
 	p.expression = &"shocked"
 	p.talking = true
 	Sim.add(p)
-	Roster.kill(&"ozzie")
+	Roster.kill(&"sushena")
 	p.hop()
 	p.pop_in()
 	await Sim.process_frames(3)

@@ -51,7 +51,7 @@ func test_nothing_without_fix_or_guidance() -> bool:
 	var restored := not tm.marker().is_empty()
 	runner.job = runner.job.duplicate()
 	runner.job.guidance = Job.Guidance.NONE
-	Roster.injure(&"marlo")  # fit, Marlo would raise it to the next leg (Story 19.6)
+	Roster.injure(&"sanjaya")  # fit, Sanjaya would raise it to the next leg (Story 19.6)
 	var unguided := tm.marker().is_empty()
 	scene.free()
 	return jammed and restored and unguided

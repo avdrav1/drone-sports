@@ -38,7 +38,7 @@ func test_an_old_save_is_carried_over_intact() -> bool:
 	Wallet.balance = 0
 	Wallet.add(3150)
 	Wallet.save()
-	Roster.kill(&"ozzie")
+	Roster.kill(&"sushena")
 	Career.job_completed(&"test_race")
 	DirAccess.make_dir_recursive_absolute(old_dir)
 	DirAccess.copy_absolute(ProjectSettings.globalize_path(test_path), old_dir.path_join("save.json"))
@@ -47,12 +47,12 @@ func test_an_old_save_is_carried_over_intact() -> bool:
 	for section in ["wallet", "roster", "career"]:
 		SaveGame.write_section(section, {} if section != "wallet" else 0)
 	SaveGame.load_all(Sim.tree())
-	var forgot := Wallet.balance == 0 and Roster.is_alive(&"ozzie") and Career.times_completed(&"test_race") == 0
+	var forgot := Wallet.balance == 0 and Roster.is_alive(&"sushena") and Career.times_completed(&"test_race") == 0
 	var copied := SaveGame.carry_over(old_dir, new_dir)
 	SaveGame.path = new_dir.path_join("save.json")
 	SaveGame.load_all(Sim.tree())
-	var same := Wallet.balance == 3150 and not Roster.is_alive(&"ozzie") \
-		and Roster.status(&"ozzie") == Roster.Status.DEAD and Career.times_completed(&"test_race") == 1
+	var same := Wallet.balance == 3150 and not Roster.is_alive(&"sushena") \
+		and Roster.status(&"sushena") == Roster.Status.DEAD and Career.times_completed(&"test_race") == 1
 	var old_kept := FileAccess.get_file_as_string(old_dir.path_join("save.json")) == old_text
 	# Once: even with the new save gone (say, set aside as corrupt), it never comes back.
 	var again := SaveGame.carry_over(old_dir, new_dir)

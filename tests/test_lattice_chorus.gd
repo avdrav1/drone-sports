@@ -54,7 +54,7 @@ func test_speaks_on_its_events_then_stops() -> bool:
 	fight.reclaim(unit)
 	fight.open_entrance()
 	# A strike on the calling crew member.
-	runner.crew_struck.emit(&"marlo", Roster.Status.ACTIVE)
+	runner.crew_struck.emit(&"sanjaya", Roster.Status.ACTIVE)
 	runner.drone.freeze = true
 	runner.drone.global_position = fight.override.center.global_position
 	fight.start_override()

@@ -22,7 +22,7 @@ func _initialize() -> void:
 	var d: RigidBody3D = load("res://scenes/drone/drone.tscn").instantiate()
 	d.freeze = true
 	vp.add_child(d)
-	var pilot: Resource = load("res://data/characters/pip.tres")
+	var pilot: Resource = load("res://data/characters/arjuna.tres")
 	var face = load("res://scripts/drone/drone_face.gd").wear(d, pilot)
 	var cam := Camera3D.new()
 	cam.fov = 30.0

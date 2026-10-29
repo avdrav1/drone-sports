@@ -3,15 +3,15 @@ extends RefCounted
 # Ramayana or the Mahabharata; no player-facing text under data/, scripts/ or
 # scenes/ holds an old name; and each one's "named for" line shows on their
 # CREW row (or, for the pilots who have none, their pilot card) and fits at
-# 960x720 and 1920x1080. Ids stay as they were (25.2 renames them).
+# 960x720 and 1920x1080. Since Story 25.2 the ids match the names; the old
+# names were the old ids, so the scan reads them from SaveGame.RENAMED_IDS.
 
 const Sim = preload("res://tests/sim.gd")
 const BOARD := "res://scenes/ui/job_board.tscn"
 
 ## Id -> the name the player sees.
-const NAMES := {&"pip": "Arjuna", &"rin": "Drona", &"marlo": "Sanjaya", &"dot": "Nala", &"bea": "Bhima",
-	&"ozzie": "Sushena", &"fen": "Abhimanyu", &"moss": "Jatayu", &"tally": "Hanuman"}
-const OLD := ["pip", "rin", "marlo", "dot", "bea", "ozzie", "fen", "moss", "tally"]
+const NAMES := {&"arjuna": "Arjuna", &"drona": "Drona", &"sanjaya": "Sanjaya", &"nala": "Nala", &"bhima": "Bhima",
+	&"sushena": "Sushena", &"abhimanyu": "Abhimanyu", &"jatayu": "Jatayu", &"hanuman": "Hanuman"}
 const ROOTS := ["res://data", "res://scripts", "res://scenes"]
 const KINDS := ["tres", "json", "gd", "tscn"]
 
@@ -51,18 +51,22 @@ static func player_strings(line: String, kind: String) -> Array[String]:
 		var s := m.get_string(2)
 		if m.get_string(1) != "" or s.begins_with("res://") or s.begins_with("uid://"):
 			continue
-		# A bare id as a key or value, e.g. "marlo" in a JSON list, is an id,
-		# and so is anything id-shaped ("motif_ozzie", "70_babble_bea"): 25.2
-		# renames those. A handle a player reads ("PIP_07") is not lower case.
-		if s in OLD or RegEx.create_from_string("^[a-z0-9_]+$").search(s):
+		# A bare id as a key or value, e.g. "sanjaya" in a JSON list, is an id,
+		# and so is anything id-shaped ("motif_sushena", "70_babble_bhima"). A
+		# handle a player reads ("ARJUNA_07") is not lower case.
+		if RegEx.create_from_string("^[a-z0-9_]+$").search(s):
 			continue
 		out.append(s)
 	return out
 
 ## True if `s` holds an old name. A name ends at anything but a letter or
-## digit, so a handle joined by "_" ("PIP_07") counts and "dotted" does not.
+## digit, so a handle joined by "_" ("OLD_07") counts and "dotted" does not.
 static func has_old_name(s: String) -> bool:
-	return RegEx.create_from_string("(?i)(?<![a-z0-9])(%s)(?![a-z0-9])" % "|".join(OLD)).search(s) != null
+	return RegEx.create_from_string("(?i)(?<![a-z0-9])(%s)(?![a-z0-9])" % "|".join(SaveGame.RENAMED_IDS.keys())).search(s) != null
+
+## The name a character went by before 25.1, from their id now: it was their old id.
+static func old_name(id: String) -> String:
+	return str(SaveGame.RENAMED_IDS.find_key(id)).capitalize()
 
 func test_no_old_name_in_player_text() -> bool:
 	var bad := []
@@ -79,24 +83,29 @@ func test_no_old_name_in_player_text() -> bool:
 
 ## The scan sees through the cases it must and skips the ids it must.
 func test_the_scan_catches_names_and_skips_ids() -> bool:
-	return player_strings("text = \"Marlo here.\"", "tres") == ["Marlo here."] \
-		and player_strings("\t\"memorial\": \"Dot, mechanic.\",", "json") == ["Dot, mechanic."] \
-		and player_strings("id = &\"marlo\"", "tres").is_empty() \
-		and player_strings("[node name=\"Ozzie\" type=\"Node3D\" parent=\".\"]", "tscn").is_empty() \
-		and player_strings("zone = NodePath(\"../Ozzie/Zone\")", "tscn").is_empty() \
-		and player_strings("var x := 1  # \"Bea's site rates\"", "gd").is_empty() \
-		and player_strings("var s := \"%s #%d\" % [\"Fen\", 2]", "gd") == ["%s #%d", "Fen"] \
-		and player_strings("[ext_resource type=\"Resource\" path=\"res://x.tres\" id=\"2_pip\"]", "tres") == ["Resource"] \
-		and player_strings("cast = [ExtResource(\"3_marlo\"), SubResource(\"babble_bea\")]", "tres").is_empty() \
-		and player_strings("\t\"motif_ozzie\": \"voice\",", "json").is_empty() \
-		and has_old_name("PLAYER  PIP_07") and has_old_name("rin-2") and not has_old_name("dotted pipe")
+	var spotter := old_name("sanjaya")
+	var mechanic := old_name("nala")
+	var medic := old_name("sushena")
+	var sprinter := old_name("abhimanyu")
+	return player_strings("text = \"%s here.\"" % spotter, "tres") == ["%s here." % spotter] \
+		and player_strings("\t\"memorial\": \"%s, mechanic.\"," % mechanic, "json") == ["%s, mechanic." % mechanic] \
+		and player_strings("id = &\"sanjaya\"", "tres").is_empty() \
+		and player_strings("[node name=\"%s\" type=\"Node3D\" parent=\".\"]" % medic, "tscn").is_empty() \
+		and player_strings("zone = NodePath(\"../%s/Zone\")" % medic, "tscn").is_empty() \
+		and player_strings("var x := 1  # \"%s's site rates\"" % old_name("bhima"), "gd").is_empty() \
+		and player_strings("var s := \"%%s #%%d\" %% [\"%s\", 2]" % sprinter, "gd") == ["%s #%d", sprinter] \
+		and player_strings("[ext_resource type=\"Resource\" path=\"res://x.tres\" id=\"2_arjuna\"]", "tres") == ["Resource"] \
+		and player_strings("cast = [ExtResource(\"3_sanjaya\"), SubResource(\"babble_bhima\")]", "tres").is_empty() \
+		and player_strings("\t\"motif_sushena\": \"voice\",", "json").is_empty() \
+		and has_old_name("PLAYER  %s_07" % old_name("arjuna").to_upper()) and has_old_name(old_name("drona").to_lower() + "-2") \
+		and not has_old_name("dotted pipe") and spotter.length() > 1 and mechanic.length() > 1
 
 func test_every_character_has_their_new_name_and_namesake() -> bool:
 	var ok := true
 	for c in _characters():
 		ok = ok and c.name == NAMES[c.id] and c.named_for.begins_with("Named for ") \
 			and c.named_for.length() <= 70 and c.validate().is_empty()
-	# Ids stay for now, so the roster and the pilots still find everyone.
+	# The roster and the pilots find everyone by their new ids.
 	for id in Roster.ids():
 		ok = ok and Roster.character(id).name == NAMES[id]
 	for c in PlayerProfile.pilots():

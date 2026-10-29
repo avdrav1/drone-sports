@@ -27,37 +27,37 @@ func test_each_support_crew_row_shows_its_perk() -> bool:
 			ok = ok and l != null and l.get_parsed_text() == c.perk.line() and not l.text.contains("[s]")
 		else:
 			ok = ok and l == null
-	var bea := _perk(b, &"bea").get_parsed_text()
+	var bhima := _perk(b, &"bhima").get_parsed_text()
 	b.free()
-	return ok and bea == "Site rates: +15% pay on every job"
+	return ok and bhima == "Site rates: +15% pay on every job"
 
 func test_benched_perk_shows_off_with_jobs_left() -> bool:
-	Roster.kill(&"ozzie")  # so Marlo is out for the full two
-	Roster.injure(&"marlo")
+	Roster.kill(&"sushena")  # so Sanjaya is out for the full two
+	Roster.injure(&"sanjaya")
 	var b: JobBoard = await _board()
-	var l := _perk(b, &"marlo")
+	var l := _perk(b, &"sanjaya")
 	var ok := l.text.contains("[s]") and l.get_parsed_text().begins_with("Off for 2 more jobs:") \
 		and l.get_parsed_text().ends_with("Spotting: Route guidance one step better on every job")
 	b.free()
 	Roster.job_done()
 	b = await _board()
-	ok = ok and _perk(b, &"marlo").get_parsed_text().begins_with("Off for 1 more job:")
+	ok = ok and _perk(b, &"sanjaya").get_parsed_text().begins_with("Off for 1 more job:")
 	b.free()
 	return ok
 
 func test_dead_row_shows_the_perk_lost() -> bool:
-	Roster.kill(&"bea")
+	Roster.kill(&"bhima")
 	var b: JobBoard = await _board()
-	var text := _perk(b, &"bea").get_parsed_text()
-	var status: String = (b.crew_rows[&"bea"].get_node("Info/Status") as Label).text
+	var text := _perk(b, &"bhima").get_parsed_text()
+	var status: String = (b.crew_rows[&"bhima"].get_node("Info/Status") as Label).text
 	b.free()
 	return text == "No more site rates" and status.contains("Died.")
 
 func test_crew_in_field_confirmation_names_each_perk_at_risk() -> bool:
-	Roster.injure(&"marlo")
-	Roster.injure(&"bea")
+	Roster.injure(&"sanjaya")
+	Roster.injure(&"bhima")
 	var job := Job.new()
-	job.crew_in_field = [&"marlo", &"bea"]
+	job.crew_in_field = [&"sanjaya", &"bhima"]
 	var root := Sim.job_setup(job)
 	var runner: JobRunner = root.get_node("Runner")
 	runner.back_scene = ""
@@ -71,15 +71,15 @@ func test_crew_in_field_confirmation_names_each_perk_at_risk() -> bool:
 		and text.contains("Sanjaya's spotting") and text.contains("Bhima's site rates (+15% pay on every job)")
 
 func test_results_injury_line_names_the_perk_off() -> bool:
-	Roster.injure(&"marlo")
+	Roster.injure(&"sanjaya")
 	var r := JobResult.new()
-	r.casualties = {&"marlo": Roster.Status.INJURED}
-	var row: HBoxContainer = RESULTS.casualty_row(r, &"marlo")
+	r.casualties = {&"sanjaya": Roster.Status.INJURED}
+	var row: HBoxContainer = RESULTS.casualty_row(r, &"sanjaya")
 	var text: String = (row.get_child(1) as Label).text
 	row.free()
-	Roster.kill(&"marlo")
-	r.casualties = {&"marlo": Roster.Status.DEAD}
-	var dead_row: HBoxContainer = RESULTS.casualty_row(r, &"marlo")
+	Roster.kill(&"sanjaya")
+	r.casualties = {&"sanjaya": Roster.Status.DEAD}
+	var dead_row: HBoxContainer = RESULTS.casualty_row(r, &"sanjaya")
 	var dead: String = (dead_row.get_child(1) as Label).text
 	dead_row.free()
 	return text == "Sanjaya injured, out for 1 job: no spotting." and dead == "Sanjaya died."

@@ -1,6 +1,6 @@
 extends RefCounted
 # Story 4.2: demolition run. Completable with Act 3 assists along a clear line
-# through the windows; a knocked cornice block landing on Bea is a strike; the
+# through the windows; a knocked cornice block landing on Bhima is a strike; the
 # roof coming down before the exit fails the job; grade A needs zero contact.
 
 const Sim = preload("res://tests/sim.gd")
@@ -59,12 +59,12 @@ func test_completable_with_act3_grade_a() -> bool:
 	scene.free()
 	return ok
 
-func test_knocked_cornice_strikes_bea_after_warning() -> bool:
+func test_knocked_cornice_strikes_bhima_after_warning() -> bool:
 	var scene: Node = Sim.add(load(SCENE).instantiate())
 	await Sim.process_frames(2)
 	var runner: JobRunner = scene.get_node("JobRunner")
 	var d: Drone = scene.get_node("Drone")
-	var zone: HazardZone = scene.get_node("BeaZone")
+	var zone: HazardZone = scene.get_node("BhimaZone")
 	var log := {"frame": 0, "warned": -1, "struck": -1}
 	zone.warning_started.connect(func(_c): if log.warned < 0: log.warned = log.frame)
 	zone.struck.connect(func(_c, _cause): log.struck = log.frame)
@@ -75,7 +75,7 @@ func test_knocked_cornice_strikes_bea_after_warning() -> bool:
 	for i in 120:
 		await Sim.physics_frames(1)
 		log.frame += 1
-	var ok: bool = runner.strikes.get(&"bea", 0) == 1 and log.warned >= 0 and log.struck - log.warned >= 60
+	var ok: bool = runner.strikes.get(&"bhima", 0) == 1 and log.warned >= 0 and log.struck - log.warned >= 60
 	scene.free()
 	return ok
 

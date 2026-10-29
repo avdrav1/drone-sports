@@ -34,32 +34,32 @@
 
 [node name="Ground" parent="." instance=ExtResource("desert")]
 
-[node name="Ozzie" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
+[node name="Sushena" type="Node3D" parent="." node_paths=PackedStringArray("terrain")]
 script = ExtResource("site")
 terrain = NodePath("../Ground")
 
-[node name="Zone" type="Area3D" parent="Ozzie"]
+[node name="Zone" type="Area3D" parent="Sushena"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 script = ExtResource("zone")
-character = &"ozzie"
+character = &"sushena"
 radius = 2.0
 
-[node name="Prop" type="Node3D" parent="Ozzie"]
+[node name="Prop" type="Node3D" parent="Sushena"]
 script = ExtResource("crew")
-character = &"ozzie"
+character = &"sushena"
 
-[node name="Flare" type="OmniLight3D" parent="Ozzie"]
+[node name="Flare" type="OmniLight3D" parent="Sushena"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
 light_color = Color(1, 0.3, 0.2, 1)
 light_energy = 4.0
 omni_range = 12.0
 
-[node name="Beacon" type="Node3D" parent="Ozzie" node_paths=PackedStringArray("listener")]
+[node name="Beacon" type="Node3D" parent="Sushena" node_paths=PackedStringArray("listener")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 script = ExtResource("beacon")
 listener = NodePath("../../Drone")
 
-[node name="HoldPoint" type="Marker3D" parent="Ozzie"]
+[node name="HoldPoint" type="Marker3D" parent="Sushena"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("drone")]
@@ -82,7 +82,7 @@ drone = NodePath("../Drone")
 [node name="RescueTimer" type="Node" parent="." node_paths=PackedStringArray("runner", "zone")]
 script = ExtResource("timer")
 runner = NodePath("../JobRunner")
-zone = NodePath("../Ozzie/Zone")
+zone = NodePath("../Sushena/Zone")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -120,7 +120,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("beaconhud")
-beacon = NodePath("../../Ozzie/Beacon")
+beacon = NodePath("../../Sushena/Beacon")
 timer = NodePath("../../RescueTimer")
 title = "SUSHENA'S BEACON"
 
@@ -175,7 +175,7 @@ state_label = NodePath("../HUD/State")
 
 [node name="Rescue" type="Node" parent="JobRunner" node_paths=PackedStringArray("center")]
 script = ExtResource("hold")
-center = NodePath("../../Ozzie/HoldPoint")
+center = NodePath("../../Sushena/HoldPoint")
 radius = 3.0
 hold_time = 3.0
 label = "Hold over Sushena for 3 s"
