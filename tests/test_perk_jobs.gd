@@ -32,8 +32,13 @@ func test_marlo_fit_shows_the_full_route_on_a_next_leg_job() -> bool:
 	var benched: Array = await _next_leg_race()
 	Roster.kill(&"marlo")
 	var dead: Array = await _next_leg_race()
-	# The whole loop is the drone plus nine gates; the next leg is two points.
-	return fit[0] == 10 and fit[1] == 10 and benched[0] == 2 and benched[1] == 2 \
+	# The whole loop is the drone plus every gate, as a full-guidance race shows
+	# it; the next leg is two points.
+	var full := _race(Job.Guidance.FULL)
+	await Sim.process_frames(3)
+	var loop := (full.get_node("Route") as RouteSource).guided().size()
+	full.free()
+	return loop > 2 and fit[0] == loop and fit[1] == loop and benched[0] == 2 and benched[1] == 2 \
 		and dead[0] == 2 and dead[1] == 2 \
 		and fit[2] == Job.Guidance.NEXT_LEG and dead[2] == Job.Guidance.NEXT_LEG
 
