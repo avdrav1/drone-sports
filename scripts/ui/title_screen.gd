@@ -12,6 +12,10 @@ extends Node
 # Story 18.5: come from the board, a crew member waves goodbye on the radio.
 # Story 24.1: the logo is the game's name from the project settings.
 # Story 24.6: lettered like Hindi, hanging from a headline bar (TitleMark).
+# On the web a browser keeps the game silent until the player presses
+# something, so the first title shows PLAY where PRESS START goes: that first
+# press starts the theme and the crawl together from the top, and the next one
+# goes in. Desktop plays its music at once and never asks.
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
@@ -26,11 +30,14 @@ const CRAWL := "res://data/ui/crawl.tres"
 var started := false
 var title_mark: TitleMark
 var press_start: Label
+var play_button: Button
 var best_label: Label
 var crawl: StoryCrawl
 var skin: FrontSkin
 ## Set by the board as you leave it: the next title says goodbye, once.
 static var wave_goodbye := false
+## The browser has not let the music play yet: the title asks for PLAY first.
+static var needs_play := OS.has_feature("web")
 var bark: Bark
 var radio: BarkBox
 
@@ -60,6 +67,8 @@ func goodbye() -> Dictionary:
 
 func _process(delta: float) -> void:
 	_age += delta
+	press_start.visible = not needs_play
+	play_button.visible = needs_play
 	press_start.modulate.a = 1.0 if fmod(_age, blink) < blink * 0.65 else 0.15
 
 ## "- - - -" for nothing paid yet, else the payout.
@@ -72,7 +81,20 @@ func _input(event: InputEvent) -> void:
 		return
 	get_viewport().set_input_as_handled()
 	if event.is_pressed() and not event.is_echo() and _age >= start_grace:
-		start()
+		if needs_play:
+			play()
+		else:
+			start()
+
+## The first press on the web: the theme from its first bar and the crawl from
+## its first line, now that the browser lets the game make sound.
+func play() -> void:
+	needs_play = false
+	Music.play(null, 0.0)
+	MusicDirector.title()
+	crawl.restart()
+	press_start.visible = true
+	play_button.visible = false
 
 ## Opens the board; it opens pilot select over itself when none is chosen.
 func start() -> void:
@@ -126,6 +148,23 @@ func _build() -> void:
 	press_start.name = "PressStart"
 	_place(press_start, 0.7, 0.78)
 	root.add_child(press_start)
+	play_button = Button.new()
+	play_button.name = "Play"
+	play_button.text = "PLAY"
+	play_button.theme_type_variation = &"Display"
+	play_button.add_theme_font_size_override("font_size", 34)
+	# Any key, click or pad button is PLAY: the title's _input takes them all.
+	play_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	play_button.focus_mode = Control.FOCUS_NONE
+	play_button.anchor_left = 0.5
+	play_button.anchor_right = 0.5
+	play_button.anchor_top = 0.72
+	play_button.anchor_bottom = 0.72
+	play_button.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	play_button.custom_minimum_size = Vector2(220, 64)
+	play_button.visible = needs_play
+	press_start.visible = not needs_play
+	root.add_child(play_button)
 	best_label = _label("", 22, skin.heading, 6)
 	best_label.name = "Best"
 	_place(best_label, 0.86, 0.94)
