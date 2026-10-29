@@ -57,6 +57,7 @@ func _ready() -> void:
 		d.global_transform = slots[i].global_transform
 		drones.append(d)
 		pilots[d] = ids[i]
+		DroneFace.wear(d, c)
 	if command:
 		command.drones = drones
 		for d in drones:

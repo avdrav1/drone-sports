@@ -79,6 +79,9 @@ func lap_route(d: Drone) -> PackedVector3Array:
 	return out
 
 func _on_gate(racer: Node3D, gate: int) -> void:
+	var face := DroneFace.of(racer)
+	if face:
+		face.react(&"gate")
 	if gate != 0 or done or not racer in drones:
 		return
 	if not course.progress(racer).splits.is_empty():

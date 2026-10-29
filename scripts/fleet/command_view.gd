@@ -98,6 +98,7 @@ func add(d: Drone, pilot: Character = null) -> void:
 	drones.append(d)
 	if pilot:
 		pilots[d] = pilot
+		DroneFace.wear(d, pilot)
 	if selected == null:
 		select(d)
 	fleet_changed.emit(drones.size())

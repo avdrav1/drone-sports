@@ -941,11 +941,12 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Acceptance: Each face plays its chirp variant. Every chirp's base pitch is a scale degree from `key.py`. The generator stays byte-for-byte deterministic. Every file is in `LICENSES.md`.
   - Out of scope: Voice acting, sung lines.
 
-- [ ] **18.7 Drone faces**
+- [x] **18.7 Drone faces**
   - Goal: A crew member's drone wears their face: a small LED face panel on the front of the drone, in their colours, that blinks, reacts to what happens (happy through a gate, shocked on a near miss, dizzy after a crash), and looks the way they are heading.
   - Context: A `DroneFace` child of `DroneLook`, shown only on drones a living crew member flies (`CommandView.pilots`, the relay, the Lattice's returned drones); the player's own drone stays faceless. Drawn by a cheap unshaded shader on a quad, driven by the same `CharacterPortrait.pose()` values, so it matches the portrait. Reactions come from 17.8's flight events for that drone. Visual only: no mass, collision, or flight value changes.
   - Acceptance: A crew-flown drone shows its pilot's face; the player's drone and unpiloted drones show none. The panel's pose matches `pose()` for the same expression and time. Each mapped flight event changes its expression, then it returns to rest. The drone's mass, collision shapes, and flight values are unchanged with a face on. It compiles and draws under GL Compatibility.
   - Out of scope: Faces on AI racers or the Lattice's units.
+  - Note: `DroneFace.wear(drone, character)` puts a `Look/Face` quad (shader `scenes/drone/drone_face.gdshader`, one uniform per `CharacterPortrait.pose()` field plus `squash`/`bob` from `motion()`) on a drone; `FleetCrew` and `CommandView.add(d, pilot)` call it, so fleet, relay and the Lattice's returned drones wear faces and the player's or freed drones do not, and `DroneFace.of(d)` finds it. Each face owns a `FlightWatcher` on its drone and maps events through `DroneFace.REACTIONS` (plus `gate` from `Relay._on_gate`) to an expression held for a time, then `REST`; `hold(expr, seconds)` shows any expression, and a dead pilot's panel hides and never reacts. New reactions are one `REACTIONS` entry; the panel blinks with the portrait's seed, so both faces blink together.
 
 - [ ] **18.8 Babble voices**
   - Goal: Every crew member talks in their own babble: a short looping gibberish voice that runs while their line types out and stops when it finishes. Pitch, speed, and timbre carry personality (a quick high chatter, a slow low rumble).
