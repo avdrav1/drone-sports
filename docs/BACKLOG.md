@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6. 23 (gamepad) can start any time; do 23.1 first, and 23.2 before 23.3.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -1122,3 +1122,77 @@ Done when the title, start page and main menu play the user's own song, "There's
   - Acceptance: `scenes/jobs/fleet_race.tscn` runs on an open course. Each leg must be flown by a different drone; a leg flown by the wrong drone, one that missed a gate, or one started before the handoff is invalid. Handoff timing shows on the HUD. The race ends at the last gate. A fleet with every pilot style (18.11) still completes it.
   - Out of scope: Opponent fleets, new gate kinds.
   - Note: `scenes/jobs/fleet_race.tscn` now runs `test_path.tres` with `Relay.leg_ends = [4, 8, 11, 15]` (any other fleet size splits the path evenly, `Relay.ends()`/`leg_start(k)`); on an open course the relay places each drone `wait` beside and behind its leg's first gate, tracks each drone's `Run` from the gates' own `passed` signals (a leg is invalid for the wrong drone, a skipped gate, or starting before the handoff, and stays open), and is done at the last gate. `send(d, k = -1)` (G) flies a drone along its own leg (or leg `k`), the HUD's leg line adds "gates a-b", and the closed-loop lap relay is unchanged but no scene uses it now; the command view is at 120 m over (-35, -5). `tests/test_fleet_path.gd` flies the whole relay in every pilot style (about 64-86 s).
+
+## Epic 23: Full gamepad
+
+Done when the whole game, from PRESS START to the Lattice, can be played with a gamepad alone, on desktop and in the browser, and every on-screen prompt names the button the player actually holds.
+
+Today the pad flies the drone (both sticks, Mode 2) and has two buttons: Y (`cycle_camera`) and Start (`reset_drone`). Godot's default `ui_*` bindings give menus A, B, d-pad and left stick, but nothing checks that every screen works with them. Every other action is keyboard-only, and every prompt names a key ("press Enter to launch", "Esc to go back", the controls panel, the board's footer).
+
+Layout (Godot `JoyButton` indices; Xbox names, PlayStation in brackets):
+
+| Button | Flight | Command view | Menus |
+| --- | --- | --- | --- |
+| Left stick | Throttle (Y), yaw (X) | | Move focus |
+| Right stick | Pitch, roll | | |
+| A (0) [Cross] | Launch from the briefing | Drop in / back out | Select |
+| B (1) [Circle] | Leave dialog (as Esc) | Leave dialog | Back |
+| X (2) [Square] | | `send_lap` / `tag_unit` (one per job) | |
+| Y (3) [Triangle] | Camera view | Camera view | |
+| Back (4) [Create] | Full map | Full map | |
+| Start (6) [Options] | Pause (the leave dialog) | Pause | |
+| LB (9) / RB (10) | | Previous / next drone | |
+| D-pad up (11) | Controls panel | Controls panel | Move focus |
+| D-pad down (12) | Reset the drone (free flight) | | Move focus |
+| D-pad left / right (13, 14) | Cycle assists / weather (free flight) | | Move focus |
+| L3 (7) | Debug readout | | |
+
+The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbox shortcuts, and the board starts every job.
+
+- [ ] **23.1 Every action has a button**
+  - Goal: Every action a player needs has a gamepad binding, laid out as in the table above.
+  - Context: `project.godot` InputMap. Start moves from `reset_drone` to a new `pause` action, which `JobRunner` treats as `ui_cancel` (`request_leave`). A new `prev_drone` action joins `next_drone`. `send_lap` and `tag_unit` share X, since no job uses both. Bindings use `device = -1` (any pad). `ControlsHelp` gains `prev_drone` and `pause` rows.
+  - Acceptance: Every action in `ControlsHelp.GROUPS` except the start-a-job group and `toggle_mute` (reachable from OPTIONS) has at least one `InputEventJoypadButton` or `InputEventJoypadMotion`. Within one context (flight, command view, menus), no two actions share a button, except `send_lap` and `tag_unit`. Start opens the leave dialog in a live job and `reset_drone` no longer fires on Start. The flight axes are unchanged.
+  - Out of scope: Rebinding, prompts (23.2).
+
+- [ ] **23.2 Prompts follow the device**
+  - Goal: Every prompt names the key or the button for the device the player last touched, and switches the moment they touch the other one.
+  - Context: A new `InputPrompt` autoload remembers the last device (key or mouse versus pad; stick motion under the deadzone does not count) and its family from `Input.get_joy_name` (Xbox, PlayStation, Nintendo, otherwise generic Xbox names). It emits `device_changed`. `ControlsHelp.key_text` becomes `InputPrompt.text(action)`, returning "Enter" or "A" / "Cross" or "LB" / "D-pad ↓". The prompts are text in the existing fonts, so there are no glyph images and no new assets. Callers that redraw on `device_changed` include `ControlsHelp`, `ControlsHint`, `JobRunner`'s briefing line, the board's `CONTROLS` footer and "Esc to go back", and the fleet, relay and Lattice HUD hints.
+  - Acceptance: After a synthetic joypad button event, every prompt names pad buttons. After a key event, every prompt names keys. A PlayStation-named pad reads "Cross" where an Xbox pad reads "A". No script under `scripts/` holds a hard-coded key name in player-facing text; a test greps for "Enter", "Esc", "Space" and "click" in string literals, with an allow-list for the key table.
+  - Out of scope: Button images, rebinding.
+
+- [ ] **23.3 Menus by pad alone**
+  - Goal: Every screen and dialog can be used with A, B, the d-pad and the left stick alone.
+  - Context: 17.3 to 17.6 set focus on the board, carousel, pilot select and results. Still to audit: the CREW and OPTIONS pages, the sound dialog's sliders and mute box, the quality `OptionButton` and its popup, the shop and offer dialogs, the launch and leave dialogs, the crew warning and perk-at-risk confirmation (19.x), the map screen, and cutscene skip. A dialog that closes hands focus back to the control that opened it. Holding the stick moves one item per tilt, then repeats; it never skips.
+  - Acceptance: A "pad walk" test drives title → board → every menu page → a job briefing → launch → leave dialog → results → board using only `Input.parse_input_event` with joypad events. At every step the focus owner is visible, enabled and not null. B backs out of every page and dialog exactly as Esc does. Sliders move with d-pad left/right. The `OptionButton` opens, changes and closes by pad.
+  - Out of scope: New menu screens.
+
+- [ ] **23.4 Fleet command on the pad**
+  - Goal: The command view (Act 5, the relay, the Lattice) is fully playable with a pad.
+  - Context: `CommandView._unhandled_input` handles `drop_in`, `next_drone` and a mouse click. It adds `prev_drone`, and the selection wraps both ways. X runs the job's context action (`send_lap` in the relay, `tag_unit` in the Lattice). The fleet HUD names the selected drone as now.
+  - Acceptance: With pad events only, a test selects every drone forwards and backwards (wrapping), drops into one and back out, sends a relay leg and tags a Lattice unit. A mouse click still selects.
+  - Out of scope: Box-select, cursor-on-stick.
+
+- [ ] **23.5 Pause on Start, and when the pad goes away**
+  - Goal: Start pauses any live job. A controller that disconnects mid-job pauses it rather than letting the drone fly on with the last stick input.
+  - Context: `JobRunner.request_leave` already pauses the tree under the leave dialog; Start reuses it, with focus on stay (cancel). On `Input.joy_connection_changed`, if the pad that disconnects is the last device used (23.2) and a job is in COUNTDOWN or LIVE, the runner opens the same dialog with the line "Controller disconnected". Reconnecting shows a short "Controller connected" toast and never resumes on its own.
+  - Acceptance: Start in LIVE pauses the tree and opens the dialog with stay focused; A on stay resumes. Emitting `joy_connection_changed(id, false)` for the device in use pauses a live job, while the same signal on the board or for another pad does nothing. Reconnecting leaves the game paused until the player chooses.
+  - Out of scope: Split-screen, more than one player.
+
+- [ ] **23.6 Controller options**
+  - Goal: OPTIONS gains a CONTROLLER section covering stick layout, inverted pitch, stick feel, deadzone and rumble.
+  - Context: Layout is Mode 2 (default, today's) or Mode 1 (throttle and pitch swap sticks), applied by rewriting the flight actions' `InputEventJoypadMotion` axes. Invert flips pitch's axis value. Stick feel is `PilotInput.expo` (0 to 1, default 0.4) and deadzone is 0.1 to 0.3 (default 0.2) on the flight actions. Rumble on or off feeds 23.7. These are saved in the save file next to the sound settings and applied on boot. Shaping only (rule 2): nothing here touches the flight model.
+  - Acceptance: Each setting survives a save and reload. Mode 1 puts throttle on the right stick's Y and pitch on the left stick's Y, and every other action is unchanged. Invert makes stick-up pitch back. Expo and deadzone reach `PilotInput` and the InputMap. The section is usable by pad (the 23.3 walk covers it). The controls panel and prompts show the swapped sticks.
+  - Out of scope: Per-button rebinding.
+
+- [ ] **23.7 Rumble**
+  - Goal: The pad rumbles for the moments that matter: a crash or hard hit (scaled by impact), a gate passed (a short tick), a hazard warning or strike, and a job's end.
+  - Context: A small `Rumble` autoload wraps `Input.start_joy_vibration` on the last-used pad, and logs each request the way `Music.log` does so tests can read it. It does nothing when rumble is off (23.6), the last device is the keyboard, or the platform doesn't vibrate (the web export may not; then it is silently skipped). It hooks the drone's existing collision, gate, `HazardZone` warning and `JobRunner` state signals, so no job gets job-specific code (rule 3).
+  - Acceptance: Each event logs one request with the listed strength and length, and a harder hit asks for more. Nothing is requested with rumble off or after a key press. Nothing about play depends on rumble.
+  - Out of scope: Haptic triggers and other controller-specific features.
+
+- [ ] **23.8 Pad check, and the browser**
+  - Goal: OPTIONS has a PAD CHECK page that shows both sticks live, the triggers, and the name of each button as it is pressed. The web build is checked against real pads with it.
+  - Context: Browsers only reveal a gamepad after a button is pressed while the page has focus; the title's PRESS START is that press, and the title already accepts joypad buttons. A pad with the browser's standard mapping matches Godot's indices (right stick on axes 2 and 3). The check page makes a mismatch visible instead of a mystery. It shows `Input.get_joy_name` and the 23.2 family.
+  - Acceptance: A test feeds joypad motion and button events and reads the page's stick positions and button name. The page is reachable and leavable by pad (B). The owner playtests the deployed build in Chrome and Firefox (and Safari on the Mac) with an Xbox-style and a PlayStation pad and records the results in the story's Note.
+  - Out of scope: Remapping non-standard pads.
