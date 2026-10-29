@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="EmoteTable" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/emote_table.gd" id="1_table"]
+[ext_resource type="Script" path="res://scripts/ui/emote.gd" id="2_emote"]
+
+[sub_resource type="Resource" id="clean_finish"]
+script = ExtResource("2_emote")
+key = &"clean_finish"
+drawing = &"hearts"
+time = 2.4
+color = Color(1, 0.36, 0.55, 1)
+
+[sub_resource type="Resource" id="best"]
+script = ExtResource("2_emote")
+key = &"best"
+drawing = &"sparkles"
+time = 2.4
+color = Color(1, 0.86, 0.25, 1)
+
+[sub_resource type="Resource" id="worried"]
+script = ExtResource("2_emote")
+key = &"worried"
+drawing = &"sweat"
+time = 1.8
+color = Color(0.45, 0.8, 1, 1)
+
+[sub_resource type="Resource" id="near_miss"]
+script = ExtResource("2_emote")
+key = &"near_miss"
+drawing = &"bang"
+time = 1.2
+color = Color(1, 0.32, 0.25, 1)
+
+[sub_resource type="Resource" id="happy"]
+script = ExtResource("2_emote")
+key = &"happy"
+drawing = &"notes"
+time = 2.0
+color = Color(0.62, 0.45, 1, 1)
+idle = true
+
+[sub_resource type="Resource" id="crash"]
+script = ExtResource("2_emote")
+key = &"crash"
+drawing = &"stars"
+time = 2.0
+color = Color(1, 0.9, 0.3, 1)
+
+[resource]
+script = ExtResource("1_table")
+emotes = Array[ExtResource("2_emote")]([SubResource("clean_finish"), SubResource("best"), SubResource("worried"), SubResource("near_miss"), SubResource("happy"), SubResource("crash")])
+quiet_events = Array[StringName]([&"warning", &"strike", &"hurt", &"memorial", &"epilogue"])
+quiet_job_types = Array[StringName]([&"boss"])

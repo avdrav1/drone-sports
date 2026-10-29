@@ -7,6 +7,8 @@ var completed := false
 var fail_reason := ""
 var score := 0.0
 var letter := "F"
+## True when a completed job beat the best grade flown on it before (Story 18.3).
+var new_best := false
 ## One entry per objective: {label, score, weight}.
 var objectives: Array[Dictionary] = []
 var pay := 0

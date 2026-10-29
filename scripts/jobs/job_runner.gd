@@ -235,6 +235,8 @@ func _finish() -> void:
 	if pays_out:
 		Payout.settle(result, grade_scale)
 		Roster.job_done(casualties.keys())
+		var best := Career.best_grade(job.id)
+		result.new_best = result.completed and best != "" and result.letter < best
 		Career.job_flown(job.id, result.letter)
 		if result.completed:
 			Career.job_completed(job.id)

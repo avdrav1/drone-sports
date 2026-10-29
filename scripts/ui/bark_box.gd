@@ -8,6 +8,8 @@ extends Control
 # of static and their chirp as a line opens, and a queue so lines never talk
 # over each other: urgent lines cut in at once, the rest wait until the line on
 # air has typed out, and chatter is dropped once stale and kept to one per gap.
+# Story 18.3: each line sets the face's emote (or clears it): hearts on a
+# finish with no strikes, the rest from data/crew/emotes.tres.
 
 @export var bark: Bark
 ## Seconds a line stays up after it has typed out.
@@ -36,6 +38,7 @@ const FACE := 80.0
 const STATIC_TIME := 0.18
 
 var portrait: CharacterPortrait
+var emote: EmoteBubble
 var label: Label
 var name_label: Label
 ## The line on screen: {id, event, text, face}, or {} when none.
@@ -52,6 +55,7 @@ func _ready() -> void:
 	portrait.size = Vector2(FACE, FACE)
 	portrait.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(portrait)
+	emote = EmoteBubble.attach(portrait)
 	name_label = _label(13, ACCENT)
 	label = _label(16, LINE)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -111,9 +115,23 @@ func _open(line: Dictionary) -> void:
 	portrait.character = c
 	portrait.expression = line.get("face", &"neutral")
 	portrait.queue_redraw()
+	emote.play_line(_emote_event(line.event), portrait.expression, _job_type())
 	name_label.text = ("%s  ·  %s" % [c.name, c.role] if c else String(line.id)).to_upper()
 	label.text = line.text
 	_type()
+
+## A complete with no strikes is a clean finish; once someone is hurt, every
+## line is as quiet as `hurt`.
+func _emote_event(event: StringName) -> StringName:
+	var runner: JobRunner = bark.runner if bark else null
+	if runner and not runner.casualties.is_empty():
+		return &"hurt"
+	if event == &"complete" and runner and runner.strikes.is_empty():
+		return &"clean_finish"
+	return event
+
+func _job_type() -> StringName:
+	return bark.runner.job.job_type if bark and bark.runner and bark.runner.job else &""
 
 ## Seconds the current line takes to type out.
 func type_time() -> float:

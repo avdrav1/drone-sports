@@ -43,7 +43,7 @@ func show_result(r: JobResult) -> void:
 		if r.casualties[id] != Roster.Status.DEAD and r.casualty_lines.get(id, "") != "":
 			Bark.chirp(id)
 	if not r.bark.is_empty():
-		rows.add_child(bark_row(r.bark))
+		rows.add_child(bark_row(r.bark, r))
 		Bark.chirp(r.bark.id)
 	for e in r.epilogue:
 		rows.add_child(epilogue_row(e))
@@ -75,11 +75,27 @@ static func strike_lines(r: JobResult) -> Array[String]:
 		out.append("%s struck %dx" % [c.name if c else String(id), r.strikes[id]])
 	return out
 
-## A portrait making the line's face beside "Name: line".
-static func bark_row(b: Dictionary) -> HBoxContainer:
+## A portrait making the line's face beside "Name: line", with its emote
+## (Story 18.3) for the job's result `r`.
+static func bark_row(b: Dictionary, r: JobResult = null) -> HBoxContainer:
 	var c: Character = Roster.character(b.id)
 	var face: StringName = b.get("face", Bark.face_of(b.id, b.get("event", &"results"), b.text))
-	return _face_row("Bark", c, "%s: %s" % [c.name if c else String(b.id), b.text], false, Color.WHITE, face)
+	var row := _face_row("Bark", c, "%s: %s" % [c.name if c else String(b.id), b.text], false, Color.WHITE, face)
+	var emote := EmoteBubble.attach(row.get_child(0))
+	emote.play_line(emote_event(r, b.get("event", &"results")), face, r.job.job_type if r and r.job else &"")
+	return row
+
+## The event a closing line's emote answers: after a casualty, the quiet
+## `hurt`; else a new best grade, else a finish with no strikes, else the
+## line's own event.
+static func emote_event(r: JobResult, event: StringName = &"results") -> StringName:
+	if r and not r.casualties.is_empty():
+		return &"hurt"
+	if r and r.new_best:
+		return &"best"
+	if r and r.completed and r.strikes.is_empty() and r.casualties.is_empty():
+		return &"clean_finish"
+	return event
 
 ## "Marlo injured, out for 2 jobs" with their line, or "Marlo died" with the
 ## memorial line and a greyed portrait.
