@@ -7,6 +7,8 @@ extends Node
 # and strike. JobRunner adds one to itself, so every job gets them; it reads the
 # runner, its objectives, and the scene's Courses and HazardZones, and holds no
 # job-specific code. The results screen plays the payout count itself.
+# Story 23.7: the gate, the hazard warning and strike, and the job's end also
+# shake the pad (Rumble).
 
 ## Sound per state the runner enters. The countdown's first beep is its own.
 const STATE_CUES := {
@@ -47,6 +49,10 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 		_count = ceili(runner.job.countdown)
 	if STATE_CUES.has(s):
 		Sfx.play(STATE_CUES[s])
+	if s == JobRunner.State.COMPLETE:
+		Rumble.play(&"complete")
+	elif s == JobRunner.State.FAILED:
+		Rumble.play(&"failed")
 
 ## Hooks the scene's hazard zones and courses, once each.
 func _listen() -> void:
@@ -87,6 +93,7 @@ func _hold(h: HoldStation) -> void:
 func _on_gate(who: Node3D, _gate: int) -> void:
 	if who == runner.drone or (runner.camera_rig and who == runner.camera_rig.target):
 		Sfx.play(GATE, null, 0.0, gate_pitch(gates))
+		Rumble.play(&"gate")
 		gates += 1
 
 ## The pitch scale of the nth gate passed (0-based): the nth note of the hook
@@ -99,6 +106,8 @@ static func gate_pitch(n: int) -> float:
 
 func _on_warning(_character: StringName) -> void:
 	Sfx.play(WARNING)
+	Rumble.play(&"warning")
 
 func _on_struck(_character: StringName, _cause: StringName) -> void:
 	Sfx.play(STRIKE)
+	Rumble.play(&"strike")
