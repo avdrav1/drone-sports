@@ -1,7 +1,7 @@
 extends Node
 # Autoload "Roster": the cast and their status, kept in the save's "roster" section.
-# Injured benches a character for INJURY_JOBS jobs; a second injury while
-# injured kills. Death is permanent: there is no way back (CLAUDE.md rule 7).
+# Injured benches a character for INJURY_JOBS jobs, fewer with a fit medic's
+# recovery perk (Story 19.6); a second injury while injured kills. Death is permanent: there is no way back (CLAUDE.md rule 7).
 # For the dead, `jobs` counts the jobs finished since (Story 7.6: the shop).
 
 enum Status { ACTIVE, INJURED, DEAD }
@@ -41,13 +41,18 @@ func jobs_benched(id: StringName) -> int:
 func jobs_since_death(id: StringName) -> int:
 	return _state[id].jobs if status(id) == Status.DEAD else 0
 
+## Jobs an injury to `id` benches them for now: INJURY_JOBS less the fit
+## crew's recovery perks, never their own, and at least one.
+func injury_jobs(id: StringName) -> int:
+	return maxi(1, INJURY_JOBS - roundi(Perks.amount(&"recovery", id)))
+
 ## First strike injures; a strike while injured kills.
 func injure(id: StringName) -> void:
 	if not _harmable(id):
 		return
 	match status(id):
 		Status.ACTIVE:
-			_record(id, Status.INJURED, INJURY_JOBS)
+			_record(id, Status.INJURED, injury_jobs(id))
 		Status.INJURED:
 			_record(id, Status.DEAD, 0)
 

@@ -67,6 +67,14 @@ func _ready() -> void:
 	if auto_begin:
 		begin.call_deferred()
 
+## The route guidance the radar, map, and ribbon show: the job's own, raised
+## a step per guidance perk among the fit crew (Story 19.6), none to next leg to
+## full. The job's data is untouched.
+func guidance() -> Job.Guidance:
+	if job == null:
+		return Job.Guidance.FULL
+	return maxi(Job.Guidance.FULL, job.guidance - roundi(Perks.amount(&"guidance"))) as Job.Guidance
+
 ## Child Objective nodes, in order.
 func objectives() -> Array[Objective]:
 	var out: Array[Objective] = []

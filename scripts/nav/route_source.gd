@@ -16,7 +16,7 @@ func points() -> PackedVector3Array:
 	return PackedVector3Array()
 
 func guidance() -> Job.Guidance:
-	return runner.job.guidance if runner and runner.job else Job.Guidance.FULL
+	return runner.guidance() if runner else Job.Guidance.FULL
 
 ## What to draw: the drone's position, then the points guidance allows. Empty for
 ## none, or without a GPS fix.

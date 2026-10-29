@@ -68,7 +68,7 @@ func test_one_strike_injures() -> bool:
 	# The strike line is from Marlo as they were: unhurt.
 	var line_ok: bool = heard.size() == 1 and heard[0][1] == &"strike" \
 		and heard[0][2] in Bark.lines_of(&"marlo").strike.active
-	return Roster.status(&"marlo") == Roster.Status.INJURED and Roster.jobs_benched(&"marlo") == Roster.INJURY_JOBS \
+	return Roster.status(&"marlo") == Roster.Status.INJURED and Roster.jobs_benched(&"marlo") == Roster.injury_jobs(&"marlo") \
 		and r.casualties == {&"marlo": Roster.Status.INJURED} and line_ok
 
 func test_second_job_strike_kills() -> bool:

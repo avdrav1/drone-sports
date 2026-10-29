@@ -61,13 +61,13 @@ func test_header_shows_wallet_reputation_and_team() -> bool:
 		and header.contains("Act 1")
 
 func test_crew_shows_status_and_the_dead_greyed_with_memorial() -> bool:
-	Roster.injure(&"marlo")
+	Roster.injure(&"marlo")  # one job with Ozzie fit (Story 19.6)
 	Roster.kill(&"bea")
 	var b := _board()
 	await Sim.process_frames(1)
 	var marlo: String = (b.crew_rows[&"marlo"].get_node("Status") as Label).text
 	var bea: String = (b.crew_rows[&"bea"].get_node("Status") as Label).text
-	var ok: bool = b.crew_rows.size() == 6 and marlo.contains("Injured") and marlo.contains("2 more jobs") \
+	var ok: bool = b.crew_rows.size() == 6 and marlo.contains("Injured") and marlo.contains("1 more job") \
 		and bea.contains("Died.") and bea.contains(Bark.memorial(&"bea")) \
 		and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
 		and not (b.crew_rows[&"marlo"].get_node("Face") as CharacterPortrait).greyed \

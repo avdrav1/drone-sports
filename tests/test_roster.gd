@@ -18,7 +18,8 @@ func test_cast_loads_and_validates() -> bool:
 func test_injure_twice_kills() -> bool:
 	_fresh()
 	Roster.injure(&"bea")
-	var injured: bool = Roster.status(&"bea") == Roster.Status.INJURED and Roster.jobs_benched(&"bea") == 2
+	# One job, not two: Ozzie is fit (Story 19.6).
+	var injured: bool = Roster.status(&"bea") == Roster.Status.INJURED and Roster.jobs_benched(&"bea") == 1
 	Roster.injure(&"bea")
 	var ok := injured and Roster.status(&"bea") == Roster.Status.DEAD and not Roster.is_alive(&"bea")
 	_fresh()
@@ -34,13 +35,14 @@ func test_kill_and_rin_cannot_be_harmed() -> bool:
 	_fresh()
 	return ok
 
+## Ozzie's own injury takes the full two jobs (Story 19.6).
 func test_injury_heals_after_two_jobs() -> bool:
 	_fresh()
-	Roster.injure(&"dot")
+	Roster.injure(&"ozzie")
 	Roster.job_done()
-	var one: bool = Roster.status(&"dot") == Roster.Status.INJURED and Roster.jobs_benched(&"dot") == 1
+	var one: bool = Roster.status(&"ozzie") == Roster.Status.INJURED and Roster.jobs_benched(&"ozzie") == 1
 	Roster.job_done()
-	var ok := one and Roster.status(&"dot") == Roster.Status.ACTIVE
+	var ok := one and Roster.status(&"ozzie") == Roster.Status.ACTIVE
 	_fresh()
 	return ok
 
@@ -49,7 +51,7 @@ func test_status_survives_save_and_load() -> bool:
 	Roster.injure(&"marlo")
 	Roster.kill(&"bea")
 	Roster.load_saved()
-	var ok: bool = Roster.status(&"marlo") == Roster.Status.INJURED and Roster.jobs_benched(&"marlo") == 2 \
+	var ok: bool = Roster.status(&"marlo") == Roster.Status.INJURED and Roster.jobs_benched(&"marlo") == Roster.injury_jobs(&"marlo") \
 		and Roster.status(&"bea") == Roster.Status.DEAD and Roster.status(&"dot") == Roster.Status.ACTIVE \
 		and SaveGame.read_section("roster", {}).has("bea")
 	_fresh()

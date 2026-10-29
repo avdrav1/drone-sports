@@ -118,7 +118,8 @@ static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var c: Character = Roster.character(id)
 	var who := c.name if c else String(id)
 	var dead: bool = r.casualties[id] == Roster.Status.DEAD
-	var head := "%s died." % who if dead else "%s injured, out for %d jobs." % [who, Roster.INJURY_JOBS]
+	var out := Roster.jobs_benched(id) if Roster.jobs_benched(id) > 0 else Roster.INJURY_JOBS
+	var head := "%s died." % who if dead else "%s injured, out for %d job%s." % [who, out, "" if out == 1 else "s"]
 	var line: String = r.casualty_lines.get(id, "")
 	var text := head + ("\n" + ("" if dead else who + ": ") + line if line else "")
 	var face := Bark.face_of(id, &"hurt", line) if line and not dead else &"neutral"

@@ -1033,7 +1033,7 @@ Crew perks, on while the character is alive and not benched:
   - Context: `Payout.settle` multiplies pay by 1 + the pay perk and reputation by 1 + the reputation perk; `Garage.price` multiplies by 1 - the price perk, after Dot's death markup (which only applies once Dot is dead, so the two never stack). The results screen shows the bonus as its own line ("Bea's rates +120").
   - Acceptance: With Bea fit, a job pays 15 percent more; benched or dead, it does not. With Rin fit, reputation gains are 25 percent higher. With Dot fit, every Garage price is 20 percent lower; after Dot dies, prices follow the existing closed-then-25-percent rule. The results screen names each bonus.
   - Out of scope: New currencies.
-- [ ] **19.6 Guidance and recovery**
+- [x] **19.6 Guidance and recovery**
   - Goal: Marlo and Ozzie's perks change how jobs go.
   - Context: Marlo: the job runner raises `Job.guidance` one step (none to next leg, next leg to full) for radar, map, and route ribbon while Marlo is fit; the job's own setting is untouched in data. Ozzie: `Roster.injure` benches for one job instead of two while Ozzie is fit; Ozzie's own injury uses the normal two.
   - Acceptance: A next-leg job shows the full route with Marlo fit and the next leg with Marlo benched or dead. An injury with Ozzie fit benches for one job; with Ozzie benched or dead, two. Grading is unchanged by either perk.

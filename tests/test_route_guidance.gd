@@ -78,7 +78,9 @@ func _with_guidance(path: String, g: Job.Guidance) -> Node:
 	runner.job.guidance = g
 	return Sim.add(scene)
 
+## Marlo is benched in these two: fit, Marlo raises guidance a step (Story 19.6).
 func test_no_guidance_draws_no_route() -> bool:
+	Roster.injure(&"marlo")
 	var ok := true
 	for path in ["res://scenes/jobs/sample_delivery.tscn", "res://scenes/jobs/test_race.tscn"]:
 		var scene := _with_guidance(path, Job.Guidance.NONE)
@@ -93,6 +95,7 @@ func test_no_guidance_draws_no_route() -> bool:
 	return ok
 
 func test_next_leg_guidance_shows_one_leg() -> bool:
+	Roster.injure(&"marlo")
 	var scene := _with_guidance("res://scenes/jobs/test_race.tscn", Job.Guidance.NEXT_LEG)
 	await Sim.process_frames(3)
 	var route: RouteSource = scene.get_node("Route")

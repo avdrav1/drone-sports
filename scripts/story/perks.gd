@@ -8,18 +8,19 @@ extends RefCounted
 static func fit(id: StringName) -> bool:
 	return Roster.status(id) == Roster.Status.ACTIVE
 
-## The fit crew carrying a perk of `kind`.
-static func owners(kind: StringName) -> Array[Character]:
+## The fit crew carrying a perk of `kind`, leaving out `except`.
+static func owners(kind: StringName, except: StringName = &"") -> Array[Character]:
 	var out: Array[Character] = []
 	for id in Roster.ids():
 		var c: Character = Roster.character(id)
-		if c.perk and c.perk.kind == kind and fit(id):
+		if c.perk and c.perk.kind == kind and fit(id) and id != except:
 			out.append(c)
 	return out
 
-## The summed amount of every fit crew member's perk of `kind`; 0 with none.
-static func amount(kind: StringName) -> float:
+## The summed amount of every fit crew member's perk of `kind`, leaving out
+## `except` (e.g. the one being hurt); 0 with none.
+static func amount(kind: StringName, except: StringName = &"") -> float:
 	var sum := 0.0
-	for c in owners(kind):
+	for c in owners(kind, except):
 		sum += c.perk.amount
 	return sum
