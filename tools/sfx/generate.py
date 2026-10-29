@@ -702,6 +702,9 @@ def check():
     global OUT
     real = OUT
     OUT = os.path.join(os.path.dirname(__file__), "..", "..", "build", "sfx", "check")
+    # Keeps Godot from importing the check renders into the project and export.
+    os.makedirs(os.path.dirname(os.path.dirname(OUT)), exist_ok=True)
+    open(os.path.join(os.path.dirname(os.path.dirname(OUT)), ".gdignore"), "a").close()
     if os.path.isdir(OUT):
         for f in os.listdir(OUT):
             os.remove(os.path.join(OUT, f))

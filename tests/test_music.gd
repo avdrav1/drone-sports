@@ -203,3 +203,10 @@ func _ogg_samples(path: String) -> int:
 			return bytes.decode_s64(at + 6)
 		at -= 1
 	return -1
+
+## WAV intermediates under build/ never get imported into the project or the
+## web export: the generators leave a .gdignore there.
+func test_build_intermediates_stay_out_of_the_project() -> bool:
+	if not DirAccess.dir_exists_absolute("res://build"):
+		return true
+	return FileAccess.file_exists("res://build/.gdignore")

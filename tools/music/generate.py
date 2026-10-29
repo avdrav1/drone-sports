@@ -61,10 +61,19 @@ def bar_samples(tempo, bars):
     return round(bars * BEATS_PER_BAR * 60.0 / tempo * RATE)
 
 
+def keep_out_of_godot(path):
+    """A WAV under build/ is an intermediate: a .gdignore in build/ keeps Godot
+    from importing it into the project and the web export."""
+    build = os.path.join(ROOT, "build")
+    if os.path.abspath(path).startswith(os.path.abspath(build) + os.sep):
+        open(os.path.join(build, ".gdignore"), "a").close()
+
+
 def write_wav(path, samples, peak=None, channels=1, rate=RATE):
     """Writes `samples` (interleaved if `channels` is 2) normalized so `peak`
     (their own by default) is 0.9."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    keep_out_of_godot(path)
     peak = peak or max(1e-9, max(abs(s) for s in samples))
     scale = 0.9 / peak
     with wave.open(path, "wb") as w:
