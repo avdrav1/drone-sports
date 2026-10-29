@@ -6,6 +6,9 @@ extends Node
 
 enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 
+## The leave dialog's warning, under any reason it was opened for.
+const LEAVE_TEXT := "Leaving now counts as a failed job: no pay."
+
 signal state_changed(state: State, previous: State)
 ## After Complete or Failed, once graded and paid.
 signal finished(result: JobResult)
@@ -67,6 +70,9 @@ func _ready() -> void:
 	# The briefing names the launch key or button for the device in hand.
 	if not InputPrompt.device_changed.is_connected(_on_device_changed):
 		InputPrompt.device_changed.connect(_on_device_changed)
+	# A pad that goes away mid-job pauses it (Story 23.5).
+	if not Input.joy_connection_changed.is_connected(_on_joy_connection):
+		Input.joy_connection_changed.connect(_on_joy_connection)
 	if auto_begin:
 		begin.call_deferred()
 
@@ -155,21 +161,22 @@ func _ask_launch(hurt: Array[StringName]) -> void:
 	launch_dialog.ask(hurt, job.tags.has(&"lethal"))
 
 ## Esc. In the briefing it leaves at once; in flight it asks first, with the
-## game paused, because leaving then fails the job.
-func request_leave() -> void:
+## game paused, because leaving then fails the job. `why`, when set, heads the
+## dialog's text, e.g. "Controller disconnected".
+func request_leave(why := "") -> void:
 	if state == State.BRIEFING:
 		leave()
 	elif state in [State.COUNTDOWN, State.LIVE]:
 		if leave_dialog == null:
 			leave_dialog = ConfirmationDialog.new()
 			leave_dialog.title = "Leave job?"
-			leave_dialog.dialog_text = "Leaving now counts as a failed job: no pay."
 			leave_dialog.ok_button_text = "Leave"
 			leave_dialog.cancel_button_text = "Keep flying"
 			leave_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 			leave_dialog.confirmed.connect(func(): _unpause(); leave())
 			leave_dialog.canceled.connect(_unpause)
 			add_child(leave_dialog)
+		leave_dialog.dialog_text = (why + ".\n" if why else "") + LEAVE_TEXT
 		get_tree().paused = true
 		leave_dialog.popup_centered()
 		leave_dialog.get_cancel_button().grab_focus()
@@ -343,6 +350,17 @@ func _set_state(s: State) -> void:
 	state_time = 0.0
 	_update_label()
 	state_changed.emit(s, previous)
+
+## Story 23.5: the pad in hand going away in flight pauses the job under the
+## leave dialog, so the drone never flies on with the last stick input. Any pad
+## coming back gets a toast and nothing else: the player chooses to resume.
+func _on_joy_connection(id: int, connected: bool) -> void:
+	if not is_inside_tree():
+		return
+	if connected:
+		Toast.show_line(self, "Controller connected")
+	elif InputPrompt.pad and InputPrompt.device == id and state in [State.COUNTDOWN, State.LIVE]:
+		request_leave("Controller disconnected")
 
 func _on_device_changed(_pad: bool) -> void:
 	_update_label()

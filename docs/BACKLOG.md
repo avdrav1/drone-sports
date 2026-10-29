@@ -1174,7 +1174,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: With pad events only, a test selects every drone forwards and backwards (wrapping), drops into one and back out, sends a relay leg and tags a Lattice unit. A mouse click still selects.
   - Out of scope: Box-select, cursor-on-stick.
 
-- [ ] **23.5 Pause on Start, and when the pad goes away**
+- [x] **23.5 Pause on Start, and when the pad goes away**
   - Goal: Start pauses any live job. A controller that disconnects mid-job pauses it rather than letting the drone fly on with the last stick input.
   - Context: `JobRunner.request_leave` already pauses the tree under the leave dialog; Start reuses it, with focus on stay (cancel). On `Input.joy_connection_changed`, if the pad that disconnects is the last device used (23.2) and a job is in COUNTDOWN or LIVE, the runner opens the same dialog with the line "Controller disconnected". Reconnecting shows a short "Controller connected" toast and never resumes on its own.
   - Acceptance: Start in LIVE pauses the tree and opens the dialog with stay focused; A on stay resumes. Emitting `joy_connection_changed(id, false)` for the device in use pauses a live job, while the same signal on the board or for another pad does nothing. Reconnecting leaves the game paused until the player chooses.
