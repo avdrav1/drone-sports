@@ -1221,7 +1221,7 @@ Owner decisions:
   - Acceptance: `config/name` is "Jaisalmer". The title screen and intro title card show "JAISALMER" and change with the setting. The crawl ends on the decided line. No string literal under `scripts/`, `scenes/` or `data/` contains "Drone Sports" in any case (a test greps). Lower-case "drone sports" as the name of the sport, in dialogue or lines, is allowed and listed in the test's allow-list. The exported `build/web/index.html` title reads "Jaisalmer".
   - Out of scope: A new logo or icon, new art.
 
-- [ ] **24.2 Saves survive the rename**
+- [x] **24.2 Saves survive the rename**
   - Goal: A desktop player who saved under Drone Sports opens Jaisalmer and finds their career where they left it.
   - Context: On desktop, `user://` is `app_userdata/<config/name>`, so renaming moves it, and `SaveGame.path` (`user://save.json`) would come up empty. At boot, before `SaveGame.load_all`, if `user://save.json` is missing and the old folder (`.../app_userdata/Drone Sports/save.json`, found from `OS.get_user_data_dir()`'s parent) has one, it is copied across once. The old file is left in place. On the web, `user://` does not depend on the name, so nothing moves; the domain move starts web saves fresh (decided).
   - Acceptance: With a save only in the old folder, boot copies it, and the career, roster status (dead stay dead) and wallet match it. With a save already in the new folder, nothing is copied or overwritten. With no old save, nothing happens. It runs once and never deletes anything. Tests use a throwaway pair of folders, not the real ones.

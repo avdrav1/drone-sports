@@ -9,9 +9,13 @@ const TITLE := "res://scenes/ui/title.tscn"
 const INTRO := "res://scenes/story/intro.tscn"
 const SCANNED := ["res://scripts", "res://scenes", "res://data"]
 const TEXT_FILES := ["gd", "tres", "tscn", "json", "txt", "md", "cfg", "csv", "gdshader"]
-## Lower-case "drone sports" is the sport in the fiction, and may stay in lines
-## and dialogue: file path -> how many times it says so. Nothing does yet.
-const ALLOWED := {}
+## What may still say it, file path -> its exact hits. Lower-case "drone sports"
+## is the sport in the fiction, and may stay in lines and dialogue (none do
+## yet). SaveGame names the old user:// folder to carry saves out of (Story
+## 24.2): a path on disk, not a name anyone reads.
+const ALLOWED := {
+	"res://scripts/save_game.gd": ["Drone Sports"],
+}
 
 func _close() -> void:
 	Sim.tree().unload_current_scene()
@@ -60,8 +64,7 @@ func test_no_text_calls_the_game_drone_sports() -> bool:
 	var ok := true
 	for file in found:
 		var hits: Array = found[file]
-		var sport_only := hits.all(func(h): return h == "drone sports")
-		if not (sport_only and ALLOWED.get(file, 0) == hits.size()):
+		if hits != ALLOWED.get(file, []):
 			push_error("%s calls the game %s" % [file, hits])
 			ok = false
 	return ok

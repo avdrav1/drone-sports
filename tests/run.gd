@@ -12,6 +12,9 @@ var _errors: Array = []
 var TEST_SAVE: String = OS.get_environment("DRONE_TEST_SAVE") if OS.has_environment("DRONE_TEST_SAVE") else "user://test_run_save.json"
 
 func _initialize() -> void:
+	# Before the autoloads boot, and for every Godot a test starts: no carrying
+	# the player's old save (Story 24.2).
+	OS.set_environment(SaveGame.NO_CARRY, "1")
 	_run()
 
 func _run() -> void:

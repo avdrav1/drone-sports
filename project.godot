@@ -12,6 +12,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+SaveCarry="*res://scripts/save_carry.gd"
 Wallet="*res://scripts/economy/wallet.gd"
 Reputation="*res://scripts/economy/reputation.gd"
 Roster="*res://scripts/story/roster.gd"

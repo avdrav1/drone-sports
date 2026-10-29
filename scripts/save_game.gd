@@ -5,6 +5,15 @@ extends RefCounted
 # with `warning` set for the job board to show.
 
 static var path := "user://save.json"
+## The game's name before Story 24.1. On desktop, user:// is a folder named
+## after the game, so older saves are in the folder of this name beside it.
+const OLD_NAME := "Drone Sports"
+## Left in the new folder once a save is carried over, so it is carried once.
+const CARRIED := "carried_over.txt"
+## Set in the environment to skip carrying over. The test runner sets it before
+## the autoloads boot, and the Godot processes it starts inherit it, so tests
+## keep away from the player's folders.
+const NO_CARRY := "DRONE_NO_CARRY"
 ## Set when a corrupt save was moved aside; the board shows it once.
 static var warning := ""
 
@@ -36,6 +45,33 @@ static func load_all(tree: SceneTree) -> void:
 		var node := tree.root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()
+
+## Story 24.2: renaming the game moved user:// on desktop. At boot, before
+## anything reads the save, a save left in the old folder is copied into the
+## new one. On the web user:// does not follow the name, so nothing moves.
+static func carry_over_on_boot() -> void:
+	if OS.has_environment(NO_CARRY) or OS.has_feature("web"):
+		return
+	var here := OS.get_user_data_dir()
+	carry_over(here.get_base_dir().path_join(OLD_NAME), here, path.get_file())
+
+## Copies `file` from `old_dir` into `new_dir` when the new folder has none and
+## never had one carried over. Never deletes or overwrites. True if it copied.
+static func carry_over(old_dir: String, new_dir: String, file := "save.json") -> bool:
+	var from := old_dir.path_join(file)
+	var to := new_dir.path_join(file)
+	if old_dir == new_dir or not FileAccess.file_exists(from) or FileAccess.file_exists(to) \
+			or FileAccess.file_exists(new_dir.path_join(CARRIED)):
+		return false
+	DirAccess.make_dir_recursive_absolute(new_dir)
+	var err := DirAccess.copy_absolute(from, to)
+	if err != OK:
+		push_warning("Could not carry the save over from %s: %s" % [from, error_string(err)])
+		return false
+	var note := FileAccess.open(new_dir.path_join(CARRIED), FileAccess.WRITE)
+	if note:
+		note.store_string(from)
+	return true
 
 static func _set_aside() -> void:
 	var abs_path := ProjectSettings.globalize_path(path)
