@@ -969,11 +969,12 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Acceptance: Each trouble event shows distress and starts the alarm; it stops when the trouble ends. A downed drone shows static until it flies again, then the face returns. The alarm never plays for the player's own drone or for the dead. The flight model, assists, and grading are untouched.
   - Out of scope: New ways for crew to be harmed (rule 7 is unchanged).
 
-- [ ] **18.11 Flying with personality**
+- [x] **18.11 Flying with personality**
   - Goal: You can tell who is who by how they fly: one bold flyer cuts corners and pulls ahead, one steady flyer holds formation and radios advice, one eager but clumsy flyer wobbles and drifts wide, each true to `docs/CHARACTERS.md`.
   - Context: A `FlightStyle` resource on each flying character (corner speed, formation spacing, how far ahead they push, line wobble, reaction delay) that the 6.1 autopilot reads. The autopilot is an intent source, so this changes only the intent it writes (rules 1 and 2); every drone keeps the one flight model. The steady flyer gets advice lines on fleet events.
   - Acceptance: Over the same route, the bold style finishes ahead of the steady one and the clumsy style deviates from the line the most. Each fleet job still completes in its existing test with every style. Flight model, mass, and assist values are unchanged.
   - Out of scope: Crew calling for rescue, new failure states.
+  - Note: `Character.flight_style` points at a `FlightStyle` in `data/crew/styles/` (Dot bold, Marlo steady, Pip clumsy, Ozzie gentle): `push` and `corner_speed` scale the autopilot's speeds, `cut` widens its pass radius, `spacing` keeps a gap from other drones in the `autopilots` group, `wobble` sways the aim off the line (calming within `Autopilot.CALM` of a point), and `delay` holds the old sticks after a waypoint; a null style flies exactly as before. `FleetCrew.fly_as(auto, c)` sets it (fleet and the Lattice's returned drones), and the style with `advice` (Marlo) radios event `advice` (not in `Bark.EVENTS`, like `order`) on relay `leg_done`/`lap_invalid` and a drone finishing its route, once per `advice_gap` and never on a boss job. `tests/test_flight_style.gd` re-runs the inspection, relay and Lattice reclaim completion tests with every pilot in each style, so a new style must still clear the relay's gates.
 
 - [ ] **18.12 Radio font**
   - Goal: Radio lines in a chunky, highly legible monospaced pixel font, so typing out reads like a cabinet's comm screen; names in a bolder cut.

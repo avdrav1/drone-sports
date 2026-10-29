@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="Character" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
+[ext_resource type="Resource" path="res://data/crew/styles/steady.tres" id="2_style"]
 
 [resource]
 script = ExtResource("1_char")
@@ -18,3 +19,4 @@ motif = &"motif_marlo"
 death_consequence = &"no_spotter"
 can_be_harmed = true
 tags = Array[StringName]([&"can_fly"])
+flight_style = ExtResource("2_style")

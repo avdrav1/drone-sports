@@ -296,6 +296,39 @@
    }
   ]
  },
+ "advice": {
+  "active": [
+   {
+    "text": "Keep your spacing, everyone. Room to turn is room to breathe.",
+    "face": "determined"
+   },
+   {
+    "text": "Smooth beats fast. Hit your line and the time comes.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice and tidy. Hold that gap and we're golden.",
+    "face": "happy"
+   },
+   {
+    "text": "Wide into the turn, tight out of it. That's the trick, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Eyes on the next gate, not the one you just passed.",
+    "face": "neutral"
+   },
+   {
+    "text": "Good work out there. Same again, nice and steady.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   "Still on comms. Keep your spacing.",
+   "Easy on the corners. Smooth is fast.",
+   "Hold the line. I'm watching it for you."
+  ]
+ },
  "trench": {
   "active": [
    "Down the shaft. Slow. Slower than that.",

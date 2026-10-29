@@ -43,6 +43,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## A pilot avatar's one small stat tweak, applied once like a shop level
 ## (Story 7.2). None for the crew, and for Pip, the baseline.
 @export var tweak: Upgrade
+## How they fly a fleet drone under autopilot (Story 18.11). Only for crew
+## tagged can_fly; null flies the plain route.
+@export var flight_style: FlightStyle
 
 ## Problems with this resource; empty when it is valid.
 func validate() -> Array[String]:

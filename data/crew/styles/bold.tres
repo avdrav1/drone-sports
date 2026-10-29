@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FlightStyle" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/fleet/flight_style.gd" id="1_style"]
+
+[resource]
+script = ExtResource("1_style")
+id = &"bold"
+push = 1.25
+corner_speed = 1.4
+cut = 1.0
+spacing = 2.0
+wobble = 0.0
+delay = 0.05
+advice = false

@@ -413,6 +413,7 @@ func _bring_home(id: StringName, unit: int) -> void:
 	d.name = "%sHome" % c.name
 	var auto := Autopilot.new()
 	auto.name = "Autopilot"
+	FleetCrew.fly_as(auto, c)
 	d.add_child(auto)
 	d.intent_source = auto
 	command.get_parent().add_child(d)

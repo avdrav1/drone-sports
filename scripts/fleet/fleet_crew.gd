@@ -6,6 +6,9 @@ extends Node3D
 # view (with each drone's pilot, for portraits), the job runner (its first
 # drone), and a relay, so it must sit before them in the scene. Pilots answer
 # orders through `bark` (event "order").
+# Story 18.11: each drone flies in its pilot's FlightStyle, and a pilot whose
+# style gives advice radios the fleet some (event "advice") when a relay leg
+# ends or goes wrong, or a drone reaches its last waypoint; never on a boss job.
 
 const DRONE := preload("res://scenes/drone/drone.tscn")
 const TAG := &"can_fly"
@@ -19,10 +22,13 @@ const TAG := &"can_fly"
 ## The runner's drone is the fleet's first. Off when the pilot flies their own
 ## drone as well (the Lattice).
 @export var lead_runner := true
+## Least seconds between two pieces of advice.
+@export var advice_gap := 8.0
 
 var drones: Array[Drone] = []
 ## Drone -> the crew member flying it.
 var pilots := {}
+var _since_advice := INF
 
 ## Crew who fly, living or not, in roster order.
 static func tagged() -> Array[StringName]:
@@ -51,6 +57,8 @@ func _ready() -> void:
 		var auto := Autopilot.new()
 		auto.name = "Autopilot"
 		auto.corner_speed = corner_speed
+		fly_as(auto, c)
+		auto.finished.connect(advise)
 		d.add_child(auto)
 		d.intent_source = auto
 		add_child(d)
@@ -67,8 +75,41 @@ func _ready() -> void:
 			command.camera_rig.target = drones[0]
 	if relay:
 		relay.drones = drones
+		relay.leg_done.connect(func(_l, _d, _t): advise())
+		relay.lap_invalid.connect(func(_d, _why): advise())
 	if runner and lead_runner and not drones.is_empty():
 		runner.drone = drones[0]
+
+## Gives `auto` the way `c` flies, swaying on their own phase.
+static func fly_as(auto: Autopilot, c: Character) -> void:
+	if c == null:
+		return
+	auto.style = c.flight_style
+	auto.wobble_phase = float(hash(c.id) % 628) / 100.0
+
+func _process(delta: float) -> void:
+	_since_advice += delta
+
+## The living pilot in this fleet whose style gives advice, or empty.
+func adviser() -> StringName:
+	for d in drones:
+		var id := pilot_of(d)
+		var c: Character = Roster.character(id)
+		if is_instance_valid(d) and c and c.flight_style and c.flight_style.advice and Roster.is_alive(id):
+			return id
+	return &""
+
+## The adviser radios a tip, at most once an advice_gap and never on a boss job.
+func advise() -> Dictionary:
+	var id := adviser()
+	if bark == null or id == &"" or _since_advice < advice_gap:
+		return {}
+	if runner and runner.job and runner.job.job_type == &"boss":
+		return {}
+	var line := bark.say(&"advice", id)
+	if not line.is_empty():
+		_since_advice = 0.0
+	return line
 
 ## The crew member flying `d`, or empty.
 func pilot_of(d: Drone) -> StringName:
