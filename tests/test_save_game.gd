@@ -15,7 +15,7 @@ func _snapshot() -> Array:
 		var row: Node = b.job_rows[id]
 		out.append([id, (row.get_child(0).get_node("Details") as Label).text, b.fly_button(id) != null])
 	for id in b.crew_rows:
-		out.append([id, (b.crew_rows[id].get_node("Status") as Label).text])
+		out.append([id, (b.crew_rows[id].get_node("Info/Status") as Label).text])
 	b.free()
 	return out
 

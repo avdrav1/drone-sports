@@ -29,6 +29,8 @@ const INTRO := "res://scenes/story/intro.tscn"
 const TITLE := "res://scenes/ui/title.tscn"
 const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
+## A fit crew member's perk on the CREW page (Story 19.7).
+const GOOD := Color(0.55, 0.9, 0.55)
 const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get teams to notice you."
 const CONTROLS := "UP/DOWN  MENU      LEFT/RIGHT  JOBS      ENTER  SELECT      ESC  BACK"
 ## What each menu item does, shown under the menu while it has focus.
@@ -491,7 +493,8 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	return row
 
 ## Portrait, name and role, and status: active, injured for N jobs, or dead
-## with a greyed portrait and their memorial line.
+## with a greyed portrait and their memorial line. Under it, a support crew
+## member's perk (Story 19.7): on, struck through while benched, lost once dead.
 static func crew_row(id: StringName) -> HBoxContainer:
 	var c: Character = Roster.character(id)
 	var row := HBoxContainer.new()
@@ -525,11 +528,39 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	text.add_theme_color_override("font_color", color)
 	text.add_theme_font_size_override("font_size", 18)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	text.size_flags_horizontal = SIZE_EXPAND_FILL
 	text.custom_minimum_size.x = 240
-	text.size_flags_vertical = SIZE_SHRINK_CENTER
-	row.add_child(text)
+	var info := VBoxContainer.new()
+	info.name = "Info"
+	info.size_flags_horizontal = SIZE_EXPAND_FILL
+	info.size_flags_vertical = SIZE_SHRINK_CENTER
+	info.add_theme_constant_override("separation", 2)
+	info.add_child(text)
+	if c.perk:
+		info.add_child(perk_label(id))
+	row.add_child(info)
 	return row
+
+## The perk line under a crew row: what they bring while fit, struck through
+## with the jobs left while benched, a memorial note once dead.
+static func perk_label(id: StringName) -> RichTextLabel:
+	var p: CrewPerk = Roster.character(id).perk
+	var l := RichTextLabel.new()
+	l.name = "Perk"
+	l.bbcode_enabled = true
+	l.fit_content = true
+	l.scroll_active = false
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.add_theme_font_size_override("normal_font_size", 16)
+	var line := p.line().replace("[", "[lb]")
+	match Roster.status(id):
+		Roster.Status.ACTIVE:
+			l.text = "[color=#%s]%s[/color]" % [GOOD.to_html(false), line]
+		Roster.Status.INJURED:
+			var left := Roster.jobs_benched(id)
+			l.text = "[color=#%s]Off for %d more job%s:  [s]%s[/s][/color]" % [HURT.to_html(false), left, "" if left == 1 else "s", line]
+		Roster.Status.DEAD:
+			l.text = "[color=#%s]No more %s[/color]" % [DIM.to_html(true), p.name]
+	return l
 
 func _heading(t: String) -> Label:
 	var l := Label.new()

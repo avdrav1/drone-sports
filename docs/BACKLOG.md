@@ -1038,7 +1038,7 @@ Crew perks, on while the character is alive and not benched:
   - Context: Marlo: the job runner raises `Job.guidance` one step (none to next leg, next leg to full) for radar, map, and route ribbon while Marlo is fit; the job's own setting is untouched in data. Ozzie: `Roster.injure` benches for one job instead of two while Ozzie is fit; Ozzie's own injury uses the normal two.
   - Acceptance: A next-leg job shows the full route with Marlo fit and the next leg with Marlo benched or dead. An injury with Ozzie fit benches for one job; with Ozzie benched or dead, two. Grading is unchanged by either perk.
   - Out of scope: Changing the strike rules or adding a way to revive (rule 7).
-- [ ] **19.7 Show what you'd lose**
+- [x] **19.7 Show what you'd lose**
   - Goal: The player knows what each crew member brings before anything happens to them.
   - Context: The CREW page shows each character's perk under their status, struck through while benched and gone with a memorial note once dead ("No more site rates"). The confirmation before a job with crew in the field names the perk at risk. The radio's injury line is unchanged; the results screen's injury line adds "out for N jobs: no <perk>".
   - Acceptance: Each support crew row shows its perk. A benched character's perk shows as off with the jobs left. A dead character's row shows the perk lost. The crew-in-field confirmation names each perk at risk.

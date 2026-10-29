@@ -119,7 +119,9 @@ static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var who := c.name if c else String(id)
 	var dead: bool = r.casualties[id] == Roster.Status.DEAD
 	var out := Roster.jobs_benched(id) if Roster.jobs_benched(id) > 0 else Roster.INJURY_JOBS
-	var head := "%s died." % who if dead else "%s injured, out for %d job%s." % [who, out, "" if out == 1 else "s"]
+	# The perk they take with them (Story 19.7): "out for 1 job: no spotting."
+	var lost := ": no %s" % c.perk.name if c and c.perk and not dead else ""
+	var head := "%s died." % who if dead else "%s injured, out for %d job%s%s." % [who, out, "" if out == 1 else "s", lost]
 	var line: String = r.casualty_lines.get(id, "")
 	var text := head + ("\n" + ("" if dead else who + ": ") + line if line else "")
 	var face := Bark.face_of(id, &"hurt", line) if line and not dead else &"neutral"

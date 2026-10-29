@@ -45,13 +45,15 @@ Three more pilot avatars (so "play as" means a choice) can be added as data once
 
 Each support crew member carries a perk (`Character.perk`, Story 19.4), on while they are fit to work: off while benched, gone for good once dead. Systems ask `Perks.amount(kind)` and never name a character; two crew with the same kind add up.
 
-| Crew | Kind | Perk |
-| --- | --- | --- |
-| Coach Rin | `reputation` | +25 percent reputation from every job |
-| Marlo | `guidance` | Route guidance one step better on every job |
-| Dot | `price` | Garage prices 20 percent lower |
-| Bea | `pay` | +15 percent pay on every job |
-| Ozzie | `recovery` | An injury benches for one job instead of two |
+| Crew | Kind | Name | Perk |
+| --- | --- | --- | --- |
+| Coach Rin | `reputation` | good word | +25 percent reputation from every job |
+| Marlo | `guidance` | spotting | Route guidance one step better on every job |
+| Dot | `price` | trade prices | Garage prices 20 percent lower |
+| Bea | `pay` | site rates | +15 percent pay on every job |
+| Ozzie | `recovery` | quick patch-ups | An injury benches for one job instead of two (not Ozzie's own) |
+
+The CREW page shows each perk under its owner's status: struck through with the jobs left while benched, "No more ..." once dead. The results screen names each bonus paid and the perk an injury switches off, and the confirmation before launching with injured crew in the field names each perk a death would take.
 
 ## Open questions
 

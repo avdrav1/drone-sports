@@ -184,9 +184,9 @@ func test_memorial_line_per_dead_character() -> bool:
 	var ok := true
 	for id in dead:
 		var line := Bark.memorial(id)
-		var text: String = (b.crew_rows[id].get_node("Status") as Label).text
+		var text: String = (b.crew_rows[id].get_node("Info/Status") as Label).text
 		ok = ok and not line.is_empty() and text.contains("Died.") and text.contains(line)
-	ok = ok and not (b.crew_rows[&"rin"].get_node("Status") as Label).text.contains("Died.")
+	ok = ok and not (b.crew_rows[&"rin"].get_node("Info/Status") as Label).text.contains("Died.")
 	b.free()
 	return ok
 

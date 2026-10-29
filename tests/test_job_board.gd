@@ -65,13 +65,13 @@ func test_crew_shows_status_and_the_dead_greyed_with_memorial() -> bool:
 	Roster.kill(&"bea")
 	var b := _board()
 	await Sim.process_frames(1)
-	var marlo: String = (b.crew_rows[&"marlo"].get_node("Status") as Label).text
-	var bea: String = (b.crew_rows[&"bea"].get_node("Status") as Label).text
+	var marlo: String = (b.crew_rows[&"marlo"].get_node("Info/Status") as Label).text
+	var bea: String = (b.crew_rows[&"bea"].get_node("Info/Status") as Label).text
 	var ok: bool = b.crew_rows.size() == 6 and marlo.contains("Injured") and marlo.contains("1 more job") \
 		and bea.contains("Died.") and bea.contains(Bark.memorial(&"bea")) \
 		and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
 		and not (b.crew_rows[&"marlo"].get_node("Face") as CharacterPortrait).greyed \
-		and (b.crew_rows[&"pip"].get_node("Status") as Label).text.contains("Active")
+		and (b.crew_rows[&"pip"].get_node("Info/Status") as Label).text.contains("Active")
 	b.free()
 	return ok
 
@@ -340,6 +340,6 @@ func test_crew_page_shows_everyone_with_big_faces() -> bool:
 		var face: CharacterPortrait = b.crew_rows[id].get_node("Face")
 		ok = ok and b.pages[&"crew"].is_ancestor_of(face) and face.custom_minimum_size.x >= 80
 	ok = ok and (b.crew_rows[&"bea"].get_node("Face") as CharacterPortrait).greyed \
-		and (b.crew_rows[&"bea"].get_node("Status") as Label).text.contains(Bark.memorial(&"bea"))
+		and (b.crew_rows[&"bea"].get_node("Info/Status") as Label).text.contains(Bark.memorial(&"bea"))
 	b.free()
 	return ok
