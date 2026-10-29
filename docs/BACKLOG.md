@@ -977,11 +977,12 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Out of scope: Crew calling for rescue, new failure states.
   - Note: `Character.flight_style` points at a `FlightStyle` in `data/crew/styles/` (Dot bold, Marlo steady, Pip clumsy, Ozzie gentle): `push` and `corner_speed` scale the autopilot's speeds, `cut` widens its pass radius, `spacing` keeps a gap from other drones in the `autopilots` group, `wobble` sways the aim off the line (calming within `Autopilot.CALM` of a point), and `delay` holds the old sticks after a waypoint; a null style flies exactly as before. `FleetCrew.fly_as(auto, c)` sets it (fleet and the Lattice's returned drones), and the style with `advice` (Marlo) radios event `advice` (not in `Bark.EVENTS`, like `order`) on relay `leg_done`/`lap_invalid` and a drone finishing its route, once per `advice_gap` and never on a boss job. `tests/test_flight_style.gd` re-runs the inspection, relay and Lattice reclaim completion tests with every pilot in each style, so a new style must still clear the relay's gates.
 
-- [ ] **18.12 Radio font**
+- [x] **18.12 Radio font**
   - Goal: Radio lines in a chunky, highly legible monospaced pixel font, so typing out reads like a cabinet's comm screen; names in a bolder cut.
   - Context: A CC0 pixel font (for example one of Kenney's), listed in `data/LICENSES.md`, used by the radio panel and `BarkBox` in both front-end skins (17.6). Text still fits the panel at 960×720 and 1920×1080.
   - Acceptance: The radio panel and bark box use the font. The longest existing line fits without clipping at both resolutions. The font file is listed as CC0 with a URL.
   - Out of scope: Changing fonts elsewhere.
+  - Note: `BarkBox.FONT` (Pixel Operator Mono HB) and `BarkBox.NAME_FONT` (its Bold cut), both CC0 from https://www.dafont.com/pixel-operator.font, live in `data/ui/fonts/` with the CC0 text and are listed in `data/LICENSES.md`; their `.import` files are checked in (antialiasing, hinting and subpixel positioning off) and must be drawn at `BarkBox.FONT_SIZE` 16 px, the font's native size (8 px per glyph), or multiples of it to stay crisp. The labels carry the font as overrides, so the HUD, board and title radios read the same under either skin; `tests/test_radio_font.gd` wraps every dialogue line, memorial and suggestion in the panel at 960x720 and 1920x1080 (the longest takes two of four lines), so later stories adding longer lines get caught there.
 
 ## Epic 19: Every crew member counts
 

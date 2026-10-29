@@ -10,6 +10,9 @@ extends Control
 # air has typed out, and chatter is dropped once stale and kept to one per gap.
 # Story 18.3: each line sets the face's emote (or clears it): hearts on a
 # finish with no strikes, the rest from data/crew/emotes.tres.
+# Story 18.12: lines type out in a monospaced pixel font, like a cabinet's comm
+# screen, and the name in its bold cut. The labels carry the fonts themselves,
+# so the panel reads the same in the HUD and under either front-end skin.
 
 @export var bark: Bark
 ## Seconds a line stays up after it has typed out.
@@ -36,6 +39,10 @@ const ACCENT := FlightHud.ACCENT
 const FACE := 80.0
 ## Seconds of static drawn over the panel as a line opens.
 const STATIC_TIME := 0.18
+## The radio's fonts (CC0, data/LICENSES.md), at their native pixel size.
+const FONT: Font = preload("res://data/ui/fonts/PixelOperatorMonoHB.ttf")
+const NAME_FONT: Font = preload("res://data/ui/fonts/PixelOperatorMono-Bold.ttf")
+const FONT_SIZE := 16
 
 var portrait: CharacterPortrait
 var emote: EmoteBubble
@@ -56,8 +63,8 @@ func _ready() -> void:
 	portrait.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(portrait)
 	emote = EmoteBubble.attach(portrait)
-	name_label = _label(13, ACCENT)
-	label = _label(16, LINE)
+	name_label = _label(NAME_FONT, ACCENT)
+	label = _label(FONT, LINE)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	# Lay the whole line out first, so words do not jump lines as it types.
@@ -67,10 +74,11 @@ func _ready() -> void:
 		bark.chirp_on_spoke = false
 	_layout()
 
-func _label(font_size: int, color: Color) -> Label:
+func _label(font: Font, color: Color) -> Label:
 	var l := Label.new()
 	l.mouse_filter = MOUSE_FILTER_IGNORE
-	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_font_override("font", font)
+	l.add_theme_font_size_override("font_size", FONT_SIZE)
 	l.add_theme_color_override("font_color", color)
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
 	l.add_theme_constant_override("outline_size", 4)

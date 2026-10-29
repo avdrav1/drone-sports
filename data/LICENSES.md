@@ -1,6 +1,6 @@
 # Art sources and licences
 
-Every texture and model file under `data/materials/` and `data/models/` is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG or Poly Haven; the source URL is recorded so each can be checked. Downloads are images and glTF only.
+Every texture and model file under `data/materials/` and `data/models/`, and the radio's pixel font under `data/ui/fonts/`, is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG or Poly Haven; the source URL is recorded so each can be checked. Downloads are images, glTF, and fonts only.
 
 Material sets are ambientCG 1K-JPG downloads, repacked: `<set>_albedo.jpg` is the colour map; `<set>_nr.jpg` holds the OpenGL normal map's red and green in R and G and the roughness map in B (glass: roughness 0.05 to 0.45 from the smudge mask). Their `.import` files are checked in (VRAM compressed, mipmaps, normal-map detection off so B survives).
 
@@ -54,3 +54,5 @@ Street clutter models (Story 15.9) are Poly Haven 1K glTF downloads, reworked in
 | `models/tree/tree_small_02_branch_nor_gl.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
 | `models/tree/tree_small_02_diff.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
 | `models/tree/tree_small_02_nor_gl.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
+| `ui/fonts/PixelOperatorMonoHB.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
+| `ui/fonts/PixelOperatorMono-Bold.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
