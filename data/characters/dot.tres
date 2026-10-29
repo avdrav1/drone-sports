@@ -1,7 +1,13 @@
-[gd_resource type="Resource" script_class="Character" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/bold.tres" id="2_style"]
+[ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
+
+[sub_resource type="Resource" id="perk"]
+script = ExtResource("2_perk")
+kind = &"price"
+amount = 0.2
 
 [resource]
 script = ExtResource("1_char")
@@ -23,3 +29,4 @@ death_consequence = &"shop_closed"
 can_be_harmed = true
 tags = Array[StringName]([&"can_fly"])
 flight_style = ExtResource("2_style")
+perk = SubResource("perk")

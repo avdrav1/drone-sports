@@ -1023,7 +1023,7 @@ Crew perks, on while the character is alive and not benched:
   - Context: `PilotSelect` (cards with portrait, role, and today the tweak's name). Each card gets a one-line "best at", the edge in plain words ("Top speed 15 m/s while the governor is on, others 12"), and four bars (speed, cornering, climb, endurance) computed from the edge, not typed in. Fits at 960×720 in both front-end skins.
   - Acceptance: Every pilot card shows best-at text and the four bars. The bars come from the edge data, and the highest bar on each specialist's card is their specialty. Text fits at 960×720 and 1920×1080.
   - Out of scope: Changing pilots mid-job.
-- [ ] **19.4 Crew perks are data**
+- [x] **19.4 Crew perks are data**
   - Goal: A support crew member can carry a perk that is on while they are alive and not benched, answered by one static query.
   - Context: `Character.perk: CrewPerk` (kind and amount). `Perks.amount(kind)` sums the amounts of every fit crew member carrying that kind, so systems ask for a kind and never name a character (as `Consequences` does for deaths). Injured: off until back from the bench. Dead: off for good. Free flight changes nothing.
   - Acceptance: A perk's amount is reported while its owner is active, zero while injured, and zero once dead. Two characters with the same kind add up. No system outside `data/characters/` names a character to get a perk.

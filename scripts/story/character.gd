@@ -45,6 +45,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var can_be_harmed := true
 ## E.g. pilot (a selectable avatar).
 @export var tags: Array[StringName] = []
+## A support crew member's perk (Story 19.4), on while they are fit to work.
+## None for the pilots and anyone else who brings nothing on a job.
+@export var perk: CrewPerk
 ## Their voice in the score (Story 16.10): the id of a stem in the act scores
 ## from the tryout on, e.g. motif_bea. The MusicDirector plays it only while
 ## they are active, quieter while injured, never again once dead. Empty for
@@ -86,6 +89,8 @@ func validate() -> Array[String]:
 		out.append("%s: bounce needs 0.3 to 2 bobs a second and a phase in [0, 1)" % id)
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
+	if perk and (not perk.kind in CrewPerk.KINDS or perk.amount <= 0.0):
+		out.append("%s: perk must be one of %s with an amount above 0" % [id, CrewPerk.KINDS])
 	if motif != &"" and not can_be_harmed:
 		out.append("%s: only crew have a motif" % id)
 	if edge:
