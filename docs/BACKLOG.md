@@ -1081,3 +1081,33 @@ Done when every crew member looks like a person, not a bubble: a rigged cartoon 
   - Acceptance: Every existing portrait, motion, emote, distress and incoming-call test passes unchanged. Each portrait's skin, hair and outfit colours match its `CrewLook`. All crew are told apart at 32, 64 and 128 px (a screenshot of every face in every expression). The dead pose still shows shut eyes and no motion.
   - Out of scope: New expressions.
   - Note: `CharacterPortrait` draws a bust from the look: shoulders and a round collar in `top` on the bottom edge (they take the face's squash, not its bob), ears, back hair (`long`, `twin_buns`, `bun`, a `crop` ponytail), front hair down to the static `hairline(x)` (kept above every brow) or Ozzie's beard for `bald_beard`, and people-wear per accessory (Pip's peaked cap and Moss's fin cap at `CAP_BOTTOM`, Marlo's headset with the antenna up from an ear cup, Ozzie's ear-muffs); the head's size and place, the face, and every pose/motion/emote/distress/static/pop-in/dead API are unchanged. The static `palette(c)` (skin, hair, top, accessory, detail) and `hair_style(c)` are the one place the portrait reads `CrewLook`, falling back to `colors` without a look; `tests/portrait_probe.gd` renders every face under GL Compatibility for `test_portraits_as_people.gd`.
+
+## Epic 21: The game's song
+
+Done when the title, start page and main menu play the user's own song, "There's Only Love in My Heart" by Avdrav, and every other score is regenerated to sound like it: its tempo, key, chords and instrument colours, still following Epic 16's structure (each act strips back as the assists come off, the Lattice is bare, motifs, tension and weather layers, gates in key). The song is the user's own work, used with their permission; its audio comes from a file the user supplies, never from a stream rip. Music is still baked offline, never synthesized live.
+
+- [ ] **21.1 The song as the theme**
+  - Goal: The intro, start page and main menu play the song.
+  - Context: The user's source file goes in `tools/music/source/` (gitignored; never committed). ffmpeg encodes it to Ogg Vorbis in `data/music/` as the `theme` score's one stem, replacing 17.13's generated theme stems (`theme_drums`, `theme_orchestra`), with a loop point at a musical boundary so it repeats cleanly on the menu. Its muffled variant is made the same way as the others. `data/LICENSES.md` / the music licence list record it as the user's own work, used with permission.
+  - Acceptance: `data/music/theme.tres` plays the song from the title through the board, in every act, with no gap or click at the loop (checked on the samples either side of the loop point). A job still plays its act's score. The old generated theme stems are gone. `data/music/` stays under 10 MB. Every file is listed.
+  - Out of scope: Changing other scores (21.3).
+
+- [ ] **21.2 Profile the song**
+  - Goal: The song's musical fingerprint as data the generator reads: tempo, key and tonic, chord progression, groove, and the tone of its main instruments.
+  - Context: `tools/music/analyze.py` (stdlib plus ffmpeg to decode) writes `tools/music/song_profile.json`: bpm, tonic in Hz, mode, a bar-by-bar chord list, drum pattern onsets, and a spectral envelope per instrument role (bass, pads, lead, drums). `tools/music/key.py` takes the song's tonic, so the motor hum and every in-key sound move with it (`tools/sfx/generate.py --check` regenerated). Hand corrections go in the JSON, which is committed.
+  - Acceptance: Running the analysis twice gives the same JSON. The profile's tempo and tonic match the song (checked against values the user confirms or hand-tapped ones in the JSON). `key.py`'s tonic equals the profile's. Both generators' `--check` pass after regenerating.
+  - Out of scope: Rewriting scores (21.3).
+
+- [ ] **21.3 Every score in the song's sound**
+  - Goal: All other music (Acts 1-5, the mantra, crew motifs, tension and weather layers, the Lattice) is regenerated to sound like the song: same tempo feel, key, chord colours and instrument tones, with melodies drawn from it.
+  - Context: `tools/music/generate.py` and `instruments.py` read `song_profile.json`; instruments are retuned or added to match its tones. Epic 16's structure stays: Act 1 fully produced, stripping back act by act, the Lattice a bare voice over the drone, motifs per crew member, gates in key. Every existing music test passes, updated only where a test pins an old tempo, tonic or instrument list.
+  - Acceptance: Every `Score` uses the profile's tempo (or a stated multiple) and tonic. The generator is deterministic. Every act still has fewer stems than the one before it, as Epic 16 requires. `data/music/` stays under 10 MB. Every file is listed.
+  - Out of scope: Live synthesis, new music systems.
+
+## Epic 22: The test path
+
+- [ ] **22.1 From a loop to a path**
+  - Goal: The test race becomes a point-to-point path that teaches in three parts: a straight run that only tests altitude (gates at different heights), then turns brought in gradually at one height, and finally turns and height changes together, ending at a finish gate.
+  - Context: `CourseData` gains `closed` (default true, so the fleet race's loop is unchanged); an open course runs once from the start gate to the last gate, and `Course` finishes the run there instead of counting laps. A new `data/courses/test_path.tres` and map replace the loop in `scenes/jobs/test_race.tscn`; the race's objectives and HUD read "run" rather than "lap" for an open course. AI racers fly it with the 9d1d4ab spline handles. Tests that load the loop for loop behaviour keep it.
+  - Acceptance: The first part's gates sit on one straight line with at least three different heights and no turn. The second part's turns grow (each turn's angle at least the one before) at one height. The last part has gates that change both heading and height. The race ends at the last gate, once. Both AI racers finish it. The fleet race still runs its loop with laps.
+  - Out of scope: New gate kinds, other courses.
