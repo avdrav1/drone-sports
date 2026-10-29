@@ -19,6 +19,7 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export_file("*.json") var lines := ""
 ## Pitch of the chirp under their barks (Story 14.8): 1 is the sample as made,
 ## higher for a smaller, quicker voice. No voice acting; this is their voice.
+## A ratio from the key's scale (Story 18.6), so their chirps stay in key.
 @export_range(0.5, 2.0) var chirp_pitch := 1.0
 ## Their face's idle bob (Story 18.2): x is bobs per second, y the phase as a
 ## fraction of a bob, so the crew never bob in unison.

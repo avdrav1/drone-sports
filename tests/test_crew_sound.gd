@@ -12,7 +12,8 @@ func _fresh() -> void:
 	Roster.load_saved()
 
 func _chirps() -> Array:
-	return Sfx.log.filter(func(l): return l.id == &"crew_chirp")
+	# Any variant (Story 18.6 picks one by the line's face).
+	return Sfx.log.filter(func(l): return String(l.id).begins_with("crew_chirp"))
 
 func _lattice_job() -> Node:
 	var s: Node = load(LATTICE_JOB).instantiate()

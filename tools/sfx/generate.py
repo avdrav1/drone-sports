@@ -5,8 +5,11 @@ Standard library only. Every sound uses a fixed seed, so running this again
 writes the same files. Output: mono, 16-bit, 22050 Hz .wav. Loops are built to
 join seamlessly: tones use whole cycles per loop, noise is filtered around the
 loop until it settles. Run from the repo root: python3 tools/sfx/generate.py
+With --check it renders into build/sfx/check/ instead and exits non-zero unless
+every file matches data/audio/generated/ byte for byte.
 """
 
+import filecmp
 import json
 import math
 import os
@@ -32,6 +35,13 @@ PITCHED = {
     "job_countdown": (5, 2),
     "job_go": (1, 3),
     "job_gate": (1, 2),
+    # Story 18.6: every crew chirp starts on the tonic, so a speaker's
+    # chirp_pitch (a scale ratio) lands it on a degree of the key.
+    "crew_chirp": (1, 2),
+    "crew_chirp_happy": (1, 2),
+    "crew_chirp_celebrate": (1, 2),
+    "crew_chirp_worried": (1, 2),
+    "crew_chirp_sad": (1, 2),
 }
 
 
@@ -398,20 +408,77 @@ def debris_impact(seed):
     return out
 
 
-def crew_chirp():
-    """A two-blip chirp under a crew bark, in place of a voice. One sample,
-    pitched per speaker from Character.chirp_pitch."""
+def chirp_notes(notes, scoop=0.0, vibrato=0.0, bright=1.0):
+    """A little voice of short notes, (freq Hz, length s, gap s) each: a soft-
+    clipped sine with a touch of its octave, a quick attack and release. Each
+    note scoops up into its pitch by `scoop` (a ratio below it); `vibrato`
+    wobbles it by that ratio at 9 Hz. `bright` scales the overtone (lower is
+    rounder, an "oo")."""
     out = []
-    for f0, f1, length in ((700, 980, 0.06), (900, 760, 0.08)):
+    for f, length, gap in notes:
         n = int(RATE * length)
         phase = 0.0
         for i in range(n):
             t = i / RATE
-            phase += 2 * math.pi * (f0 + (f1 - f0) * t / length) / RATE
-            s = math.tanh(2 * math.sin(phase)) + 0.3 * math.sin(2 * phase)
-            env = min(1.0, t / 0.004) * min(1.0, (n - i) / (RATE * 0.01))
+            g = f * (1.0 - scoop * max(0.0, 1.0 - t / 0.025))
+            g *= 1.0 + vibrato * math.sin(2 * math.pi * 9.0 * t)
+            phase += 2 * math.pi * g / RATE
+            s = math.tanh((1.0 + bright) * math.sin(phase)) + 0.3 * bright * math.sin(2 * phase)
+            env = min(1.0, t / 0.006) * min(1.0, (n - i) / (RATE * 0.015))
             out.append(s * env)
-        out.extend([0.0] * int(RATE * 0.02))
+        out.extend([0.0] * int(RATE * gap))
+    return out
+
+
+def crew_chirp():
+    """The plain two-blip chirp under a crew bark, in place of a voice: the
+    tonic, then a step up (Story 18.6 put it on the key). One sample, pitched
+    per speaker from Character.chirp_pitch. Strike, injury and memorial lines
+    keep this one."""
+    f = key.hz(*PITCHED["crew_chirp"])
+    return chirp_notes([(f, 0.07, 0.02), (f * key.SCALE[1], 0.08, 0.0)])
+
+
+def crew_chirp_happy():
+    """A happy line (Story 18.6): two notes rising from the tonic to the
+    fifth, each scooping up into its pitch, the second held a little."""
+    f = key.hz(*PITCHED["crew_chirp_happy"])
+    return chirp_notes([(f, 0.08, 0.015), (f * key.SCALE[4], 0.13, 0.0)], scoop=0.06)
+
+
+def crew_chirp_celebrate():
+    """Celebrating (Story 18.6): a giggle trill, quick hops between the tonic
+    and the third, ending up on the fifth."""
+    f = key.hz(*PITCHED["crew_chirp_celebrate"])
+    third, fifth = f * key.SCALE[2], f * key.SCALE[4]
+    return chirp_notes([(f, 0.045, 0.012), (third, 0.04, 0.012), (f, 0.045, 0.012),
+                        (third, 0.04, 0.012), (f, 0.045, 0.012), (fifth, 0.1, 0.0)], scoop=0.03)
+
+
+def crew_chirp_worried():
+    """Worried (Story 18.6): one wobbly held note on the tonic, a nervous
+    quaver around it, then a smaller wobble a third down."""
+    f = key.hz(*PITCHED["crew_chirp_worried"])
+    return chirp_notes([(f, 0.2, 0.03), (f * key.SCALE[5] / 2, 0.1, 0.0)], vibrato=0.018)
+
+
+def crew_chirp_sad():
+    """Sad (Story 18.6): a soft falling "awoo", rounder than the rest. It holds
+    the tonic, then slides down to the sixth below and fades."""
+    f = key.hz(*PITCHED["crew_chirp_sad"])
+    low = f * key.SCALE[5] / 2
+    n = int(RATE * 0.42)
+    hold, slide = 0.14, 0.14
+    phase = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        k = min(1.0, max(0.0, (t - hold) / slide))
+        g = f * (low / f) ** (0.5 - 0.5 * math.cos(math.pi * k))
+        phase += 2 * math.pi * g / RATE
+        s = math.sin(phase) + 0.12 * math.sin(2 * phase)
+        env = min(1.0, t / 0.03) * min(1.0, (n - i) / (RATE * 0.12))
+        out.append(s * env)
     return out
 
 
@@ -517,7 +584,8 @@ def main():
         write(name + "_muffled.wav", muffled(globals()[name]()), loop=True)
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
-    for name in ("crew_chirp", "radio_static", "lattice_tone", "lattice_power_down"):
+    for name in ("crew_chirp", "crew_chirp_happy", "crew_chirp_celebrate", "crew_chirp_worried",
+                 "crew_chirp_sad", "radio_static", "lattice_tone", "lattice_power_down"):
         write(name + ".wav", globals()[name]())
     write("lattice_drone.wav", lattice_drone(), loop=True)
     write("coin_chime.wav", coin_chime())
@@ -527,5 +595,24 @@ def main():
     write_pitches()
 
 
+def check():
+    """Renders into build/sfx/check/ and compares with data/audio/generated/."""
+    global OUT
+    real = OUT
+    OUT = os.path.join(os.path.dirname(__file__), "..", "..", "build", "sfx", "check")
+    if os.path.isdir(OUT):
+        for f in os.listdir(OUT):
+            os.remove(os.path.join(OUT, f))
+    main()
+    bad = [f for f in sorted(os.listdir(OUT))
+           if not os.path.isfile(os.path.join(real, f))
+           or not filecmp.cmp(os.path.join(OUT, f), os.path.join(real, f), shallow=False)]
+    for f in bad:
+        print("differs: " + f)
+    return not bad
+
+
 if __name__ == "__main__":
+    if "--check" in sys.argv:
+        sys.exit(0 if check() else 1)
     main()

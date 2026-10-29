@@ -110,7 +110,7 @@ func _open(line: Dictionary) -> void:
 	var layer := get_canvas_layer_node()
 	if layer == null or layer.visible:
 		Sfx.play(&"radio_static")
-		Bark.chirp(line.id)
+		Bark.chirp(line.id, line.get("face", &"neutral"), line.event)
 	var c: Character = Roster.character(line.id)
 	portrait.character = c
 	portrait.expression = line.get("face", &"neutral")

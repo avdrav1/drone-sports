@@ -41,10 +41,10 @@ func show_result(r: JobResult) -> void:
 	for id in r.casualties:
 		rows.add_child(casualty_row(r, id))
 		if r.casualties[id] != Roster.Status.DEAD and r.casualty_lines.get(id, "") != "":
-			Bark.chirp(id)
+			Bark.chirp(id, &"neutral", &"hurt")
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark, r))
-		Bark.chirp(r.bark.id)
+		Bark.chirp(r.bark.id, r.bark.get("face", &"neutral"), r.bark.get("event", &"results"))
 	for e in r.epilogue:
 		rows.add_child(epilogue_row(e))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]

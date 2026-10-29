@@ -15,6 +15,8 @@ extends Node
 # Story 17.9: the crew react to a FlightWatcher's flight events, each line with a
 # face; who reacts from afar is their `speaks_on`.
 # Story 18.4: a line may say {you}, filled from the speaker's `calls_you`.
+# Story 18.6: the chirp follows the line's face (CHIRPS); strike, injury and
+# memorial lines keep the plain one.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
@@ -28,6 +30,21 @@ const DEFAULT_FACES := {
 	&"complete": &"happy",
 	&"fail": &"sad",
 }
+
+## The chirp variant for each face (Story 18.6). Sound events in the bank.
+const CHIRPS := {
+	&"neutral": &"crew_chirp",
+	&"happy": &"crew_chirp_happy",
+	&"determined": &"crew_chirp_happy",
+	&"worried": &"crew_chirp_worried",
+	&"shocked": &"crew_chirp_worried",
+	&"sad": &"crew_chirp_sad",
+}
+## A happy or eager line on these events celebrates: the giggle trill.
+const CELEBRATE_EVENTS: Array[StringName] = [&"complete"]
+const CELEBRATE_CHIRP := &"crew_chirp_celebrate"
+## Serious events keep the plain chirp whatever the face.
+const PLAIN_EVENTS: Array[StringName] = [&"warning", &"strike", &"hurt", &"memorial"]
 
 signal spoke(id: StringName, event: StringName, text: String)
 ## Every line announced on `spoke`, as {id, event, text, face}. A line emitted
@@ -76,18 +93,28 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_since_gate += delta
 
-## The speaker's chirp under a bark, pitched from their Character. The dead
-## never speak, so they never chirp.
-static func chirp(id: StringName) -> void:
+## The speaker's chirp under a bark, pitched from their Character, its variant
+## from the line's face and event (chirp_for). The dead never speak, so they
+## never chirp.
+static func chirp(id: StringName, face: StringName = &"neutral", event: StringName = &"") -> void:
 	var c: Character = Roster.character(id)
 	if c and Roster.is_alive(id):
-		Sfx.play(&"crew_chirp", null, 0.0, c.chirp_pitch)
+		Sfx.play(chirp_for(face, event), null, 0.0, c.chirp_pitch)
+
+## The chirp sound event for a line with this face on this event.
+static func chirp_for(face: StringName, event: StringName = &"") -> StringName:
+	if event in PLAIN_EVENTS:
+		return &"crew_chirp"
+	if event in CELEBRATE_EVENTS and face in [&"happy", &"determined"]:
+		return CELEBRATE_CHIRP
+	return CHIRPS.get(face, &"crew_chirp")
 
 func _on_spoke(id: StringName, event: StringName, text: String) -> void:
+	var face := face_of(id, event, text)
 	if chirp_on_spoke:
-		chirp(id)
+		chirp(id, face, event)
 	if not _saying:
-		said.emit({"id": id, "event": event, "text": text, "face": face_of(id, event, text)})
+		said.emit({"id": id, "event": event, "text": text, "face": face})
 
 ## Every line file, parsed once. Event -> {"active": [...], "injured": [...]}.
 static func lines_of(id: StringName) -> Dictionary:

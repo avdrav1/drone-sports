@@ -111,7 +111,7 @@ func test_line_opens_with_static_chirp_face_and_role() -> bool:
 	Sfx.clear_log()
 	var said := box.bark.say(&"briefing", &"marlo")
 	Bark._cache[&"marlo"] = saved
-	var chirps := Sfx.log.filter(func(l): return l.id == &"crew_chirp")
+	var chirps := Sfx.log.filter(func(l): return String(l.id).begins_with("crew_chirp"))
 	var ok: bool = box.current == said and box.portrait.expression == &"worried" \
 		and box.portrait.size.x >= 72 and Sfx.count(&"radio_static") == 1 and chirps.size() == 1 \
 		and Sfx.log[0].id == &"radio_static" and box.name_label.text == "MARLO  ·  SPOTTER" \
@@ -119,7 +119,7 @@ func test_line_opens_with_static_chirp_face_and_role() -> bool:
 	# A queued line chirps when it opens, not when it is said.
 	Sfx.clear_log()
 	box.bark.say(&"briefing", &"rin")
-	ok = ok and Sfx.count(&"crew_chirp") == 0 and Sfx.count(&"radio_static") == 0
+	ok = ok and Sfx.log.filter(func(l): return String(l.id).begins_with("crew_chirp")).is_empty() and Sfx.count(&"radio_static") == 0
 	_free(box)
 	return ok
 
