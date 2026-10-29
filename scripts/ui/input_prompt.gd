@@ -102,6 +102,9 @@ func group_text(actions: Array, separator := " / ") -> String:
 		var stick := stick_text(actions)
 		if stick != "":
 			return stick
+		var split := split_stick_text(actions)
+		if split != "":
+			return split
 		var names: Array = actions.map(func(a): return pad_text(a))
 		if names.all(func(s): return DPAD.values().has(s)):
 			return "D-pad " + "".join(names.map(func(s): return s.trim_prefix("D-pad ")))
@@ -174,3 +177,26 @@ func stick_text(actions: Array) -> String:
 		return names.keys()[0]
 	var horizontal: bool = axes.keys()[0] in [JOY_AXIS_LEFT_X, JOY_AXIS_RIGHT_X]
 	return "%s %s" % [names.keys()[0], "←→" if horizontal else "↑↓"]
+
+## On a pad, actions spread over both sticks one stick at a time, e.g. Mode 1's
+## pitch and roll as "L stick ↑↓ + R stick ←→" (Story 23.6); empty otherwise.
+func split_stick_text(actions: Array) -> String:
+	var by_stick := {}
+	for a in actions:
+		var motion: InputEventJoypadMotion = null
+		for e in InputMap.action_get_events(a) if InputMap.has_action(a) else []:
+			if e is InputEventJoypadMotion:
+				motion = e
+				break
+		if motion == null or motion.axis > JOY_AXIS_RIGHT_Y:
+			return ""
+		var stick := _stick_name(motion.axis)
+		if not by_stick.has(stick):
+			by_stick[stick] = []
+		by_stick[stick].append(a)
+	if by_stick.size() < 2:
+		return ""
+	var parts: Array[String] = []
+	for stick in by_stick:
+		parts.append(stick_text(by_stick[stick]))
+	return "" if parts.has("") else " + ".join(parts)

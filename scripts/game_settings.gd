@@ -9,6 +9,13 @@ static var volumes := {}
 static var muted := false
 ## Renderer extras (Story 15.1): Quality.Tier. High on desktop; the web is always Low.
 static var quality: int = default_quality()
+## The pad (Story 23.6): StickLayout.MODE_2 or MODE_1, pitch inverted, stick feel
+## (PilotInput.expo, 0 to 1), the flight sticks' deadzone, and rumble (Story 23.7).
+static var stick_mode: int = StickLayout.MODE_2
+static var invert_pitch := false
+static var stick_expo := 0.4
+static var stick_deadzone := 0.2
+static var rumble := true
 
 ## The stack to actually apply once settings are taken into account.
 static func effective_stack(stack: AssistStack) -> AssistStack:
@@ -16,7 +23,9 @@ static func effective_stack(stack: AssistStack) -> AssistStack:
 
 static func save() -> void:
 	SaveGame.write_section("settings", {"expert_all_assists_off": expert_all_assists_off,
-		"volumes": volumes, "muted": muted, "quality": quality})
+		"volumes": volumes, "muted": muted, "quality": quality,
+		"stick_mode": stick_mode, "invert_pitch": invert_pitch, "stick_expo": stick_expo,
+		"stick_deadzone": stick_deadzone, "rumble": rumble})
 
 static func load_saved() -> void:
 	var saved = SaveGame.read_section("settings", {})
@@ -24,6 +33,7 @@ static func load_saved() -> void:
 	volumes = {}
 	muted = false
 	quality = default_quality()
+	_load_pad(saved if saved is Dictionary else {})
 	if saved is Dictionary:
 		var v = saved.get("volumes", {})
 		if v is Dictionary:
@@ -32,6 +42,15 @@ static func load_saved() -> void:
 		muted = bool(saved.get("muted", false))
 		if not OS.has_feature("web"):
 			quality = clampi(int(saved.get("quality", quality)), Quality.Tier.LOW, Quality.Tier.HIGH)
+
+## The pad settings, onto the InputMap at once (applied on boot this way).
+static func _load_pad(saved: Dictionary) -> void:
+	stick_mode = StickLayout.MODE_1 if int(saved.get("stick_mode", StickLayout.MODE_2)) == StickLayout.MODE_1 else StickLayout.MODE_2
+	invert_pitch = bool(saved.get("invert_pitch", false))
+	stick_expo = clampf(float(saved.get("stick_expo", 0.4)), 0.0, 1.0)
+	stick_deadzone = clampf(float(saved.get("stick_deadzone", 0.2)), StickLayout.DEADZONE_MIN, StickLayout.DEADZONE_MAX)
+	rumble = bool(saved.get("rumble", true))
+	StickLayout.apply()
 
 ## High on desktop, Low on the web build.
 static func default_quality() -> int:
