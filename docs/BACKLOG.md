@@ -1144,7 +1144,7 @@ Layout (Godot `JoyButton` indices; Xbox names, PlayStation in brackets):
 
 The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbox shortcuts, and the board starts every job.
 
-- [ ] **23.1 Every action has a button**
+- [x] **23.1 Every action has a button**
   - Goal: Every action a player needs has a gamepad binding, laid out as in the table above.
   - Context: `project.godot` InputMap. Start moves from `reset_drone` to a new `pause` action, which `JobRunner` treats as `ui_cancel` (`request_leave`). A new `prev_drone` action joins `next_drone`. `send_lap` and `tag_unit` share X, since no job uses both. Bindings use `device = -1` (any pad). `ControlsHelp` gains `prev_drone` and `pause` rows.
   - Acceptance: Every action in `ControlsHelp.GROUPS` except the start-a-job group and `toggle_mute` (reachable from OPTIONS) has at least one `InputEventJoypadButton` or `InputEventJoypadMotion`. Within one context (flight, command view, menus), no two actions share a button, except `send_lap` and `tag_unit`. Start opens the leave dialog in a live job and `reset_drone` no longer fires on Start. The flight axes are unchanged.
