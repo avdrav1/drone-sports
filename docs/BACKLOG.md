@@ -1162,7 +1162,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: After a synthetic joypad button event, every prompt names pad buttons. After a key event, every prompt names keys. A PlayStation-named pad reads "Cross" where an Xbox pad reads "A". No script under `scripts/` holds a hard-coded key name in player-facing text; a test greps for "Enter", "Esc", "Space" and "click" in string literals, with an allow-list for the key table.
   - Out of scope: Button images, rebinding.
 
-- [ ] **23.3 Menus by pad alone**
+- [x] **23.3 Menus by pad alone**
   - Goal: Every screen and dialog can be used with A, B, the d-pad and the left stick alone.
   - Context: 17.3 to 17.6 set focus on the board, carousel, pilot select and results. Still to audit: the CREW and OPTIONS pages, the sound dialog's sliders and mute box, the quality `OptionButton` and its popup, the shop and offer dialogs, the launch and leave dialogs, the crew warning and perk-at-risk confirmation (19.x), the map screen, and cutscene skip. A dialog that closes hands focus back to the control that opened it. Holding the stick moves one item per tilt, then repeats; it never skips.
   - Acceptance: A "pad walk" test drives title → board → every menu page → a job briefing → launch → leave dialog → results → board using only `Input.parse_input_event` with joypad events. At every step the focus owner is visible, enabled and not null. B backs out of every page and dialog exactly as Esc does. Sliders move with d-pad left/right. The `OptionButton` opens, changes and closes by pad.

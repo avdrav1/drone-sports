@@ -111,6 +111,9 @@ func _ready() -> void:
 	pilot_select.visibility_changed.connect(func():
 		if not pilot_select.visible and get_viewport().gui_get_focus_owner() == null:
 			menu_button(&"Fly").grab_focus())
+	# Story 23.3: Back hands focus to PILOT, which opened it; choosing has
+	# already put it on FLY by the time this runs.
+	pilot_select.visibility_changed.connect(_on_pilot_select_closed, CONNECT_DEFERRED)
 	if not PlayerProfile.has_pilot():
 		pilot_select.open()
 	else:
@@ -222,6 +225,14 @@ func fly(job: Job) -> void:
 func set_quality(tier: int) -> void:
 	GameSettings.quality = tier
 	GameSettings.save()
+
+## Focus left on the hidden pilot cards (or nowhere) goes back to PILOT.
+func _on_pilot_select_closed() -> void:
+	if pilot_select.visible:
+		return
+	var f := get_viewport().gui_get_focus_owner()
+	if f == null or pilot_select.is_ancestor_of(f) or not f.is_visible_in_tree():
+		menu_button(&"Pilot").grab_focus()
 
 ## Esc (or pad B) with nothing open over the board: from a page back to the
 ## menu, from the menu back to the title.
