@@ -44,6 +44,7 @@ const HEADWEAR_BOTTOM := {&"hardhat": -0.82, &"tall": -0.82, &"square": -0.82, &
 const BLINK_GAP := Vector2(2.0, 6.0)
 const BLINK_LENGTH := Vector2(0.1, 0.2)
 const INK := Color(0.1, 0.08, 0.12)
+const ANTENNA_FILL := 0.16
 ## Idle bob height per face size; happy bobs higher, sad lower.
 const BOB := {&"happy": 0.035, &"sad": 0.012}
 const BOB_DEFAULT := 0.025
@@ -246,7 +247,7 @@ func _draw() -> void:
 	var ink := _tone(INK)
 	var r := s * 0.34
 	var center := c + Vector2(0, s * 0.08)
-	var line := maxf(r * 0.1, 1.2)
+	var line := ink_width(r)
 	_draw_feature(center, r, body, accent, detail, ink, line)
 	draw_circle(center, r, body)
 	draw_circle(center, r, ink, false, line, true)
@@ -336,8 +337,9 @@ func _draw_feature(center: Vector2, r: float, body: Color, accent: Color, detail
 	match character.shape:
 		&"antenna":
 			var tip := center + Vector2(r * 0.18, -r * 1.42)
-			_stroke(center - Vector2(0, r * 0.8), tip, ink, r * 0.16)
-			_stroke(center - Vector2(0, r * 0.8), tip, detail, r * 0.16 - line * 1.4)
+			var stalk := antenna_widths(r)
+			_stroke(center - Vector2(0, r * 0.8), tip, ink, stalk.x)
+			_stroke(center - Vector2(0, r * 0.8), tip, detail, stalk.y)
 			_ball(tip, r * 0.24, accent, ink, line)
 		&"ears":
 			for side in [-1.0, 1.0]:
@@ -385,6 +387,17 @@ func _blob(pts: PackedVector2Array, fill: Color, ink: Color, line: float) -> voi
 	var closed := pts.duplicate()
 	closed.append(pts[0])
 	draw_polyline(closed, ink, line, true)
+
+## Outline width for a face of radius r, in pixels.
+static func ink_width(r: float) -> float:
+	return maxf(r * 0.1, 1.2)
+
+## The antenna stalk's (ink stroke, colour fill) widths: the fill keeps
+## ANTENNA_FILL of r and the ink rims it on both sides, so the stalk reads
+## as a solid coloured part joining ball and head at every size.
+static func antenna_widths(r: float) -> Vector2:
+	var fill := r * ANTENNA_FILL
+	return Vector2(fill + ink_width(r) * 2.0, fill)
 
 ## A line with round ends.
 func _stroke(a: Vector2, b: Vector2, col: Color, width: float) -> void:

@@ -86,3 +86,14 @@ func test_dead_face_shut_no_blush_no_shine() -> bool:
 	greyed.free()
 	_fresh()
 	return ok
+
+func test_antenna_stalk_has_visible_fill() -> bool:
+	# The stalk's coloured fill must be at least a pixel and as wide as the
+	# outline, and the ink must rim it on both sides, at 32, 64 and 128 px.
+	var ok := true
+	for s in [32.0, 64.0, 128.0]:
+		var r: float = s * 0.34
+		var w := CharacterPortrait.antenna_widths(r)
+		var line := CharacterPortrait.ink_width(r)
+		ok = ok and w.y >= 1.0 and w.y >= line and w.x >= w.y + line * 2.0 - 0.001
+	return ok
