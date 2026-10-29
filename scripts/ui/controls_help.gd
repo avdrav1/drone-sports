@@ -24,6 +24,7 @@ const GROUPS := [
 	]],
 	["FLEET (COMMAND VIEW)", [
 		[[&"next_drone"], "Select the next drone (or click one)"],
+		[[&"prev_drone"], "Select the previous drone"],
 		[[&"drop_in"], "Drop into the selected drone, or back out"],
 		[[&"send_lap"], "Relay: send the selected drone along its leg"],
 		[[&"tag_unit"], "Lattice: send the selected drone to tag a unit"],
@@ -31,6 +32,7 @@ const GROUPS := [
 	["JOBS", [
 		[[&"ui_accept"], "Launch from the briefing"],
 		[[&"ui_cancel"], "Back to the job board"],
+		[[&"pause"], "Pause (leave or keep flying)"],
 	]],
 	["START A JOB (FROM FREE FLIGHT)", [
 		[[&"start_sample_job"], "Delivery"],
@@ -47,6 +49,8 @@ const ARROWS := {"Up": "↑", "Down": "↓", "Left": "←", "Right": "→", "Sla
 const KEY := Color(1.0, 0.76, 0.25)
 const HEAD := Color(0.35, 0.8, 0.95)
 const ROW_SIZE := 15
+## Groups in the left column; the rest go on the right.
+const LEFT_GROUPS := 2
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
@@ -69,7 +73,7 @@ static func key_text(action: StringName) -> String:
 		if e is InputEventKey:
 			var code: Key = e.physical_keycode if e.physical_keycode != KEY_NONE else e.keycode
 			var s := OS.get_keycode_string(code)
-			return ARROWS.get(s, s)
+			return ("Shift+" if e.shift_pressed else "") + ARROWS.get(s, s)
 	return ""
 
 static func keys_text(actions: Array) -> String:
@@ -105,17 +109,27 @@ func _build() -> void:
 	title.text = "CONTROLS"
 	title.add_theme_font_size_override("font_size", 18)
 	box.add_child(title)
-	for g in GROUPS:
+	# Two columns so every group fits a 720 px screen.
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 32)
+	box.add_child(columns)
+	var column: VBoxContainer
+	for i in GROUPS.size():
+		var g: Array = GROUPS[i]
+		if i == 0 or i == LEFT_GROUPS:
+			column = VBoxContainer.new()
+			column.add_theme_constant_override("separation", 4)
+			columns.add_child(column)
 		var head := Label.new()
 		head.text = g[0]
 		head.add_theme_color_override("font_color", HEAD)
 		head.add_theme_font_size_override("font_size", 13)
-		box.add_child(head)
+		column.add_child(head)
 		var grid := GridContainer.new()
 		grid.columns = 2
 		grid.add_theme_constant_override("h_separation", 24)
 		grid.add_theme_constant_override("v_separation", 0)
-		box.add_child(grid)
+		column.add_child(grid)
 		for row in g[1]:
 			var k := Label.new()
 			k.text = keys_text(row[0])

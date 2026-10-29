@@ -205,8 +205,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if state == State.BRIEFING and event.is_action_pressed("ui_accept"):
 		launch()
+		# The pad's A is also drop_in: launching a fleet job must not drop in too.
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
 		request_leave()
+	elif _is_pause(event):
+		request_leave()
+
+## Start (or P) pauses a job in flight under the leave dialog. In the briefing
+## it does nothing, so a player pressing Start to begin is not sent home.
+func _is_pause(event: InputEvent) -> bool:
+	return state in [State.COUNTDOWN, State.LIVE] and event.is_action_pressed("pause")
 
 func _physics_process(delta: float) -> void:
 	state_time += delta
