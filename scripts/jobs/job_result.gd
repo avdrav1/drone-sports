@@ -13,6 +13,9 @@ var new_best := false
 var objectives: Array[Dictionary] = []
 var pay := 0
 var reputation_change := 0
+## Crew perks paid on top (Story 19.5), already in pay and reputation_change:
+## {id, text, amount, unit}, e.g. {"text": "Bea's site rates", "amount": 18, "unit": ""}.
+var bonuses: Array[Dictionary] = []
 ## Character id -> strikes landed on them this job.
 var strikes := {}
 ## Character id -> Roster.Status after this job's strikes (injured or dead).

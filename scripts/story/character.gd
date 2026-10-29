@@ -89,8 +89,8 @@ func validate() -> Array[String]:
 		out.append("%s: bounce needs 0.3 to 2 bobs a second and a phase in [0, 1)" % id)
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
-	if perk and (not perk.kind in CrewPerk.KINDS or perk.amount <= 0.0):
-		out.append("%s: perk must be one of %s with an amount above 0" % [id, CrewPerk.KINDS])
+	if perk and (not perk.kind in CrewPerk.KINDS or perk.amount <= 0.0 or perk.name.is_empty()):
+		out.append("%s: perk needs a name, one of %s, and an amount above 0" % [id, CrewPerk.KINDS])
 	if motif != &"" and not can_be_harmed:
 		out.append("%s: only crew have a motif" % id)
 	if edge:

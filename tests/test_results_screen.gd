@@ -32,11 +32,13 @@ func test_shows_within_1s_with_every_objective() -> bool:
 	var ok: bool = ended and screen != null and screen.is_visible_in_tree()
 	if ok:
 		var rows: Array = screen.get_node("%Rows").get_children().filter(func(l): return l is Label).map(func(l): return l.text)
-		ok = rows.size() == 3 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
+		# The fit crew's perks follow the objectives (Story 19.5).
+		ok = rows.size() == 5 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
 			and rows[1].contains("No contact") and rows[2].contains("Under 25 s") \
+			and rows[3] == "Bea's site rates +75" and rows[4] == "Coach Rin's good word +3 reputation" \
 			and screen.get_node("%Grade").text.contains("Grade A") \
-			and screen.get_node("%Money").text.contains("Pay 500") \
-			and screen.get_node("%Money").text.contains("+10")
+			and screen.get_node("%Money").text.contains("Pay 575") \
+			and screen.get_node("%Money").text.contains("+13")
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
 	return ok

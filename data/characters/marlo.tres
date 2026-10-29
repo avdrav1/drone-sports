@@ -8,6 +8,7 @@
 script = ExtResource("2_perk")
 kind = &"guidance"
 amount = 1.0
+name = "route calls"
 
 [resource]
 script = ExtResource("1_char")

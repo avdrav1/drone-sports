@@ -1,5 +1,6 @@
 extends RefCounted
-# Story 2.4: payout and reputation.
+# Story 2.4: payout and reputation. The whole crew is fit, so pay carries Bea's
+# +15 percent and reputation gains Rin's +25 percent (Story 19.5).
 
 const Sim = preload("res://tests/sim.gd")
 const TEST_SAVE := "user://test_save.json"
@@ -44,14 +45,14 @@ func _run(value: float, complete := true) -> JobResult:
 func test_a_pays_full() -> bool:
 	_isolate()
 	var r: JobResult = await _run(0.95)
-	var ok := r.letter == "A" and r.pay == 100 and Wallet.balance == 100 and Reputation.of(&"league") == 10
+	var ok := r.letter == "A" and r.pay == 115 and Wallet.balance == 115 and Reputation.of(&"league") == 13
 	_restore()
 	return ok
 
 func test_c_pays_60_percent() -> bool:
 	_isolate()
 	var r: JobResult = await _run(0.65)
-	var ok := r.letter == "C" and r.pay == 60 and Wallet.balance == 60
+	var ok := r.letter == "C" and r.pay == 69 and Wallet.balance == 69
 	_restore()
 	return ok
 
@@ -73,7 +74,7 @@ func test_values_persist_across_save_and_load() -> bool:
 	Reputation.by_faction.clear()
 	Wallet.load_saved()
 	Reputation.load_saved()
-	var ok := Wallet.balance == 180 and Reputation.of(&"league") == 16 \
+	var ok := Wallet.balance == 207 and Reputation.of(&"league") == 21 \
 		and FileAccess.file_exists(TEST_SAVE)
 	_restore()
 	return ok

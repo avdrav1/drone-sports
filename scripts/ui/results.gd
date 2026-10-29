@@ -33,6 +33,13 @@ func show_result(r: JobResult) -> void:
 		var row := Label.new()
 		row.text = "%-28s %3d%%   x%s" % [o.label, roundi(o.score * 100.0), str(o.weight)]
 		rows.add_child(row)
+	var bonuses := bonus_lines(r)
+	for i in bonuses.size():
+		var row := Label.new()
+		row.name = "Bonus%d" % i
+		row.text = bonuses[i]
+		row.add_theme_color_override("font_color", Color(0.55, 0.9, 0.55))
+		rows.add_child(row)
 	for line in strike_lines(r):
 		var row := Label.new()
 		row.text = line
@@ -66,6 +73,14 @@ func show_offers() -> void:
 		offer_dialog = OfferDialog.new()
 		add_child(offer_dialog)
 	offer_dialog.show_next()
+
+## One line per crew perk paid on this job (Story 19.5), e.g.
+## "Bea's site rates +18" or "Coach Rin's good word +3 reputation".
+static func bonus_lines(r: JobResult) -> Array[String]:
+	var out: Array[String] = []
+	for b in r.bonuses:
+		out.append("%s %+d%s" % [b.text, b.amount, b.unit])
+	return out
 
 ## One line per struck character, e.g. "Marlo struck 1x".
 static func strike_lines(r: JobResult) -> Array[String]:

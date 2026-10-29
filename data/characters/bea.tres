@@ -7,6 +7,7 @@
 script = ExtResource("2_perk")
 kind = &"pay"
 amount = 0.15
+name = "site rates"
 
 [resource]
 script = ExtResource("1_char")

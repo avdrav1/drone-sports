@@ -1028,7 +1028,7 @@ Crew perks, on while the character is alive and not benched:
   - Context: `Character.perk: CrewPerk` (kind and amount). `Perks.amount(kind)` sums the amounts of every fit crew member carrying that kind, so systems ask for a kind and never name a character (as `Consequences` does for deaths). Injured: off until back from the bench. Dead: off for good. Free flight changes nothing.
   - Acceptance: A perk's amount is reported while its owner is active, zero while injured, and zero once dead. Two characters with the same kind add up. No system outside `data/characters/` names a character to get a perk.
   - Out of scope: The perks' effects (19.5, 19.6).
-- [ ] **19.5 Pay, reputation, and prices**
+- [x] **19.5 Pay, reputation, and prices**
   - Goal: Bea, Rin, and Dot's perks change real numbers.
   - Context: `Payout.settle` multiplies pay by 1 + the pay perk and reputation by 1 + the reputation perk; `Garage.price` multiplies by 1 - the price perk, after Dot's death markup (which only applies once Dot is dead, so the two never stack). The results screen shows the bonus as its own line ("Bea's rates +120").
   - Acceptance: With Bea fit, a job pays 15 percent more; benched or dead, it does not. With Rin fit, reputation gains are 25 percent higher. With Dot fit, every Garage price is 20 percent lower; after Dot dies, prices follow the existing closed-then-25-percent rule. The results screen names each bonus.

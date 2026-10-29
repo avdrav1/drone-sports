@@ -63,7 +63,9 @@ func test_marlo_dead_no_gate_callouts_or_split_delta() -> bool:
 		and alive_calls == 1 and stand_in_can and dead_calls == 0
 
 func test_dot_dead_closes_shop_for_three_jobs_then_dearer() -> bool:
-	var stock := Garage.price(&"thrust")
+	# The list price: Dot's discount ends with Dot (Story 19.5).
+	var stock: int = Garage.upgrade(&"thrust").prices[0]
+	var discounted := Garage.price(&"thrust") < stock
 	Wallet.balance = 100000
 	Roster.kill(&"dot")
 	var closed := Consequences.shop_closed_jobs() == 3 and not Garage.can_buy(&"thrust") \
@@ -85,7 +87,7 @@ func test_dot_dead_closes_shop_for_three_jobs_then_dearer() -> bool:
 	var open := not button.disabled and button.text == "GARAGE"
 	b.free()
 	Wallet.balance = 0
-	return closed and shown and still and dearer and bought and open
+	return discounted and closed and shown and still and dearer and bought and open
 
 func test_dots_own_job_does_not_count_toward_reopening() -> bool:
 	Roster.kill(&"dot")

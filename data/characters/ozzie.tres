@@ -8,6 +8,7 @@
 script = ExtResource("2_perk")
 kind = &"recovery"
 amount = 1.0
+name = "quick patch-ups"
 
 [resource]
 script = ExtResource("1_char")

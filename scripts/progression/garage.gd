@@ -26,11 +26,16 @@ func level(id: StringName) -> int:
 	return levels.get(id, 0)
 
 ## The next level's price, or -1 at the top level. Marked up once a death
-## carries shop_closed (Story 7.6).
+## carries shop_closed (Story 7.6); lowered by the fit crew's price perk (Story
+## 19.5). The markup's death ends the perk, so the two never stack.
 func price(id: StringName) -> int:
 	var u := upgrade(id)
 	var l := level(id)
-	return ceili(u.prices[l] * Consequences.price_factor()) if u and l < u.max_level() else -1
+	if u == null or l >= u.max_level():
+		return -1
+	var factor := Consequences.price_factor() * maxf(0.0, 1.0 - Perks.amount(&"price"))
+	# Snapped first, so 500 x 0.8 is 400, not 401 from float error.
+	return ceili(snappedf(u.prices[l] * factor, 0.001))
 
 func can_buy(id: StringName) -> bool:
 	var p := price(id)

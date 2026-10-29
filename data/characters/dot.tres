@@ -8,6 +8,7 @@
 script = ExtResource("2_perk")
 kind = &"price"
 amount = 0.2
+name = "trade prices"
 
 [resource]
 script = ExtResource("1_char")
