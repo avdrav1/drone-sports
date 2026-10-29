@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Character" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
+[ext_resource type="Resource" path="res://data/crew/looks/bea.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -14,6 +15,7 @@ script = ExtResource("1_char")
 id = &"bea"
 name = "Bea"
 role = "Demolition foreman"
+look = ExtResource("9_look")
 shape = &"hardhat"
 colors = PackedColorArray(0.85, 0.32, 0.27, 1, 1, 0.88, 0.8, 1, 1, 0.82, 0.2, 1)
 lines = "res://data/dialogue/bea.json"

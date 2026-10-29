@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Character" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/steady.tres" id="2_style"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
+[ext_resource type="Resource" path="res://data/crew/looks/marlo.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -15,6 +16,7 @@ script = ExtResource("1_char")
 id = &"marlo"
 name = "Marlo"
 role = "Spotter"
+look = ExtResource("9_look")
 shape = &"antenna"
 colors = PackedColorArray(0.95, 0.55, 0.25, 1, 1, 0.92, 0.85, 1, 0.3, 0.3, 0.35, 1)
 lines = "res://data/dialogue/marlo.json"

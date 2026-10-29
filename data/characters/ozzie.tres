@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Character" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/gentle.tres" id="2_style"]
 [ext_resource type="Script" path="res://scripts/story/crew_perk.gd" id="2_perk"]
+[ext_resource type="Resource" path="res://data/crew/looks/ozzie.tres" id="9_look"]
 
 [sub_resource type="Resource" id="perk"]
 script = ExtResource("2_perk")
@@ -15,6 +16,7 @@ script = ExtResource("1_char")
 id = &"ozzie"
 name = "Ozzie"
 role = "Medic"
+look = ExtResource("9_look")
 shape = &"ears"
 colors = PackedColorArray(0.4, 0.58, 0.92, 1, 0.95, 0.97, 1, 1)
 lines = "res://data/dialogue/ozzie.json"

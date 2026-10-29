@@ -13,6 +13,8 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var role := ""
 ## Optional art. Without it the portrait is drawn from `shape` and `colors`.
 @export var portrait: Texture2D
+## How they look as a person (Story 20.1): body, skin, hair, outfit and accessory.
+@export var look: CrewLook
 ## Placeholder silhouette, one of SHAPES.
 @export var shape: StringName = &"round"
 ## Two or three colors: body, accent, optional detail.
@@ -75,6 +77,13 @@ func validate() -> Array[String]:
 		out.append("%s: needs two or three colors" % id)
 	if not shape in SHAPES:
 		out.append("%s: unknown shape %s" % [id, shape])
+	if look == null:
+		out.append("%s: needs a look" % id)
+	else:
+		for e in look.validate():
+			out.append("%s: %s" % [id, e])
+		if look.accessory != shape:
+			out.append("%s: look's accessory should match shape %s" % [id, shape])
 	if lines != "res://data/dialogue/%s.json" % id:
 		out.append("%s: lines should be data/dialogue/%s.json" % [id, id])
 	if calls_you.is_empty():

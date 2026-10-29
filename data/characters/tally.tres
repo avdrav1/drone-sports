@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="Character" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 [ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
+[ext_resource type="Resource" path="res://data/crew/looks/tally.tres" id="9_look"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
@@ -44,6 +45,7 @@ script = ExtResource("1_char")
 id = &"tally"
 name = "Tally"
 role = "Long-haul pilot"
+look = ExtResource("9_look")
 shape = &"tuft"
 colors = PackedColorArray(0.45, 0.82, 0.6, 1, 0.95, 0.93, 0.82, 1, 0.2, 0.32, 0.3, 1)
 lines = "res://data/dialogue/tally.json"

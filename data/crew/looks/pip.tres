@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CrewLook" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/crew/crew_look.gd" id="1_look"]
+[ext_resource type="Resource" path="res://data/crew/bodies/male_f.tres" id="2_body"]
+
+[resource]
+script = ExtResource("1_look")
+body = ExtResource("2_body")
+skin = Color(0.98, 0.8, 0.65, 1)
+hair = Color(0.45, 0.28, 0.15, 1)
+top = Color(1, 0.8, 0.3, 1)
+bottom = Color(0.3, 0.35, 0.55, 1)
+shoes = Color(0.95, 0.95, 0.95, 1)
+accessory = &"round"
+accessory_color = Color(0.3, 0.55, 0.95, 1)
+accessory_detail = Color(1, 0.95, 0.8, 1)

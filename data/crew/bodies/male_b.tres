@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CrewBody" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/crew/crew_body.gd" id="1_body"]
+[ext_resource type="PackedScene" path="res://data/models/crew/character-male-b.glb" id="2_model"]
+
+[resource]
+script = ExtResource("1_body")
+id = &"male_b"
+model = ExtResource("2_model")
+hair_style = &"bald_beard"
+crown = 0.661
+clips = Dictionary[StringName, StringName]({
+&"cheer": &"jump",
+&"flinch": &"crouch",
+&"hurt": &"sit",
+&"idle": &"idle",
+&"wave": &"interact-right"
+})

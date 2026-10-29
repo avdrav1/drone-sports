@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="Character" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 [ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
+[ext_resource type="Resource" path="res://data/crew/looks/fen.tres" id="9_look"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
@@ -37,6 +38,7 @@ script = ExtResource("1_char")
 id = &"fen"
 name = "Fen"
 role = "Sprint pilot"
+look = ExtResource("9_look")
 shape = &"visor"
 colors = PackedColorArray(0.95, 0.5, 0.55, 1, 1, 0.94, 0.92, 1, 0.18, 0.22, 0.38, 1)
 lines = "res://data/dialogue/fen.json"

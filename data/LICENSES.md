@@ -1,10 +1,12 @@
 # Art sources and licences
 
-Every texture and model file under `data/materials/` and `data/models/`, and the radio's pixel font under `data/ui/fonts/`, is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG or Poly Haven; the source URL is recorded so each can be checked. Downloads are images, glTF, and fonts only.
+Every texture and model file under `data/materials/` and `data/models/`, and the radio's pixel font under `data/ui/fonts/`, is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG, Poly Haven or Kenney; the source URL is recorded so each can be checked. Downloads are images, glTF, and fonts only.
 
 Material sets are ambientCG 1K-JPG downloads, repacked: `<set>_albedo.jpg` is the colour map; `<set>_nr.jpg` holds the OpenGL normal map's red and green in R and G and the roughness map in B (glass: roughness 0.05 to 0.45 from the smudge mask). Their `.import` files are checked in (VRAM compressed, mipmaps, normal-map detection off so B survives).
 
 Street clutter models (Story 15.9) are Poly Haven 1K glTF downloads, reworked in Blender: joined, decimated, rebased to stand on their origin, and saved as glTF with colour and OpenGL normal maps resized to 512 px or less (roughness and metal maps dropped). `tree/tree_leaves.png` is a leaf-clump atlas rendered from the Tree Small 02 leaves, which the low-poly tree's cards show. Their texture `.import` files are checked in like the material library's.
+
+Crew bodies (Story 20.1) are Kenney's Mini Characters (GLB), rigged and animated, with their shared `colormap.png`. `tools/models/crew_bodies.py` rewrites only their texture coordinates, so a crew look can recolour skin, hair and outfit; meshes, rigs and animations are as made.
 
 `tests/test_material_library.gd` fails if a file is missing from this table or its licence is anything else.
 
@@ -54,5 +56,15 @@ Street clutter models (Story 15.9) are Poly Haven 1K glTF downloads, reworked in
 | `models/tree/tree_small_02_branch_nor_gl.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
 | `models/tree/tree_small_02_diff.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
 | `models/tree/tree_small_02_nor_gl.jpg` | Poly Haven Tree Small 02: https://polyhaven.com/a/tree_small_02 | CC0 |
+| `models/crew/character-female-b.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-female-c.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-female-d.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-female-e.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-female-f.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-male-a.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-male-b.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-male-d.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/character-male-f.glb` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
+| `models/crew/colormap.png` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
 | `ui/fonts/PixelOperatorMonoHB.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
 | `ui/fonts/PixelOperatorMono-Bold.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
