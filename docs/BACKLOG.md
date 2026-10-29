@@ -1049,3 +1049,31 @@ Crew perks, on while the character is alive and not benched:
   - Context: The CREW page shows each character's perk under their status, struck through while benched and gone with a memorial note once dead ("No more site rates"). The confirmation before a job with crew in the field names the perk at risk. The radio's injury line is unchanged; the results screen's injury line adds "out for N jobs: no <perk>".
   - Acceptance: Each support crew row shows its perk. A benched character's perk shows as off with the jobs left. A dead character's row shows the perk lost. The crew-in-field confirmation names each perk at risk.
   - Out of scope: New dialogue lines.
+
+## Epic 20: The crew as people
+
+Done when every crew member looks like a person, not a bubble: a rigged cartoon figure in the 3D world that idles, waves, flinches and cheers, and a head-and-shoulders radio portrait that matches it. Today a crew member in the field is a coloured capsule with a ball on top, and the portraits are round heads. The figures come from a CC0 pack of rigged low-poly people (the user approved a few MB of download), recoloured and dressed per character from data. Everything in Epic 18 stays: the cartoon eyes, expressions, motion, emotes, babble and drone faces. Figures are look only: no collision, and they never touch flight. The dead never appear. Designs are original; the pack only supplies bodies and animations.
+
+- [ ] **20.1 Crew looks**
+  - Goal: Each crew member has a look in data: which body from the pack, skin tone, hair style and colour, outfit colours, and their accessory (Bea's hard hat, Dot's goggles, Marlo's headset antenna, Fen's visor, Rin's tall hat, Ozzie's ear-muffs, Moss's fin cap, Tally's tuft, Pip's round cap), so every view draws the same person.
+  - Context: Download a CC0 pack of rigged, animated low-poly cartoon people as glTF (e.g. Quaternius, Kenney or poly.pizza CC0 entries) into its own empty folder; copy only the .glb/.gltf and textures into `data/models/crew/`, and list each file in `data/LICENSES.md` with its source URL and CC0. Keep the added files under 8 MB. A `CrewLook` resource on `Character` (`look`) holds the body, colours, hair and accessory; accessories are small meshes built in code or from the pack, matched to the existing `shape`. If no CC0 rigged pack can be downloaded without getting round a bot check, stop and say so.
+  - Acceptance: Every character has a look. Any two characters differ in at least two of body, skin, hair, and outfit colour. Every model file is listed as CC0 with a URL, and the total stays under 8 MB. Each body has idle, wave, cheer, and flinch (or the closest) animations, found by name in data. A figure built from each look loads in GL Compatibility with no engine errors.
+  - Out of scope: Placing figures in jobs (20.2), portraits (20.4).
+
+- [ ] **20.2 Crew in the field**
+  - Goal: The crew member on a job site is that person, standing there: idling, glancing at your drone, waving when it passes close, flinching and covering up when the hazard warning sounds, cheering when the job completes, and sitting down hurt after a strike.
+  - Context: `CrewProp` (`scripts/hazard/crew_prop.gd`, used by inspection, rescue and demolition) builds the figure from the character's `CrewLook` in place of the capsule, with the same height and no collision. Reactions come from the job's existing signals (hazard warning, strike, job complete) and the drone's distance; it only reads them. A prop with no character keeps a plain figure.
+  - Acceptance: Each job's crew prop shows the right person. It plays idle by default, waves when the drone comes within a set distance (at most once per pass), flinches on the warning, cheers on completion, and plays hurt after a strike. It has no collision shape and never changes the drone's state. A dead character's prop still never spawns.
+  - Out of scope: Faces on the figure (20.3), walking.
+
+- [ ] **20.3 Faces on the figures**
+  - Goal: The figure's face is the same cartoon face as their portrait: same eyes, brows, mouth and blush, changing expression with what they say, and blinking.
+  - Context: Reuse 18.7's approach (`scripts/drone/drone_face.gd`, `scenes/drone/drone_face.gdshader`): the head's face material reads `CharacterPortrait.pose()` fields for the current expression, so there is one source of truth. When the character speaks on the radio, their figure takes the line's face.
+  - Acceptance: A figure's face shows the speaker's expression for each line and returns to neutral after it. It blinks on its own rhythm. A dead character's face never shows (the prop does not spawn). The face reads at 3 m in a screenshot of each job site.
+  - Out of scope: Lip sync.
+
+- [ ] **20.4 Portraits as people**
+  - Goal: The radio, board and crew-page portraits show each crew member from the shoulders up, with their skin, hair, outfit and accessory from `CrewLook`, keeping the big cartoon eyes and every expression.
+  - Context: Redraw `CharacterPortrait` (`scripts/ui/character_portrait.gd`) in code: shoulders and neck under the head, hair behind and in front, the accessory, colours from `CrewLook`. The pose, motion, emote, distress, static, pop-in and dead APIs stay as they are, so callers do not change.
+  - Acceptance: Every existing portrait, motion, emote, distress and incoming-call test passes unchanged. Each portrait's skin, hair and outfit colours match its `CrewLook`. All crew are told apart at 32, 64 and 128 px (a screenshot of every face in every expression). The dead pose still shows shut eyes and no motion.
+  - Out of scope: New expressions.
