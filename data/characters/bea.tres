@@ -11,6 +11,7 @@ shape = &"hardhat"
 colors = PackedColorArray(0.85, 0.32, 0.27, 1, 1, 0.88, 0.8, 1, 1, 0.82, 0.2, 1)
 lines = "res://data/dialogue/bea.json"
 chirp_pitch = 0.85
+bounce = Vector2(0.55,0.62)
 motif = &"motif_bea"
 death_consequence = &"salvage_locked"
 can_be_harmed = true

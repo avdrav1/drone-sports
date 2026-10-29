@@ -154,6 +154,13 @@ func refresh() -> void:
 		crew_rows[id] = row
 		_crew_box.add_child(row)
 
+## The comms face on the card showing hops, as you pick that job.
+func hop_comms() -> void:
+	var card := carousel.current()
+	var face: CharacterPortrait = card.find_child("Face", true, false) if card else null
+	if face:
+		face.hop()
+
 func fly_button(job_id: StringName) -> Button:
 	var row: Node = job_rows.get(job_id)
 	return row.get_node_or_null("Fly") if row else null
@@ -415,6 +422,7 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	face.character = c
 	face.expression = line.get("face", &"neutral")
 	face.custom_minimum_size = Vector2(64, 64)
+	face.follow_mouse = true
 	row.add_child(face)
 	var text := VBoxContainer.new()
 	text.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -445,6 +453,12 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	face.character = c
 	face.greyed = not Roster.is_alive(id)
 	face.custom_minimum_size = Vector2(88, 88)
+	face.follow_mouse = true
+	# Clicking someone on the crew page makes them hop.
+	face.mouse_filter = MOUSE_FILTER_PASS
+	face.gui_input.connect(func(e: InputEvent):
+		if e is InputEventMouseButton and e.pressed:
+			face.hop())
 	row.add_child(face)
 	var text := Label.new()
 	text.name = "Status"
@@ -533,6 +547,7 @@ func _build() -> void:
 	carousel.set_anchors_preset(PRESET_FULL_RECT)
 	carousel.accent = skin.accent
 	carousel.activated.connect(func(_i): fly_current())
+	carousel.moved.connect(func(_i): hop_comms())
 	stack.add_child(carousel)
 	pages[&"jobs"] = carousel
 	_crew_box = _panel(stack, &"crew")

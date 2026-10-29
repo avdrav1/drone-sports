@@ -20,6 +20,7 @@ shape = &"tuft"
 colors = PackedColorArray(0.45, 0.82, 0.6, 1, 0.95, 0.93, 0.82, 1, 0.2, 0.32, 0.3, 1)
 lines = "res://data/dialogue/tally.json"
 chirp_pitch = 1.1
+bounce = Vector2(0.8,0.92)
 death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([&"pilot"])

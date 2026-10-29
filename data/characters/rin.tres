@@ -11,6 +11,7 @@ shape = &"tall"
 colors = PackedColorArray(0.55, 0.4, 0.8, 1, 0.9, 0.85, 1, 1, 0.2, 0.18, 0.28, 1)
 lines = "res://data/dialogue/rin.json"
 chirp_pitch = 0.75
+bounce = Vector2(0.5,0.48)
 speaks_on = Array[StringName]([&"briefing", &"complete", &"fail", &"results", &"top_speed", &"long_hover"])
 death_consequence = &""
 can_be_harmed = false

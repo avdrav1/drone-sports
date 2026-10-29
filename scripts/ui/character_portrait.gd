@@ -9,6 +9,9 @@ extends Control
 # Story 18.1: a Saturday-morning-cartoon face: a thick dark outline, big low
 # eyes with two shine dots, high short brows, a small mouth, cheek blush, and
 # a soft smile at rest. Readable at 32 px.
+# Story 18.2: the face moves like a cartoon: an idle bob in the character's own
+# rhythm, squash and stretch while talking, eyes that pop when shocked, a droop
+# when sad, a hop() on a pick, and pupils that look_at a point. The dead are still.
 
 const EXPRESSIONS: Array[StringName] = [&"neutral", &"happy", &"determined", &"worried", &"shocked", &"sad"]
 
@@ -41,19 +44,40 @@ const HEADWEAR_BOTTOM := {&"hardhat": -0.82, &"tall": -0.82, &"square": -0.82, &
 const BLINK_GAP := Vector2(2.0, 6.0)
 const BLINK_LENGTH := Vector2(0.1, 0.2)
 const INK := Color(0.1, 0.08, 0.12)
+## Idle bob height per face size; happy bobs higher, sad lower.
+const BOB := {&"happy": 0.035, &"sad": 0.012}
+const BOB_DEFAULT := 0.025
+## Seconds a hop() takes, from crouch to landing.
+const HOP_TIME := 0.45
+## Seconds the shocked eye pop takes to settle.
+const POP_TIME := 0.5
+## Longest combined pupil offset (pose plus look), in pose pupil units.
+const PUPIL_REACH := 0.9
+## A point this many face sizes away turns the pupils fully toward it.
+const LOOK_REACH := 2.0
 
 @export var character: Character
 ## Drawn greyed, e.g. for a dead character on the roster.
 @export var greyed := false
 ## One of EXPRESSIONS.
-@export var expression: StringName = &"neutral"
+@export var expression: StringName = &"neutral":
+	set(v):
+		if v != expression:
+			_expression_at = time
+		expression = v
 ## While true the mouth opens and closes.
 @export var talking := false
 ## Seeds the blink timer; -1 uses the character's id, so a face always blinks alike.
 @export var blink_seed := -1
+## While true the pupils follow the mouse, e.g. on the board.
+@export var follow_mouse := false
 
 ## Seconds this face has been alive; drives blinks and talking.
 var time := 0.0
+## Where the pupils look, set by look_at(): length 0 to 1.
+var look := Vector2.ZERO
+var _expression_at := 0.0
+var _hop_at := -INF
 
 func _ready() -> void:
 	if custom_minimum_size == Vector2.ZERO:
@@ -61,6 +85,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	time += delta
+	if follow_mouse and is_visible_in_tree():
+		look_at(get_global_mouse_position())
 	if drawn():
 		queue_redraw()
 
@@ -79,6 +105,68 @@ static func pose(expr: StringName, t: float, is_talking := false, rng_seed := 0)
 		var wave := absf(sin(t * 11.0)) * (0.65 + 0.35 * sin(t * 3.7))
 		p.mouth_open = clampf(p.mouth_open * 0.5 + 0.08 + 0.5 * wave, 0.0, 1.0)
 	return p
+
+## The whole face's motion for `expr` at `t` seconds: `scale` (around the
+## bottom of the head), `offset` (per face size, negative is up) and `eye_pop`
+## (multiplies eye_scale). `bounce` is the character's Character.bounce,
+## `hop_age` the seconds since hop(), `expr_age` since the expression was set.
+## Pure, so tests read motion, not pixels.
+static func motion(expr: StringName, t: float, is_talking := false, bounce := Vector2(0.7, 0.0), hop_age := INF, expr_age := INF) -> Dictionary:
+	var wave := sin(TAU * (t * bounce.x + bounce.y))
+	var y := -float(BOB.get(expr, BOB_DEFAULT)) * wave
+	# Stretch a little on the way up, squash on the way down.
+	var sy := 1.0 + 0.015 * wave
+	var pop := 1.0
+	if expr == &"sad":
+		y += 0.03
+		sy *= 0.96
+	elif expr == &"shocked" and expr_age < POP_TIME:
+		var k := 1.0 - expr_age / POP_TIME
+		pop += 0.18 * k * k * cos(expr_age * 20.0)
+		y -= 0.03 * k * k
+		sy *= 1.0 + 0.04 * k * k
+	if is_talking:
+		# Two beats against each other, like the mouth, so it reads as speech.
+		sy *= 1.0 + 0.06 * sin(t * 9.0) * (0.7 + 0.3 * sin(t * 2.3))
+	if hop_age >= 0.0 and hop_age < HOP_TIME:
+		var crouch := 0.08
+		var land := 0.36
+		if hop_age < crouch:
+			sy *= 1.0 - 0.15 * sin(PI * hop_age / crouch)
+		elif hop_age < land:
+			var u := (hop_age - crouch) / (land - crouch)
+			y -= 0.1 * 4.0 * u * (1.0 - u)
+			sy *= 1.0 + 0.12 * (1.0 - u)
+		else:
+			sy *= 1.0 - 0.12 * sin(PI * (hop_age - land) / (HOP_TIME - land))
+	# Width answers height, so the face keeps its area.
+	return {"scale": Vector2(1.0 / sy, sy), "offset": Vector2(0.0, y), "eye_pop": pop}
+
+## The motion at rest: what a dead face always has.
+static func still() -> Dictionary:
+	return {"scale": Vector2.ONE, "offset": Vector2.ZERO, "eye_pop": 1.0}
+
+## A cartoon hop, e.g. when the player picks this character. The dead stay still.
+func hop() -> void:
+	if not is_dead():
+		_hop_at = time
+
+## Turns the pupils toward `point`, in global canvas coordinates.
+func look_at(point: Vector2) -> void:
+	var s := minf(size.x, size.y)
+	var d := point - (global_position + size * 0.5 + Vector2(0, s * 0.08))
+	look = d / maxf(d.length(), LOOK_REACH * maxf(s, 1.0))
+
+## The face's motion now; still when dead.
+func current_motion() -> Dictionary:
+	if character == null or is_dead():
+		return still()
+	return motion(expression, time, talking, character.bounce, time - _hop_at, time - _expression_at)
+
+## A pupil's centre for an eye at `eye` with half size `half`, given the pose's
+## pupil offset: clamped to PUPIL_REACH so it never leaves the eye.
+static func pupil_center(eye: Vector2, half: Vector2, pupil: Vector2) -> Vector2:
+	return eye + Vector2(0, half.y * 0.12) + pupil.limit_length(PUPIL_REACH) * half.x * 0.35
 
 ## How much of the face's height the open part of one eye covers in pose `p`.
 static func eye_height(p: Dictionary) -> float:
@@ -128,7 +216,10 @@ func current_pose() -> Dictionary:
 		p.mouth_curve = 0.0
 		p.mouth_open = 0.0
 		return p
-	return pose(expression, time, talking, s)
+	var p := pose(expression, time, talking, s)
+	p.pupil = ((p.pupil as Vector2) + look).limit_length(PUPIL_REACH)
+	p.eye_scale = float(p.eye_scale) * float(current_motion().eye_pop)
+	return p
 
 ## True when the eyes show their shine dots: open and alive.
 func shows_shine() -> bool:
@@ -140,8 +231,14 @@ func _draw() -> void:
 		return
 	var s := minf(size.x, size.y)
 	var c := size * 0.5
+	# Squash and stretch the whole drawing around the bottom of the head.
+	var m := current_motion()
+	var pivot := c + Vector2(0, s * 0.42)
+	var sc: Vector2 = m.scale
+	draw_set_transform(pivot + (m.offset as Vector2) * s - pivot * sc, 0.0, sc)
 	if not drawn():
 		draw_texture_rect(character.portrait, Rect2(c - Vector2.ONE * s * 0.5, Vector2.ONE * s), false, _tone(Color.WHITE))
+		draw_set_transform(Vector2.ZERO)
 		return
 	var body := _tone(character.colors[0])
 	var accent := _tone(character.colors[1])
@@ -163,6 +260,7 @@ func _draw() -> void:
 		_draw_eye(eye, r, p, shine, ink, line)
 		_draw_brow(eye, r, side, p, ink, line)
 	_draw_mouth(center + Vector2(0, r * 0.62), r, p, ink, line)
+	draw_set_transform(Vector2.ZERO)
 
 func _draw_eye(eye: Vector2, r: float, p: Dictionary, shine: bool, ink: Color, line: float) -> void:
 	var half := EYE * r * float(p.eye_scale)
@@ -185,7 +283,7 @@ func _draw_eye(eye: Vector2, r: float, p: Dictionary, shine: bool, ink: Color, l
 	var white: PackedVector2Array = open[0]
 	draw_colored_polygon(white, _tone(Color.WHITE))
 	var pr := half.x * 0.68
-	var pc := eye + Vector2(0, half.y * 0.12) + (p.pupil as Vector2) * half.x * 0.35
+	var pc := pupil_center(eye, half, p.pupil)
 	for part in Geometry2D.intersect_polygons(_oval(pc, pr, pr * 1.15), white):
 		draw_colored_polygon(part, ink)
 	if shine:

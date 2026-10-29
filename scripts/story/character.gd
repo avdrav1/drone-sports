@@ -20,6 +20,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## Pitch of the chirp under their barks (Story 14.8): 1 is the sample as made,
 ## higher for a smaller, quicker voice. No voice acting; this is their voice.
 @export_range(0.5, 2.0) var chirp_pitch := 1.0
+## Their face's idle bob (Story 18.2): x is bobs per second, y the phase as a
+## fraction of a bob, so the crew never bob in unison.
+@export var bounce := Vector2(0.7, 0.0)
 ## Events this character speaks on even when not in the field, e.g. gate_passed
 ## for the spotter. Crew in the field speak on every event.
 @export var speaks_on: Array[StringName] = []
@@ -52,6 +55,8 @@ func validate() -> Array[String]:
 		out.append("%s: lines should be data/dialogue/%s.json" % [id, id])
 	if chirp_pitch < 0.5 or chirp_pitch > 2.0:
 		out.append("%s: chirp_pitch must be 0.5 to 2" % id)
+	if bounce.x < 0.3 or bounce.x > 2.0 or bounce.y < 0.0 or bounce.y >= 1.0:
+		out.append("%s: bounce needs 0.3 to 2 bobs a second and a phase in [0, 1)" % id)
 	if not death_consequence in CONSEQUENCES:
 		out.append("%s: unknown consequence %s" % [id, death_consequence])
 	if motif != &"" and not can_be_harmed:

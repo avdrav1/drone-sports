@@ -86,7 +86,10 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	face.name = "Face"
 	face.character = c
 	face.custom_minimum_size = Vector2(96, 96)
+	face.follow_mouse = true
 	box.add_child(face)
+	# Pointing at or focusing a pilot is picking them: they hop.
+	card.mouse_entered.connect(face.hop)
 	var name_label := Label.new()
 	name_label.text = c.name.to_upper()
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -108,6 +111,7 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	b.name = "Choose"
 	b.text = "Fly as %s" % c.name
 	b.pressed.connect(choose.bind(c.id))
+	b.focus_entered.connect(face.hop)
 	box.add_child(b)
 	return card
 

@@ -20,6 +20,7 @@ shape = &"fin"
 colors = PackedColorArray(0.6, 0.62, 0.3, 1, 0.98, 0.85, 0.7, 1, 0.25, 0.55, 0.6, 1)
 lines = "res://data/dialogue/moss.json"
 chirp_pitch = 0.8
+bounce = Vector2(0.6,0.39)
 death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([&"pilot"])

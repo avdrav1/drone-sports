@@ -11,6 +11,7 @@ shape = &"antenna"
 colors = PackedColorArray(0.95, 0.55, 0.25, 1, 1, 0.92, 0.85, 1, 0.3, 0.3, 0.35, 1)
 lines = "res://data/dialogue/marlo.json"
 chirp_pitch = 1.0
+bounce = Vector2(0.7,0.83)
 speaks_on = Array[StringName]([&"gate_passed", &"near_miss", &"low_pass"])
 motif = &"motif_marlo"
 death_consequence = &"no_spotter"

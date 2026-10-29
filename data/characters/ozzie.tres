@@ -12,6 +12,7 @@ colors = PackedColorArray(0.4, 0.58, 0.92, 1, 0.95, 0.97, 1, 1)
 lines = "res://data/dialogue/ozzie.json"
 speaks_on = Array[StringName]([&"weather_change"])
 chirp_pitch = 0.95
+bounce = Vector2(0.65,0.17)
 motif = &"motif_ozzie"
 death_consequence = &"city_locked"
 can_be_harmed = true
