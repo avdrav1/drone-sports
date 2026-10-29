@@ -64,6 +64,9 @@ func _ready() -> void:
 	MusicDirector.watch(self)
 	# Its launch and leave dialogs and the results screen click (Story 14.5).
 	UiSounds.wire(self)
+	# The briefing names the launch key or button for the device in hand.
+	if not InputPrompt.device_changed.is_connected(_on_device_changed):
+		InputPrompt.device_changed.connect(_on_device_changed)
 	if auto_begin:
 		begin.call_deferred()
 
@@ -341,12 +344,16 @@ func _set_state(s: State) -> void:
 	_update_label()
 	state_changed.emit(s, previous)
 
+func _on_device_changed(_pad: bool) -> void:
+	_update_label()
+
 func _update_label() -> void:
 	if state_label == null:
 		return
 	match state:
 		State.BRIEFING:
-			state_label.text = "BRIEFING  %s  for %s  pay %d\npress Enter to launch" % [job.title, job.client, job.pay]
+			state_label.text = "BRIEFING  %s  for %s  pay %d\npress %s to launch" % [job.title, job.client, job.pay,
+				InputPrompt.text(&"ui_accept")]
 		State.COUNTDOWN:
 			state_label.text = "COUNTDOWN  %d" % ceili(job.countdown - state_time)
 		State.LIVE:

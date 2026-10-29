@@ -38,7 +38,7 @@ func test_e_cycles_weather_and_back_to_clear() -> bool:
 		_press(s)
 	var cleared: bool = env_node.environment == own and d.wind == breeze and not hud.subtitle.contains("Whiteout")
 	var ok: bool = clear_start and fogged and whited and cleared and ENV.fog_density == base and ENV.fog_light_color != fog.fog_color \
-		and ControlsHelp.key_text(&"cycle_weather") == "E"
+		and InputPrompt.key_text(&"cycle_weather") == "E"
 	if not ok:
 		print("        %s %s %s %s" % [clear_start, fogged, whited, cleared])
 	s.free()

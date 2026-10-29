@@ -281,7 +281,9 @@ func _build_overlay() -> void:
 	card_name.add_theme_font_size_override("font_size", 14)
 	stack.add_child(card_name)
 	var skip := Label.new()
-	skip.text = "Any key to skip"
+	skip.name = "Skip"
+	skip.text = skip_text()
+	InputPrompt.device_changed.connect(_on_device_changed.bind(skip))
 	skip.modulate = Color(1, 1, 1, 0.5)
 	skip.add_theme_font_size_override("font_size", 14)
 	skip.anchor_left = 1.0
@@ -296,6 +298,13 @@ func _build_overlay() -> void:
 	curtain.set_anchors_preset(Control.PRESET_FULL_RECT)
 	curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(curtain)
+
+## "Any key to skip", or "Any button" with a pad in hand (Story 23.2).
+static func skip_text() -> String:
+	return "Any %s to skip" % ("button" if InputPrompt.pad else "key")
+
+func _on_device_changed(_pad: bool, skip: Label) -> void:
+	skip.text = skip_text()
 
 ## The home game's frame: a dark border, the league banner, and the player's handle.
 class _Bezel extends Control:

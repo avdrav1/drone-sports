@@ -18,7 +18,8 @@ func _ready() -> void:
 	add_child(box)
 	mute = CheckBox.new()
 	mute.name = "Mute"
-	mute.text = "Mute (%s)" % ControlsHelp.key_text(&"toggle_mute")
+	mute.text = _mute_text()
+	InputPrompt.device_changed.connect(_on_device_changed)
 	mute.toggled.connect(func(on): Sfx.set_muted(on))
 	box.add_child(mute)
 	var grid := GridContainer.new()
@@ -44,3 +45,11 @@ func open() -> void:
 	for bus in sliders:
 		sliders[bus].set_value_no_signal(GameSettings.volumes.get(String(bus), 1.0))
 	popup_centered()
+
+## "Mute (N)"; just "Mute" on a pad, which has no mute button (OPTIONS has the box).
+func _mute_text() -> String:
+	var key := InputPrompt.text(&"toggle_mute")
+	return "Mute (%s)" % key if key != "" else "Mute"
+
+func _on_device_changed(_pad: bool) -> void:
+	mute.text = _mute_text()

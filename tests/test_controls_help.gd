@@ -23,9 +23,9 @@ func test_every_action_listed_with_a_key() -> bool:
 			print("        not listed: %s" % a)
 			ok = false
 	for a in listed:
-		ok = ok and InputMap.has_action(a) and ControlsHelp.key_text(a) != ""
-	return ok and ControlsHelp.key_text(&"pitch_forward") == "↑" and ControlsHelp.key_text(&"throttle_up") == "W" \
-		and ControlsHelp.key_text(&"toggle_help") == "?"
+		ok = ok and InputMap.has_action(a) and InputPrompt.key_text(a) != ""
+	return ok and InputPrompt.key_text(&"pitch_forward") == "↑" and InputPrompt.key_text(&"throttle_up") == "W" \
+		and InputPrompt.key_text(&"toggle_help") == "?"
 
 func _key(scene: Node, code: Key, physical := true) -> void:
 	var ev := InputEventKey.new()
@@ -66,7 +66,7 @@ func test_job_hint_only_during_briefing() -> bool:
 		await Sim.process_frames(3)
 		var hint: ControlsHint = scene.get_node("HUD/ControlsHint")
 		var help: ControlsHelp = scene.get_node("HUD/Help")
-		var briefing: bool = hint.visible and hint.text.contains("↑") and hint.text.contains("all keys") and not help.visible
+		var briefing: bool = hint.visible and hint.text.contains("↑") and hint.text.contains("all controls") and not help.visible
 		runner.launch(true)
 		await Sim.process_frames(1)
 		ok = ok and briefing and not hint.visible

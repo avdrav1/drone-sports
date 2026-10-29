@@ -36,6 +36,7 @@ func _ready() -> void:
 	Garage.apply(drone)
 	expert_toggle.button_pressed = GameSettings.expert_all_assists_off
 	expert_toggle.toggled.connect(_on_expert_toggled)
+	InputPrompt.device_changed.connect(_on_device_changed)
 	# Start on the preset the pilot's career has earned.
 	preset_index = clampi(Career.act() - 1, 0, maxi(presets.size() - 1, 0))
 	apply_preset()
@@ -76,8 +77,22 @@ func apply_preset() -> void:
 	drone.assists.apply_stack(GameSettings.effective_stack(stack))
 	Garage.tune(drone)
 	readout.header = "preset: %s%s" % [stack.label, "  (expert: all assists off)" if GameSettings.expert_all_assists_off else ""]
+	_show_subtitle()
+
+func _show_subtitle() -> void:
+	var stack := presets[preset_index]
 	hud.subtitle = stack.label + ("  ·  expert" if GameSettings.expert_all_assists_off else "") \
-		+ ("  ·  " + weather().label if weather() else "") + "  ·  %s start a job" % ControlsHelp.job_keys()
+		+ ("  ·  " + weather().label if weather() else "") + _jobs_hint()
+
+func _on_device_changed(_pad: bool) -> void:
+	if not presets.is_empty():
+		_show_subtitle()
+
+## The start-a-job keys are keyboard only; on a pad, B goes to the board for one.
+func _jobs_hint() -> String:
+	if InputPrompt.pad:
+		return "  ·  %s job board" % InputPrompt.text(&"ui_cancel")
+	return "  ·  %s start a job" % ControlsHelp.job_keys()
 
 func weather() -> Weather:
 	return weathers[weather_index] if weather_index >= 0 else null
