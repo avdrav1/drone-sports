@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6. 23 (gamepad) can start any time; do 23.1 first, and 23.2 before 23.3.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6. 23 (gamepad) can start any time; do 23.1 first, and 23.2 before 23.3.  24 (the rename to Jaisalmer) and 25 (the epic names) wait for the owner to say go; do 25.1 before 25.2; do 24.1 before 24.2, and 24.4 needs the domain registered and its DNS pointed at GitHub.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -1197,3 +1197,105 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Context: Browsers only reveal a gamepad after a button is pressed while the page has focus; the title's PRESS START is that press, and the title already accepts joypad buttons. A pad with the browser's standard mapping matches Godot's indices (right stick on axes 2 and 3). The check page makes a mismatch visible instead of a mystery. It shows `Input.get_joy_name` and the 23.2 family.
   - Acceptance: A test feeds joypad motion and button events and reads the page's stick positions and button name. The page is reachable and leavable by pad (B). The owner playtests the deployed build in Chrome and Firefox (and Safari on the Mac) with an Xbox-style and a PlayStation pad and records the results in the story's Note.
   - Out of scope: Remapping non-standard pads.
+
+## Epic 24: Jaisalmer
+
+Done when the game is called Jaisalmer everywhere a player or a contributor sees it, it is served from the owner's own domain, and nobody's save is lost on the way.
+
+Do not start this epic until the owner says go.
+
+Where "Drone Sports" is today: `project.godot` `config/name` (which also names the browser tab and, on desktop, the `user://` folder the save lives in), the title screen's logo (`title_screen.gd`), the intro's title card (`data/story/intro.tres`), the crawl's last line (`data/ui/crawl.tres`), `tests/test_smoke.gd` and `tests/test_title_crawl.gd`, and the headings of `CLAUDE.md`, `README.md`, `docs/VISION.md`, `docs/CHARACTERS.md` and `docs/BOSS.md`. The site is https://avdrav1.github.io/drone-sports/ and the repo is `avdrav1/drone-sports`.
+
+In the fiction, the sport keeps its name: people still fly drone sports, and only the game is called Jaisalmer. VISION's "Drone sports" pillar stays as written.
+
+Owner decisions:
+- The crawl's last line: "THIS IS JAISALMER" (decided).
+- The domain: `jaisalmergame.com` (decided). Both the bare domain and `www.` must work (decided): the bare domain goes in `CNAME`, and GitHub Pages redirects `www.` to it once both have DNS records.
+- Rename the GitHub repo (24.5): yes (decided).
+- Web saves do not carry over (decided): a browser keeps saves per site, so careers saved at avdrav1.github.io start fresh on the new domain.
+- Which font the title is lettered in (24.6), from the comparison sheet.
+
+- [ ] **24.1 The name in one place**
+  - Goal: Every player-facing "Drone Sports" reads "Jaisalmer", and the name lives in one place so it never drifts again.
+  - Context: `config/name` becomes "Jaisalmer", and that setting is the one source: the title logo and the intro title card read it (upper-cased) instead of holding the text. The Web export uses `config/name` for the page `<title>`. The crawl's last line is "THIS IS JAISALMER". `config/icon` points at `res://icon.svg`, which does not exist; that is out of scope here, but noted.
+  - Acceptance: `config/name` is "Jaisalmer". The title screen and intro title card show "JAISALMER" and change with the setting. The crawl ends on the decided line. No string literal under `scripts/`, `scenes/` or `data/` contains "Drone Sports" in any case (a test greps). Lower-case "drone sports" as the name of the sport, in dialogue or lines, is allowed and listed in the test's allow-list. The exported `build/web/index.html` title reads "Jaisalmer".
+  - Out of scope: A new logo or icon, new art.
+
+- [ ] **24.2 Saves survive the rename**
+  - Goal: A desktop player who saved under Drone Sports opens Jaisalmer and finds their career where they left it.
+  - Context: On desktop, `user://` is `app_userdata/<config/name>`, so renaming moves it, and `SaveGame.path` (`user://save.json`) would come up empty. At boot, before `SaveGame.load_all`, if `user://save.json` is missing and the old folder (`.../app_userdata/Drone Sports/save.json`, found from `OS.get_user_data_dir()`'s parent) has one, it is copied across once. The old file is left in place. On the web, `user://` does not depend on the name, so nothing moves; the domain move starts web saves fresh (decided).
+  - Acceptance: With a save only in the old folder, boot copies it, and the career, roster status (dead stay dead) and wallet match it. With a save already in the new folder, nothing is copied or overwritten. With no old save, nothing happens. It runs once and never deletes anything. Tests use a throwaway pair of folders, not the real ones.
+  - Out of scope: Save format changes.
+
+- [ ] **24.3 The docs and the repo say Jaisalmer**
+  - Goal: Anyone opening the repo sees Jaisalmer.
+  - Context: Retitle `CLAUDE.md` ("# Jaisalmer"), `README.md`, and the VISION, CHARACTERS and BOSS headings. The README also drops its stale Cloudflare/wrangler steps for the GitHub Pages deploy that `scripts/ship.sh` really does. VISION's opening gains one line: the game is Jaisalmer, and the sport in it is drone sports. Older backlog stories keep their text; they are history.
+  - Acceptance: No file outside `docs/BACKLOG.md` says "Drone Sports" as the game's name (a test greps the repo's .md files with the same allow-list as 24.1). The README's deploy steps match `scripts/ship.sh`.
+  - Out of scope: Rewriting backlog history, renaming the local folder.
+
+- [ ] **24.4 Served from the domain**
+  - Goal: The game is served from the owner's domain over HTTPS, and every deploy keeps it there.
+  - Context: GitHub Pages reads a custom domain from a `CNAME` file at the root of `gh-pages`. `scripts/ship.sh` force-pushes that branch from `build/web`, so the file must be in every deploy: the domain lives in a checked-in `web/CNAME`, and `ship.sh` copies it into `build/web` before pushing. It sets the Pages `cname` through `gh api` (and `https_enforced` once GitHub has issued the certificate), and prints the domain's URL instead of the github.io one. Owner steps, which an agent cannot do: register the domain, then add the DNS records (A or ALIAS records for GitHub Pages' four IPs on the apex, and/or a `www` CNAME to `avdrav1.github.io`), and verify the domain in GitHub's settings.
+  - Acceptance: `web/CNAME` holds exactly `jaisalmergame.com`. A deploy's `build/web` contains it. Both `https://jaisalmergame.com/` and `https://www.jaisalmergame.com/` load the game, the second by redirect (owner checks once DNS is set). `ship.sh` prints `https://jaisalmergame.com/`. The game loads at the domain over HTTPS, and the old github.io address redirects to it (owner checks and notes it in the story's Note). The build uses only relative paths, so moving from `/drone-sports/` to `/` breaks nothing.
+  - Out of scope: Other hosts, analytics.
+
+- [ ] **24.5 Rename the repo**
+  - Goal: The GitHub repo is `avdrav1/jaisalmer`.
+  - Context: Do it after 24.4, so the custom domain already serves the game and nothing links to a path that is changing. `gh repo rename jaisalmer` keeps a redirect from the old name; each local clone and worktree updates `origin` with `git remote set-url`. `ship.sh` reads the repo from `gh`, so it needs no change.
+  - Acceptance: `origin` points at `avdrav1/jaisalmer`, `scripts/ship.sh` deploys from it, and the domain still serves the game.
+  - Out of scope: Renaming the folder on disk.
+
+- [ ] **24.6 The name, lettered like Hindi**
+  - Goal: The title "JAISALMER" is written in English letters drawn in the manner of Devanagari: the letters hang from one continuous headline bar (the shirorekha), with thick and thin strokes and a few hooked strokes below the line, so at a glance it reads like Hindi script and on a second look it reads "Jaisalmer".
+  - Context: Today the title screen's logo (`title_screen.gd`, `title_label`) and the intro's title card use the cabinet skin's display font, Press Start 2P. The logo becomes its own `TitleMark` control used by both, with the name from `config/name` (24.1). The look comes from an open-licence (OFL) font with a Devanagari-inspired Latin face. Candidates to compare include Yatra One, Rozha One, Teko and Kurale; freeware "Hindi-look" fonts with unclear licences are not used. The bar is drawn by the control across the letters' tops, running a little past the first and last letter, because no candidate draws one across Latin text. Before choosing, a comparison sheet renders "JAISALMER" in each candidate with the bar and goes to the owner, who picks one. The font goes in `data/ui/fonts/` with its licence and a line in `data/LICENSES.md`, like Press Start 2P. Everything else on the title screen (PRESS START, the crawl, the menu) keeps the arcade font.
+  - Acceptance: The title screen and the intro card draw the name with the chosen font and an unbroken headline bar touching the top of every letter, wider than the word on both sides. It is crisp and fully on screen at 960×720 and 1920×1080 and in the web build. It reads `config/name`, so a changed name redraws with no other edit. The font's licence file is in the repo and listed. A test checks the bar spans the word and that the control uses the font; the look is the owner's call on a rendered screenshot.
+  - Out of scope: A new icon, Devanagari text (the name stays in English letters), the rest of the UI's fonts.
+
+## Epic 25: Names from the epics
+
+Done when every character carries a name from the Ramayana or the Mahabharata, chosen for what they do in the game, and the boss is Ravana.
+
+Do not start this epic until the owner says go.
+
+Each name echoes the character's job: the student archer flies, the far-seeing narrator spots, the bridge-builder fixes the drones, the healer is the medic. Personalities, edges, perks, voices (babble), faces and risk stay as they are; only names (and, in 25.2, ids) change. Characters still have no stated pronouns: by name, or "they".
+
+| Id now | Name now | Role | New name | New id | Why |
+| --- | --- | --- | --- | --- | --- |
+| `pip` | Pip | Rookie pilot, the player's avatar | Arjuna | `arjuna` | The student archer, the one everyone trains |
+| `rin` | Coach Rin | The scout who recruits you, story voice | Drona | `drona` | Arjuna's teacher, who finds and trains talent |
+| `marlo` | Marlo | Spotter, calls gates and hazards | Sanjaya | `sanjaya` | Sees the whole battlefield from afar and narrates it |
+| `dot` | Dot | Mechanic, sells upgrades, complains | Nala | `nala` | The engineer who built the bridge to Lanka |
+| `bea` | Bea | Demolition foreman, calls the collapse | Bhima | `bhima` | The strongest of the brothers; brings things down |
+| `ozzie` | Ozzie | Medic, the one lost in rescue jobs | Sushena | `sushena` | The healer of the Ramayana, who sent for the life-giving herb |
+| `fen` | Fen | Sprint pilot, hard launch | Abhimanyu | `abhimanyu` | Young and fast, charges straight in |
+| `moss` | Moss | Glide pilot, clean lines | Jatayu | `jatayu` | The great bird, who glides |
+| `tally` | Tally | Long-haul pilot, easy on the cells | Hanuman | `hanuman` | The great crossing of the ocean: the longest flight in the epics |
+| (boss) | The Lattice | The boss | Ravana | `ravana` | The ten-headed king of Lanka |
+
+Owner decisions (all decided):
+- The names in the table, Hanuman for Tally included.
+- The boss is called Ravana everywhere a player sees it, and its units are "his heads". The fight does not change (still disabled, never destroyed, rule 9). The code's `Lattice*` class names stay, as an internal name.
+
+- [ ] **25.1 New names on screen**
+  - Goal: Every character the player sees, hears about or reads about uses the new name.
+  - Context: `name` on each `data/characters/*.tres`, the speaker names and lines in `data/dialogue/*.json` and `data/radio/`, job texts in `data/jobs/` (briefings, summaries, memorial lines), team texts in `data/teams/`, cutscene beats in `data/story/`, and any player-facing string under `scripts/` (for example, crew-warning and CREW-page text). Ids stay as they are in this story, so saves and code are untouched. Lines that rhymed or punned on an old name are rewritten. Each character's CREW row gains one short "named for" line about their namesake (for example, "Named for the engineer who bridged the sea to Lanka").
+  - Acceptance: No player-facing text under `data/` or `scripts/` holds an old name (a test checks every character's old name, case-insensitive and as a whole word, with an allow-list for ids). The title, board, CREW page, radio, cutscenes and results show the new names. Every character's "named for" line exists and fits its row at 960×720 and 1920×1080. Every existing test passes.
+  - Out of scope: Ids, the boss (25.3), new lines beyond the renames.
+
+- [ ] **25.2 New ids, and saves that follow**
+  - Goal: The ids match the names (`arjuna`, `drona`, and so on), and a save made with the old ids loads with everything intact.
+  - Context: Ids are keys in the save (roster status, strikes, injuries, the chosen pilot, crew assignments), in jobs' `crew_in_field`, in teams, in the music motifs (`motif_bea` becomes `motif_bhima`: `tools/music/generate.py` names the stems, and the regenerated files' names change, not their sound), in `data/dialogue/<id>.json` file names, and across `tests/`. `SaveGame` gains a one-time id migration (old → new map) at load, so a dead character stays dead under the new id (rule 7). `.tres` files are renamed to the new ids, and every `res://` path follows.
+  - Acceptance: No `.tres`, `.json`, `.gd` or `.py` file holds an old id except the migration map and its test. An old-id save loads with the same statuses, strikes, chosen pilot, wallet and reputation under the new ids, and saves back with new ids only. The music check (`generate.py --check`) passes with the renamed motif stems, and data/music stays under its size cap. Every existing test passes.
+  - Out of scope: Save format changes beyond the ids.
+
+- [ ] **25.3 The boss is Ravana**
+  - Goal: The boss is Ravana wherever a player sees it: its name, its lines, the job's title and briefing, the HUD and the music listing.
+  - Context: `data/boss/lattice.tres` and `lattice_job.tres`, `data/dialogue/lattice.json`, the Lattice HUD, and anything that says "Lattice" or "the units" to the player. The ten units are Ravana's heads in what the player reads (if the fight has a different number, the text says "heads" without a count; the fight does not change). The fight stays a disabling, never a destruction: no explosions and no destruction objective (rule 9). `enabled = false` still keeps everything about the boss from loading. Internal names (`LatticeFight`, `BossGate`, file names) may stay.
+  - Acceptance: No player-facing string says "Lattice". The boss's name shows as "Ravana" in the job board, briefing, HUD and lines. The boss-disabled tests still prove nothing about the boss loads. The fight's existing tests pass unchanged.
+  - Out of scope: New mechanics, new art.
+
+- [ ] **25.4 The docs and the rules**
+  - Goal: The docs and CLAUDE.md describe the new cast and Ravana.
+  - Context: `docs/CHARACTERS.md` (cast table, strike examples and consequences), `docs/BOSS.md`, `docs/VISION.md` mentions, and CLAUDE.md rule 9. That rule says the boss's design is original and imitates no existing franchise. Ravana comes from the epics, not a franchise; the rule is reworded to "The boss (Ravana) is a job like any other…", and keeps "disabled, never destroyed" and "no explosions". The cast's namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs.
+  - Acceptance: The docs use the new names and ids throughout (a test greps the .md files outside BACKLOG.md for old names, as in 25.1). Rule 9 names Ravana and keeps the disable-only rule. Older backlog stories keep their text.
+  - Out of scope: Rewriting backlog history.
