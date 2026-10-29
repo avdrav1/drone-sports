@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="FrontSkin" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="FrontSkin" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/front_skin.gd" id="1_skin"]
+[ext_resource type="FontFile" path="res://data/ui/fonts/PressStart2P-Regular.ttf" id="2_arcade"]
 
 [sub_resource type="FontVariation" id="body"]
 variation_embolden = 0.4
 
 [sub_resource type="FontVariation" id="display"]
-variation_embolden = 1.4
-spacing_glyph = 2
+base_font = ExtResource("2_arcade")
+spacing_top = 4
+spacing_bottom = 4
 
 [resource]
 script = ExtResource("1_skin")

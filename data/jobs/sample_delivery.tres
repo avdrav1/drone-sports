@@ -7,6 +7,7 @@
 script = ExtResource("1_job")
 id = &"sample_delivery"
 title = "Parcel to the pad"
+summary = "Carry a parcel to the drop pad. Touch nothing and get there in under 25 seconds."
 scene = "res://scenes/jobs/sample_delivery.tscn"
 client = "Harbor Couriers"
 job_type = &"delivery"

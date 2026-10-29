@@ -7,6 +7,7 @@
 script = ExtResource("1_job")
 id = &"fleet_inspection"
 title = "Rooftop relay sweep"
+summary = "Command a fleet: send your drones to check every relay on the rooftops."
 scene = "res://scenes/jobs/fleet_inspection.tscn"
 client = "Meridian Grid"
 job_type = &"fleet"

@@ -11,6 +11,7 @@ signal moved(index: int)
 
 const ACCENT := Color(1.0, 0.76, 0.25)
 const DIM := Color(1, 1, 1, 0.3)
+const COUNTER := Color(1, 1, 1, 0.55)
 
 ## Seconds and pixels of a locked card's shake.
 @export var shake_time := 0.35
@@ -35,13 +36,15 @@ var highlight := false:
 var prev_button: Button
 var next_button: Button
 var dots: Dots
+## "JOB 2 OF 8" beside the dots.
+var counter: Label
 
 var _stage: MarginContainer
 var _tween: Tween
 
 func _init() -> void:
 	focus_mode = FOCUS_ALL
-	add_theme_constant_override("separation", 14)
+	add_theme_constant_override("separation", 8)
 	var row := HBoxContainer.new()
 	row.size_flags_vertical = SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 10)
@@ -54,10 +57,23 @@ func _init() -> void:
 	row.add_child(_stage)
 	next_button = _arrow("Next", ">", next)
 	row.add_child(next_button)
+	# The count and the dots share one line under the card.
+	var pager := HBoxContainer.new()
+	pager.name = "Pager"
+	pager.alignment = BoxContainer.ALIGNMENT_CENTER
+	pager.add_theme_constant_override("separation", 16)
+	add_child(pager)
 	dots = Dots.new()
 	dots.name = "Dots"
 	dots.custom_minimum_size.y = 16
-	add_child(dots)
+	counter = Label.new()
+	counter.name = "Counter"
+	counter.theme_type_variation = &"Display"
+	counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	counter.add_theme_color_override("font_color", COUNTER)
+	counter.add_theme_font_size_override("font_size", 14)
+	pager.add_child(counter)
+	pager.add_child(dots)
 	focus_entered.connect(_restyle)
 	focus_exited.connect(_restyle)
 
@@ -71,6 +87,7 @@ func set_cards(new_cards: Array[Control], start := 0) -> void:
 		c.gui_input.connect(_on_card_input)
 		_stage.add_child(c)
 	dots.count = cards.size()
+	dots.custom_minimum_size.x = 20.0 * cards.size()
 	go(start)
 
 func current() -> Control:
@@ -80,11 +97,13 @@ func go(i: int) -> void:
 	if cards.is_empty():
 		index = 0
 		dots.current = 0
+		counter.text = ""
 		return
 	index = posmod(i, cards.size())
 	for j in cards.size():
 		cards[j].visible = j == index
 	dots.current = index
+	counter.text = "JOB %d OF %d" % [index + 1, cards.size()]
 	_restyle()
 	moved.emit(index)
 
@@ -149,7 +168,7 @@ func _arrow(n: String, text: String, action: Callable) -> Button:
 	b.text = text
 	b.focus_mode = FOCUS_NONE
 	b.size_flags_vertical = SIZE_SHRINK_CENTER
-	b.custom_minimum_size = Vector2(44, 72)
+	b.custom_minimum_size = Vector2(40, 72)
 	b.add_theme_font_size_override("font_size", 30)
 	b.pressed.connect(action)
 	return b

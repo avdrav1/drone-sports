@@ -887,6 +887,11 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Context: The companion is data on the sandbox (a list in order of preference); the first living one rides along, so a death changes who you hear. Suggestions are data (`data/radio/suggestions.tres`): a line, plus a `MapMarker` kind or landmark it points at (a rooftop pad, the plaza, downtown, the jammer). When one plays, the radar lights its target until you reach it or another suggestion plays. Reaching it gets a short reaction line. A suggestion plays after 45 s without a line, never during the first 10 s, and never twice in a row.
   - Acceptance: Free flight greets with the first living companion within 3 s of spawn. With them dead, the next one in the list greets instead. After 45 s with no line, a suggestion plays and the radar lights its target. Reaching the target plays a reaction and clears the highlight. No suggestion plays during a job. Nothing is graded or saved from free flight.
   - Out of scope: Free-flight missions with rewards, multiple companions talking to each other.
+- [x] **17.11 The board explains itself**
+  - Goal: A first-time player can tell what the job board is for and what to press, in bigger, arcade-style type.
+  - Context: Playtest: the board after PRESS START did not feel intuitive. `Job.summary` is one plain sentence on what you do, shown on the card under the title. One line under the header says what the board is for; a hint under the menu says what the focused item does; the controls run along the bottom; "JOB 2 OF 9" sits beside the dots. The cabinet skin's display font is Press Start 2P (SIL OFL 1.1, `data/ui/fonts/` with `OFL.txt` and a README listing it). Type sizes go up on the card, menu, and header in both skins.
+  - Acceptance: Every board job has a summary and its card shows it. The how-to line and the controls are on screen. The menu hint follows focus and every menu item has one. The counter tracks the card and wraps. The cabinet's display font is the arcade font with its licence beside it. The longest card fits at 960×720.
+  - Out of scope: The Lattice's card text, skinning the dialogs, the radio font (18.12).
 
 ## Epic 18: A friendlier crew
 

@@ -8,6 +8,7 @@
 script = ExtResource("1_job")
 id = &"demolition"
 title = "Demolition run: old cannery"
+summary = "Scout the old cannery for Bea: in the top window, down the shaft, out the north window."
 scene = "res://scenes/jobs/demolition.tscn"
 client = "Salvage crew"
 job_type = &"demolition"

@@ -8,6 +8,7 @@
 script = ExtResource("1_job")
 id = &"fleet_race"
 title = "Team relay"
+summary = "A team relay race. Each drone flies one leg, then hands off to the next."
 scene = "res://scenes/jobs/fleet_race.tscn"
 client = "Halcyon Racing"
 job_type = &"relay"

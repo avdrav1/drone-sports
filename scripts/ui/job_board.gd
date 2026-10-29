@@ -17,6 +17,8 @@ extends Control
 # holds Sound, Quality, and Watch intro.
 # Story 17.6: it wears the FrontSkin for the act, the arcade cabinet in Act 1
 # and the team's ops console from Act 2.
+# It explains itself: a line on what the board is for, each card's job in one
+# sentence, a hint for the focused menu item, and the controls along the bottom.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -24,6 +26,17 @@ const INTRO := "res://scenes/story/intro.tscn"
 const TITLE := "res://scenes/ui/title.tscn"
 const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
+const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get teams to notice you."
+const CONTROLS := "UP/DOWN  MENU      LEFT/RIGHT  JOBS      ENTER  SELECT      ESC  BACK"
+## What each menu item does, shown under the menu while it has focus.
+const MENU_HINTS := {
+	&"Fly": "Fly the job on the card.",
+	&"FreeFlight": "Fly around the city. No job, no clock.",
+	&"Garage": "Spend your pay on drone upgrades.",
+	&"Pilot": "Choose who you fly as.",
+	&"Crew": "See your crew and how they're doing.",
+	&"Options": "Sound, graphics, and the intro.",
+}
 
 var jobs: JobList
 ## The look for this act; set before the board builds.
@@ -46,6 +59,8 @@ var page := &"jobs"
 var pages := {}
 
 var _header: Label
+## The focused menu item's hint.
+var menu_hint: Label
 ## Shows SaveGame.warning, once, when the save had to be reset.
 var warning_label: Label
 var _money: Label
@@ -281,13 +296,13 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	panel.mouse_filter = MOUSE_FILTER_STOP
 	var box := VBoxContainer.new()
 	box.name = String(job.id)
-	box.add_theme_constant_override("separation", 18)
+	box.add_theme_constant_override("separation", 12)
 	panel.add_child(box)
 	job_rows[job.id] = box
 	job_ids.append(job.id)
 	var info := VBoxContainer.new()
 	info.name = "Info"
-	info.add_theme_constant_override("separation", 8)
+	info.add_theme_constant_override("separation", 6)
 	box.add_child(info)
 	var flies := BossGate.flyable() if boss else Career.can_fly(job)
 	if not boss and job.id == start_here():
@@ -295,7 +310,8 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		tag.name = "StartHere"
 		tag.text = "START HERE"
 		tag.add_theme_color_override("font_color", skin.accent)
-		tag.add_theme_font_size_override("font_size", 15)
+		tag.theme_type_variation = &"Display"
+		tag.add_theme_font_size_override("font_size", 16)
 		info.add_child(tag)
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 14)
@@ -304,13 +320,14 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	icon.name = "Icon"
 	icon.kind = job.job_type
 	icon.color = HURT if boss else skin.accent
-	icon.custom_minimum_size = Vector2(52, 52)
+	icon.custom_minimum_size = Vector2(44, 44)
 	head.add_child(icon)
 	var title := Label.new()
 	title.text = job.title
 	title.size_flags_horizontal = SIZE_EXPAND_FILL
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title.add_theme_font_size_override("font_size", 30)
+	title.theme_type_variation = &"Display"
+	title.add_theme_font_size_override("font_size", 20)
 	if boss:
 		title.add_theme_color_override("font_color", HURT)
 	head.add_child(title)
@@ -321,6 +338,13 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		padlock.color = DIM
 		padlock.custom_minimum_size = Vector2(36, 36)
 		head.add_child(padlock)
+	if job.summary != "":
+		var summary := Label.new()
+		summary.name = "Summary"
+		summary.text = job.summary
+		summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary.add_theme_font_size_override("font_size", 20)
+		info.add_child(summary)
 	var details := Label.new()
 	details.name = "Details"
 	if boss:
@@ -332,14 +356,15 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 			details.text += "  ·  done %d×" % done
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_theme_color_override("font_color", DIM)
-	details.add_theme_font_size_override("font_size", 16)
+	details.add_theme_font_size_override("font_size", 18)
 	info.add_child(details)
 	var grade := Label.new()
 	grade.name = "Grade"
 	var best := Career.best_grade(job.id)
 	grade.text = "BEST GRADE  " + (best if best != "" else "-")
 	grade.add_theme_color_override("font_color", skin.heading)
-	grade.add_theme_font_size_override("font_size", 18)
+	grade.theme_type_variation = &"Display"
+	grade.add_theme_font_size_override("font_size", 16)
 	info.add_child(grade)
 	# The Lattice gets no cheerful pitch; its row keeps its own say (Story 8.1).
 	var who := comms_for(job) if not boss else &""
@@ -352,7 +377,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		b.focus_mode = FOCUS_NONE
 		b.size_flags_horizontal = SIZE_SHRINK_CENTER
 		b.custom_minimum_size = Vector2(220, 0)
-		b.add_theme_font_size_override("font_size", 24)
+		b.add_theme_font_size_override("font_size", 22)
 		if boss:
 			b.pressed.connect(func(): BossGate.open(get_tree()))
 		else:
@@ -373,7 +398,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		lock.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lock.add_theme_color_override("font_color", DIM)
-		lock.add_theme_font_size_override("font_size", 20)
+		lock.add_theme_font_size_override("font_size", 19)
 		box.add_child(lock)
 	return panel
 
@@ -389,7 +414,7 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.expression = line.get("face", &"neutral")
-	face.custom_minimum_size = Vector2(76, 76)
+	face.custom_minimum_size = Vector2(64, 64)
 	row.add_child(face)
 	var text := VBoxContainer.new()
 	text.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -398,12 +423,13 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	var who_label := Label.new()
 	who_label.text = "%s  ·  %s  ·  ON COMMS" % [c.name, c.role]
 	who_label.add_theme_color_override("font_color", skin.accent)
-	who_label.add_theme_font_size_override("font_size", 14)
+	who_label.add_theme_font_size_override("font_size", 17)
 	text.add_child(who_label)
 	var pitch := Label.new()
 	pitch.name = "Pitch"
 	pitch.text = "\"%s\"" % line.get("text", "")
 	pitch.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pitch.add_theme_font_size_override("font_size", 19)
 	text.add_child(pitch)
 	return row
 
@@ -446,7 +472,8 @@ func _heading(t: String) -> Label:
 	var l := Label.new()
 	l.text = t
 	l.add_theme_color_override("font_color", skin.heading)
-	l.add_theme_font_size_override("font_size", 13)
+	l.theme_type_variation = &"Display"
+	l.add_theme_font_size_override("font_size", 16)
 	return l
 
 func _build() -> void:
@@ -457,10 +484,10 @@ func _build() -> void:
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 32)
+		margin.add_theme_constant_override("margin_" + side, 24)
 	add_child(margin)
 	var page := VBoxContainer.new()
-	page.add_theme_constant_override("separation", 18)
+	page.add_theme_constant_override("separation", 12)
 	margin.add_child(page)
 	var head := HBoxContainer.new()
 	page.add_child(head)
@@ -470,14 +497,22 @@ func _build() -> void:
 	var title := Label.new()
 	title.text = "JOB BOARD"
 	title.theme_type_variation = &"Display"
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", 36)
 	titles.add_child(title)
 	_header = Label.new()
 	_header.add_theme_color_override("font_color", skin.accent)
+	_header.add_theme_font_size_override("font_size", 22)
 	titles.add_child(_header)
 	_money = Label.new()
 	_money.size_flags_vertical = SIZE_SHRINK_END
+	_money.add_theme_font_size_override("font_size", 20)
 	head.add_child(_money)
+	var how := Label.new()
+	how.name = "HowTo"
+	how.text = HOW_TO
+	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	how.add_theme_font_size_override("font_size", 20)
+	page.add_child(how)
 	warning_label = Label.new()
 	warning_label.add_theme_color_override("font_color", HURT)
 	warning_label.text = SaveGame.warning
@@ -486,7 +521,7 @@ func _build() -> void:
 	page.add_child(warning_label)
 	var body := HBoxContainer.new()
 	body.size_flags_vertical = SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 28)
+	body.add_theme_constant_override("separation", 20)
 	page.add_child(body)
 	_build_menu(body)
 	var stack := Control.new()
@@ -514,6 +549,15 @@ func _build() -> void:
 	crew_page.focus_exited.connect(func(): crew_page.remove_theme_stylebox_override("panel"))
 	_crew_box.add_theme_constant_override("separation", 16)
 	_build_options(stack)
+	var controls := Label.new()
+	controls.name = "Controls"
+	controls.text = CONTROLS
+	controls.theme_type_variation = &"Display"
+	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	controls.add_theme_color_override("font_color", DIM)
+	controls.add_theme_font_size_override("font_size", 12)
+	page.add_child(controls)
 	# Keyboard and pad focus leaving the cards goes back to FLY.
 	var fly_path := carousel.get_path_to(menu_button(&"Fly"))
 	for side in [SIDE_LEFT, SIDE_TOP, SIDE_BOTTOM]:
@@ -523,9 +567,9 @@ func _build() -> void:
 func _build_menu(parent: Control) -> void:
 	menu = VBoxContainer.new()
 	menu.name = "Menu"
-	menu.custom_minimum_size.x = 250
+	menu.custom_minimum_size.x = 270
 	menu.alignment = BoxContainer.ALIGNMENT_CENTER
-	menu.add_theme_constant_override("separation", 12)
+	menu.add_theme_constant_override("separation", 10)
 	parent.add_child(menu)
 	var items := [["Fly", "FLY", _on_fly_item], ["FreeFlight", "FREE FLIGHT", free_flight],
 		["Garage", "GARAGE", func(): shop.open()], ["Pilot", "PILOT", func(): pilot_select.open()],
@@ -536,16 +580,26 @@ func _build_menu(parent: Control) -> void:
 		b.text = it[1]
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		b.add_theme_font_size_override("font_size", 24)
+		b.add_theme_font_size_override("font_size", 18)
 		b.pressed.connect(it[2])
+		b.focus_entered.connect(func(): menu_hint.text = MENU_HINTS[b.name])
+		b.mouse_entered.connect(func(): menu_hint.text = MENU_HINTS[b.name])
 		menu.add_child(b)
+	menu_hint = Label.new()
+	menu_hint.name = "Hint"
+	menu_hint.text = MENU_HINTS[&"Fly"]
+	menu_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	menu_hint.custom_minimum_size.y = 56
+	menu_hint.add_theme_color_override("font_color", DIM)
+	menu_hint.add_theme_font_size_override("font_size", 18)
+	menu.add_child(menu_hint)
 	_shop_button = menu_button(&"Garage")
 	_pilot_button = menu_button(&"Pilot")
 	menu_button(&"Fly").gui_input.connect(_on_fly_item_input)
 	menu_button(&"Fly").focus_entered.connect(func(): carousel.highlight = true)
 	menu_button(&"Fly").focus_exited.connect(func(): carousel.highlight = false)
 	# The menu wraps top to bottom, and left and right never wander off it.
-	var buttons := menu.get_children()
+	var buttons := menu.get_children().filter(func(c): return c is Button)
 	for i in buttons.size():
 		var b: Button = buttons[i]
 		b.focus_neighbor_left = b.get_path_to(b)

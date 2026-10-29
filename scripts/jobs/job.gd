@@ -7,6 +7,8 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 
 @export var id: StringName
 @export var title := ""
+## What you do on this job, in one plain sentence, shown on the board.
+@export var summary := ""
 ## The scene that flies this job, opened from the job board.
 @export_file("*.tscn") var scene := ""
 ## Who is paying, as shown to the player.
