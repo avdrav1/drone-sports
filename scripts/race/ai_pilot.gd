@@ -53,9 +53,15 @@ func _ready() -> void:
 
 func _build_curve() -> void:
 	curve.clear_points()
-	for g in course.gates + [course.gates[0]]:
-		var fwd: Vector3 = -g.global_transform.basis.z * 6.0
-		curve.add_point(g.global_position, -fwd, fwd)
+	var gates := course.gates
+	var n := gates.size()
+	for i in n + 1:
+		var g: Gate = gates[i % n]
+		var fwd: Vector3 = -g.global_transform.basis.z
+		# A third of each leg's length keeps the spline on the arc the gates sit on.
+		var back := g.global_position.distance_to(gates[(i - 1 + n) % n].global_position) / 3.0
+		var ahead := g.global_position.distance_to(gates[(i + 1) % n].global_position) / 3.0
+		curve.add_point(g.global_position, -fwd * back, fwd * ahead)
 
 func reset() -> void:
 	_gate_offset.clear()

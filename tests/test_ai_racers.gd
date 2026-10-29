@@ -34,7 +34,7 @@ func _race(seed: int) -> Dictionary:
 	await Sim.physics_frames(1)
 	course.start()
 	var out := 0
-	for f in 60 * 90:
+	for f in 60 * 120:
 		await Sim.physics_frames(1)
 		for d in drones:
 			if not course.data.bounds.has_point(d.global_position):
@@ -71,3 +71,30 @@ func test_race_scene_has_three_opponents() -> bool:
 		ok = ok and d.intent_source is AiPilot and d.freeze
 	scene.free()
 	return ok
+
+## The racing line follows the arcs the gates sit on: no kink at a gate that
+## turns tighter than the course's tightest bend (the hairpin, about 3 deg/m).
+func test_racing_line_has_no_kinks() -> bool:
+	var root: Node3D = Sim.add(Node3D.new())
+	var course := Course.new()
+	course.data = load("res://data/courses/test_loop.tres")
+	root.add_child(course)
+	var d: Drone = Sim.DRONE.instantiate()
+	var ai := AiPilot.new()
+	ai.course = course
+	d.add_child(ai)
+	d.intent_source = ai
+	root.add_child(d)
+	await Sim.physics_frames(2)
+	var length := ai.curve.get_baked_length()
+	var worst := 0.0
+	var at := 1.0
+	while at < length - 1.0:
+		var a := ai.curve.sample_baked(at) - ai.curve.sample_baked(at - 1.0)
+		var b := ai.curve.sample_baked(at + 1.0) - ai.curve.sample_baked(at)
+		a.y = 0.0
+		b.y = 0.0
+		worst = maxf(worst, rad_to_deg(a.angle_to(b)))
+		at += 0.5
+	root.free()
+	return worst > 0.0 and worst < 4.0

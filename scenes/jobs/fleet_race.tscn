@@ -31,7 +31,7 @@ script = ExtResource("3_course")
 data = ExtResource("4_loop")
 
 [node name="Focus" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -40)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -50)
 
 [node name="FleetCrew" type="Node3D" parent="." node_paths=PackedStringArray("command", "runner", "relay", "bark")]
 script = ExtResource("6_crew")
@@ -65,7 +65,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 3, -30)
 camera_rig = NodePath("../CameraRig")
 focus = NodePath("../Focus")
 runner = NodePath("../JobRunner")
-height = 75.0
+height = 90.0
 
 [node name="Relay" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "command")]
 script = ExtResource("12_relay")

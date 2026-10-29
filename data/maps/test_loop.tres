@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_map")
 title = "Test loop"
-bounds = Rect2(-100, -100, 120, 120)
+bounds = Rect2(-100, -140, 120, 160)
 cell_size = 20.0
 landmarks = {
 "Start line": Vector3(0, 0, -40)

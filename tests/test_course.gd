@@ -37,7 +37,7 @@ func _lap(c: Course, r: Node3D, skip := -1) -> void:
 
 func test_test_course_data() -> bool:
 	var data: CourseData = load(TEST_COURSE)
-	return data.gates.size() == 8 and data.laps == 2
+	return data.gates.size() == 10 and data.laps == 2
 
 func test_gate_detects_direction() -> bool:
 	var g := Gate.new()

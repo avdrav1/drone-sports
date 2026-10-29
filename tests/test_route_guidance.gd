@@ -40,9 +40,9 @@ func test_race_route_follows_remaining_gates() -> bool:
 	await _cross(course, r, 1)
 	var after_one := route.points()
 	var guided := route.guided()
-	var ok := before == _gate_positions(course, [0, 1, 2, 3, 4, 5, 6, 7, 0]) \
-		and started == _gate_positions(course, [1, 2, 3, 4, 5, 6, 7, 0]) \
-		and after_one == _gate_positions(course, [2, 3, 4, 5, 6, 7, 0]) \
+	var ok := before == _gate_positions(course, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) \
+		and started == _gate_positions(course, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]) \
+		and after_one == _gate_positions(course, [2, 3, 4, 5, 6, 7, 8, 9, 0]) \
 		and guided.size() == after_one.size() + 1 and guided[0] == r.global_position
 	root.free()
 	return ok
@@ -53,7 +53,7 @@ func test_race_scene_draws_route() -> bool:
 	var route: RouteSource = scene.get_node("Route")
 	var ribbon: RouteRibbon = scene.get_node("RouteRibbon")
 	var radar: Radar = scene.get_node("HUD/Radar")
-	var ok: bool = route.guided().size() == 10 and ribbon.dashes > 0 and not radar.route_dots().is_empty()
+	var ok: bool = route.guided().size() == 12 and ribbon.dashes > 0 and not radar.route_dots().is_empty()
 	scene.free()
 	return ok
 
