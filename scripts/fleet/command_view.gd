@@ -1,7 +1,9 @@
 class_name CommandView
 extends Node3D
 # The fleet layer: a top-down camera over the fleet. Click a drone to select it
-# (or Tab through them), click the ground to queue a waypoint for it. F drops
+# (or Tab / Shift+Tab, RB / LB, through them, wrapping both ways), click the
+# ground to queue a waypoint for it. The job's own action (X on a pad) sends the
+# selected drone: a relay leg, or to tag a Lattice unit. F (A) drops
 # into the selected drone: it takes the pilot's sticks and assists, and the
 # camera rig flies with it in first person. F again hands it back to its
 # autopilot, which carries on with its queue. Replaces the single-drone view
@@ -86,6 +88,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		leave() if flown else drop_in()
 	elif flown:
 		return
+	# Shift+Tab also matches Tab's next_drone, so the previous drone is asked first.
+	elif event.is_action_pressed("prev_drone"):
+		_cycle(-1)
 	elif event.is_action_pressed("next_drone"):
 		_cycle()
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -169,10 +174,15 @@ func leave() -> void:
 	camera.make_current()
 	left.emit(d)
 
-func _cycle() -> void:
+## Selects the drone `step` along the fleet, wrapping at either end.
+func _cycle(step := 1) -> void:
 	if drones.is_empty():
 		return
-	select(drones[(drones.find(selected) + 1) % drones.size()])
+	var at := drones.find(selected)
+	if at < 0:
+		# Nothing selected: forwards starts at the first, backwards at the last.
+		at = -1 if step > 0 else 0
+	select(drones[posmod(at + step, drones.size())])
 
 ## The portrait shown for `d` in the overlay, or null.
 func portrait(d: Drone) -> CharacterPortrait:
