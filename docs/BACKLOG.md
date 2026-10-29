@@ -1,6 +1,6 @@
 # Drone Sports: Backlog
 
-Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time.
+Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6.
 
 Each story: **Goal** (what exists when done), **Context** (what it builds on), **Acceptance** (checkable; every item gets a test), **Out of scope**.
 
@@ -980,3 +980,62 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Context: A CC0 pixel font (for example one of Kenney's), listed in `data/LICENSES.md`, used by the radio panel and `BarkBox` in both front-end skins (17.6). Text still fits the panel at 960×720 and 1920×1080.
   - Acceptance: The radio panel and bark box use the font. The longest existing line fits without clipping at both resolutions. The font file is listed as CC0 with a URL.
   - Out of scope: Changing fonts elsewhere.
+
+## Epic 19: Every crew member counts
+
+Done when every pilot flies differently from the first race and every support crew member gives something you would miss. Today the pilots' tweaks are about 5 percent on one stat, and the speed governor and the battery assist hide most of that until Act 4. Pilots get an edge that shapes how their assists behave plus a real stat bump; the support crew each give a perk while they are fit to work, so an injury or a death costs something you can feel on top of the consequences in `docs/CHARACTERS.md`. Rules hold: one flight model (rule 1); edges only change assist settings, which still only rewrite `Intent` (rule 2), and never add or remove an assist (rule 5); everything is data on the character (rules 4 and 6); nothing is graded on the camera (rule 8). The autopilot's flying styles (18.11) are a separate thing and keep their own rule.
+
+Pilot edges, each best at one thing:
+
+| Pilot | Best at | Assist settings (others' in brackets) | Stats |
+| --- | --- | --- | --- |
+| Pip | A bit of everything, most forgiving | Governor 13 m/s (12); auto-level 38° (35°); climb 5 m/s (4); collision guard keeps 0.7 m (0.4) and reacts in 0.2 s (0.3) | +0.25 N thrust, -0.02 drag, +30 s battery |
+| Fen | Straight-line speed | Governor 15 m/s; brake's full-stick speed 10 m/s (8) | +0.5 N thrust |
+| Moss | Cornering | Auto-level 45°; yaw 130°/s (90°/s) | -0.04 drag |
+| Tally | Climbing and endurance | Climb 7 m/s; height lock gain 3 (2); collision guard plans for 8 m/s² braking (6), so it lets you fly closer to walls at speed | +60 s battery |
+
+Crew perks, on while the character is alive and not benched:
+
+| Crew | Perk |
+| --- | --- |
+| Coach Rin | +25 percent reputation from every job, so team offers come sooner |
+| Marlo | Route guidance one step better on every job (none to next leg, next leg to full) |
+| Dot | Garage prices 20 percent lower |
+| Bea | +15 percent pay on every job |
+| Ozzie | An injury benches a crew member for one job instead of two |
+
+- [ ] **19.1 Pilot edges are data**
+  - Goal: A pilot can carry several stat changes and a set of assist settings, applied to the player's drone wherever `Garage.apply` runs today.
+  - Context: `Character.tweak` (one `Upgrade`) becomes `edge: PilotEdge`: a list of stat steps (stat, step, unit) and assist settings (assist id, property, value). Applying it sets exported properties on the drone and on the assist nodes in its pipeline; it never adds or removes an assist and never touches `drone.gd` physics. Settings for an assist the act has already removed do nothing. The existing pilots move their current tweak into the new form unchanged, so this story changes no numbers. Update the pilot line in `docs/CHARACTERS.md` ("one small stat tweak") to describe edges.
+  - Acceptance: Each pilot's edge round-trips from data. Applying an edge changes only the listed drone stats and assist properties, in free flight and on a job. An assist the preset has switched off stays off and unchanged. The assist list is identical for every pilot. Current pilot numbers are unchanged.
+  - Out of scope: New numbers (19.2), the pilot select screen (19.3).
+- [ ] **19.2 Four pilots, four edges**
+  - Goal: The table above, in data, and each pilot measurably best at their thing in Act 1.
+  - Context: Edges from 19.1. Numbers live only in the pilots' `.tres` files. Tests fly the real drone headless with Act 1 assists and scripted sticks.
+  - Acceptance: On a 150 m straight at full stick, Fen's top speed is highest and Fen covers it fastest. At full roll and yaw stick, Moss turns through 180° in the least time. At full throttle stick, Tally climbs 30 m fastest. Pip is never last on any of the three and stops furthest from a wall flown at full stick. Without assists (Act 5 preset), each pilot's stat bump still shows: Fen's climb, Moss's top speed, Tally's flight time.
+  - Out of scope: Rebalancing jobs, grades, or time limits.
+- [ ] **19.3 Pilot select shows the edge**
+  - Goal: Choosing a pilot is an informed choice: each card says what they are best at and shows it.
+  - Context: `PilotSelect` (cards with portrait, role, and today the tweak's name). Each card gets a one-line "best at", the edge in plain words ("Top speed 15 m/s while the governor is on, others 12"), and four bars (speed, cornering, climb, endurance) computed from the edge, not typed in. Fits at 960×720 in both front-end skins.
+  - Acceptance: Every pilot card shows best-at text and the four bars. The bars come from the edge data, and the highest bar on each specialist's card is their specialty. Text fits at 960×720 and 1920×1080.
+  - Out of scope: Changing pilots mid-job.
+- [ ] **19.4 Crew perks are data**
+  - Goal: A support crew member can carry a perk that is on while they are alive and not benched, answered by one static query.
+  - Context: `Character.perk: CrewPerk` (kind and amount). `Perks.amount(kind)` sums the amounts of every fit crew member carrying that kind, so systems ask for a kind and never name a character (as `Consequences` does for deaths). Injured: off until back from the bench. Dead: off for good. Free flight changes nothing.
+  - Acceptance: A perk's amount is reported while its owner is active, zero while injured, and zero once dead. Two characters with the same kind add up. No system outside `data/characters/` names a character to get a perk.
+  - Out of scope: The perks' effects (19.5, 19.6).
+- [ ] **19.5 Pay, reputation, and prices**
+  - Goal: Bea, Rin, and Dot's perks change real numbers.
+  - Context: `Payout.settle` multiplies pay by 1 + the pay perk and reputation by 1 + the reputation perk; `Garage.price` multiplies by 1 - the price perk, after Dot's death markup (which only applies once Dot is dead, so the two never stack). The results screen shows the bonus as its own line ("Bea's rates +120").
+  - Acceptance: With Bea fit, a job pays 15 percent more; benched or dead, it does not. With Rin fit, reputation gains are 25 percent higher. With Dot fit, every Garage price is 20 percent lower; after Dot dies, prices follow the existing closed-then-25-percent rule. The results screen names each bonus.
+  - Out of scope: New currencies.
+- [ ] **19.6 Guidance and recovery**
+  - Goal: Marlo and Ozzie's perks change how jobs go.
+  - Context: Marlo: the job runner raises `Job.guidance` one step (none to next leg, next leg to full) for radar, map, and route ribbon while Marlo is fit; the job's own setting is untouched in data. Ozzie: `Roster.injure` benches for one job instead of two while Ozzie is fit; Ozzie's own injury uses the normal two.
+  - Acceptance: A next-leg job shows the full route with Marlo fit and the next leg with Marlo benched or dead. An injury with Ozzie fit benches for one job; with Ozzie benched or dead, two. Grading is unchanged by either perk.
+  - Out of scope: Changing the strike rules or adding a way to revive (rule 7).
+- [ ] **19.7 Show what you'd lose**
+  - Goal: The player knows what each crew member brings before anything happens to them.
+  - Context: The CREW page shows each character's perk under their status, struck through while benched and gone with a memorial note once dead ("No more site rates"). The confirmation before a job with crew in the field names the perk at risk. The radio's injury line is unchanged; the results screen's injury line adds "out for N jobs: no <perk>".
+  - Acceptance: Each support crew row shows its perk. A benched character's perk shows as off with the jobs left. A dead character's row shows the perk lost. The crew-in-field confirmation names each perk at risk.
+  - Out of scope: New dialogue lines.
