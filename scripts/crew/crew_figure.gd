@@ -42,8 +42,8 @@ static func build(from: CrewLook, height := 1.75) -> CrewFigure:
 	fig.skeleton.add_child(head)
 	var head_y := fig.skeleton.get_bone_global_rest(fig.skeleton.find_bone("head")).origin.y
 	fig._add_accessory(head, from.body.crown - head_y)
-	var idle: Animation = fig.player.get_animation(from.body.clips[&"idle"])
-	idle.loop_mode = Animation.LOOP_LINEAR
+	for looped in [&"idle", &"wave", &"cheer"]:
+		fig.player.get_animation(from.body.clips[looped]).loop_mode = Animation.LOOP_LINEAR
 	fig.play(&"idle")
 	return fig
 
