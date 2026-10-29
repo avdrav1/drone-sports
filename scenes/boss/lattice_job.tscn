@@ -126,7 +126,7 @@ label = "Override held"
 [node name="PowerDown" type="Node" parent="JobRunner" node_paths=PackedStringArray("fight")]
 script = ExtResource("26_power")
 fight = NodePath("../../Fight")
-label = "The Lattice is down"
+label = "Ravana is down"
 ends_job = true
 
 [node name="MarloZone" type="Area3D" parent="."]

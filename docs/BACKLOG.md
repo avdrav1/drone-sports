@@ -1288,7 +1288,7 @@ Owner decisions (all decided):
   - Acceptance: No `.tres`, `.json`, `.gd` or `.py` file holds an old id except the migration map and its test. An old-id save loads with the same statuses, strikes, chosen pilot, wallet and reputation under the new ids, and saves back with new ids only. The music check (`generate.py --check`) passes with the renamed motif stems, and data/music stays under its size cap. Every existing test passes.
   - Out of scope: Save format changes beyond the ids.
 
-- [ ] **25.3 The boss is Ravana**
+- [x] **25.3 The boss is Ravana**
   - Goal: The boss is Ravana wherever a player sees it: its name, its lines, the job's title and briefing, the HUD and the music listing.
   - Context: `data/boss/lattice.tres` and `lattice_job.tres`, `data/dialogue/lattice.json`, the Lattice HUD, and anything that says "Lattice" or "the units" to the player. The ten units are Ravana's heads in what the player reads (if the fight has a different number, the text says "heads" without a count; the fight does not change). The fight stays a disabling, never a destruction: no explosions and no destruction objective (rule 9). `enabled = false` still keeps everything about the boss from loading. Internal names (`LatticeFight`, `BossGate`, file names) may stay.
   - Acceptance: No player-facing string says "Lattice". The boss's name shows as "Ravana" in the job board, briefing, HUD and lines. The boss-disabled tests still prove nothing about the boss loads. The fight's existing tests pass unchanged.

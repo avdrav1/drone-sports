@@ -1,7 +1,8 @@
 class_name ChorusBox
 extends Control
 # The chorus on the HUD: its dot-grid portrait and the line, low on the right.
-# The grid thins as the shell loses units, so the portrait tracks the fight.
+# The grid thins as the shell loses units (Ravana's heads, to the player), so
+# the portrait tracks the fight. Each line is signed with the boss's name.
 
 @export var chorus: Chorus
 ## Seconds a line stays up.
@@ -35,9 +36,19 @@ func _on_spoke(_event: StringName, line: String) -> void:
 	text = line
 	_age = 0.0
 
+## Who is speaking, as the player knows the boss: the job's title, "Ravana"
+## (Story 25.3).
+func speaker() -> String:
+	var runner := chorus.fight.runner if chorus and chorus.fight else null
+	return runner.job.title if runner and runner.job else ""
+
 func _process(delta: float) -> void:
 	_age += delta
-	label.text = text if _age < hold else ""
+	var who := speaker()
+	if _age >= hold:
+		label.text = ""
+	else:
+		label.text = "%s: %s" % [who, text] if who else text
 	var s := get_viewport_rect().size
 	label.position = Vector2(s.x - 560, s.y - 190)
 	label.size = Vector2(440, 64)
