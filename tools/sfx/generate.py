@@ -14,16 +14,20 @@ import json
 import math
 import os
 import random
+import re
 import struct
 import sys
 import wave
+import zlib
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "music"))
 import key  # noqa: E402  (tools/music/key.py: the game's one key, Story 16.2)
+import instruments  # noqa: E402  (tools/music/instruments.py: the formant voice)
 
 RATE = 22050
 OUT = os.path.join(os.path.dirname(__file__), "..", "..", "data", "audio", "generated")
+CHARACTERS = os.path.join(os.path.dirname(__file__), "..", "..", "data", "characters")
 # Sounds tuned to the key (Story 16.2): name -> (scale degree, octave). Written
 # with their frequencies to pitches.json, which tests/test_music_key.gd checks.
 PITCHED = {
@@ -492,6 +496,66 @@ def crew_chirp_sad():
     return out
 
 
+# Story 18.8: syllables in one babble loop, and the scale steps a syllable may
+# move from the speaker's note (0 most often, so the voice centres on it).
+BABBLE_SYLLABLES = 12
+BABBLE_STEPS = (0, 0, 0, 1, 2, -1, 1, -2)
+
+
+def characters():
+    """Each crew member's babble from data/characters/*.tres (Story 18.8):
+    id -> (babble_pitch, babble_rate, babble_vowels), read from the files so
+    the data lives in one place."""
+    out = {}
+    for f in sorted(os.listdir(CHARACTERS)):
+        with open(os.path.join(CHARACTERS, f)) as fh:
+            text = fh.read()
+        if not f.endswith(".tres") or 'script_class="Character"' not in text:
+            continue
+        fields = dict(re.findall(r"^(\w+) = (.*)$", text.split("[resource]", 1)[1], re.M))
+        cid = re.search(r'"(\w+)"', fields["id"]).group(1)
+        out[cid] = (float(fields["babble_pitch"]), float(fields["babble_rate"]),
+                    re.findall(r'"(\w+)"', fields["babble_vowels"]))
+    return out
+
+
+def scale_step(ratio):
+    """The (degree, octave) of a ratio from the key's scale, e.g. 4/3 is (4, 0)."""
+    octave = math.floor(math.log2(ratio) + 1e-6)
+    r = ratio / 2.0 ** octave
+    k = min(range(len(key.SCALE)), key=lambda i: abs(key.SCALE[i] - r))
+    if abs(key.SCALE[k] - r) > 1e-3:
+        raise ValueError("babble_pitch %s is not on the key's scale" % ratio)
+    return k + 1, octave
+
+
+def babble(pitch, rate, vowels, seed):
+    """A crew member's babble (Story 18.8): a loop of BABBLE_SYLLABLES short
+    vowel syllables from the formant voice, gibberish, never words. Each sits
+    in a slot of 1 / rate s, on a scale degree near their note (pitch, a scale
+    ratio on the tonic an octave up), scooping up into it like chatter, with a
+    rest now and then so it falls into phrases. Every syllable ends before its
+    slot does, so the loop joins in silence."""
+    rng = random.Random(seed)
+    degree, octave = scale_step(pitch)
+    slot = round(RATE / rate)
+    out = [0.0] * (slot * BABBLE_SYLLABLES)
+    for k in range(BABBLE_SYLLABLES):
+        vowel = rng.choice(vowels)
+        f = key.hz(degree + rng.choice(BABBLE_STEPS), octave + 1)
+        on = int(slot * rng.uniform(0.55, 0.8))
+        if k % 4 == 3 and rng.random() < 0.6:
+            continue
+        tab = instruments.formant_table(f, vowel)
+        phase = rng.random() * instruments.TABLE
+        for i in range(on):
+            t = i / RATE
+            phase += f * (1.0 - 0.05 * max(0.0, 1.0 - t / 0.03)) * instruments.TABLE / RATE
+            env = min(1.0, t / 0.008) * min(1.0, (on - i) / (RATE * 0.03))
+            out[k * slot + i] = tab[int(phase) % instruments.TABLE] * env
+    return out
+
+
 def radio_static():
     """A short burst of radio static as a crew line opens (Story 17.7): band-
     limited hiss with a few crackles, cut off sharply like a keyed mic."""
@@ -602,6 +666,8 @@ def main():
     # Frequencies in whole Hz (whole cycles per 3 s loop).
     write("bed_intro.wav", bed(1490, (110, 165, 220, 277), 2.0), loop=True)
     write("bed_recruited.wav", bed(1491, (98, 147, 196, 247), 1.2), loop=True)
+    for cid, (pitch, rate, vowels) in sorted(characters().items()):
+        write("babble_%s.wav" % cid, babble(pitch, rate, vowels, zlib.crc32(cid.encode())), loop=True)
     write_pitches()
 
 

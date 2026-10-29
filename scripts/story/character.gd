@@ -4,6 +4,8 @@ extends Resource
 
 ## What their death changes; the systems that care read this (Story 7.6).
 const CONSEQUENCES: Array[StringName] = [&"", &"no_spotter", &"shop_closed", &"salvage_locked", &"city_locked"]
+## The formant voice's vowel syllables (tools/music/instruments.py VOWELS).
+const VOWELS: PackedStringArray = ["ah", "oo", "ee", "mm"]
 const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", &"ears", &"tall", &"tuft", &"visor", &"fin"]
 
 @export var id: StringName
@@ -21,6 +23,14 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## higher for a smaller, quicker voice. No voice acting; this is their voice.
 ## A ratio from the key's scale (Story 18.6), so their chirps stay in key.
 @export_range(0.5, 2.0) var chirp_pitch := 1.0
+## Their babble (Story 18.8): the gibberish voice that runs while their line
+## types out, baked by tools/sfx/generate.py into babble_<id>.wav from these
+## three. `babble_pitch` is a ratio from the key's scale on the tonic an octave
+## up (higher is a smaller voice), `babble_rate` is syllables per second, and
+## `babble_vowels` are the formant voice's vowel syllables they use, never words.
+@export_range(0.5, 2.0) var babble_pitch := 1.0
+@export_range(3.0, 14.0) var babble_rate := 8.0
+@export var babble_vowels: PackedStringArray = ["ah", "ee"]
 ## Their face's idle bob (Story 18.2): x is bobs per second, y the phase as a
 ## fraction of a bob, so the crew never bob in unison.
 @export var bounce := Vector2(0.7, 0.0)
@@ -47,6 +57,10 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## tagged can_fly; null flies the plain route.
 @export var flight_style: FlightStyle
 
+## The sound event of their babble loop in the bank.
+func babble_event() -> StringName:
+	return StringName("babble_%s" % id)
+
 ## Problems with this resource; empty when it is valid.
 func validate() -> Array[String]:
 	var out: Array[String] = []
@@ -64,6 +78,10 @@ func validate() -> Array[String]:
 		out.append("%s: needs at least one name in calls_you" % id)
 	if chirp_pitch < 0.5 or chirp_pitch > 2.0:
 		out.append("%s: chirp_pitch must be 0.5 to 2" % id)
+	if babble_pitch < 0.5 or babble_pitch > 2.0 or babble_rate < 3.0 or babble_rate > 14.0:
+		out.append("%s: babble needs a pitch of 0.5 to 2 and 3 to 14 syllables a second" % id)
+	if babble_vowels.is_empty() or Array(babble_vowels).any(func(v): return not v in VOWELS):
+		out.append("%s: babble_vowels must be some of %s" % [id, VOWELS])
 	if bounce.x < 0.3 or bounce.x > 2.0 or bounce.y < 0.0 or bounce.y >= 1.0:
 		out.append("%s: bounce needs 0.3 to 2 bobs a second and a phase in [0, 1)" % id)
 	if not death_consequence in CONSEQUENCES:

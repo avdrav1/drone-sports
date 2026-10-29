@@ -160,15 +160,21 @@ def reed(freq, length, seed=0):
             for i in range(n)]
 
 
-def voice(freq, length, vowel="ah", seed=0):
-    """A sung vowel: a glottal buzz (harmonics falling off) shaped by the
-    vowel's formants, with vibrato that comes in as the note is held."""
+def formant_table(freq, vowel):
+    """One cycle of the voice at freq singing `vowel`: a glottal buzz
+    (harmonics falling off) shaped by the vowel's formants."""
     amps = []
     for h in range(1, _limit(freq) + 1):
         f = h * freq
         g = sum(gain / (1.0 + ((f - c) / (bw / 2.0)) ** 2) for c, bw, gain in FORMANTS[vowel])
         amps.append(g / h ** 0.6)
-    tab = _table(amps)
+    return _table(amps)
+
+
+def voice(freq, length, vowel="ah", seed=0):
+    """A sung vowel: the formant voice, with vibrato that comes in as the note
+    is held."""
+    tab = formant_table(freq, vowel)
     env = _envelope(int(length * RATE), 0.06, 0.15)
     s = _osc(tab, freq, len(env), vibrato=0.006, delay=0.25)
     return [s[i] * env[i] for i in range(len(env))]

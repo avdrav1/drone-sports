@@ -62,6 +62,24 @@ func play(id: StringName, at: Variant = null, gain_db := 0.0, pitch := 1.0) -> N
 	p.play()
 	return p
 
+## Plays event `id` on the caller's own `player`, so the caller can stop it
+## (a speaker's babble, Story 18.8); logged like play(). Returns false when the
+## event is unknown or silent.
+func play_on(player: AudioStreamPlayer, id: StringName, pitch := 1.0) -> bool:
+	var e := bank.find(id) if bank else null
+	if e == null:
+		push_warning("Sfx: no sound event '%s'" % id)
+		return false
+	_log(id, e.bus, null, 0.0, pitch)
+	if e.streams.is_empty():
+		return false
+	player.stream = e.streams[_rng.randi() % e.streams.size()]
+	player.volume_db = e.volume_db
+	player.pitch_scale = pitch
+	player.bus = e.bus
+	player.play()
+	return true
+
 ## How many times `id` played since the log was last cleared.
 func count(id: StringName) -> int:
 	return log.filter(func(l): return l.id == id).size()

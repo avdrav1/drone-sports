@@ -21,6 +21,8 @@ extends Node
 # streak of clean gates, a retry of the job just failed, an unlock, and a
 # goodbye. Any living crew member but the pilot you fly as may say one, each at
 # most once a MOMENT_COOLDOWN per moment; none is said on a boss job.
+# Story 18.8: babble_for picks the speaker's babble loop for a line (slower and
+# lower on serious lines, none for memorials or the dead); the radio plays it.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
@@ -60,6 +62,12 @@ const CELEBRATE_EVENTS: Array[StringName] = [&"complete", &"unlock", &"streak"]
 const CELEBRATE_CHIRP := &"crew_chirp_celebrate"
 ## Serious events keep the plain chirp whatever the face.
 const PLAIN_EVENTS: Array[StringName] = [&"warning", &"strike", &"hurt", &"memorial"]
+## Serious lines babble slower and lower (Story 18.8): their loop played at this
+## pitch scale, a fourth down (a ratio of the key's scale, so it stays in key).
+const SERIOUS_BABBLE: Array[StringName] = [&"warning", &"strike", &"hurt"]
+const SERIOUS_BABBLE_PITCH := 0.75
+## Lines said in silence: no babble at all.
+const SILENT_BABBLE: Array[StringName] = [&"memorial"]
 
 signal spoke(id: StringName, event: StringName, text: String)
 ## Every line announced on `spoke`, as {id, event, text, face}. A line emitted
@@ -123,6 +131,17 @@ static func chirp(id: StringName, face: StringName = &"neutral", event: StringNa
 	var c: Character = Roster.character(id)
 	if c and Roster.is_alive(id):
 		Sfx.play(chirp_for(face, event), null, 0.0, c.chirp_pitch)
+
+## The babble under a line from `id` on `event` (Story 18.8): {event, pitch},
+## the sound event and the pitch scale to loop it at, or {} for silence: the
+## dead, memorials, and anyone without a babble in the bank.
+static func babble_for(id: StringName, event: StringName) -> Dictionary:
+	var c: Character = Roster.character(id)
+	if c == null or not Roster.is_alive(id) or event in SILENT_BABBLE:
+		return {}
+	if Sfx.bank == null or Sfx.bank.find(c.babble_event()) == null:
+		return {}
+	return {"event": c.babble_event(), "pitch": SERIOUS_BABBLE_PITCH if event in SERIOUS_BABBLE else 1.0}
 
 ## The chirp sound event for a line with this face on this event.
 static func chirp_for(face: StringName, event: StringName = &"") -> StringName:

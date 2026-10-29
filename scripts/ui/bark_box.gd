@@ -13,6 +13,9 @@ extends Control
 # Story 18.12: lines type out in a monospaced pixel font, like a cabinet's comm
 # screen, and the name in its bold cut. The labels carry the fonts themselves,
 # so the panel reads the same in the HUD and under either front-end skin.
+# Story 18.8: the speaker babbles while their line types out (Bark.babble_for):
+# their loop starts with the typing, after the chirp, and stops on the last
+# character, when the line is skipped, or when another replaces it.
 
 @export var bark: Bark
 ## Seconds a line stays up after it has typed out.
@@ -47,6 +50,10 @@ const FONT_SIZE := 16
 var portrait: CharacterPortrait
 var emote: EmoteBubble
 var label: Label
+## The speaker's babble loop, on its own player so it can be stopped.
+var voice: AudioStreamPlayer
+## The babble's sound event while one runs, else &"".
+var babbling: StringName = &""
 var name_label: Label
 ## The line on screen: {id, event, text, face}, or {} when none.
 var current := {}
@@ -62,6 +69,8 @@ func _ready() -> void:
 	portrait.size = Vector2(FACE, FACE)
 	portrait.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(portrait)
+	voice = AudioStreamPlayer.new()
+	add_child(voice)
 	emote = EmoteBubble.attach(portrait)
 	name_label = _label(NAME_FONT, ACCENT)
 	label = _label(FONT, LINE)
@@ -114,11 +123,15 @@ func _open(line: Dictionary) -> void:
 	_age = 0.0
 	if line.event in chatter:
 		_since_chatter = 0.0
+	_hush()
 	# Heard only while the HUD is shown: not under a cutscene or the title.
 	var layer := get_canvas_layer_node()
 	if layer == null or layer.visible:
 		Sfx.play(&"radio_static")
 		Bark.chirp(line.id, line.get("face", &"neutral"), line.event)
+		var b := Bark.babble_for(line.id, line.event)
+		if not b.is_empty() and not String(line.text).is_empty() and Sfx.play_on(voice, b.event, b.pitch):
+			babbling = b.event
 	var c: Character = Roster.character(line.id)
 	portrait.character = c
 	portrait.expression = line.get("face", &"neutral")
@@ -164,9 +177,23 @@ func _process(delta: float) -> void:
 	_layout()
 	queue_redraw()
 
-## Reveals the line up to where it has typed.
+## Shows the rest of the current line at once, silencing its babble.
+func skip() -> void:
+	if typing():
+		_age = type_time()
+		_type()
+
+## Stops the babble.
+func _hush() -> void:
+	babbling = &""
+	if voice:
+		voice.stop()
+
+## Reveals the line up to where it has typed; the babble stops with it.
 func _type() -> void:
 	portrait.talking = typing()
+	if not portrait.talking and babbling != &"":
+		_hush()
 	label.visible_characters = -1 if not portrait.talking else floori(_age * type_rate)
 
 ## The panel, low on the left: below the speed gauge, above the assists, clear
