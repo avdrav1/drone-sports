@@ -5,6 +5,8 @@ extends Node3D
 # a lap is gates 1..N-1 then gate 0 again. A gate passed ahead of the next one
 # skips the ones between and invalidates the lap; invalid laps do not count.
 # Backward passes never count. Times run from start().
+# An open course (CourseData.closed false) is one run, its "lap": gates 1..N-1
+# in order, finishing at the last gate whether or not a gate was skipped.
 
 ## time is the lap time, s; valid is false if a gate was skipped.
 signal lap_completed(time: float, racer: Node3D, lap: int, valid: bool)
@@ -64,7 +66,16 @@ func start() -> void:
 	time = 0.0
 
 func laps() -> int:
-	return data.laps if data else 0
+	if data == null:
+		return 0
+	return data.laps if data.closed else 1
+
+func is_closed() -> bool:
+	return data == null or data.closed
+
+## The gate that ends a lap: the start/finish gate, or an open course's last gate.
+func finish_gate() -> int:
+	return 0 if is_closed() else gates.size() - 1
 
 ## Gates passed in lap order, for standings: valid laps, then gates, then nearness.
 func race_distance(racer: Node3D) -> float:
@@ -72,7 +83,7 @@ func race_distance(racer: Node3D) -> float:
 	if not p.started:
 		return -1.0
 	var n := gates.size()
-	var done := p.laps * n + _lap_order(p.next, n)
+	var done := p.laps * n + _order(p.next)
 	var to_next := racer.global_position.distance_to(gates[p.next].global_position)
 	return done - minf(to_next, 999.0) / 1000.0
 
@@ -115,14 +126,14 @@ func _passed(racer: Node3D, p: Progress, gate: int) -> void:
 			p.splits = {}
 			gate_passed.emit(racer, 0)
 		return
-	var ahead := _lap_order(gate, n) - _lap_order(p.next, n)
+	var ahead := _order(gate) - _order(p.next)
 	if ahead < 0:
 		return # a gate already passed this lap
 	if ahead > 0:
 		p.valid = false
 	p.splits[gate] = time - p.lap_start
 	gate_passed.emit(racer, gate)
-	if gate == 0:
+	if gate == finish_gate():
 		_lap_done(racer, p)
 	else:
 		p.next = (gate + 1) % n
@@ -141,11 +152,15 @@ func _lap_done(racer: Node3D, p: Progress) -> void:
 	p.valid = true
 	p.splits = {}
 	p.next = 1 % gates.size()
-	if p.laps >= laps():
+	if p.laps >= laps() or not is_closed():
 		p.finished = true
 		p.finish_time = time
 		finish_order.append(racer)
 		racer_finished.emit(racer, finish_order.size(), time)
+
+## Position of a gate in this course's lap order; an open course's gate 0 comes before them all.
+func _order(gate: int) -> int:
+	return _lap_order(gate, gates.size()) if is_closed() else gate - 1
 
 ## Position of a gate in lap order: gates 1..N-1 come first, gate 0 closes the lap.
 static func _lap_order(gate: int, n: int) -> int:

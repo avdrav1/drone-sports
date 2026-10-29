@@ -89,7 +89,7 @@ func test_race_scene_loads() -> bool:
 	var scene: Node = Sim.add(load("res://scenes/jobs/test_race.tscn").instantiate())
 	await Sim.process_frames(3)
 	var course: Course = scene.get_node("Course")
-	var ok: bool = course.gates.size() == 10 and course.racers().has(scene.get_node("Drone")) \
+	var ok: bool = course.gates.size() == 16 and course.racers().has(scene.get_node("Drone")) \
 		and scene.get_node("JobRunner").state == JobRunner.State.BRIEFING
 	scene.free()
 	return ok

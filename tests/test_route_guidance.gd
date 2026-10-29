@@ -53,7 +53,7 @@ func test_race_scene_draws_route() -> bool:
 	var route: RouteSource = scene.get_node("Route")
 	var ribbon: RouteRibbon = scene.get_node("RouteRibbon")
 	var radar: Radar = scene.get_node("HUD/Radar")
-	var ok: bool = route.guided().size() == 12 and ribbon.dashes > 0 and not radar.route_dots().is_empty()
+	var ok: bool = route.guided().size() == 17 and ribbon.dashes > 0 and not radar.route_dots().is_empty()
 	scene.free()
 	return ok
 

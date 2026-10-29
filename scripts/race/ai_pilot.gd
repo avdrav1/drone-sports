@@ -2,7 +2,8 @@ class_name AiPilot
 extends IntentSource
 # Flies a Course like a player would: through the same Intent and assists.
 # Expects angle mode (auto-level) and altitude hold on, as in Act 1.
-# Follows a closed spline through the gate centres, aiming a little ahead.
+# Follows a spline through the gate centres, aiming a little ahead: closed for a
+# loop, open with a run-out past the finish for a path.
 # Seeded: the same seed flies the same race.
 
 @export var course: Course
@@ -25,6 +26,8 @@ extends IntentSource
 @export var stuck_time := 1.0
 ## How long a recovery lasts, s.
 @export var recover_time := 1.0
+## On an open course, how far the line runs on past the finish gate, m.
+@export var run_out := 15.0
 
 ## Matches AutoLevel.max_angle: stick 1 asks for this tilt.
 const STICK_ANGLE := deg_to_rad(35.0)
@@ -55,13 +58,21 @@ func _build_curve() -> void:
 	curve.clear_points()
 	var gates := course.gates
 	var n := gates.size()
-	for i in n + 1:
+	var closed := course.is_closed()
+	for i in (n + 1 if closed else n):
 		var g: Gate = gates[i % n]
 		var fwd: Vector3 = -g.global_transform.basis.z
 		# A third of each leg's length keeps the spline on the arc the gates sit on.
-		var back := g.global_position.distance_to(gates[(i - 1 + n) % n].global_position) / 3.0
-		var ahead := g.global_position.distance_to(gates[(i + 1) % n].global_position) / 3.0
+		var back := run_out / 3.0 if not closed and i == 0 \
+			else g.global_position.distance_to(gates[(i - 1 + n) % n].global_position) / 3.0
+		var ahead := run_out / 3.0 if not closed and i == n - 1 \
+			else g.global_position.distance_to(gates[(i + 1) % n].global_position) / 3.0
 		curve.add_point(g.global_position, -fwd * back, fwd * ahead)
+	if not closed:
+		# Fly on through the finish instead of braking in it.
+		var last: Gate = gates[n - 1]
+		var out: Vector3 = -last.global_transform.basis.z * run_out
+		curve.add_point(last.global_position + out, -out / 3.0)
 
 func reset() -> void:
 	_gate_offset.clear()
@@ -78,12 +89,16 @@ func read_intent() -> Intent:
 	var length := curve.get_baked_length()
 	var at := curve.get_closest_offset(pos)
 	var speed := cruise_speed * pace * (1.0 + speed_noise * sin(_time * 0.7 + _phase))
-	var ahead := fmod(at + lookahead + speed * 0.3, length)
+	var ahead := _along(at + lookahead + speed * 0.3, length)
 	var target := curve.sample_baked(ahead)
-	var tangent := curve.sample_baked(fmod(ahead + 1.0, length)) - target
+	var tangent := curve.sample_baked(_along(ahead + 1.0, length)) - target
 	var side := Vector3(-tangent.z, 0.0, tangent.x).normalized()
 	target += side * lane * _lane_weight(pos) + _avoid(pos, target)
 	target = _keep_in_gate(pos, target) + _clip_offset(pos)
+	var p = course.progress(drone)
+	if p and p.finished and not course.is_closed():
+		# Past the finish of a path: settle at the end of the run-out.
+		return steer(drone, curve.sample_baked(length), 0.0)
 	_slow_for = _slow_for + dt if drone.linear_velocity.length() < stuck_speed else 0.0
 	if _slow_for > stuck_time:
 		_slow_for = 0.0
@@ -95,6 +110,10 @@ func read_intent() -> Intent:
 		target = Vector3(back.x, pos.y + 2.0, back.z)
 		speed = 3.0
 	return steer(drone, target, speed)
+
+## A distance along the line: wrapped round a loop, held at the end of a path.
+func _along(d: float, length: float) -> float:
+	return fmod(d, length) if course.is_closed() else minf(d, length)
 
 ## Sticks that carry `d` toward `target` at `speed` m/s: tilt for the horizontal
 ## velocity, an altitude-hold climb for height, and yaw to face the way it goes.

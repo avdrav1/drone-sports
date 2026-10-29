@@ -1,7 +1,8 @@
 class_name CourseRoute
 extends RouteSource
-# A racer's route: the gates left this lap, in order, ending at the start/finish.
-# Before the start it is the start gate and then the whole first lap.
+# A racer's route: the gates left this lap, in order, ending at the start/finish
+# (an open course's last gate). Before the start it is the start gate and then
+# the whole first lap.
 
 @export var course: Course
 
@@ -16,7 +17,7 @@ func points() -> PackedVector3Array:
 	var i: int = p.next if p.started else 1 % n
 	while true:
 		out.append(course.gates[i].global_position)
-		if i == 0:
+		if i == course.finish_gate():
 			break
 		i = (i + 1) % n
 	return out

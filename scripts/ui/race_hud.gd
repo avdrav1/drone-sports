@@ -1,7 +1,7 @@
 class_name RaceHud
 extends Control
-# Race overlay on top of the flight HUD: position, lap, split delta against the
-# best lap, and a marker on the next gate (at the screen edge, pointing, when off screen).
+# Race overlay on top of the flight HUD: position, lap (or on an open course the
+# run's gates), split delta against the best lap, and a marker on the next gate (at the screen edge, pointing, when off screen).
 # Lights the player's next gate. Reads the course; never changes it. The chosen
 # pilot's portrait sits beside the position (Story 7.2).
 
@@ -50,8 +50,17 @@ func _process(delta: float) -> void:
 func position_text() -> String:
 	return "%d/%d" % [course.place_of(racer), course.racers().size()]
 
+## "LAP" round a loop, "RUN" on an open course.
+func lap_label() -> String:
+	return "LAP" if course.is_closed() else "RUN"
+
+## Lap n of N, or on an open course the gate the run is on of its gates.
 func lap_text() -> String:
 	var p = course.progress(racer)
+	if not course.is_closed():
+		var last := course.gates.size() - 1
+		var gate: int = (last if p.finished else p.next) if p.started else 0
+		return "%d/%d" % [gate, last]
 	var lap := mini(p.laps + 1, course.laps()) if p.started else 1
 	return "%d/%d" % [lap, course.laps()]
 
@@ -116,7 +125,7 @@ func _draw() -> void:
 	_text(Vector2(right - 222.0, 116), pilot_face.character.name.to_upper(), 13, LINE, HORIZONTAL_ALIGNMENT_CENTER, 128)
 	_text(Vector2(right - 200, 40), "POSITION", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	_text(Vector2(right - 200, 74), position_text(), 32, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)
-	_text(Vector2(right - 200, 100), "LAP", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
+	_text(Vector2(right - 200, 100), lap_label(), 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	_text(Vector2(right - 200, 128), lap_text(), 24, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	if split_visible():
 		_text(Vector2(s.x * 0.5 - 100, 190), "%+.2f" % split_delta, 26, split_color(), HORIZONTAL_ALIGNMENT_CENTER, 200)

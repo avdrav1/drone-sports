@@ -1106,11 +1106,12 @@ Done when the title, start page and main menu play the user's own song, "There's
 
 ## Epic 22: The test path
 
-- [ ] **22.1 From a loop to a path**
+- [x] **22.1 From a loop to a path**
   - Goal: The test race becomes a point-to-point path that teaches in three parts: a straight run that only tests altitude (gates at different heights), then turns brought in gradually at one height, and finally turns and height changes together, ending at a finish gate.
   - Context: `CourseData` gains `closed` (default true, so the fleet race's loop is unchanged); an open course runs once from the start gate to the last gate, and `Course` finishes the run there instead of counting laps. A new `data/courses/test_path.tres` and map replace the loop in `scenes/jobs/test_race.tscn`; the race's objectives and HUD read "run" rather than "lap" for an open course. AI racers fly it with the 9d1d4ab spline handles. Tests that load the loop for loop behaviour keep it.
   - Acceptance: The first part's gates sit on one straight line with at least three different heights and no turn. The second part's turns grow (each turn's angle at least the one before) at one height. The last part has gates that change both heading and height. The race ends at the last gate, once. Both AI racers finish it. The fleet race still runs its loop with laps.
   - Out of scope: New gate kinds, other courses.
+  - Note: `CourseData.closed` (default true) marks a loop; `data/courses/test_path.tres` (16 gates, `closed = false`, start gate at z 60 with the racers moved behind it) is a straight of heights 3-5 m, six left turns growing 15-60 deg at 3 m, then five weaving gates that change heading and height, finishing near the start; its map is `data/maps/test_path.tres`. On an open course `Course.laps()` is 1, `finish_gate()` is the last gate, the run finishes there once (a skipped gate only makes it invalid), `CourseRoute` ends there, `AiPilot` flies an open spline with a `run_out` past the finish and then hovers, and `RaceHud.lap_label()` reads "RUN" with gate n/15; the objectives are labelled "Clean run" and "Best run", and the split delta only shows from a previous run's best. The spotter drill inherits the test race so it flies the path too (AI times about 49-50 s, in line with the Act 1 leaderboard); the fleet race and tests about loop behaviour keep `test_loop.tres`.
 
 - [ ] **22.2 The fleet race on a path**
   - Goal: The team relay runs on a point-to-point path too: the path is split into legs, each flown by a different drone, and each handoff happens at the gate where one leg ends and the next begins.

@@ -78,4 +78,4 @@ func test_job_markers_are_on_the_map() -> bool:
 	await Sim.process_frames(1)
 	var gates := MapMarker.collect(race).filter(func(m): return m.kind == &"gate")
 	race.free()
-	return drops.size() == 1 and gates.size() == 10
+	return drops.size() == 1 and gates.size() == 16

@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_job")
 id = &"test_race"
-title = "Test loop race"
-summary = "Race the other drones around the loop. Fly every gate in order and cross the line first."
+title = "Test path race"
+summary = "Race the other drones down the path: heights first, then turns, then both. Fly every gate in order and cross the finish first."
 scene = "res://scenes/jobs/test_race.tscn"
 client = "Skyline League"
 job_type = &"race"

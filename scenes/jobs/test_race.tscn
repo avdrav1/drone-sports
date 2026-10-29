@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
 [ext_resource type="Script" path="res://scripts/race/course.gd" id="3_course"]
-[ext_resource type="Resource" path="res://data/courses/test_loop.tres" id="4_loop"]
+[ext_resource type="Resource" path="res://data/courses/test_path.tres" id="4_path"]
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="5_drone"]
 [ext_resource type="Script" path="res://scripts/drone/pilot_input.gd" id="6_input"]
 [ext_resource type="PackedScene" path="res://scenes/camera/camera_rig.tscn" id="7_rig"]
@@ -20,7 +20,7 @@
 [ext_resource type="Script" path="res://scripts/ui/arcade_bezel.gd" id="18_bezel"]
 [ext_resource type="Resource" path="res://data/framing/act1.tres" id="19_act1frame"]
 [ext_resource type="Script" path="res://scripts/nav/gps.gd" id="80_gps"]
-[ext_resource type="Resource" path="res://data/maps/test_loop.tres" id="81_map"]
+[ext_resource type="Resource" path="res://data/maps/test_path.tres" id="81_map"]
 [ext_resource type="Script" path="res://scripts/ui/radar.gd" id="83_radar"]
 [ext_resource type="Script" path="res://scripts/ui/map_screen.gd" id="84_map"]
 [ext_resource type="Script" path="res://scripts/nav/course_route.gd" id="85_route"]
@@ -39,17 +39,17 @@
 
 [node name="Course" type="Node3D" parent="."]
 script = ExtResource("3_course")
-data = ExtResource("4_loop")
+data = ExtResource("4_path")
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 3, -36)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9, 3, 64)
 intent_source = NodePath("PilotInput")
 
 [node name="PilotInput" type="Node" parent="Drone"]
 script = ExtResource("6_input")
 
 [node name="Opponent1" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 3, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4, 3, 67)
 intent_source = NodePath("AiPilot")
 
 [node name="AiPilot" type="Node" parent="Opponent1" node_paths=PackedStringArray("course")]
@@ -59,7 +59,7 @@ seed = 11
 lane = -1.0
 
 [node name="Opponent2" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 3, -36)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9, 3, 64)
 intent_source = NodePath("AiPilot")
 
 [node name="AiPilot" type="Node" parent="Opponent2" node_paths=PackedStringArray("course")]
@@ -69,7 +69,7 @@ seed = 12
 lane = 1.0
 
 [node name="Opponent3" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("5_drone")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 3, -33)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 3, 67)
 intent_source = NodePath("AiPilot")
 
 [node name="AiPilot" type="Node" parent="Opponent3" node_paths=PackedStringArray("course")]
@@ -206,12 +206,12 @@ ends_job = true
 [node name="CleanLap" type="Node" parent="JobRunner" node_paths=PackedStringArray("course")]
 script = ExtResource("13_clean")
 course = NodePath("../../Course")
-label = "Clean laps"
+label = "Clean run"
 
 [node name="BestSplit" type="Node" parent="JobRunner" node_paths=PackedStringArray("course")]
 script = ExtResource("14_split")
 course = NodePath("../../Course")
-label = "Best lap"
+label = "Best run"
 
 [node name="Race" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "opponents")]
 script = ExtResource("15_race")
