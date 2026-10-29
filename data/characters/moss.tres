@@ -17,6 +17,7 @@ assist = &"auto_level"
 property = &"max_angle"
 value = 45.0
 degrees = true
+words = "Leans {value}° while auto-level is on, others {others}"
 
 [sub_resource type="Resource" id="setting_1"]
 script = ExtResource("4_setting")
@@ -24,10 +25,12 @@ assist = &"brake"
 property = &"max_yaw_rate"
 value = 130.0
 degrees = true
+words = "Turns {value}°/s while the brake is on, others {others}"
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Clean lines"
+best_at = "cornering"
 stats = Array[ExtResource("3_step")]([SubResource("step_0")])
 assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1")])
 

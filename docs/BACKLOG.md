@@ -1018,7 +1018,7 @@ Crew perks, on while the character is alive and not benched:
   - Context: Edges from 19.1. Numbers live only in the pilots' `.tres` files. Tests fly the real drone headless with Act 1 assists and scripted sticks.
   - Acceptance: On a 150 m straight at full stick, Fen's top speed is highest and Fen covers it fastest. At full roll and yaw stick, Moss turns through 180° in the least time. At full throttle stick, Tally climbs 30 m fastest. Pip is never last on any of the three and stops furthest from a wall flown at full stick. Without assists (Act 5 preset), each pilot's stat bump still shows: Fen's climb, Moss's top speed, Tally's flight time.
   - Out of scope: Rebalancing jobs, grades, or time limits.
-- [ ] **19.3 Pilot select shows the edge**
+- [x] **19.3 Pilot select shows the edge**
   - Goal: Choosing a pilot is an informed choice: each card says what they are best at and shows it.
   - Context: `PilotSelect` (cards with portrait, role, and today the tweak's name). Each card gets a one-line "best at", the edge in plain words ("Top speed 15 m/s while the governor is on, others 12"), and four bars (speed, cornering, climb, endurance) computed from the edge, not typed in. Fits at 960×720 in both front-end skins.
   - Acceptance: Every pilot card shows best-at text and the four bars. The bars come from the edge data, and the highest bar on each specialist's card is their specialty. Text fits at 960×720 and 1920×1080.

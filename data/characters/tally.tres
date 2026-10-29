@@ -16,22 +16,26 @@ script = ExtResource("4_setting")
 assist = &"altitude_hold"
 property = &"climb_rate"
 value = 7.0
+words = "Climbs {value} m/s while altitude hold is on, others {others}"
 
 [sub_resource type="Resource" id="setting_1"]
 script = ExtResource("4_setting")
 assist = &"altitude_hold"
 property = &"height_gain"
 value = 3.0
+words = "Height lock gain {value}, others {others}"
 
 [sub_resource type="Resource" id="setting_2"]
 script = ExtResource("4_setting")
 assist = &"collision_guard"
 property = &"brake_accel"
 value = 8.0
+words = "Collision guard brakes harder: {value} m/s², others {others}"
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Easy on the cells"
+best_at = "climbing and endurance"
 stats = Array[ExtResource("3_step")]([SubResource("step_0")])
 assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1"), SubResource("setting_2")])
 

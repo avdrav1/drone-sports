@@ -10,6 +10,6 @@ extends Resource
 ## Unit shown after the step, e.g. "s flight time".
 @export var unit := ""
 
-## E.g. "+15 s flight time".
+## E.g. "+15 s flight time", the number never wrapping away from its unit.
 func effect_text() -> String:
-	return "%s%s %s" % ["+" if step > 0.0 else "", str(step), unit]
+	return "%s%s\u00a0%s" % ["+" if step > 0.0 else "", PilotEdge.number(step), unit]

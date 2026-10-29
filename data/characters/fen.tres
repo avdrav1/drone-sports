@@ -16,16 +16,19 @@ script = ExtResource("4_setting")
 assist = &"speed_governor"
 property = &"max_speed"
 value = 15.0
+words = "Top speed {value} m/s while the governor is on, others {others}"
 
 [sub_resource type="Resource" id="setting_1"]
 script = ExtResource("4_setting")
 assist = &"brake"
 property = &"max_speed"
 value = 10.0
+words = "Stick speed {value} m/s while the brake is on, others {others}"
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Hard launch"
+best_at = "straight-line speed"
 stats = Array[ExtResource("3_step")]([SubResource("step_0")])
 assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1")])
 

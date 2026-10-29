@@ -29,6 +29,7 @@ script = ExtResource("4_setting")
 assist = &"speed_governor"
 property = &"max_speed"
 value = 13.0
+words = "Top speed {value} m/s while the governor is on, others {others}"
 
 [sub_resource type="Resource" id="setting_1"]
 script = ExtResource("4_setting")
@@ -36,28 +37,33 @@ assist = &"auto_level"
 property = &"max_angle"
 value = 38.0
 degrees = true
+words = "Leans {value}° while auto-level is on, others {others}"
 
 [sub_resource type="Resource" id="setting_2"]
 script = ExtResource("4_setting")
 assist = &"altitude_hold"
 property = &"climb_rate"
 value = 5.0
+words = "Climbs {value} m/s while altitude hold is on, others {others}"
 
 [sub_resource type="Resource" id="setting_3"]
 script = ExtResource("4_setting")
 assist = &"collision_guard"
 property = &"margin"
 value = 0.7
+words = "Collision guard keeps {value} m from walls, others {others}"
 
 [sub_resource type="Resource" id="setting_4"]
 script = ExtResource("4_setting")
 assist = &"collision_guard"
 property = &"reaction_time"
 value = 0.2
+words = "Collision guard reacts in {value} s, others {others}"
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Steady hands"
+best_at = "a bit of everything, most forgiving"
 stats = Array[ExtResource("3_step")]([SubResource("step_0"), SubResource("step_1"), SubResource("step_2")])
 assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1"), SubResource("setting_2"), SubResource("setting_3"), SubResource("setting_4")])
 
