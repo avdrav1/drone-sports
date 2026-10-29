@@ -39,6 +39,10 @@ func _ready() -> void:
 	if terrain and gps and gps.map:
 		texture = TerrainImage.bake(terrain, gps.map.bounds, 256, Radar.footprints(city))
 
+## Over the chart's corner, e.g. "NORTH UP  ·  M TO CLOSE" or "... BACK TO CLOSE".
+static func close_text() -> String:
+	return "NORTH UP  ·  %s TO CLOSE" % InputPrompt.text(&"toggle_map").to_upper()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_map"):
 		toggle()
@@ -99,7 +103,7 @@ func _draw() -> void:
 	_draw_grid(map, r)
 	draw_rect(r, LINE, false, 1.5)
 	_text(r.position + Vector2(0, -12), map.title.to_upper(), 17, LINE)
-	_text(Vector2(r.end.x - 200, r.position.y - 12), "NORTH UP  ·  M TO CLOSE", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
+	_text(Vector2(r.end.x - 200, r.position.y - 12), close_text(), 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
 	for name in map.landmarks:
 		var at := to_chart(map.landmarks[name])
 		draw_circle(at, 3.0, DIM)

@@ -20,6 +20,7 @@ Garage="*res://scripts/progression/garage.gd"
 Sfx="*res://scripts/audio/sfx.gd"
 Music="*res://scripts/audio/music.gd"
 MusicDirector="*res://scripts/audio/music_director.gd"
+InputPrompt="*res://scripts/ui/input_prompt.gd"
 
 [shader_globals]
 

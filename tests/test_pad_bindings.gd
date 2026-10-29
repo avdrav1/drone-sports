@@ -94,6 +94,8 @@ func _button(node: Node, index: JoyButton) -> void:
 	var up := ev.duplicate()
 	up.pressed = false
 	node.get_viewport().push_input(up)
+	# Prompts name pad buttons after this (Story 23.2); later tests expect keys.
+	InputPrompt.use_keys()
 
 func _job(path: String) -> Node:
 	var s: Node = load(path).instantiate()

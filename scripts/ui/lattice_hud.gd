@@ -18,7 +18,8 @@ func lines() -> String:
 		LatticeFight.Phase.RECLAIM:
 			var gap := fight.gap()
 			var done := gap.filter(func(u): return u in fight.reclaimed).size()
-			return "RECLAIM  ·  gap %d/%d  ·  fleet %d  ·  T tags a unit" % [done, gap.size(), fight.command.drones.size()]
+			return "RECLAIM  ·  gap %d/%d  ·  fleet %d  ·  %s tags a unit" % [done, gap.size(), fight.command.drones.size(),
+				InputPrompt.text(&"tag_unit")]
 		LatticeFight.Phase.TRENCH:
 			return "THE TRENCH  ·  closes in %d s  ·  reach the shutter" % ceili(maxf(fight.boss().trench_time - fight.trench_clock, 0.0))
 		LatticeFight.Phase.OVERRIDE:

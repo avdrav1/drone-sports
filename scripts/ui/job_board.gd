@@ -32,7 +32,6 @@ const HURT := Color(1.0, 0.45, 0.35)
 ## A fit crew member's perk on the CREW page (Story 19.7).
 const GOOD := Color(0.55, 0.9, 0.55)
 const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get teams to notice you."
-const CONTROLS := "UP/DOWN  MENU      LEFT/RIGHT  JOBS      ENTER  SELECT      ESC  BACK"
 ## What each menu item does, shown under the menu while it has focus.
 const MENU_HINTS := {
 	&"Fly": "Fly the job on the card.",
@@ -87,6 +86,7 @@ func _ready() -> void:
 	theme = skin.theme()
 	_build_radio()
 	_build()
+	InputPrompt.device_changed.connect(_on_device_changed)
 	refresh()
 	offer_dialog = OfferDialog.new()
 	offer_dialog.answered.connect(func(_t, _a): refresh())
@@ -646,7 +646,7 @@ func _build() -> void:
 	_build_options(stack)
 	var controls := Label.new()
 	controls.name = "Controls"
-	controls.text = CONTROLS
+	controls.text = controls_text()
 	controls.theme_type_variation = &"Display"
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -738,7 +738,8 @@ func _build_options(stack: Control) -> void:
 		# Left goes back to the menu item that opened the page.
 		c.focus_neighbor_left = c.get_path_to(menu_button(&"Options"))
 	var esc := Label.new()
-	esc.text = "Esc to go back"
+	esc.name = "BackHint"
+	esc.text = back_text()
 	esc.add_theme_color_override("font_color", DIM)
 	esc.add_theme_font_size_override("font_size", 14)
 	box.add_child(esc)
@@ -774,3 +775,21 @@ func _panel(stack: Control, key: StringName) -> VBoxContainer:
 	box.add_theme_constant_override("separation", 12)
 	scroll.add_child(box)
 	return box
+
+## The footer of keys, named for the device last touched (Story 23.2), e.g.
+## "↑/↓  MENU      ←/→  JOBS      ENTER  SELECT      ESC  BACK".
+static func controls_text() -> String:
+	return ("%s  MENU      %s  JOBS      %s  SELECT      %s  BACK" % [
+		InputPrompt.group_text([&"ui_up", &"ui_down"], "/"), InputPrompt.group_text([&"ui_left", &"ui_right"], "/"),
+		InputPrompt.text(&"ui_accept"), InputPrompt.text(&"ui_cancel")]).to_upper()
+
+## Under the OPTIONS page, e.g. "Esc to go back".
+static func back_text() -> String:
+	return "%s to go back" % InputPrompt.text(&"ui_cancel")
+
+## The footer and the back hint name the device in hand (Story 23.2).
+func _on_device_changed(_pad: bool) -> void:
+	for named in [["Controls", controls_text()], ["BackHint", back_text()]]:
+		var l := find_child(named[0], true, false) as Label
+		if l:
+			l.text = named[1]

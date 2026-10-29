@@ -1156,7 +1156,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Out of scope: Rebinding, prompts (23.2).
   - Note: Start does nothing in the briefing, on purpose (owner's call): only B or Esc goes back to the board from there, so Start never sends a player home by accident. In COUNTDOWN and LIVE it opens the leave dialog.
 
-- [ ] **23.2 Prompts follow the device**
+- [x] **23.2 Prompts follow the device**
   - Goal: Every prompt names the key or the button for the device the player last touched, and switches the moment they touch the other one.
   - Context: A new `InputPrompt` autoload remembers the last device (key or mouse versus pad; stick motion under the deadzone does not count) and its family from `Input.get_joy_name` (Xbox, PlayStation, Nintendo, otherwise generic Xbox names). It emits `device_changed`. `ControlsHelp.key_text` becomes `InputPrompt.text(action)`, returning "Enter" or "A" / "Cross" or "LB" / "D-pad ↓". The prompts are text in the existing fonts, so there are no glyph images and no new assets. Callers that redraw on `device_changed` include `ControlsHelp`, `ControlsHint`, `JobRunner`'s briefing line, the board's `CONTROLS` footer and "Esc to go back", and the fleet, relay and Lattice HUD hints.
   - Acceptance: After a synthetic joypad button event, every prompt names pad buttons. After a key event, every prompt names keys. A PlayStation-named pad reads "Cross" where an Xbox pad reads "A". No script under `scripts/` holds a hard-coded key name in player-facing text; a test greps for "Enter", "Esc", "Space" and "click" in string literals, with an allow-list for the key table.
