@@ -887,3 +887,49 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Context: The companion is data on the sandbox (a list in order of preference); the first living one rides along, so a death changes who you hear. Suggestions are data (`data/radio/suggestions.tres`): a line, plus a `MapMarker` kind or landmark it points at (a rooftop pad, the plaza, downtown, the jammer). When one plays, the radar lights its target until you reach it or another suggestion plays. Reaching it gets a short reaction line. A suggestion plays after 45 s without a line, never during the first 10 s, and never twice in a row.
   - Acceptance: Free flight greets with the first living companion within 3 s of spawn. With them dead, the next one in the list greets instead. After 45 s with no line, a suggestion plays and the radar lights its target. Reaching the target plays a reaction and clears the highlight. No suggestion plays during a job. Nothing is graded or saved from free flight.
   - Out of scope: Free-flight missions with rewards, multiple companions talking to each other.
+
+## Epic 18: A friendlier crew
+
+Done when the crew are characters you want to see: Saturday-morning-cartoon faces (bold outlines, flat bright colour, big expressive eyes, exaggerated poses, squash and stretch), warm lines that cheer you on, happy chirps, and faces on their drones. The style is original: no character, design, or catchphrase imitates an existing cartoon or franchise. The existing lines stay; warmer ones are added on top, and the new voice is on your side (encouraging, comforting, a little goofy). Serious moments stay sincere: hazard warnings, strikes, injuries, deaths, memorials, and the Lattice never get emotes, gags, or jokes, and the dead never speak or appear on a drone. Faces stay drawn in code from `Character` data (rule 6) and readable at 32 px. Nothing here touches the flight model, assists, or grading (rules 1, 2, 8); drone faces are visual only. Order: 18.1 first (every later story uses the new face), then 18.2 to 18.6 in any order, then 18.7.
+
+- [ ] **18.1 Cartoon faces**
+  - Goal: `CharacterPortrait` redrawn in a Saturday-morning-cartoon style: a thick dark outline, big eyes set low and wide with two shine dots, short brows that sit high and only move for big emotions, a small mouth on the face itself (no snout patch), cheek blush, and a soft smile as the resting face.
+  - Context: `scripts/ui/character_portrait.gd` from 17.1. Keep `pose(expression, t)` and its fields, adding `eye_scale`, `squint`, and `blush`; keep the six expressions, the seeded blink, and talking. Each character's silhouette feature (`shape`) is kept but redrawn chunkier. `neutral` becomes a soft smile; `determined` reads as eager, not angry. The dead stay greyed with eyes closed and no blush or shine.
+  - Acceptance: Every expression still gives a distinct pose; happy curves the mouth up, sad down, shocked opens it wide. In every expression but determined the brows' inner ends are not lower than their outer ends. Eye height is at least 22% of the face in every pose with lids open. Neutral's mouth curves up. Blinks and talking still behave as 17.1's tests require. Every character draws without errors at 32, 64, and 128 px. A dead face has closed lids, no blush, and no shine.
+  - Out of scope: Body motion (18.2), emotes (18.3).
+
+- [ ] **18.2 Squash and stretch**
+  - Goal: Faces that move like cartoons: an idle bob, squash and stretch while talking, a pop-up of the eyes when shocked, a droop when sad, a hop when you pick someone, and eyes that follow the cursor on the board.
+  - Context: A pure `CharacterPortrait.motion(expression, t, talking)` returns scale and offset, so tests read motion, not pixels. Each character's bob has its own phase and speed (data on `Character`, e.g. `bounce`), so the crew do not move in unison. Pilot select and the board call `hop()` on a pick; `look_at(point)` aims the pupils within the eye.
+  - Acceptance: Idle motion stays within 6% of the face's size and repeats with the same phase. While talking the face squashes and stretches, holding its area within 5%. `hop()` returns the face to rest within 0.6 s. Pupils follow a point and never leave the eye. A dead face does not move.
+  - Out of scope: Full-body characters, arms.
+
+- [ ] **18.3 Emotes**
+  - Goal: Little cartoon emotes by the face: hearts on a clean finish, sparkles on a best time, a sweat drop when worried, a "!" on a near miss, music notes when idle and happy, stars when dizzy after a crash.
+  - Context: Emotes are data (`data/crew/emotes.tres`: an event or expression mapped to an emote, its time, and its drawing); drawn in code beside any `CharacterPortrait`. One emote at a time, the newest replacing the oldest.
+  - Acceptance: Each mapped event shows its emote for its time, then clears. Hazard warnings, strikes, injuries, deaths, memorials, and every Lattice line show no emote. A dead character never shows one.
+  - Out of scope: Emotes in the 3D world (18.7 has its own faces).
+
+- [ ] **18.4 Warmer lines**
+  - Goal: More lines for every character and every event, in a voice that is on your side: cheering you on, celebrating with you, laughing off a crash, and comforting you after a fail. Each character keeps their personality and gets their own names for you (`Character.calls_you`, e.g. "ace", "boss", "buddy").
+  - Context: Added to the existing `data/dialogue/*.json` pools (object lines with a `face`); nothing existing is removed or reworded. Lines may use `{you}`, filled from the speaker's `calls_you`. Warning, strike, injury, and memorial lines added here are sincere and kind, never jokes. Lines are original.
+  - Acceptance: Every living character's pool grows by at least three lines for every event they speak on. Every `{you}` resolves and no line shows a raw brace. Every existing line is still present. No added line in warning, strike, injury, or memorial pools uses an exclamation of delight or an emote word (checked against a word list). Every existing bark test passes unchanged.
+  - Out of scope: New events (18.5), voice acting.
+
+- [ ] **18.5 Little moments**
+  - Goal: The crew notice you: a hello when you come back to the board, a cheer after a run of clean gates, encouragement when you retry a job you just failed, celebration when you buy an upgrade or unlock a job, and a wave goodbye when you quit.
+  - Context: New events in `Bark.EVENTS` (`hello`, `streak`, `retry`, `unlock`, `goodbye`), each with default faces and emotes, lines in every character's file, and a cooldown so the same character does not greet you twice in a minute. They speak through the existing bark and radio paths.
+  - Acceptance: Each new event plays a line from a living crew member when it happens and never from the dead. A streak fires after the set number of clean gates, once per streak. Retry fires only on relaunching the job just failed. Cooldowns hold.
+  - Out of scope: Relationships or affinity scores.
+
+- [ ] **18.6 Happy chirps**
+  - Goal: Chirps that sound friendly: a rising two-note chirp for happy lines, a little giggle trill for celebrating, a wobble for worried, and a soft falling "awoo" for sad, each pitched per character.
+  - Context: Generated by `tools/sfx/generate.py` on the scale in `tools/music/key.py` (16.2), so they sit in the music's key; `Bark` picks the chirp from the line's face and pitches it by `chirp_pitch`. Strike, injury, and memorial lines keep the plain chirp.
+  - Acceptance: Each face plays its chirp variant. Every chirp's base pitch is a scale degree from `key.py`. The generator stays byte-for-byte deterministic. Every file is in `LICENSES.md`.
+  - Out of scope: Voice acting, sung lines.
+
+- [ ] **18.7 Drone faces**
+  - Goal: A crew member's drone wears their face: a small LED face panel on the front of the drone, in their colours, that blinks, reacts to what happens (happy through a gate, shocked on a near miss, dizzy after a crash), and looks the way they are heading.
+  - Context: A `DroneFace` child of `DroneLook`, shown only on drones a living crew member flies (`CommandView.pilots`, the relay, the Lattice's returned drones); the player's own drone stays faceless. Drawn by a cheap unshaded shader on a quad, driven by the same `CharacterPortrait.pose()` values, so it matches the portrait. Reactions come from 17.8's flight events for that drone. Visual only: no mass, collision, or flight value changes.
+  - Acceptance: A crew-flown drone shows its pilot's face; the player's drone and unpiloted drones show none. The panel's pose matches `pose()` for the same expression and time. Each mapped flight event changes its expression, then it returns to rest. The drone's mass, collision shapes, and flight values are unchanged with a face on. It compiles and draws under GL Compatibility.
+  - Out of scope: Faces on AI racers or the Lattice's units.
