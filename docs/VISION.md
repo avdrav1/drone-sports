@@ -1,4 +1,6 @@
-# Drone Sports: Game Vision
+# Jaisalmer: Game Vision
+
+The game is called Jaisalmer. The sport in it is drone sports.
 
 ## The pitch
 

@@ -1,4 +1,4 @@
-# Drone Sports: Backlog
+# Jaisalmer: Backlog
 
 Stories for `/next-story`. Work them top to bottom. Epics 0 to 3 are sequential, with Epic 9 (visual baseline) done between 2 and 3; Epic 10 (navigation) follows the Epic 3 playtest, except 10.5, which waits for 4.1; 4, 5, and 7 can run in parallel after 10.4 (do 7.1 to 7.3 before 5.3, since the job board shows the roster); 6 waits for playtesting; 8 waits for 6 and 7; 12 (the city) is scene content only and can run alongside any of them; 16 (music) builds on 14 and can run alongside 15; 17 (arcade front end and crew radio) can start any time. 19 (every crew member counts) can start any time; do 19.1 before 19.2 and 19.4 before 19.5 and 19.6. 23 (gamepad) can start any time; do 23.1 first, and 23.2 before 23.3.  24 (the rename to Jaisalmer) and 25 (the epic names) wait for the owner to say go; do 25.1 before 25.2; do 24.1 before 24.2, and 24.4 needs the domain registered and its DNS pointed at GitHub.
 
@@ -1227,7 +1227,7 @@ Owner decisions:
   - Acceptance: With a save only in the old folder, boot copies it, and the career, roster status (dead stay dead) and wallet match it. With a save already in the new folder, nothing is copied or overwritten. With no old save, nothing happens. It runs once and never deletes anything. Tests use a throwaway pair of folders, not the real ones.
   - Out of scope: Save format changes.
 
-- [ ] **24.3 The docs and the repo say Jaisalmer**
+- [x] **24.3 The docs and the repo say Jaisalmer**
   - Goal: Anyone opening the repo sees Jaisalmer.
   - Context: Retitle `CLAUDE.md` ("# Jaisalmer"), `README.md`, and the VISION, CHARACTERS and BOSS headings. The README also drops its stale Cloudflare/wrangler steps for the GitHub Pages deploy that `scripts/ship.sh` really does. VISION's opening gains one line: the game is Jaisalmer, and the sport in it is drone sports. Older backlog stories keep their text; they are history.
   - Acceptance: No file outside `docs/BACKLOG.md` says "Drone Sports" as the game's name (a test greps the repo's .md files with the same allow-list as 24.1). The README's deploy steps match `scripts/ship.sh`.

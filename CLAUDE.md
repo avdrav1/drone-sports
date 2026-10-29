@@ -1,4 +1,4 @@
-# Drone Sports
+# Jaisalmer
 
 A near-future drone-piloting game. You start as a gamer, get scouted by a team, and climb from single-drone jobs to fleet command. One flight model runs the whole game; progression removes assists, never changes physics.
 

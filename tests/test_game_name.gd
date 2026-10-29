@@ -2,7 +2,9 @@ extends RefCounted
 # Story 24.1: the game is called Jaisalmer, and the name lives in one place:
 # `application/config/name`. The title logo and the intro's title card read it,
 # the crawl ends on THIS IS JAISALMER, and no text under scripts/, scenes/ or
-# data/ still calls the game Drone Sports.
+# data/ still calls the game Drone Sports. Story 24.3: nor does any .md file
+# outside the backlog, and the README's deploy steps are the ones
+# scripts/ship.sh really runs.
 
 const Sim = preload("res://tests/sim.gd")
 const TITLE := "res://scenes/ui/title.tscn"
@@ -16,6 +18,15 @@ const TEXT_FILES := ["gd", "tres", "tscn", "json", "txt", "md", "cfg", "csv", "g
 const ALLOWED := {
 	"res://scripts/save_game.gd": ["Drone Sports"],
 }
+## The same for the repo's .md files. VISION's "Drone sports" pillar and its
+## opening line name the sport, not the game. The backlog keeps its history.
+const DOCS_ALLOWED := {
+	"res://docs/VISION.md": ["drone sports", "Drone sports"],
+}
+const DOCS_SKIPPED := ["res://docs/BACKLOG.md"]
+## Folders that are not the repo's own docs: the engine's cache, git, other
+## checkouts and the export.
+const NOT_REPO := [".godot", ".git", ".worktrees", "build"]
 
 func _close() -> void:
 	Sim.tree().unload_current_scene()
@@ -81,3 +92,46 @@ func _scan(dir: String, found: Dictionary) -> void:
 		var hits := re.search_all(FileAccess.get_file_as_string(path)).map(func(m): return m.get_string())
 		if not hits.is_empty():
 			found[path] = hits
+
+func test_no_doc_calls_the_game_drone_sports() -> bool:
+	var found := {}
+	_scan_docs("res://", found)
+	var ok := true
+	for file in found:
+		if file in DOCS_SKIPPED:
+			continue
+		var hits: Array = found[file]
+		if hits != DOCS_ALLOWED.get(file, []):
+			push_error("%s calls the game %s" % [file, hits])
+			ok = false
+	return ok and FileAccess.get_file_as_string("res://README.md").begins_with("# Jaisalmer\n") \
+		and FileAccess.get_file_as_string("res://CLAUDE.md").begins_with("# Jaisalmer\n")
+
+## Every "drone sports", any case, in the .md files under `dir`, hidden
+## folders (.claude) included, by file.
+func _scan_docs(dir: String, found: Dictionary) -> void:
+	var re := RegEx.create_from_string("(?i)drone sports")
+	var d := DirAccess.open(dir)
+	d.include_hidden = true
+	for sub in d.get_directories():
+		if sub not in NOT_REPO:
+			_scan_docs(dir.path_join(sub), found)
+	for file in d.get_files():
+		if file.get_extension() != "md":
+			continue
+		var path := dir.path_join(file)
+		var hits := re.search_all(FileAccess.get_file_as_string(path)).map(func(m): return m.get_string())
+		if not hits.is_empty():
+			found[path] = hits
+
+## The README's deploy steps are ship.sh's: GitHub Pages from the gh-pages
+## branch, through gh, with no trace of the old Cloudflare deploy.
+func test_readme_deploys_the_way_ship_does() -> bool:
+	var readme := FileAccess.get_file_as_string("res://README.md")
+	var ship := FileAccess.get_file_as_string("res://scripts/ship.sh")
+	var ok := true
+	for step in ["scripts/test.sh", "--skip-tests", "build/web", ".nojekyll", "gh-pages", "PAGES_BRANCH", "gh api"]:
+		ok = ok and step in readme and step in ship
+	for gone in ["wrangler", "Cloudflare", "npx"]:
+		ok = ok and gone not in readme and gone not in ship
+	return ok

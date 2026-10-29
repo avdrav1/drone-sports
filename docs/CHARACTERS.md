@@ -1,4 +1,4 @@
-# Drone Sports: Characters
+# Jaisalmer: Characters
 
 The crew is the heart of the story. They are small, round, expressive, and they can die. Every death is the player's fault and the game says so.
 
