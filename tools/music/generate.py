@@ -14,6 +14,7 @@ With --check it renders everything into build/music/check/ instead and exits
 nonzero unless every file there matches data/music/ byte for byte.
 """
 
+import array
 import filecmp
 import json
 import math
@@ -50,24 +51,25 @@ def bar_samples(tempo, bars):
     return round(bars * BEATS_PER_BAR * 60.0 / tempo * RATE)
 
 
-def write_wav(path, samples, peak=None):
-    """Writes `samples` normalized so `peak` (their own by default) is 0.9."""
+def write_wav(path, samples, peak=None, channels=1, rate=RATE):
+    """Writes `samples` (interleaved if `channels` is 2) normalized so `peak`
+    (their own by default) is 0.9."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     peak = peak or max(1e-9, max(abs(s) for s in samples))
     scale = 0.9 / peak
     with wave.open(path, "wb") as w:
-        w.setnchannels(1)
+        w.setnchannels(channels)
         w.setsampwidth(2)
-        w.setframerate(RATE)
+        w.setframerate(rate)
         w.writeframes(b"".join(struct.pack("<h", int(s * scale * 32767)) for s in samples))
 
 
-def encode(wav_path, ogg_path):
-    """WAV -> mono Ogg Vorbis. bitexact keeps the stream serial and headers
-    fixed, so the output is the same on every run."""
+def encode(wav_path, ogg_path, channels=1, rate=RATE, quality=QUALITY):
+    """WAV -> Ogg Vorbis, mono by default. bitexact keeps the stream serial and
+    headers fixed, so the output is the same on every run."""
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav_path,
                     "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact",
-                    "-c:a", "libvorbis", "-q:a", QUALITY, "-ac", "1", "-ar", str(RATE), ogg_path],
+                    "-c:a", "libvorbis", "-q:a", quality, "-ac", str(channels), "-ar", str(rate), ogg_path],
                    check=True)
 
 
@@ -82,12 +84,14 @@ def lowpass_loop(samples, a):
     return out
 
 
-def muffle(samples):
+def muffle(samples, rate=RATE):
     """Snow's hush for music (Story 16.8), as tools/sfx/generate.py muffles the
     ambience loops: the stem with its highs gone, baked (the web build has no
-    live filters). Same length, so it plays in step with the stem."""
+    live filters). Same length, so it plays in step with the stem. The filter
+    keeps its cutoff at any sample `rate`."""
+    a = 0.08 if rate == RATE else 1.0 - 0.92 ** (RATE / rate)
     for _ in range(2):
-        samples = lowpass_loop(samples, 0.08)
+        samples = lowpass_loop(samples, a)
     return samples
 
 
@@ -106,8 +110,7 @@ def write_score(score_id, tempo, tonic, bars, stems, extra=None):
     lengths = {len(s) for _, s, _ in stems}
     assert len(lengths) == 1, "%s: stems differ in length %s" % (score_id, lengths)
     os.makedirs(OUT, exist_ok=True)
-    ext, subs, refs = [], [], []
-    for k, (stem_id, samples, level_db) in enumerate(stems):
+    for stem_id, samples, level_db in stems:
         name = "%s_%s" % (score_id, stem_id)
         wav = os.path.join(WAV_DIR, name + ".wav")
         write_wav(wav, samples)
@@ -115,6 +118,15 @@ def write_score(score_id, tempo, tonic, bars, stems, extra=None):
         wav = os.path.join(WAV_DIR, name + "_muffled.wav")
         write_wav(wav, muffle(samples), max(1e-9, max(abs(x) for x in samples)))
         encode(wav, os.path.join(OUT, name + "_muffled.ogg"))
+    write_tres(score_id, tempo, tonic, bars, [(stem_id, level_db) for stem_id, _, level_db in stems])
+
+
+def write_tres(score_id, tempo, tonic, bars, stems):
+    """data/music/<score_id>.tres: a Score of `stems` (id, level_db), each
+    playing <score>_<stem>.ogg with <score>_<stem>_muffled.ogg for snow."""
+    ext, subs, refs = [], [], []
+    for k, (stem_id, level_db) in enumerate(stems):
+        name = "%s_%s" % (score_id, stem_id)
         ext.append('[ext_resource type="AudioStream" path="res://data/music/%s.ogg" id="%d"]' % (name, k + 1))
         ext.append('[ext_resource type="AudioStream" path="res://data/music/%s_muffled.ogg" id="m%d"]' % (name, k + 1))
         subs.append('[sub_resource type="Resource" id="stem_%d"]\nscript = ExtResource("stem")\n'
@@ -543,126 +555,56 @@ def lattice():
     write_score("lattice", tempo, key.TONIC, bars, stems, {"plays": plays, "densities": densities, "drone": drone})
 
 
-# The main title (Story 17.13): an original space-opera march for the title
-# and the board, brass over strings, timpani and snare. Its two tunes are the
-# mantra's call and answer (Story 16.3) recast as a fanfare: same contour, new
-# rhythm, so even the front end is built from the one hook. Nothing in it
-# quotes an existing theme. Chords are scale degrees (root first); each tune
-# note is (beat in the bar, degree, length in beats), played an octave up.
-THEME_TEMPO = 104
-THEME_CHORDS = (
-    # Intro: a tutti hit on the tonic, then the dominant with a snare roll.
-    (1, 3, 5), (5, 7, 9),
-    # A, the call: I IV I V | I ii vi-V I.
-    (1, 3, 5), (4, 6, 8), (1, 3, 5), (5, 7, 9), (1, 3, 5), (2, 4, 6), (6, 8, 10), (1, 3, 5),
-    # B, the answer: vi ii I V | vi IV ii V.
-    (6, 8, 10), (2, 4, 6), (1, 3, 5), (5, 7, 9), (6, 8, 10), (4, 6, 8), (2, 4, 6), (5, 7, 9),
-    # A again, the full band.
-    (1, 3, 5), (4, 6, 8), (1, 3, 5), (5, 7, 9), (1, 3, 5), (2, 4, 6), (6, 8, 10), (1, 3, 5),
-)
-# Bar 9's second half (and its repeat) turns to the dominant for the cadence.
-THEME_SPLIT = {8: (5, 7, 9), 24: (5, 7, 9)}
-THEME_CALL = (
-    ((0, 5, 1.5), (1.5, 5, 0.5), (2, 6, 1), (3, 5, 1)),
-    ((0, 8, 3), (3, 6, 1)),
-    ((0, 5, 1.5), (1.5, 3, 0.5), (2, 5, 1), (3, 6, 1)),
-    ((0, 5, 4),),
-    ((0, 5, 1.5), (1.5, 5, 0.5), (2, 6, 1), (3, 8, 1)),
-    ((0, 9, 3), (3, 8, 1)),
-    ((0, 10, 1.5), (1.5, 9, 0.5), (2, 8, 1), (3, 9, 1)),
-    ((0, 8, 4),),
-)
-THEME_ANSWER = (
-    ((0, 6, 2), (2, 5, 1), (3, 3, 1)),
-    ((0, 2, 2), (2, 3, 1), (3, 2, 1)),
-    ((0, 1, 2), (2, 2, 1), (3, 3, 1)),
-    ((0, 5, 4),),
-    ((0, 6, 2), (2, 5, 1), (3, 3, 1)),
-    ((0, 4, 1), (1, 5, 1), (2, 6, 1), (3, 8, 1)),
-    ((0, 9, 2), (2, 10, 1), (3, 9, 1)),
-    ((0, 9, 2), (2, 7, 1), (3, 5, 1)),
-)
+# The main title (Story 21.1): the user's own song, "There's Only Love in My
+# Heart" by Avdrav, used with their permission. Its FLAC (from their own
+# upload) sits in tools/music/source/, gitignored and never committed; the
+# theme is one stretch of it cut on bar lines, so the score's one stem is
+# audio data, not generated. The song sits on a 160 bpm grid from 0:00 (bars
+# every 1.5 s). The loop is 6:00 to 7:12 of the last chorus, 48 bars, where
+# the music either side of the cut matches best (chroma and level, measured
+# around every 4-bar line); its last half beat crossfades into the half beat
+# before 6:00, so the end runs on into the start without a gap or a click.
+# Stereo 44.1 kHz, unlike the generated mono stems: it is a finished mix.
+SONG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source", "song.flac")
+SONG_RATE = 44100
+SONG_QUALITY = "4"
+SONG_TEMPO = 160
+SONG_START = 360.0
+SONG_BARS = 48
+SONG_SEAM = 0.1875
+# Matches the act 1 full mix's loudness (the song is mastered loud).
+SONG_DB = -3.0
 
 
-def theme():
-    """Story 17.13: the main title. Intro (2 bars), the call on the trumpets
-    (8), the answer on the strings with the horns under it (8), the call again
-    with the whole band (8), then round to the intro's hit. 26 bars at 104 bpm.
-    Two stems, `orchestra` and `drums`, so the drums can drop out."""
-    tempo = THEME_TEMPO
-    bars = len(THEME_CHORDS)
-    n = bar_samples(tempo, bars)
-    t = {k: instruments.Track(n, tempo) for k in ("brass", "horns", "low", "strings", "tune_strings", "timpani", "snare", "crash")}
-    beat = t["brass"].seconds(1)
-    I = instruments
-    for bar, chord in enumerate(THEME_CHORDS):
-        b = bar * BEATS_PER_BAR
-        seed = 3000 + bar * 10
-        section = "intro" if bar < 2 else "a" if bar < 10 else "b" if bar < 18 else "a2"
-        halves = [(0, chord, 2), (2, THEME_SPLIT[bar], 2)] if bar in THEME_SPLIT else [(0, chord, 4)]
-        for start, ch, length in halves:
-            root = ch[0]
-            # Low brass: the root on the beat, the fifth answering on three.
-            t["low"].add(b + start, I.brass(key.hz(root, -1), beat * min(length, 2) * 0.9), 0.55)
-            if length == 4:
-                t["low"].add(b + 2, I.brass(key.hz(root + 4, -2), beat * 1.8), 0.4)
-            if section == "b":
-                # The answer: horns hold the chord under the strings' tune.
-                for d in ch:
-                    t["horns"].add(b + start, I.brass(key.hz(d, 0), beat * length * 0.97), 0.22)
-                for d in ch:
-                    t["strings"].add(b + start, I.strings(key.hz(d, 0), beat * length * 0.98), 0.25)
-            else:
-                # The march: strings drive eighths on the chord, horns punch the downbeat.
-                for k in range(int(length * 2)):
-                    accent = 1.0 if k % 2 == 0 else 0.7
-                    for d in ch:
-                        t["strings"].add(b + start + k * 0.5, I.strings(key.hz(d, 0), beat * 0.3), 0.18 * accent)
-                for d in ch:
-                    t["horns"].add(b + start, I.brass(key.hz(d, 0), beat * 0.9), 0.3)
-                    if length == 4:
-                        t["horns"].add(b + 2.5, I.brass(key.hz(d, 0), beat * 0.4), 0.18)
-            # Timpani on the root, the fifth on three.
-            t["timpani"].add(b + start, I.timpani(key.hz(root, -2) * 2, seed=seed + start), 0.6 if section != "b" else 0.35)
-            if length == 4 and section != "b":
-                t["timpani"].add(b + 2, I.timpani(key.hz(root + 4, -2), seed=seed + 7), 0.4)
-        if section == "intro":
-            # Bar 1: the hit. Bar 2: the dominant held while the snare rolls up.
-            for d in chord:
-                for o in (0, 1):
-                    t["brass"].add(b, I.brass(key.hz(d, o), beat * (3.8 if bar == 0 else 3.8)), 0.25)
-            if bar == 1:
-                for k in range(16):
-                    t["snare"].add(b + k * 0.25, I.snare(seed=seed + k), 0.15 + 0.35 * k / 15)
-        elif section in ("a", "a2"):
-            phrase = THEME_CALL[(bar - 2) % 8]
-            for at, d, length in phrase:
-                t["brass"].add(b + at, I.brass(key.hz(d, 1), beat * length * 0.93), 0.5)
-                if section == "a2":
-                    # The full band: horns double the call an octave down, strings an octave up.
-                    t["brass"].add(b + at, I.brass(key.hz(d, 0), beat * length * 0.93), 0.35)
-                    t["tune_strings"].add(b + at, I.strings(key.hz(d, 2), beat * length * 0.95), 0.25)
-            if section == "a2":
-                # Marching snare: a flam on one, eighths and a drag into three.
-                for at, g in ((0, 0.5), (1, 0.3), (1.5, 0.25), (2, 0.4), (2.75, 0.2), (3, 0.3), (3.5, 0.25)):
-                    t["snare"].add(b + at, I.snare(seed=seed + int(at * 4)), g)
-        else:
-            phrase = THEME_ANSWER[(bar - 10) % 8]
-            for at, d, length in phrase:
-                t["tune_strings"].add(b + at, I.strings(key.hz(d, 1), beat * length * 0.97), 0.45)
-                t["tune_strings"].add(b + at, I.strings(key.hz(d, 0), beat * length * 0.97), 0.25)
-        if bar in (0, 2, 10, 18, 25):
-            t["crash"].add(b, I.cymbals(key.hz(5, 4), length=2.5, seed=seed), 0.25)
-    # The last bar rolls the timpani back up into the intro's hit.
-    last = (bars - 1) * BEATS_PER_BAR
-    for k in range(8):
-        t["timpani"].add(last + 2 + k * 0.25, I.timpani(key.hz(1, -1), length=0.5, seed=3900 + k), 0.12 + 0.25 * k / 7)
-    mix = lambda parts: [sum(v) for v in zip(*parts)]
-    orchestra = mix([t["brass"].buf, [x * 0.9 for x in t["horns"].buf], t["low"].buf,
-                     t["strings"].buf, t["tune_strings"].buf])
-    drums = mix([t["timpani"].buf, t["snare"].buf, t["crash"].buf])
-    write_score("theme", tempo, key.TONIC, bars, [("orchestra", orchestra, -8.0), ("drums", drums, -12.0)],
-                {"call": "mantra call", "answer": "mantra answer"})
+def song_theme():
+    """Story 21.1: data/music/theme.tres, one stem `song`. The .tres and the
+    manifest entry are written even without the FLAC; the Oggs need it."""
+    tempo, bars = SONG_TEMPO, SONG_BARS
+    MANIFEST["scores"]["theme"] = {"tempo": float(tempo), "tonic": float(key.TONIC), "bars": bars, "stems": ["song"],
+                                   "song": "There's Only Love in My Heart (Avdrav)", "start": SONG_START,
+                                   "seam": SONG_SEAM, "rate": SONG_RATE}
+    write_tres("theme", tempo, key.TONIC, bars, [("song", SONG_DB)])
+    if not os.path.exists(SONG):
+        print("no %s: theme audio left as it is" % os.path.relpath(SONG, ROOT))
+        return
+    pcm = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", SONG, "-map_metadata", "-1", "-ac", "2",
+                          "-ar", str(SONG_RATE), "-f", "s16le", "-"], capture_output=True, check=True).stdout
+    frames = array.array("h", pcm)
+    n = round(bars * BEATS_PER_BAR * 60.0 / tempo * SONG_RATE)
+    start, seam = round(SONG_START * SONG_RATE), round(SONG_SEAM * SONG_RATE)
+    loops = []
+    for ch in range(2):
+        x = frames[ch::2]
+        loop = [v / 32768.0 for v in x[start:start + n]]
+        for i in range(seam):
+            t = (i + 0.5) / seam * math.pi / 2
+            loop[n - seam + i] = loop[n - seam + i] * math.cos(t) + x[start - seam + i] / 32768.0 * math.sin(t)
+        loops.append(loop)
+    peak = max(1e-9, max(abs(v) for loop in loops for v in loop))
+    for suffix, chans in (("", loops), ("_muffled", [muffle(loop, SONG_RATE) for loop in loops])):
+        wav = os.path.join(WAV_DIR, "theme_song%s.wav" % suffix)
+        write_wav(wav, [v for pair in zip(*chans) for v in pair], peak, 2, SONG_RATE)
+        encode(wav, os.path.join(OUT, "theme_song%s.ogg" % suffix), 2, SONG_RATE, SONG_QUALITY)
 
 
 def write_manifest():
@@ -693,6 +635,9 @@ def check():
     generate()
     made = sorted(os.listdir(OUT))
     have = sorted(f for f in os.listdir(real) if not f.endswith(".import"))
+    if not os.path.exists(SONG):
+        # Without the song's FLAC the theme's audio is not rebuilt (Story 21.1).
+        have = [f for f in have if not f.startswith("theme_song")]
     bad = sorted(set(made) ^ set(have))
     bad += [f for f in made if f in have and not filecmp.cmp(os.path.join(OUT, f), os.path.join(real, f), shallow=False)]
     for f in bad:
@@ -711,7 +656,7 @@ def generate():
     act_4()
     act_5()
     lattice()
-    theme()
+    song_theme()
     write_manifest()
 
 

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
 [ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
-[ext_resource type="Resource" path="res://data/music/act_1.tres" id="3_score"]
+[ext_resource type="Resource" path="res://data/music/theme.tres" id="3_score"]
 
 [sub_resource type="Resource" id="beat0"]
 script = ExtResource("2_beat")

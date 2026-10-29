@@ -323,14 +323,15 @@
    "tonic": 146.83
   },
   "theme": {
-   "answer": "mantra answer",
-   "bars": 26,
-   "call": "mantra call",
+   "bars": 48,
+   "rate": 44100,
+   "seam": 0.1875,
+   "song": "There's Only Love in My Heart (Avdrav)",
+   "start": 360.0,
    "stems": [
-    "orchestra",
-    "drums"
+    "song"
    ],
-   "tempo": 104.0,
+   "tempo": 160.0,
    "tonic": 146.83
   }
  },

@@ -27,6 +27,8 @@ extends Node
 # The main title (Story 17.13): the title screen and the job board play the
 # theme (data/music/theme.tres), every stem, whatever the act; going from one
 # to the other keeps it playing. A job's runner brings in the act's score.
+# Since Story 21.1 the theme is the user's own song, one looped stem, and the
+# intro (data/story/intro.tres) plays it too.
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
 const THEME_PATH := "res://data/music/theme.tres"

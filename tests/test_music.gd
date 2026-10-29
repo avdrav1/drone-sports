@@ -2,12 +2,14 @@ extends RefCounted
 # Story 16.1: music foundation. A Score's stems start on one frame on the Music
 # bus and every play and fade is logged; every score's stems are the same
 # length in samples; the Music volume saves, reloads and mutes; data/music/
-# stays under budget and every file in it is licensed as generated.
+# stays under budget and every file in it is licensed as generated (since
+# Story 21.1 the title theme's song is the user's own work, and the budget is
+# 10 MB).
 
 const Sim = preload("res://tests/sim.gd")
 const MUSIC_DIR := "res://data/music"
 const LICENSES := "res://data/audio/LICENSES.md"
-const BUDGET := 8 * 1024 * 1024
+const BUDGET := 10 * 1024 * 1024
 
 ## Two stems of silence, one quieter, for tests that need more than one.
 func _score(id: StringName) -> Score:
@@ -108,7 +110,7 @@ func test_every_score_plays_with_same_length_stems() -> bool:
 			ok = false
 		elif sc.tempo > 0.0:
 			# The loop is the score's bars at its tempo, to the sample.
-			var expected := roundi(sc.bars * 4 * 60.0 / sc.tempo * 22050)
+			var expected := roundi(sc.bars * 4 * 60.0 / sc.tempo * _ogg_rate((sc.stems[0].stream as Resource).resource_path))
 			ok = ok and lengths.keys()[0] == expected
 	return ok
 
@@ -171,7 +173,8 @@ func test_every_music_file_is_licensed_as_generated() -> bool:
 	for f in DirAccess.open(MUSIC_DIR).get_files():
 		if f.get_extension() in ["wav", "ogg", "mp3"]:
 			any = true
-			if listed.get("../music/" + f, "") != "generated":
+			# The theme is the user's own song (Story 21.1); everything else is generated.
+			if listed.get("../music/" + f, "") != ("own work" if f.begins_with("theme_song") else "generated"):
 				print("        unlisted or not generated: data/music/%s" % f)
 				ok = false
 	return ok and any
@@ -182,6 +185,14 @@ func _scores() -> Array[String]:
 		if f.get_extension() == "tres":
 			out.append(MUSIC_DIR + "/" + f)
 	return out
+
+## Sample rate in an Ogg Vorbis file's identification header: 22050 for
+## generated stems, 44100 for the song (Story 21.1).
+func _ogg_rate(path: String) -> int:
+	var bytes := FileAccess.get_file_as_bytes(path)
+	# The first page's header is 27 bytes and its segment table; the packet then
+	# reads 0x01 "vorbis", version (4), channels (1), rate (4).
+	return bytes.decode_u32(27 + bytes[26] + 12)
 
 ## Samples in an Ogg Vorbis file: the granule position of its last page, or -1.
 func _ogg_samples(path: String) -> int:

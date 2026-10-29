@@ -1,7 +1,8 @@
 extends RefCounted
 # Story 16.4: Act 1, the home game. With Act 1 the MusicDirector plays act_1,
 # a fully produced mantra pop score; each runner state (and the board) sets the
-# stem levels listed for it; the intro starts the act 1 score.
+# stem levels listed for it. The intro started the act 1 score until Story
+# 21.1, which gives it the title theme (the user's song).
 
 const Sim = preload("res://tests/sim.gd")
 const ACT_1 := "res://data/music/act_1.tres"
@@ -113,16 +114,16 @@ func test_runners_that_do_not_pay_out_leave_the_music_alone() -> bool:
 	_stop()
 	return ok
 
-func test_intro_starts_the_act_1_score() -> bool:
+func test_intro_starts_the_theme() -> bool:
 	_stop()
 	var c: Cutscene = load("res://data/story/intro.tres")
-	var ok: bool = c.score != null and c.score.resource_path == ACT_1
+	var ok: bool = c.score != null and c.score.resource_path == MusicDirector.THEME_PATH
 	CutscenePlayer.replay = true
 	Sim.tree().change_scene_to_file("res://scenes/story/intro.tscn")
 	await Sim.process_frames(3)
 	var p := Sim.tree().current_scene as CutscenePlayer
-	ok = ok and p != null and not p.done and Music.score != null and Music.score.id == &"act_1" \
-		and Music.log.any(func(e): return e.event == "play" and e.score == &"act_1") and _mix_is([])
+	ok = ok and p != null and not p.done and Music.score != null and Music.score.id == &"theme" \
+		and Music.log.any(func(e): return e.event == "play" and e.score == &"theme") and _mix_is([])
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
 	_stop()

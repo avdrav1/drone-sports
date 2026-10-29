@@ -1,9 +1,10 @@
 # Audio sources and licences
 
-Every audio file under `data/audio/` and `data/music/` is listed here (music by its path from `data/audio/`). Two sources only:
+Every audio file under `data/audio/` and `data/music/` is listed here (music by its path from `data/audio/`). Three sources only:
 
 - **generated**: made by `tools/sfx/` or `tools/music/` from a checked-in script; ours, no licence needed.
 - **CC0**: public-domain recordings; the source URL is recorded so it can be checked.
+- **own work**: the user's own music, used in the game with their permission (the title theme, Story 21.1).
 
 `tests/test_sfx.gd` fails if a file is missing from this table or its licence is anything else.
 
@@ -202,7 +203,5 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/lattice_drone.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice.ogg` | `tools/music/generate.py` | generated |
-| `../music/theme_orchestra.ogg` | `tools/music/generate.py` | generated |
-| `../music/theme_orchestra_muffled.ogg` | `tools/music/generate.py` | generated |
-| `../music/theme_drums.ogg` | `tools/music/generate.py` | generated |
-| `../music/theme_drums_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/theme_song.ogg` | "There's Only Love in My Heart" by Avdrav, the user's own song (https://youtu.be/oT1lXzJybus), 6:00 to 7:12 cut by `tools/music/generate.py` | own work |
+| `../music/theme_song_muffled.ogg` | the same stretch of the user's own song, low-passed by `tools/music/generate.py` | own work |

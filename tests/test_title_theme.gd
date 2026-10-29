@@ -22,15 +22,15 @@ func _all_at_level() -> bool:
 func _plays() -> Array:
 	return Music.log.filter(func(e): return e.event == "play")
 
-func test_theme_is_generated_in_the_key() -> bool:
+## Since Story 21.1 the theme is the user's own song, one stem, not generated
+## (tests/test_song_theme.gd checks the song itself).
+func test_theme_is_listed_in_the_manifest() -> bool:
 	var sc: Score = load(MusicDirector.THEME_PATH)
 	var m: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/music/manifest.json"))
 	var listed: Dictionary = m.scores.get("theme", {})
 	var ids: Array = sc.stems.map(func(s): return String(s.id))
-	return sc.id == &"theme" and ids == ["orchestra", "drums"] and listed.get("stems", []) == ids \
-		and is_equal_approx(sc.tonic, m.tonic) and listed.get("call", "") == "mantra call" \
-		and listed.get("answer", "") == "mantra answer" \
-		and ["brass", "strings", "timpani", "snare"].all(func(i): return i in m.instruments)
+	return sc.id == &"theme" and ids == ["song"] and listed.get("stems", []) == ids \
+		and is_equal_approx(sc.tonic, m.tonic)
 
 func test_title_plays_every_stem_of_the_theme() -> bool:
 	_stop()

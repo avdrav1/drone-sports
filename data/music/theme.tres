@@ -1,30 +1,21 @@
-[gd_resource type="Resource" script_class="Score" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="Score" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
 [ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
-[ext_resource type="AudioStream" path="res://data/music/theme_orchestra.ogg" id="1"]
-[ext_resource type="AudioStream" path="res://data/music/theme_orchestra_muffled.ogg" id="m1"]
-[ext_resource type="AudioStream" path="res://data/music/theme_drums.ogg" id="2"]
-[ext_resource type="AudioStream" path="res://data/music/theme_drums_muffled.ogg" id="m2"]
+[ext_resource type="AudioStream" path="res://data/music/theme_song.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/theme_song_muffled.ogg" id="m1"]
 
 [sub_resource type="Resource" id="stem_1"]
 script = ExtResource("stem")
-id = &"orchestra"
+id = &"song"
 stream = ExtResource("1")
-level_db = -8.0
+level_db = -3.0
 muffled = ExtResource("m1")
-
-[sub_resource type="Resource" id="stem_2"]
-script = ExtResource("stem")
-id = &"drums"
-stream = ExtResource("2")
-level_db = -12.0
-muffled = ExtResource("m2")
 
 [resource]
 script = ExtResource("score")
 id = &"theme"
-tempo = 104.0
+tempo = 160.0
 tonic = 146.83
-bars = 26
-stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2")])
+bars = 48
+stems = Array[ExtResource("stem")]([SubResource("stem_1")])
