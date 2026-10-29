@@ -16,6 +16,8 @@ var invert: CheckBox
 var feel: HSlider
 var deadzone: HSlider
 var rumble: CheckBox
+## Opens the PAD CHECK page (Story 23.8); the board connects it.
+var pad_check: Button
 var _mode_hint: Label
 var _feel_value: Label
 var _deadzone_value: Label
@@ -48,6 +50,10 @@ func _ready() -> void:
 	rumble.text = "Rumble"
 	rumble.toggled.connect(set_rumble)
 	checks.add_child(rumble)
+	pad_check = Button.new()
+	pad_check.name = "PadCheck"
+	pad_check.text = "Pad check"
+	checks.add_child(pad_check)
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 12)
@@ -58,11 +64,14 @@ func _ready() -> void:
 	deadzone = _slider(grid, "Deadzone", "Deadzone", StickLayout.DEADZONE_MIN, StickLayout.DEADZONE_MAX, 0.01)
 	deadzone.value_changed.connect(set_deadzone)
 	_deadzone_value = grid.get_child(-1)
-	# Invert and rumble share a row: left and right move between them, and
-	# both go down to the sliders and up to the layout; up from the sliders is invert.
+	# Invert, rumble and pad check share a row: left and right move along it,
+	# and all go down to the sliders and up to the layout; up from the sliders is invert.
 	invert.focus_neighbor_right = invert.get_path_to(rumble)
 	rumble.focus_neighbor_left = rumble.get_path_to(invert)
-	for c in [invert, rumble]:
+	rumble.focus_neighbor_right = rumble.get_path_to(pad_check)
+	pad_check.focus_neighbor_left = pad_check.get_path_to(rumble)
+	pad_check.focus_neighbor_right = pad_check.get_path_to(pad_check)
+	for c in [invert, rumble, pad_check]:
 		c.focus_neighbor_top = c.get_path_to(layout)
 		c.focus_neighbor_bottom = c.get_path_to(feel)
 	feel.focus_neighbor_top = feel.get_path_to(invert)
