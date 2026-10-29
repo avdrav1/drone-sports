@@ -13,11 +13,11 @@ A near-future drone-piloting game built in Godot 4 with Claude Code. See `docs/V
 `scripts/ship.sh` deploys to GitHub Pages:
 
 1. Runs `scripts/test.sh` (skip with `--skip-tests`).
-2. Exports the Web preset to `build/web/` and adds `.nojekyll`.
+2. Exports the Web preset to `build/web/`, adds `.nojekyll`, and copies `web/CNAME` (the custom domain, `jaisalmergame.com`) into it.
 3. Force-pushes `build/web/` as one fresh commit to the `gh-pages` branch of `origin` (set `PAGES_BRANCH` to use another branch). The branch keeps no history.
-4. Turns on GitHub Pages for that branch through `gh api` the first time, and prints the site's URL.
+4. Turns on GitHub Pages for that branch through `gh api` the first time, sets the Pages custom domain from `web/CNAME`, enforces HTTPS once GitHub has issued the certificate, and prints `https://jaisalmergame.com/`.
 
-The first Pages build can take a minute to go live.
+The first Pages build can take a minute to go live. The domain needs DNS records set by its owner: A (or ALIAS) records on the apex for GitHub Pages' four IPs, and a `www` CNAME to `avdrav1.github.io`, which Pages redirects to the bare domain.
 
 ## Daily loop
 

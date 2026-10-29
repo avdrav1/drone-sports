@@ -21,6 +21,10 @@ mkdir -p "$OUT"
 "$GODOT" --headless --path . --export-release "Web" "$OUT/index.html"
 # GitHub Pages ignores _headers; threads are off, so the build needs no COOP/COEP.
 touch "$OUT/.nojekyll"
+# The custom domain: Pages reads it from CNAME at the branch root, and the push
+# below replaces the branch, so every deploy carries it.
+cp web/CNAME "$OUT/CNAME"
+DOMAIN="$(tr -d '[:space:]' < web/CNAME)"
 
 COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo "uncommitted")"
 echo "Built from $COMMIT"
@@ -37,4 +41,9 @@ SLUG="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 if ! gh api "repos/$SLUG/pages" >/dev/null 2>&1; then
   gh api -X POST "repos/$SLUG/pages" -f "source[branch]=$BRANCH" -f "source[path]=/" >/dev/null 2>&1 || true
 fi
-echo "Deployed: $(gh api "repos/$SLUG/pages" -q .html_url)"
+gh api -X PUT "repos/$SLUG/pages" -f "cname=$DOMAIN" >/dev/null 2>&1 \
+  || echo "Could not set the Pages domain to $DOMAIN; set it in the repo's Pages settings."
+# GitHub refuses HTTPS until it has issued the domain's certificate; a later deploy retries.
+gh api -X PUT "repos/$SLUG/pages" -F https_enforced=true >/dev/null 2>&1 \
+  || echo "HTTPS not enforced yet (certificate pending)."
+echo "Deployed: https://$DOMAIN/"

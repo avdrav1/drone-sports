@@ -15,7 +15,7 @@ allowed-tools: Bash(scripts/ship.sh *) Bash(scripts/test.sh *) Bash(git status *
 Ship the current build to GitHub Pages.
 
 1. If the working tree above has uncommitted changes, say so and ask whether to continue. Shipping uncommitted work is allowed but should be deliberate.
-2. Run `scripts/ship.sh $ARGUMENTS`. It runs tests (unless `--skip-tests`), exports the Web preset to `build/web/`, force-pushes it as one commit to the `gh-pages` branch of `origin`, and turns on GitHub Pages for that branch the first time.
+2. Run `scripts/ship.sh $ARGUMENTS`. It runs tests (unless `--skip-tests`), exports the Web preset to `build/web/`, copies `web/CNAME` into it, force-pushes it as one commit to the `gh-pages` branch of `origin`, turns on GitHub Pages for that branch the first time, and sets the custom domain (`jaisalmergame.com`) and HTTPS. "HTTPS not enforced yet" is expected until GitHub has issued the domain's certificate.
 3. If the script fails, read the error and map it to one of these before trying anything else:
    - `godot: command not found` → set `GODOT_BIN` to the editor binary path, or install Godot 4.3+ and add it to PATH.
    - `No export template found` → in the Godot editor open Editor > Manage Export Templates and download the templates for this version. Do not try to download them from the shell.
