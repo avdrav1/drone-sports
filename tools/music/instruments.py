@@ -5,10 +5,15 @@ Hz (from key.hz, so everything sits in the one key), a length in seconds, and
 for some an extra (the voice's vowel). A note may ring past its length; a
 Track places notes by beat and wraps tails around the loop, so stems loop
 without a click. Randomness comes from an explicit seed, so every render is
-the same.
+the same. Since Story 21.3 the pop kit takes its tone from the song: bass and
+lead play the median harmonics tools/music/analyze.py measured for those roles
+(song_profile.json `tones`). The pad's detuned saws already sit within a few
+dB of the song's pads envelope, so they stay saws.
 """
 
+import json
 import math
+import os
 import random
 
 import key
@@ -19,7 +24,7 @@ RATE = 22050
 INSTRUMENTS = (
     "tanpura", "reed", "voice", "frame_drum", "cymbals",
     "kick", "clap", "bass", "arp", "pad", "lead",
-    "brass", "strings", "timpani", "snare",
+    "brass", "strings", "timpani", "snare", "shaker", "keys",
 )
 # The formant voice's vowel syllables: the only syllables any lyric may use.
 VOWELS = ("ah", "oo", "ee", "mm")
@@ -31,6 +36,10 @@ FORMANTS = {
     "mm": ((250, 90, 1.0), (1100, 300, 0.04), (2400, 300, 0.02)),
 }
 TABLE = 2048
+# The song's instrument tones (Story 21.2): per role, a third-octave
+# `envelope` [[Hz, dB]] and, for bass and lead, `harmonics_db` 1-8.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "song_profile.json")) as _f:
+    TONES = json.load(_f)["tones"]
 
 
 class Track:
@@ -94,6 +103,12 @@ def _limit(freq):
 
 def _saw_amps(freq):
     return [1.0 / h for h in range(1, _limit(freq) + 1)]
+
+
+def _song_amps(freq, role):
+    """Harmonic amplitudes for a note at freq in the song's `role` tone: its
+    measured harmonics_db (below Nyquist)."""
+    return [10 ** (db / 20.0) for db in TONES[role]["harmonics_db"][:_limit(freq)]]
 
 
 def _osc(table, freq, n, vibrato=0.0, rate=5.5, delay=0.0, phase=0.0):
@@ -250,17 +265,12 @@ def clap(freq=0.0, length=0.3, seed=0):
 
 
 def bass(freq, length, seed=0):
-    """The synth bass: a saw through a low-pass that closes after each pluck."""
-    tab = _table(_saw_amps(freq))
+    """The synth bass in the song's bass tone: its measured harmonics (the
+    second the strongest), plucked, with no filter to take them away."""
+    tab = _table(_song_amps(freq, "bass"))
     env = _envelope(int(length * RATE), 0.005, 0.05)
     s = _osc(tab, freq, len(env))
-    y = 0.0
-    out = []
-    for i, x in enumerate(s):
-        a = 0.03 + 0.25 * math.exp(-i / RATE * 12)
-        y += a * (x - y)
-        out.append(y * env[i])
-    return out
+    return [s[i] * env[i] * (0.7 + 0.3 * math.exp(-i / RATE * 12)) for i in range(len(env))]
 
 
 def arp(freq, length, seed=0):
@@ -283,11 +293,12 @@ def pad(freq, length, seed=0):
 
 
 def lead(freq, length, seed=0):
-    """The saw lead: a bright saw with vibrato on held notes."""
-    tab = _table(_saw_amps(freq * 1.01))
+    """The lead in the song's lead tone (its measured harmonics, rounder than
+    a saw) with vibrato on held notes."""
+    tab = _table(_song_amps(freq * 1.01, "lead"))
     env = _envelope(int(length * RATE), 0.01, 0.08)
     s = _osc(tab, freq, len(env), vibrato=0.005, delay=0.2)
-    return _lowpass([s[i] * env[i] for i in range(len(env))], 0.5)
+    return [s[i] * env[i] for i in range(len(env))]
 
 
 def brass(freq, length, seed=0):
@@ -341,7 +352,8 @@ def timpani(freq, length=1.6, seed=0):
 
 
 def snare(freq=0.0, length=0.25, seed=0):
-    """A military snare: a short tone for the shell under a burst of rattle."""
+    """A snare: a short tone for the shell (at freq, 190 Hz by default) under
+    a burst of rattle."""
     rng = random.Random(seed)
     n = int(length * RATE)
     out = []
@@ -350,8 +362,38 @@ def snare(freq=0.0, length=0.25, seed=0):
         t = i / RATE
         x = rng.uniform(-1, 1)
         y += 0.6 * (x - y)
-        tone = math.sin(2 * math.pi * 190 * t) * math.exp(-t * 35)
+        tone = math.sin(2 * math.pi * (freq or 190) * t) * math.exp(-t * 35)
         out.append((x - y) * 0.9 * math.exp(-t * 22) + tone * 0.5)
+    return out
+
+
+def shaker(freq=0.0, length=0.08, seed=0):
+    """The song's hat, as a shaker: a short burst of noise kept to the top
+    octaves (where the song's drums envelope has its hats, 3-8 kHz)."""
+    rng = random.Random(seed)
+    n = int(max(length, 0.08) * RATE)
+    lo = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        x = rng.uniform(-1, 1)
+        lo += 0.55 * (x - lo)
+        out.append((x - lo) * min(1.0, t / 0.004) * math.exp(-t * 45))
+    return out
+
+
+def keys(freq, length, seed=0):
+    """Electric keys for chord stabs: a tine (fundamental, a soft octave and
+    a little more) with a bell partial on the strike, dying away as a struck
+    note does."""
+    tab = _table((1.0, 0.3, 0.1, 0.05)[:_limit(freq)])
+    n = int((length + 0.25) * RATE)
+    s = _osc(tab, freq, n)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        bell = 0.25 * math.sin(2 * math.pi * freq * 7.0 * t) * math.exp(-t * 30)
+        out.append((s[i] + bell) * min(1.0, i / 30) * math.exp(-t * 5) * (1.0 if t < length else math.exp(-(t - length) * 30)))
     return out
 
 
@@ -416,3 +458,10 @@ def demo_bar(track, instrument, bar, seed):
     elif instrument == "snare":
         for t in (0, 0.75, 1, 2, 2.75, 3, 3.5):
             track.add(b + t, snare(seed=seed + int(t * 4)), 0.6)
+    elif instrument == "shaker":
+        for k in range(8):
+            track.add(b + k * 0.5, shaker(seed=seed + k), 0.7 if k % 2 else 0.4)
+    elif instrument == "keys":
+        for t in (0.5, 1.5, 2.5, 3.5):
+            for d in (1, 3, 5):
+                track.add(b + t, keys(key.hz(d, 0), beat * 0.3), 0.3)

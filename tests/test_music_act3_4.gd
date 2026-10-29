@@ -8,6 +8,9 @@ const SCORES := {3: "res://data/music/act_3.tres", 4: "res://data/music/act_4.tr
 const TEAMS := {3: &"cannery_row", 4: &"halcyon_racing"}
 const STEMS := [&"drone", &"reed", &"pluck", &"frame_drum", &"cymbals", &"mantra_voice", &"pulse",
 	&"motif_bea", &"motif_dot", &"motif_marlo", &"motif_ozzie"]
+## Story 21.3: Act 3 also keeps the song's hats on a shaker, which Act 4 drops,
+## so each act has fewer stems than the last.
+const EXTRA := {3: [&"shaker"], 4: []}
 
 func _stop() -> void:
 	Music.play(null, 0.0)
@@ -57,11 +60,11 @@ func test_neither_has_synth_or_kick_stems() -> bool:
 	for act in SCORES:
 		var sc: Score = load(SCORES[act])
 		var plays: Dictionary = m.scores.get("act_%d" % act, {}).get("plays", {})
-		ok = ok and sc.stems.size() == STEMS.size() and plays.get("mantra_voice", "") == "voice" \
+		ok = ok and sc.stems.size() == STEMS.size() + EXTRA[act].size() and plays.get("mantra_voice", "") == "voice" \
 			and plays.get("frame_drum", "") == "frame_drum" and plays.get("cymbals", "") == "cymbals"
 		for s in sc.stems:
 			var inst: String = plays.get(String(s.id), "")
-			if s.id not in STEMS or inst == "" or inst in banned or String(s.id) in banned:
+			if (s.id not in STEMS and s.id not in EXTRA[act]) or inst == "" or inst in banned or String(s.id) in banned:
 				print("        act %d: %s played by '%s'" % [act, s.id, inst])
 				ok = false
 	return ok

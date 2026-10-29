@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Score" load_steps=36 format=3]
+[gd_resource type="Resource" script_class="Score" load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
 [ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
@@ -12,18 +12,20 @@
 [ext_resource type="AudioStream" path="res://data/music/act_3_frame_drum_muffled.ogg" id="m4"]
 [ext_resource type="AudioStream" path="res://data/music/act_3_cymbals.ogg" id="5"]
 [ext_resource type="AudioStream" path="res://data/music/act_3_cymbals_muffled.ogg" id="m5"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_mantra_voice.ogg" id="6"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_mantra_voice_muffled.ogg" id="m6"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_pulse.ogg" id="7"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_pulse_muffled.ogg" id="m7"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_bea.ogg" id="8"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_bea_muffled.ogg" id="m8"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_dot.ogg" id="9"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_dot_muffled.ogg" id="m9"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_marlo.ogg" id="10"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_marlo_muffled.ogg" id="m10"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_ozzie.ogg" id="11"]
-[ext_resource type="AudioStream" path="res://data/music/act_3_motif_ozzie_muffled.ogg" id="m11"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_shaker.ogg" id="6"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_shaker_muffled.ogg" id="m6"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_mantra_voice.ogg" id="7"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_mantra_voice_muffled.ogg" id="m7"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_pulse.ogg" id="8"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_pulse_muffled.ogg" id="m8"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_bea.ogg" id="9"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_bea_muffled.ogg" id="m9"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_dot.ogg" id="10"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_dot_muffled.ogg" id="m10"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_marlo.ogg" id="11"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_marlo_muffled.ogg" id="m11"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_ozzie.ogg" id="12"]
+[ext_resource type="AudioStream" path="res://data/music/act_3_motif_ozzie_muffled.ogg" id="m12"]
 
 [sub_resource type="Resource" id="stem_1"]
 script = ExtResource("stem")
@@ -62,50 +64,57 @@ muffled = ExtResource("m5")
 
 [sub_resource type="Resource" id="stem_6"]
 script = ExtResource("stem")
-id = &"mantra_voice"
+id = &"shaker"
 stream = ExtResource("6")
-level_db = -9.0
+level_db = -19.0
 muffled = ExtResource("m6")
 
 [sub_resource type="Resource" id="stem_7"]
 script = ExtResource("stem")
-id = &"pulse"
+id = &"mantra_voice"
 stream = ExtResource("7")
-level_db = -12.0
+level_db = -9.0
 muffled = ExtResource("m7")
 
 [sub_resource type="Resource" id="stem_8"]
 script = ExtResource("stem")
-id = &"motif_bea"
+id = &"pulse"
 stream = ExtResource("8")
-level_db = -13.0
+level_db = -12.0
 muffled = ExtResource("m8")
 
 [sub_resource type="Resource" id="stem_9"]
 script = ExtResource("stem")
-id = &"motif_dot"
+id = &"motif_bea"
 stream = ExtResource("9")
 level_db = -13.0
 muffled = ExtResource("m9")
 
 [sub_resource type="Resource" id="stem_10"]
 script = ExtResource("stem")
-id = &"motif_marlo"
+id = &"motif_dot"
 stream = ExtResource("10")
 level_db = -13.0
 muffled = ExtResource("m10")
 
 [sub_resource type="Resource" id="stem_11"]
 script = ExtResource("stem")
-id = &"motif_ozzie"
+id = &"motif_marlo"
 stream = ExtResource("11")
 level_db = -13.0
 muffled = ExtResource("m11")
 
+[sub_resource type="Resource" id="stem_12"]
+script = ExtResource("stem")
+id = &"motif_ozzie"
+stream = ExtResource("12")
+level_db = -13.0
+muffled = ExtResource("m12")
+
 [resource]
 script = ExtResource("score")
 id = &"act_3"
-tempo = 104.0
+tempo = 80.0
 tonic = 174.72
 bars = 8
-stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6"), SubResource("stem_7"), SubResource("stem_8"), SubResource("stem_9"), SubResource("stem_10"), SubResource("stem_11")])
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6"), SubResource("stem_7"), SubResource("stem_8"), SubResource("stem_9"), SubResource("stem_10"), SubResource("stem_11"), SubResource("stem_12")])

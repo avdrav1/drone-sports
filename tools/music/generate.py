@@ -9,7 +9,10 @@ generator writes WAV stems to build/music/ (not checked in), encodes each to
 mono Ogg Vorbis in data/music/, and writes the score's .tres beside them.
 It also writes data/music/manifest.json: the key, the instruments, and each
 score's tempo, tonic, bars and stems (and for the demo, which instrument plays
-in which bar). Run from the repo root: python3 tools/music/generate.py
+in which bar). Since Story 21.3 every score is in the song's sound: its tempo
+(SONG_BPM, or half: TEMPO_MULTIPLE), its tonic (key.py), its chords
+(song_chords), its groove (groove) and its instruments' tones (instruments.py),
+all read from tools/music/song_profile.json. Run from the repo root: python3 tools/music/generate.py
 With --check it renders everything into build/music/check/ instead and exits
 nonzero unless every file there matches data/music/ byte for byte.
 """
@@ -34,7 +37,7 @@ RATE = 22050
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
 WAV_DIR = os.path.join(ROOT, "build", "music")
 OUT = os.path.join(ROOT, "data", "music")
-# Vorbis quality (-q:a). Mono 22050 Hz keeps all of data/music/ under 8 MB.
+# Vorbis quality (-q:a). Mono 22050 Hz keeps all of data/music/ under 10 MB.
 QUALITY = "2"
 BEATS_PER_BAR = 4
 # The chant hook every act arranges (Story 16.3).
@@ -44,6 +47,13 @@ MANTRA_BARS = 8
 MANTRA_OCTAVE = {"voice": 0, "lead": 1, "tanpura": 0, "reed": 1}
 # Everything the generator wrote this run, for manifest.json.
 MANIFEST = {"scores": {}}
+# The song's fingerprint (Story 21.2): tempo, chords per bar, groove, tones.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "song_profile.json")) as _f:
+    PROFILE = json.load(_f)
+SONG_BPM = PROFILE["bpm"]
+# Story 21.3: every score's tempo is the song's times one of these. The song
+# runs at 160 with a half-time feel, so the slow acts take the half-time pulse.
+TEMPO_MULTIPLES = (0.5, 1.0)
 
 
 def bar_samples(tempo, bars):
@@ -101,7 +111,9 @@ def write_score(score_id, tempo, tonic, bars, stems, extra=None):
     quieter as the highs it lost), then the Score resource
     data/music/<score_id>.tres naming them, and lists the score (plus `extra`
     fields) in the manifest."""
+    assert tempo / SONG_BPM in TEMPO_MULTIPLES and tonic == key.TONIC, score_id
     MANIFEST["scores"][score_id] = dict({"tempo": float(tempo), "tonic": float(tonic), "bars": bars,
+                                         "tempo_multiple": tempo / SONG_BPM,
                                          "stems": [stem_id for stem_id, _, _ in stems]}, **(extra or {}))
     if score_id.startswith("act_"):
         # Every act arranges the mantra: a stem named mantra..., whole hooks long.
@@ -150,15 +162,16 @@ def sine_loop(freq, n):
 
 
 def placeholder():
-    """Story 16.1: a single sine on the tonic, four bars at 120 bpm. Not music."""
-    tempo, bars = 120, 4
+    """Story 16.1: a single sine on the tonic, four bars at the song's tempo. Not music."""
+    tempo, bars = SONG_BPM, 4
     n = bar_samples(tempo, bars)
     write_score("placeholder", tempo, key.TONIC, bars, [("tonic", sine_loop(key.TONIC, n), -12.0)])
 
 
 def demo():
-    """Story 16.2: every instrument in turn, one bar each, in the key."""
-    tempo = 120
+    """Story 16.2: every instrument in turn, one bar each, in the key, at the
+    song's half-time pulse (each bar's phrase is written in quarters)."""
+    tempo = SONG_BPM / 2
     bars = len(instruments.INSTRUMENTS)
     track = instruments.Track(bar_samples(tempo, bars), tempo)
     for bar, name in enumerate(instruments.INSTRUMENTS):
@@ -199,47 +212,137 @@ def render_mantra(instrument, tempo, half=None, octave=None, seed=1700):
 
 
 def mantra():
-    """Story 16.3: the hook alone, sung, on the saw lead and on the tanpura."""
-    tempo = 120
+    """Story 16.3: the hook alone, sung, on the lead and on the tanpura, at the
+    song's half-time pulse."""
+    tempo = SONG_BPM / 2
     stems = [("mantra_" + name, render_mantra(name, tempo), -6.0) for name in ("voice", "lead", "tanpura")]
     write_score("mantra", tempo, key.TONIC, MANTRA_BARS, stems)
 
 
-# Story 16.4: one chord per bar under the hook (root, third, fifth as scale
-# degrees): I IV vi I | vi I V I, the call resolving up, the answer home.
-ACT_1_CHORDS = ((1, 3, 5), (4, 6, 8), (6, 8, 10), (1, 3, 5), (6, 8, 10), (1, 3, 5), (5, 7, 9), (1, 3, 5))
+# Story 21.3: the harmony is the song's. HARMONY_BAR is the bar (of the song's
+# 160 bpm bars) where the theme loop's chord cycle starts on the tonic: F Bb Gm
+# F Bb Dm F Bb (I IV ii I IV vi I IV), one chord every two song bars. A score
+# plays one chord per bar of its own, the song's harmonic rhythm at half time
+# and twice it at full tempo. The call ends on the fifth over F and the answer
+# on the tonic over Bb, the song's IV-I running on round the loop.
+HARMONY_BAR = 254
+NOTE_NAMES = ("C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B")
+# Just ratios over the tonic for a chord root `semitones` above it. The minor
+# chord on the second degree sits on 10/9, so its fifth is pure (5/3 over it).
+ROOT_RATIOS = {0: 1.0, 2: 9 / 8, 3: 6 / 5, 4: 5 / 4, 5: 4 / 3, 7: 3 / 2, 8: 8 / 5, 9: 5 / 3, 10: 9 / 5, 11: 15 / 8}
+
+
+def chord_ratios(name):
+    """A chord name from the profile ("F", "Gm", "Bb") as (root, third, fifth)
+    ratios over the tonic, root within the octave above it."""
+    minor = name.endswith("m")
+    root = name[:-1] if minor else name
+    semis = (NOTE_NAMES.index(root) - NOTE_NAMES.index(PROFILE["tonic"])) % 12
+    r = 10 / 9 if minor and semis == 2 else ROOT_RATIOS[semis]
+    return (r, r * (6 / 5 if minor else 5 / 4), r * 3 / 2)
+
+
+def song_chords(bars):
+    """`bars` chords, one per score bar: every other song bar's chord from
+    HARMONY_BAR on, as (name, (root, third, fifth) ratios)."""
+    names = [PROFILE["chords"][HARMONY_BAR + 2 * k] for k in range(bars)]
+    assert names[0] == PROFILE["tonic"], names
+    return [(n, chord_ratios(n)) for n in names]
+
+
+def chord_hz(ratios, i, octave=0):
+    """Note i of a chord (0 root, 1 third, 2 fifth, 3 root up) in Hz."""
+    return key.TONIC * (ratios + (ratios[0] * 2,))[i] * 2.0 ** octave
+
+
+def bass_octave(ratio):
+    """The octave that puts a bass root in the song's bass band (65-130 Hz;
+    its envelope peaks at 99-125)."""
+    f = key.TONIC * ratio
+    o = 0
+    while f * 2.0 ** o >= 130:
+        o -= 1
+    return o
+
+
+def groove(tempo):
+    """The song's groove (profile `drums`) on a score at `tempo`, as beats
+    within one song bar and gains: {kick, snare, hat: [(beat, gain)]}. A song
+    bar (16 steps, 1.5 s) is four beats at the song's tempo and two at half.
+    The snare plays its strongest step (the half-time backbeat), the kick the
+    steps it hits at 0.85 or more besides that one, and the hat every step it
+    is heard on (0.05 or more) at its strength. Off-beat eighths swing late
+    by the profile's swing."""
+    d = PROFILE["drums"]
+    span = BEATS_PER_BAR * tempo / SONG_BPM
+    swing = d["swing"]
+
+    def beat(step):
+        q, r = divmod(step, 4)
+        return (q + (swing * 2 * r / 4 if r == 2 else r / 4)) * span / 4
+
+    back = max(range(16), key=lambda k: d["snare"]["steps"][k])
+    return {"snare": [(beat(back), 1.0)],
+            "kick": [(beat(k), v) for k, v in enumerate(d["kick"]["steps"]) if v >= 0.85 and k != back],
+            "hat": [(beat(k), v) for k, v in enumerate(d["hat"]["steps"]) if v >= 0.05],
+            "span": span}
 
 
 def act_1():
-    """Story 16.4: the home game. Mantra pop: four-on-the-floor kick, clap on
-    two and four, synth bass, arpeggio, bright pad, the hook on the saw lead,
-    and the tanpura drone underneath. One hook long at 120 bpm."""
-    tempo, bars = 120, MANTRA_BARS
+    """Story 16.4, in the song's sound (21.3): the home game, fully produced.
+    The song's groove (kick, snare backbeat, shaker for its hats, a clap on
+    the snare) under the song's chords on the pad, keys stabs, strings, an
+    arpeggio and the synth bass in eighths; a counter line on the chords'
+    thirds (a melody drawn from the song's harmony), a fill into the loop, the
+    hook on the lead and the tanpura drone underneath. One hook long at the
+    song's tempo."""
+    tempo, bars = SONG_BPM, MANTRA_BARS
     n = bar_samples(tempo, bars)
-    tracks = {k: instruments.Track(n, tempo) for k in ("drone", "pad", "arp", "bass", "kick", "clap")}
+    order = ("drone", "pad", "keys", "strings", "arp", "bass", "kick", "snare", "shaker", "clap", "fill", "counter")
+    tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["pad"].seconds(1)
-    for bar, chord in enumerate(ACT_1_CHORDS):
+    g = groove(tempo)
+    chords = song_chords(bars)
+    for bar, (_, chord) in enumerate(chords):
         b = bar * BEATS_PER_BAR
         seed = 1800 + bar * 10
         # The tanpura's four strings, every bar: fifth, tonic up, tonic up, tonic low.
         for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
             tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, seed + k), 0.8)
-        for d in chord:
-            tracks["pad"].add(b, instruments.pad(key.hz(d, 0), 4 * beat - 0.6), 0.4)
-        for k in range(16):
-            d = (chord + (chord[0] + 7,))[k % 4]
-            tracks["arp"].add(b + k * 0.25, instruments.arp(key.hz(d, 1), beat * 0.2), 0.5)
+        for i in range(3):
+            tracks["pad"].add(b, instruments.pad(chord_hz(chord, i), 4 * beat - 0.6), 0.4)
+        for t in (0.5, 1.5, 2.5, 3.5):
+            for i in range(3):
+                tracks["keys"].add(b + t, instruments.keys(chord_hz(chord, i, 1), beat * 0.3), 0.3)
+        for i in (0, 2):
+            tracks["strings"].add(b, instruments.strings(chord_hz(chord, i, 1), 4 * beat - 0.4), 0.3)
         for k in range(8):
-            tracks["bass"].add(b + k * 0.5, instruments.bass(key.hz(chord[0], -1), beat * 0.45), 0.8)
-        for t in range(BEATS_PER_BAR):
-            tracks["kick"].add(b + t, instruments.kick(key.hz(5, -2)), 1.0)
-        for t in (1, 3):
-            tracks["clap"].add(b + t, instruments.clap(seed=seed + t), 0.8)
-    levels = {"drone": -10.0, "pad": -12.0, "arp": -15.0, "bass": -10.0, "kick": -8.0, "clap": -14.0}
-    stems = [(k, tracks[k].buf, levels[k]) for k in ("drone", "pad", "arp", "bass", "kick", "clap")]
+            tracks["arp"].add(b + k * 0.5, instruments.arp(chord_hz(chord, k % 4, 1), beat * 0.4), 0.5)
+        low = bass_octave(chord[0])
+        for k in range(8):
+            tracks["bass"].add(b + k * 0.5, instruments.bass(chord_hz(chord, 0, low), beat * 0.45), 0.8)
+        for at in range(0, BEATS_PER_BAR, round(g["span"])):
+            for t, v in g["kick"]:
+                tracks["kick"].add(b + at + t, instruments.kick(key.hz(1, -1)), v)
+            for t, v in g["snare"]:
+                tracks["snare"].add(b + at + t, instruments.snare(key.hz(1, 0), seed=seed + 5), v)
+                tracks["clap"].add(b + at + t, instruments.clap(seed=seed + 6), 0.8)
+            for k, (t, v) in enumerate(g["hat"]):
+                tracks["shaker"].add(b + at + t, instruments.shaker(seed=seed + k), v)
+        tracks["counter"].add(b, instruments.lead(chord_hz(chord, 1, 1), 4 * beat * 0.95, seed), 0.5)
+    for k in range(8):
+        # Sixteenths into the loop's top, rising.
+        tracks["fill"].add((bars - 1) * BEATS_PER_BAR + 2 + k * 0.25, instruments.snare(key.hz(1, 0), seed=1890 + k),
+                           0.4 + 0.08 * k)
+    levels = {"drone": -10.0, "pad": -12.0, "keys": -16.0, "strings": -17.0, "arp": -17.0, "bass": -9.0, "kick": -8.0,
+              "snare": -11.0, "shaker": -18.0, "clap": -16.0, "fill": -14.0, "counter": -18.0}
+    stems = [(k, tracks[k].buf, levels[k]) for k in order]
     stems.append(("mantra_lead", render_mantra("lead", tempo), -10.0))
     stems.append(("pulse", pulse(tempo, bars, 1880), PULSE_DB))
-    write_score("act_1", tempo, key.TONIC, bars, stems)
+    plays = {"drone": "tanpura", "pad": "pad", "keys": "keys", "strings": "strings", "arp": "arp", "bass": "bass",
+             "kick": "kick", "snare": "snare", "shaker": "shaker", "clap": "clap", "fill": "snare", "counter": "lead",
+             "mantra_lead": "lead", "pulse": "frame_drum"}
+    write_score("act_1", tempo, key.TONIC, bars, stems, {"plays": plays, "chords": [c for c, _ in chords]})
 
 
 # Story 16.8: the level of every act's `pulse` stem, a heartbeat on the low
@@ -264,39 +367,48 @@ SYNTHS = ("bass", "arp", "pad", "lead")
 
 
 def act_2():
-    """Story 16.5: the tryout. The same hook and chords move from synths to
-    real instruments: the harmonium takes the pad's chords (stem `reed`), the
-    tanpura plucks the arpeggio (`pluck`) over its drone, a frame drum takes
-    the clap's two and four, the kick is lighter (one and three, quieter), and
-    the hook is on the harmonium. No bass. One hook long at 120 bpm."""
-    tempo, bars = 120, MANTRA_BARS
+    """Story 16.5, in the song's sound (21.3): the tryout. The same hook and
+    the song's chords move from synths to real instruments: the harmonium
+    takes the pad's chords (stem `reed`), strings hold over them, the tanpura
+    plucks the arpeggio (`pluck`) over its drone, a frame drum takes the
+    song's backbeat, the shaker keeps its hats, the kick is lighter, and the
+    hook is on the harmonium. No bass. One hook long at the song's tempo."""
+    tempo, bars = SONG_BPM, MANTRA_BARS
     n = bar_samples(tempo, bars)
-    plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "kick": "kick",
-             "frame_drum": "frame_drum", "mantra_reed": "reed", "pulse": "frame_drum"}
-    order = ("drone", "reed", "pluck", "kick", "frame_drum")
+    plays = {"drone": "tanpura", "reed": "reed", "strings": "strings", "pluck": "tanpura", "kick": "kick",
+             "frame_drum": "frame_drum", "shaker": "shaker", "mantra_reed": "reed", "pulse": "frame_drum"}
+    order = ("drone", "reed", "strings", "pluck", "kick", "frame_drum", "shaker")
     tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["reed"].seconds(1)
-    for bar, chord in enumerate(ACT_1_CHORDS):
+    g = groove(tempo)
+    chords = song_chords(bars)
+    for bar, (_, chord) in enumerate(chords):
         b = bar * BEATS_PER_BAR
         seed = 1900 + bar * 10
         for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
             tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, seed + k), 0.8)
-        for d in chord:
-            tracks["reed"].add(b, instruments.reed(key.hz(d, 0), 4 * beat - 0.3, seed), 0.35)
+        for i in range(3):
+            tracks["reed"].add(b, instruments.reed(chord_hz(chord, i), 4 * beat - 0.3, seed), 0.35)
+        for i in (0, 2):
+            tracks["strings"].add(b, instruments.strings(chord_hz(chord, i, 1), 4 * beat - 0.4), 0.3)
         for k in range(8):
-            d = (chord + (chord[0] + 7,))[k % 4]
-            tracks["pluck"].add(b + k * 0.5, instruments.tanpura(key.hz(d, 1), beat * 0.5, seed + 4 + k), 0.5)
-        for t in (0, 2):
-            tracks["kick"].add(b + t, instruments.kick(key.hz(5, -2)), 0.6)
-        for t, f in ((1, key.hz(1, -1)), (3, key.hz(1, -1)), (3.5, 520)):
-            tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=seed + int(t * 2)), 0.8)
-    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "kick": -14.0, "frame_drum": -12.0}
+            tracks["pluck"].add(b + k * 0.5, instruments.tanpura(chord_hz(chord, k % 4, 1), beat * 0.5, seed + 4 + k), 0.5)
+        for at in range(0, BEATS_PER_BAR, round(g["span"])):
+            for t, v in g["kick"]:
+                tracks["kick"].add(b + at + t, instruments.kick(key.hz(1, -1)), 0.6 * v)
+            for t, v in g["snare"]:
+                tracks["frame_drum"].add(b + at + t, instruments.frame_drum(key.hz(1, -1), seed=seed + 2), 0.8 * v)
+            tracks["frame_drum"].add(b + at + g["span"] * 7 / 8, instruments.frame_drum(520, seed=seed + 3), 0.6)
+            for k, (t, v) in enumerate(g["hat"]):
+                tracks["shaker"].add(b + at + t, instruments.shaker(seed=seed + k), v)
+    levels = {"drone": -10.0, "reed": -12.0, "strings": -17.0, "pluck": -14.0, "kick": -14.0, "frame_drum": -12.0,
+              "shaker": -19.0}
     stems = [(k, tracks[k].buf, levels[k]) for k in order]
     stems.append(("mantra_reed", render_mantra("reed", tempo), -11.0))
     stems.append(("pulse", pulse(tempo, bars, 1980), PULSE_DB))
     crew = add_motifs("act_2", stems, plays, tempo, bars, 1990)
     assert not set(plays.values()) & set(SYNTHS)
-    write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew})
+    write_score("act_2", tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew, "chords": [c for c, _ in chords]})
 
 
 # Story 16.10: crew motifs. Each crew member's voice in the score, a stem named
@@ -345,15 +457,19 @@ def soft_clip(samples, drive):
     return [math.tanh(drive * x / peak) for x in samples]
 
 
-# Story 16.6: Act 3's tempo, and Act 4's, faster, for when the governor comes off.
-ACT_3_TEMPO = 104
-ACT_4_TEMPO = 132
+# Story 16.6: Act 3's tempo, and Act 4's, faster, for when the governor comes
+# off. Since 21.3 the song's half-time pulse and its full tempo.
+ACT_3_TEMPO = SONG_BPM / 2
+ACT_4_TEMPO = SONG_BPM
 
 
 def hand_and_voice(score_id, tempo, rough, seed):
-    """Story 16.6: Acts 3 and 4. No kick and no bass: the tanpura drone and
-    pluck, the harmonium, hand percussion (frame drum, finger cymbals) and the
-    hook sung by the formant voice. `rough` (Act 4) plays the drum in busy
+    """Story 16.6, in the song's sound (21.3): Acts 3 and 4. No kick and no
+    bass: the tanpura drone, the harmonium on the song's chords, hand
+    percussion (frame drum, finger cymbals) and the hook sung by the formant
+    voice. Act 3 plucks the chords on the tanpura and keeps the song's groove
+    on the frame drum (low on its kicks, rim on its backbeat) and its hats on
+    the shaker. `rough` (Act 4) drops the shaker, plays the drum in busy
     eighths with rim strokes, the cymbals on every beat, the pluck in eighths,
     and drives every stem into a soft clip. One hook long."""
     bars = MANTRA_BARS
@@ -361,38 +477,47 @@ def hand_and_voice(score_id, tempo, rough, seed):
     plays = {"drone": "tanpura", "reed": "reed", "pluck": "tanpura", "frame_drum": "frame_drum",
              "cymbals": "cymbals", "mantra_voice": "voice", "pulse": "frame_drum"}
     order = ("drone", "reed", "pluck", "frame_drum", "cymbals")
+    if not rough:
+        order += ("shaker",)
+        plays["shaker"] = "shaker"
     tracks = {k: instruments.Track(n, tempo) for k in order}
     beat = tracks["reed"].seconds(1)
     low, rim = key.hz(1, -1), 520
+    g = groove(tempo)
     if rough:
         drum = ((0, low), (0.5, rim), (1, rim), (1.5, low), (2, low), (2.5, rim), (3, rim), (3.25, rim), (3.5, low), (3.75, rim))
     else:
-        drum = ((0, low), (1, rim), (1.5, rim), (2, low), (2.75, rim), (3, rim))
-    for bar, chord in enumerate(ACT_1_CHORDS):
+        drum = sorted([(at + t, low) for at in range(0, BEATS_PER_BAR, round(g["span"])) for t, _ in g["kick"]] +
+                      [(at + t, rim) for at in range(0, BEATS_PER_BAR, round(g["span"])) for t, _ in g["snare"]])
+    chords = song_chords(bars)
+    for bar, (_, chord) in enumerate(chords):
         b = bar * BEATS_PER_BAR
         sd = seed + bar * 20
         for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
             tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, sd + k), 0.8)
-        for d in chord:
-            tracks["reed"].add(b, instruments.reed(key.hz(d, 0), 4 * beat - 0.3, sd), 0.35)
+        for i in range(3):
+            tracks["reed"].add(b, instruments.reed(chord_hz(chord, i), 4 * beat - 0.3, sd), 0.35)
         steps = 8 if rough else 4
         for k in range(steps):
-            d = (chord + (chord[0] + 7,))[k % 4]
-            tracks["pluck"].add(b + k * 4 / steps, instruments.tanpura(key.hz(d, 1), beat * 4 / steps, sd + 4 + k), 0.5)
+            tracks["pluck"].add(b + k * 4 / steps, instruments.tanpura(chord_hz(chord, k % 4, 1), beat * 4 / steps, sd + 4 + k), 0.5)
         for k, (t, f) in enumerate(drum):
             tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=sd + 12 + k), 0.8)
         for t in (range(4) if rough else (0, 2)):
             tracks["cymbals"].add(b + t, instruments.cymbals(key.hz(5, 4), seed=sd), 0.3)
+        if not rough:
+            for at in range(0, BEATS_PER_BAR, round(g["span"])):
+                for k, (t, v) in enumerate(g["hat"]):
+                    tracks["shaker"].add(b + at + t, instruments.shaker(seed=sd + k), v)
     stems = [(k, tracks[k].buf) for k in order] + [("mantra_voice", render_mantra("voice", tempo, seed=seed)),
                                                    ("pulse", pulse(tempo, bars, seed + 180))]
     if rough:
         stems = [(k, soft_clip(buf, 2.5)) for k, buf in stems]
-    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "mantra_voice": -9.0,
-              "pulse": PULSE_DB}
+    levels = {"drone": -10.0, "reed": -12.0, "pluck": -14.0, "frame_drum": -10.0, "cymbals": -16.0, "shaker": -19.0,
+              "mantra_voice": -9.0, "pulse": PULSE_DB}
     stems = [(k, buf, levels[k]) for k, buf in stems]
     crew = add_motifs(score_id, stems, plays, tempo, bars, seed + 190)
     assert not set(plays.values()) & set(SYNTHS + ("kick", "bass"))
-    write_score(score_id, tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew})
+    write_score(score_id, tempo, key.TONIC, bars, stems, {"plays": plays, "motifs": crew, "chords": [c for c, _ in chords]})
 
 
 def act_3():
@@ -403,9 +528,10 @@ def act_4():
     hand_and_voice("act_4", ACT_4_TEMPO, True, 2100)
 
 
-# Story 16.7: Act 5, the fleet. Kirtan tempo, and the choir sizes the answer is
-# baked at (stems choir_<size>), chosen by how many drones are under command.
-ACT_5_TEMPO = 96
+# Story 16.7: Act 5, the fleet. Kirtan tempo (since 21.3 the song's half-time
+# pulse), and the choir sizes the answer is baked at (stems choir_<size>),
+# chosen by how many drones are under command.
+ACT_5_TEMPO = SONG_BPM / 2
 CHOIR_SIZES = (3, 10, 50)
 
 
@@ -454,27 +580,20 @@ def act_5():
     """Story 16.7: the fleet, in kirtan form. One lead voice sings the call
     half of the hook (bars 1-4, stem mantra_lead) and a choir answers (bars
     5-8), baked at CHOIR_SIZES voices (choir_3, choir_10, choir_50) so the
-    director can let the choir grow with the fleet. Under them the tanpura
-    drone, the harmonium holding tonic and fifth, and a soft frame drum."""
+    director can let the choir grow with the fleet. Since 21.3, stripped back
+    from Act 4: under them only the tanpura drone (and the pulse), at the
+    song's half-time pulse."""
     tempo, bars = ACT_5_TEMPO, MANTRA_BARS
     n = bar_samples(tempo, bars)
-    order = ("drone", "reed", "frame_drum")
-    plays = {"drone": "tanpura", "reed": "reed", "frame_drum": "frame_drum", "mantra_lead": "voice",
-             "pulse": "frame_drum"}
-    tracks = {k: instruments.Track(n, tempo) for k in order}
-    beat = tracks["reed"].seconds(1)
-    low, rim = key.hz(1, -1), 520
+    plays = {"drone": "tanpura", "mantra_lead": "voice", "pulse": "frame_drum"}
+    drone = instruments.Track(n, tempo)
+    beat = drone.seconds(1)
     for bar in range(bars):
         b = bar * BEATS_PER_BAR
         sd = 2200 + bar * 20
         for k, (d, o) in enumerate(((5, -1), (1, 0), (1, 0), (1, -1))):
-            tracks["drone"].add(b + k, instruments.tanpura(key.hz(d, o), beat, sd + k), 0.8)
-        for d, o in ((1, 0), (5, 0), (1, -1)):
-            tracks["reed"].add(b, instruments.reed(key.hz(d, o), 4 * beat - 0.3, sd), 0.35)
-        for k, (t, f) in enumerate(((0, low), (1.5, rim), (2, low), (3, rim))):
-            tracks["frame_drum"].add(b + t, instruments.frame_drum(f, seed=sd + 8 + k), 0.8)
-    levels = {"drone": -10.0, "reed": -13.0, "frame_drum": -14.0}
-    stems = [(k, tracks[k].buf, levels[k]) for k in order]
+            drone.add(b + k, instruments.tanpura(key.hz(d, o), beat, sd + k), 0.8)
+    stems = [("drone", drone.buf, -10.0)]
     call = render_mantra("voice", tempo, half="call", seed=2300)
     stems.append(("mantra_lead", call + [0.0] * (n - len(call)), -9.0))
     for size, buf in sorted(choirs(tempo, bars, CHOIR_SIZES, 2400).items()):
@@ -485,10 +604,10 @@ def act_5():
     write_score("act_5", tempo, key.TONIC, bars, stems, {"plays": plays, "choirs": list(CHOIR_SIZES), "motifs": crew})
 
 
-# Story 16.11: the Lattice. Slow, and the voices its choir is baked at: the
+# Story 16.11: the Lattice. Slow (the song's half-time pulse), and the voices its choir is baked at: the
 # smallest is sung voice by voice, each larger one is the last stacked
 # LATTICE_STACK times at its own small delay and gain, up to thousands.
-LATTICE_TEMPO = 80
+LATTICE_TEMPO = SONG_BPM / 2
 LATTICE_BASE = 12
 LATTICE_STACK = 8
 LATTICE_DENSITIES = 4
@@ -568,7 +687,7 @@ def lattice():
 SONG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source", "song.flac")
 SONG_RATE = 44100
 SONG_QUALITY = "4"
-SONG_TEMPO = 160
+SONG_TEMPO = SONG_BPM
 SONG_START = 360.0
 SONG_BARS = 48
 SONG_SEAM = 0.1875
@@ -581,6 +700,7 @@ def song_theme():
     manifest entry are written even without the FLAC; the Oggs need it."""
     tempo, bars = SONG_TEMPO, SONG_BARS
     MANIFEST["scores"]["theme"] = {"tempo": float(tempo), "tonic": float(key.TONIC), "bars": bars, "stems": ["song"],
+                                   "tempo_multiple": tempo / SONG_BPM,
                                    "song": "There's Only Love in My Heart (Avdrav)", "start": SONG_START,
                                    "seam": SONG_SEAM, "rate": SONG_RATE}
     write_tres("theme", tempo, key.TONIC, bars, [("song", SONG_DB)])
@@ -615,6 +735,8 @@ def write_manifest():
         "instruments": list(instruments.INSTRUMENTS),
         "vowels": list(instruments.VOWELS),
         "synths": list(SYNTHS),
+        "song_bpm": SONG_BPM,
+        "tempo_multiples": list(TEMPO_MULTIPLES),
         "mantra": {"bars": MANTRA_BARS,
                    "call_beats": sum(n["beats"] for n in load_mantra()["call"]),
                    "answer_beats": sum(n["beats"] for n in load_mantra()["answer"])},

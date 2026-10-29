@@ -6,7 +6,10 @@ extends RefCounted
 
 const Sim = preload("res://tests/sim.gd")
 const ACT_1 := "res://data/music/act_1.tres"
-const STEMS := [&"drone", &"pad", &"arp", &"bass", &"kick", &"clap", &"mantra_lead", &"pulse"]
+# Story 21.3 rebuilt it in the song's sound, adding keys, strings, snare,
+# shaker, a fill and a counter line.
+const STEMS := [&"drone", &"pad", &"keys", &"strings", &"arp", &"bass", &"kick", &"snare", &"shaker", &"clap",
+	&"fill", &"counter", &"mantra_lead", &"pulse"]
 
 func _stop() -> void:
 	Music.play(null, 0.0)

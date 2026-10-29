@@ -15,7 +15,9 @@
   "brass",
   "strings",
   "timpani",
-  "snare"
+  "snare",
+  "shaker",
+  "keys"
  ],
  "mantra": {
   "answer_beats": 16,
@@ -34,21 +36,64 @@
  "scores": {
   "act_1": {
    "bars": 8,
+   "chords": [
+    "F",
+    "Bb",
+    "Gm",
+    "F",
+    "Bb",
+    "Dm",
+    "F",
+    "Bb"
+   ],
+   "plays": {
+    "arp": "arp",
+    "bass": "bass",
+    "clap": "clap",
+    "counter": "lead",
+    "drone": "tanpura",
+    "fill": "snare",
+    "keys": "keys",
+    "kick": "kick",
+    "mantra_lead": "lead",
+    "pad": "pad",
+    "pulse": "frame_drum",
+    "shaker": "shaker",
+    "snare": "snare",
+    "strings": "strings"
+   },
    "stems": [
     "drone",
     "pad",
+    "keys",
+    "strings",
     "arp",
     "bass",
     "kick",
+    "snare",
+    "shaker",
     "clap",
+    "fill",
+    "counter",
     "mantra_lead",
     "pulse"
    ],
-   "tempo": 120.0,
+   "tempo": 160.0,
+   "tempo_multiple": 1.0,
    "tonic": 174.72
   },
   "act_2": {
    "bars": 8,
+   "chords": [
+    "F",
+    "Bb",
+    "Gm",
+    "F",
+    "Bb",
+    "Dm",
+    "F",
+    "Bb"
+   ],
    "motifs": [
     "motif_bea",
     "motif_dot",
@@ -66,14 +111,18 @@
     "motif_ozzie": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
-    "reed": "reed"
+    "reed": "reed",
+    "shaker": "shaker",
+    "strings": "strings"
    },
    "stems": [
     "drone",
     "reed",
+    "strings",
     "pluck",
     "kick",
     "frame_drum",
+    "shaker",
     "mantra_reed",
     "pulse",
     "motif_bea",
@@ -81,11 +130,22 @@
     "motif_marlo",
     "motif_ozzie"
    ],
-   "tempo": 120.0,
+   "tempo": 160.0,
+   "tempo_multiple": 1.0,
    "tonic": 174.72
   },
   "act_3": {
    "bars": 8,
+   "chords": [
+    "F",
+    "Bb",
+    "Gm",
+    "F",
+    "Bb",
+    "Dm",
+    "F",
+    "Bb"
+   ],
    "motifs": [
     "motif_bea",
     "motif_dot",
@@ -103,7 +163,8 @@
     "motif_ozzie": "voice",
     "pluck": "tanpura",
     "pulse": "frame_drum",
-    "reed": "reed"
+    "reed": "reed",
+    "shaker": "shaker"
    },
    "stems": [
     "drone",
@@ -111,6 +172,7 @@
     "pluck",
     "frame_drum",
     "cymbals",
+    "shaker",
     "mantra_voice",
     "pulse",
     "motif_bea",
@@ -118,11 +180,22 @@
     "motif_marlo",
     "motif_ozzie"
    ],
-   "tempo": 104.0,
+   "tempo": 80.0,
+   "tempo_multiple": 0.5,
    "tonic": 174.72
   },
   "act_4": {
    "bars": 8,
+   "chords": [
+    "F",
+    "Bb",
+    "Gm",
+    "F",
+    "Bb",
+    "Dm",
+    "F",
+    "Bb"
+   ],
    "motifs": [
     "motif_bea",
     "motif_dot",
@@ -155,7 +228,8 @@
     "motif_marlo",
     "motif_ozzie"
    ],
-   "tempo": 132.0,
+   "tempo": 160.0,
+   "tempo_multiple": 1.0,
    "tonic": 174.72
   },
   "act_5": {
@@ -176,19 +250,15 @@
     "choir_3": "voice",
     "choir_50": "voice",
     "drone": "tanpura",
-    "frame_drum": "frame_drum",
     "mantra_lead": "voice",
     "motif_bea": "reed",
     "motif_dot": "frame_drum",
     "motif_marlo": "tanpura",
     "motif_ozzie": "voice",
-    "pulse": "frame_drum",
-    "reed": "reed"
+    "pulse": "frame_drum"
    },
    "stems": [
     "drone",
-    "reed",
-    "frame_drum",
     "mantra_lead",
     "choir_3",
     "choir_10",
@@ -199,11 +269,12 @@
     "motif_marlo",
     "motif_ozzie"
    ],
-   "tempo": 96.0,
+   "tempo": 80.0,
+   "tempo_multiple": 0.5,
    "tonic": 174.72
   },
   "demo": {
-   "bars": 15,
+   "bars": 17,
    "instruments": [
     {
      "bar": 0,
@@ -264,12 +335,21 @@
     {
      "bar": 14,
      "instrument": "snare"
+    },
+    {
+     "bar": 15,
+     "instrument": "shaker"
+    },
+    {
+     "bar": 16,
+     "instrument": "keys"
     }
    ],
    "stems": [
     "demo"
    ],
-   "tempo": 120.0,
+   "tempo": 80.0,
+   "tempo_multiple": 0.5,
    "tonic": 174.72
   },
   "lattice": {
@@ -302,6 +382,7 @@
     "density_4"
    ],
    "tempo": 80.0,
+   "tempo_multiple": 0.5,
    "tonic": 174.72
   },
   "mantra": {
@@ -311,7 +392,8 @@
     "mantra_lead",
     "mantra_tanpura"
    ],
-   "tempo": 120.0,
+   "tempo": 80.0,
+   "tempo_multiple": 0.5,
    "tonic": 174.72
   },
   "placeholder": {
@@ -319,7 +401,8 @@
    "stems": [
     "tonic"
    ],
-   "tempo": 120.0,
+   "tempo": 160.0,
+   "tempo_multiple": 1.0,
    "tonic": 174.72
   },
   "theme": {
@@ -332,14 +415,20 @@
     "song"
    ],
    "tempo": 160.0,
+   "tempo_multiple": 1.0,
    "tonic": 174.72
   }
  },
+ "song_bpm": 160.0,
  "synths": [
   "bass",
   "arp",
   "pad",
   "lead"
+ ],
+ "tempo_multiples": [
+  0.5,
+  1.0
  ],
  "tonic": 174.72,
  "vowels": [

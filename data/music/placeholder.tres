@@ -15,7 +15,7 @@ muffled = ExtResource("m1")
 [resource]
 script = ExtResource("score")
 id = &"placeholder"
-tempo = 120.0
+tempo = 160.0
 tonic = 174.72
 bars = 4
 stems = Array[ExtResource("stem")]([SubResource("stem_1")])

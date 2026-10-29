@@ -8,7 +8,8 @@ extends RefCounted
 const Sim = preload("res://tests/sim.gd")
 const ACT_2 := "res://data/music/act_2.tres"
 const SCENE := "res://scenes/story/recruited.tscn"
-const STEMS := [&"drone", &"reed", &"pluck", &"kick", &"frame_drum", &"mantra_reed", &"pulse",
+# Story 21.3 adds strings and the song's hats on a shaker.
+const STEMS := [&"drone", &"reed", &"strings", &"pluck", &"kick", &"frame_drum", &"shaker", &"mantra_reed", &"pulse",
 	&"motif_bea", &"motif_dot", &"motif_marlo", &"motif_ozzie"]
 
 func _stop() -> void:

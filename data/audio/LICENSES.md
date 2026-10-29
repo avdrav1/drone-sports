@@ -106,8 +106,6 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_4_cymbals.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_4_mantra_voice.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_drone.ogg` | `tools/music/generate.py` | generated |
-| `../music/act_5_reed.ogg` | `tools/music/generate.py` | generated |
-| `../music/act_5_frame_drum.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_mantra_lead.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_choir_3.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_choir_10.ogg` | `tools/music/generate.py` | generated |
@@ -149,11 +147,9 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/act_5_choir_3_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_choir_50_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_drone_muffled.ogg` | `tools/music/generate.py` | generated |
-| `../music/act_5_frame_drum_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_mantra_lead_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_pulse_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/act_5_pulse.ogg` | `tools/music/generate.py` | generated |
-| `../music/act_5_reed_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/demo_demo_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/mantra_mantra_lead_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/mantra_mantra_tanpura_muffled.ogg` | `tools/music/generate.py` | generated |
@@ -205,3 +201,21 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/lattice_voice.ogg` | `tools/music/generate.py` | generated |
 | `../music/theme_song.ogg` | "There's Only Love in My Heart" by Avdrav, the user's own song (https://youtu.be/oT1lXzJybus), 6:00 to 7:12 cut by `tools/music/generate.py` | own work |
 | `../music/theme_song_muffled.ogg` | the same stretch of the user's own song, low-passed by `tools/music/generate.py` | own work |
+| `../music/act_1_counter.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_counter_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_fill.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_fill_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_keys.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_keys_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_shaker.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_shaker_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_snare.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_snare_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_strings.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_1_strings_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_shaker.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_shaker_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_strings.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_2_strings_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_shaker.ogg` | `tools/music/generate.py` | generated |
+| `../music/act_3_shaker_muffled.ogg` | `tools/music/generate.py` | generated |
