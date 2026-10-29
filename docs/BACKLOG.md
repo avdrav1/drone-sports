@@ -963,11 +963,12 @@ Done when the crew are characters you want to see: Saturday-morning-cartoon face
   - Acceptance: Every line opening the panel plays its cue first: the alert for warnings and strikes, the chime otherwise. The face reaches rest within 0.4 s of opening. A line that replaces the current one replays the cue. Every existing radio test passes.
   - Out of scope: Player replies.
 
-- [ ] **18.10 Distress and signal lost**
+- [x] **18.10 Distress and signal lost**
   - Goal: When a crew member's drone is in trouble (battery low, a near miss, a crash, close to a hazard), their face shows distress: a wince, a sweat drop, a shake, with a repeating alarm while it lasts. When their drone goes down, their portrait fills with animated TV static and SIGNAL LOST until it is back in the air.
   - Context: A new `distress` expression on `CharacterPortrait`, driven by 17.8's flight events for that crew member's drone. The static overlay is drawn in code on the portrait. A drone going down is not a death: the dead keep their greyed, quiet portrait from 17.1 and never get static, distress, or alarms.
   - Acceptance: Each trouble event shows distress and starts the alarm; it stops when the trouble ends. A downed drone shows static until it flies again, then the face returns. The alarm never plays for the player's own drone or for the dead. The flight model, assists, and grading are untouched.
   - Out of scope: New ways for crew to be harmed (rule 7 is unchanged).
+  - Note: `CrewDistress.watch(face, drone, runner)` (a child of the portrait, made by `CommandView`'s overlay for every piloted drone) listens to the drone's `DroneFace` watcher (or its own `FlightWatcher`): `TROUBLE` events (battery low, near miss, crash) and being within `HAZARD_MARGIN` of a runner's `HazardZone` set `CharacterPortrait.DISTRESS` (a pose plus a shake in `motion()`, deliberately not in `EXPRESSIONS`, so line faces and their tests are unchanged), a `distress` sweat-drop emote (not near a hazard or on a boss job), and the generated `crew_alarm` every `ALARM_GAP` while it lasts. A crash sets `down`, so `portrait.signal_lost` draws TV static and SIGNAL LOST until the drone is upright above takeoff height for `UP_TIME` or resets; the dead and a drone flown through `PilotInput` never get static, distress or the alarm.
 
 - [x] **18.11 Flying with personality**
   - Goal: You can tell who is who by how they fly: one bold flyer cuts corners and pulls ahead, one steady flyer holds formation and radios advice, one eager but clumsy flyer wobbles and drifts wide, each true to `docs/CHARACTERS.md`.

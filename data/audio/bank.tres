@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundBank" load_steps=95 format=3]
+[gd_resource type="Resource" script_class="SoundBank" load_steps=97 format=3]
 
 [ext_resource type="Script" path="res://scripts/audio/sound_bank.gd" id="1_bank"]
 [ext_resource type="Script" path="res://scripts/audio/sound_event.gd" id="2_event"]
@@ -53,6 +53,7 @@
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp_celebrate.wav" id="62_crew_chirp_celebrate"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp_worried.wav" id="63_crew_chirp_worried"]
 [ext_resource type="AudioStream" path="res://data/audio/generated/crew_chirp_sad.wav" id="64_crew_chirp_sad"]
+[ext_resource type="AudioStream" path="res://data/audio/generated/crew_alarm.wav" id="80_crew_alarm"]
 
 [sub_resource type="Resource" id="drone_hum"]
 script = ExtResource("2_event")
@@ -279,6 +280,13 @@ streams = Array[AudioStream]([ExtResource("64_crew_chirp_sad")])
 volume_db = -8.0
 bus = &"Voice"
 
+[sub_resource type="Resource" id="crew_alarm"]
+script = ExtResource("2_event")
+id = &"crew_alarm"
+streams = Array[AudioStream]([ExtResource("80_crew_alarm")])
+volume_db = -10.0
+bus = &"UI"
+
 [sub_resource type="Resource" id="radio_static"]
 script = ExtResource("2_event")
 id = &"radio_static"
@@ -362,4 +370,4 @@ bus = &"UI"
 
 [resource]
 script = ExtResource("1_bank")
-events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("radio_static"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])
+events = Array[ExtResource("2_event")]([SubResource("drone_hum"), SubResource("drone_wash"), SubResource("drone_impact"), SubResource("flight_recovered"), SubResource("flight_low_battery"), SubResource("flight_guard"), SubResource("flight_brake"), SubResource("camera_view"), SubResource("job_briefing"), SubResource("job_countdown"), SubResource("job_go"), SubResource("job_gate"), SubResource("job_hold_tick"), SubResource("job_hold_done"), SubResource("job_complete"), SubResource("job_fail"), SubResource("job_payout"), SubResource("hazard_warning"), SubResource("hazard_strike"), SubResource("ui_click"), SubResource("ui_focus"), SubResource("ui_confirm"), SubResource("city_hum"), SubResource("desert_wind"), SubResource("room_tone"), SubResource("debris_impact"), SubResource("crew_chirp"), SubResource("crew_chirp_happy"), SubResource("crew_chirp_celebrate"), SubResource("crew_chirp_worried"), SubResource("crew_chirp_sad"), SubResource("crew_alarm"), SubResource("radio_static"), SubResource("lattice_tone"), SubResource("lattice_drone"), SubResource("lattice_power_down"), SubResource("bed_intro"), SubResource("bed_recruited"), SubResource("weather_rain"), SubResource("weather_rain_roof"), SubResource("weather_wind"), SubResource("thunder"), SubResource("coin_chime")])

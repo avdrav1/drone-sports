@@ -12,6 +12,9 @@ extends Control
 # Story 18.2: the face moves like a cartoon: an idle bob in the character's own
 # rhythm, squash and stretch while talking, eyes that pop when shocked, a droop
 # when sad, a hop() on a pick, and pupils that look_at a point. The dead are still.
+# Story 18.10: a DISTRESS face (a wince and a shake) for a drone in trouble, and
+# `signal_lost` fills the portrait with TV static while its drone is down. The
+# dead never show either.
 
 const EXPRESSIONS: Array[StringName] = [&"neutral", &"happy", &"determined", &"worried", &"shocked", &"sad"]
 
@@ -28,7 +31,15 @@ const POSES := {
 	&"worried": {"brow_angle": -0.3, "brow_height": 0.08, "lid": 1.0, "squint": 0.0, "eye_scale": 1.06, "pupil": Vector2(0.35, -0.15), "blush": 0.3, "mouth_width": 0.26, "mouth_curve": -0.3, "mouth_open": 0.1},
 	&"shocked": {"brow_angle": -0.1, "brow_height": 0.12, "lid": 1.0, "squint": 0.0, "eye_scale": 1.2, "pupil": Vector2.ZERO, "blush": 0.0, "mouth_width": 0.3, "mouth_curve": 0.0, "mouth_open": 0.9},
 	&"sad": {"brow_angle": -0.4, "brow_height": 0.02, "lid": 0.78, "squint": 0.0, "eye_scale": 1.0, "pupil": Vector2(0.0, 0.4), "blush": 0.3, "mouth_width": 0.3, "mouth_curve": -0.55, "mouth_open": 0.0},
+	&"distress": {"brow_angle": -0.38, "brow_height": 0.1, "lid": 1.0, "squint": 0.5, "eye_scale": 0.95, "pupil": Vector2.ZERO, "blush": 0.0, "mouth_width": 0.46, "mouth_curve": -0.25, "mouth_open": 0.3},
 }
+## A wince for a crew drone in trouble (Story 18.10): squeezed eyes, brows up,
+## a gritted grimace, and a shake in motion(). Set by CrewDistress from flight
+## events, never by a line, so it is not one of EXPRESSIONS.
+const DISTRESS := &"distress"
+## Static cells across a signal-lost portrait, at most; and frames per second.
+const STATIC_CELLS := 14
+const STATIC_FPS := 20.0
 ## An eye's half width and half height at eye_scale 1, as fractions of the head's radius.
 const EYE := Vector2(0.27, 0.33)
 ## Eyes sit this far below the head's centre, as a fraction of its radius.
@@ -68,6 +79,8 @@ const LOOK_REACH := 2.0
 		expression = v
 ## While true the mouth opens and closes.
 @export var talking := false
+## While true (and alive) the face is gone: TV static and SIGNAL LOST.
+@export var signal_lost := false
 ## Seeds the blink timer; -1 uses the character's id, so a face always blinks alike.
 @export var blink_seed := -1
 ## While true the pupils follow the mouse, e.g. on the board.
@@ -88,7 +101,7 @@ func _process(delta: float) -> void:
 	time += delta
 	if follow_mouse and is_visible_in_tree():
 		look_at(get_global_mouse_position())
-	if drawn():
+	if drawn() or shows_static():
 		queue_redraw()
 
 ## True when the face is drawn in code; a `portrait` texture overrides it.
@@ -118,6 +131,11 @@ static func motion(expr: StringName, t: float, is_talking := false, bounce := Ve
 	# Stretch a little on the way up, squash on the way down.
 	var sy := 1.0 + 0.015 * wave
 	var pop := 1.0
+	var x := 0.0
+	if expr == DISTRESS:
+		# A nervous shake: two quick wobbles beating, well inside the face.
+		x = 0.022 * sin(t * 47.0) * (0.6 + 0.4 * sin(t * 6.3))
+		sy *= 0.97
 	if expr == &"sad":
 		y += 0.03
 		sy *= 0.96
@@ -141,7 +159,7 @@ static func motion(expr: StringName, t: float, is_talking := false, bounce := Ve
 		else:
 			sy *= 1.0 - 0.12 * sin(PI * (hop_age - land) / (HOP_TIME - land))
 	# Width answers height, so the face keeps its area.
-	return {"scale": Vector2(1.0 / sy, sy), "offset": Vector2(0.0, y), "eye_pop": pop}
+	return {"scale": Vector2(1.0 / sy, sy), "offset": Vector2(x, y), "eye_pop": pop}
 
 ## The motion at rest: what a dead face always has.
 static func still() -> Dictionary:
@@ -222,6 +240,17 @@ func current_pose() -> Dictionary:
 	p.eye_scale = float(p.eye_scale) * float(current_motion().eye_pop)
 	return p
 
+## True while the portrait shows static instead of the face: its drone is down
+## and the character alive (a downed drone is not a death).
+func shows_static() -> bool:
+	return signal_lost and character != null and not is_dead()
+
+## Brightness 0 to 1 of static cell (i, j) on frame `frame`; frames change
+## STATIC_FPS times a second. Pure, so tests read the noise, not pixels.
+static func static_noise(i: int, j: int, frame: int) -> float:
+	var h := hash(Vector3i(i, j, frame))
+	return float(h & 1023) / 1023.0
+
 ## True when the eyes show their shine dots: open and alive.
 func shows_shine() -> bool:
 	return character != null and not is_dead() and float(current_pose().lid) > 0.0
@@ -232,6 +261,9 @@ func _draw() -> void:
 		return
 	var s := minf(size.x, size.y)
 	var c := size * 0.5
+	if shows_static():
+		_draw_static(c, s)
+		return
 	# Squash and stretch the whole drawing around the bottom of the head.
 	var m := current_motion()
 	var pivot := c + Vector2(0, s * 0.42)
@@ -262,6 +294,29 @@ func _draw() -> void:
 		_draw_brow(eye, r, side, p, ink, line)
 	_draw_mouth(center + Vector2(0, r * 0.62), r, p, ink, line)
 	draw_set_transform(Vector2.ZERO)
+
+## The portrait's square full of rolling TV static, with SIGNAL LOST across it.
+func _draw_static(c: Vector2, s: float) -> void:
+	var box := Rect2(c - Vector2.ONE * s * 0.46, Vector2.ONE * s * 0.92)
+	var n := clampi(int(s / 4.0), 6, STATIC_CELLS)
+	var cell := box.size / n
+	var frame := int(time * STATIC_FPS)
+	# A brighter band rolls down the screen, like a lost channel.
+	var roll := fmod(time * 0.8, 1.3) - 0.15
+	for j in n:
+		var band := 0.3 * maxf(0.0, 1.0 - absf(float(j) / n - roll) * 6.0)
+		for i in n:
+			var v := 0.2 + 0.7 * static_noise(i, j, frame) + band
+			draw_rect(Rect2(box.position + cell * Vector2(i, j), cell + Vector2(0.5, 0.5)), Color(v * 0.9, v * 0.95, minf(v * 1.08, 1.0)))
+	var line := ink_width(s * 0.34)
+	var font := get_theme_default_font()
+	var fs := maxi(int(s * 0.19), 7)
+	var label := Rect2(box.position.x, c.y - fs * 1.15, box.size.x, fs * 2.3)
+	draw_rect(label, Color(INK, 0.85))
+	for k in 2:
+		var word := "SIGNAL" if k == 0 else "LOST"
+		draw_string(font, Vector2(label.position.x, c.y - fs * 0.15 + fs * k * 1.05), word, HORIZONTAL_ALIGNMENT_CENTER, label.size.x, fs, Color(1.0, 0.95, 0.6))
+	draw_rect(box, INK, false, line)
 
 func _draw_eye(eye: Vector2, r: float, p: Dictionary, shine: bool, ink: Color, line: float) -> void:
 	var half := EYE * r * float(p.eye_scale)

@@ -1,4 +1,9 @@
 {
+ "crew_alarm": {
+  "degree": 5,
+  "hz": 880.98,
+  "octave": 2
+ },
  "crew_chirp": {
   "degree": 1,
   "hz": 587.32,

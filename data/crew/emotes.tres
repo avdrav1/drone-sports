@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EmoteTable" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="EmoteTable" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/emote_table.gd" id="1_table"]
 [ext_resource type="Script" path="res://scripts/ui/emote.gd" id="2_emote"]
@@ -81,8 +81,15 @@ drawing = &"hearts"
 time = 2.2
 color = Color(1, 0.36, 0.55, 1)
 
+[sub_resource type="Resource" id="distress"]
+script = ExtResource("2_emote")
+key = &"distress"
+drawing = &"sweat"
+time = 1.5
+color = Color(0.45, 0.8, 1, 1)
+
 [resource]
 script = ExtResource("1_table")
-emotes = Array[ExtResource("2_emote")]([SubResource("clean_finish"), SubResource("best"), SubResource("worried"), SubResource("near_miss"), SubResource("happy"), SubResource("crash"), SubResource("hello"), SubResource("streak"), SubResource("retry"), SubResource("unlock"), SubResource("goodbye")])
+emotes = Array[ExtResource("2_emote")]([SubResource("clean_finish"), SubResource("best"), SubResource("worried"), SubResource("near_miss"), SubResource("happy"), SubResource("crash"), SubResource("hello"), SubResource("streak"), SubResource("retry"), SubResource("unlock"), SubResource("goodbye"), SubResource("distress")])
 quiet_events = Array[StringName]([&"warning", &"strike", &"hurt", &"memorial", &"epilogue"])
 quiet_job_types = Array[StringName]([&"boss"])

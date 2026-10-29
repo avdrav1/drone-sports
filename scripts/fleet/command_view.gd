@@ -27,7 +27,8 @@ signal fleet_changed(count: int)
 ## A fleet job's runner: the fleet holds still until Live, on its autopilots.
 @export var runner: JobRunner
 
-## Drone -> the crew member flying it, shown as a portrait by its ring (7.7).
+## Drone -> the crew member flying it, shown as a portrait by its ring (7.7),
+## which shows their distress and loses signal when the drone is down (18.10).
 var pilots := {}
 var selected: Drone
 ## The drone being flown by hand, or null when commanding.
@@ -209,6 +210,8 @@ class _Overlay extends Control:
 				face.mouse_filter = MOUSE_FILTER_IGNORE
 				add_child(face)
 				portraits[d] = face
+				# Story 18.10: distress and signal lost for the pilot's drone.
+				CrewDistress.watch(face, d, view.runner)
 			var p: CharacterPortrait = portraits[d]
 			p.visible = is_instance_valid(d) and cam.is_inside_tree() and not cam.is_position_behind(d.global_position)
 			if p.visible:

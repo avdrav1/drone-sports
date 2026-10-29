@@ -42,6 +42,8 @@ PITCHED = {
     "crew_chirp_celebrate": (1, 2),
     "crew_chirp_worried": (1, 2),
     "crew_chirp_sad": (1, 2),
+    # Story 18.10: a crew drone in trouble beeps from the fifth down to the third.
+    "crew_alarm": (5, 2),
 }
 
 
@@ -462,6 +464,14 @@ def crew_chirp_worried():
     return chirp_notes([(f, 0.2, 0.03), (f * key.SCALE[5] / 2, 0.1, 0.0)], vibrato=0.018)
 
 
+def crew_alarm():
+    """A crew drone in trouble (Story 18.10): one "dee-dah" of the alarm, the
+    fifth then the third, bright and clipped so it cuts through; CrewDistress
+    repeats it while the trouble lasts."""
+    f = key.hz(*PITCHED["crew_alarm"])
+    return chirp_notes([(f, 0.1, 0.035), (f * key.SCALE[2] / key.SCALE[4], 0.13, 0.05)], bright=2.0)
+
+
 def crew_chirp_sad():
     """Sad (Story 18.6): a soft falling "awoo", rounder than the rest. It holds
     the tonic, then slides down to the sixth below and fades."""
@@ -585,7 +595,7 @@ def main():
     for k in range(3):
         write("debris_impact_%d.wav" % (k + 1), debris_impact(1465 + k))
     for name in ("crew_chirp", "crew_chirp_happy", "crew_chirp_celebrate", "crew_chirp_worried",
-                 "crew_chirp_sad", "radio_static", "lattice_tone", "lattice_power_down"):
+                 "crew_chirp_sad", "crew_alarm", "radio_static", "lattice_tone", "lattice_power_down"):
         write(name + ".wav", globals()[name]())
     write("lattice_drone.wav", lattice_drone(), loop=True)
     write("coin_chime.wav", coin_chime())

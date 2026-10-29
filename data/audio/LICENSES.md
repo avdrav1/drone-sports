@@ -44,6 +44,7 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `generated/crew_chirp_celebrate.wav` | `tools/sfx/generate.py` | generated |
 | `generated/crew_chirp_worried.wav` | `tools/sfx/generate.py` | generated |
 | `generated/crew_chirp_sad.wav` | `tools/sfx/generate.py` | generated |
+| `generated/crew_alarm.wav` | `tools/sfx/generate.py` | generated |
 | `generated/radio_static.wav` | `tools/sfx/generate.py` | generated |
 | `generated/lattice_tone.wav` | `tools/sfx/generate.py` | generated |
 | `generated/lattice_drone.wav` | `tools/sfx/generate.py` | generated |
