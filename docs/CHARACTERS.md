@@ -12,20 +12,22 @@ The crew is the heart of the story. They are small, round, expressive, and they 
 
 ## Cast
 
-| Id | Name | Role | Where they stand on a job | Risk |
-| --- | --- | --- | --- | --- |
-| `pip` | Pip | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) |
-| `marlo` | Marlo | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High |
-| `dot` | Dot | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium |
-| `bea` | Bea | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs |
-| `ozzie` | Ozzie | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs |
-| `rin` | Coach Rin | The scout who recruits you. Story voice | Never in the field | None |
+| Id | Name | Role | Where they stand on a job | Risk | Named for |
+| --- | --- | --- | --- | --- | --- |
+| `pip` | Arjuna | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) | The student archer every teacher wanted to train |
+| `marlo` | Sanjaya | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High | The one who saw the whole battle from afar and told it |
+| `dot` | Nala | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium | The engineer who bridged the sea to Lanka |
+| `bea` | Bhima | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs | The strongest of the five brothers |
+| `ozzie` | Sushena | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs | The healer who sent for the life-giving herb |
+| `rin` | Drona | The scout who recruits you. Story voice | Never in the field | None | The teacher who found and trained the great archers |
 
-Three more pilot avatars (so "play as" means a choice) can be added as data once Pip works. Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
+Every name comes from the Ramayana or the Mahabharata and echoes the character's job; the CREW page (or, for a pilot with no CREW row, their pilot card) shows each "named for" line. The namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs. The ids are the code's keys (saves, jobs, file names); a save from before the rename is carried over to them on load.
+
+Three more pilot avatars (so "play as" means a choice) are data beside Arjuna: Abhimanyu (`fen`, the young warrior who charged straight in), Jatayu (`moss`, the great bird who rode the high winds) and Hanuman (`tally`, who leapt the ocean to Lanka). Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
 
 ## Strike system
 
-- A job declares `crew_in_field: [marlo, bea]` and places a `HazardZone` for each.
+- A job declares `crew_in_field: [marlo, bea]` (Sanjaya and Bhima) and places a `HazardZone` for each.
 - Entering a zone at speed, debris landing in it, or a rescue timer expiring is a strike. The HUD flashes the character's portrait one second before it lands, so the player always had a chance.
 - First strike: injured. The character is benched for the next two jobs and their lines change. The results screen shows it.
 - Second strike while injured, or a strike on a job tagged `lethal`: dead. Confirmation dialog before launching any job with an injured crew member in the field.
@@ -35,11 +37,11 @@ Three more pilot avatars (so "play as" means a choice) can be added as data once
 
 | If this character dies | Consequence |
 | --- | --- |
-| Marlo | No gate callouts. Races lose the split-delta HUD until a new spotter is recruited. |
-| Dot | Shop closes for three jobs. Upgrades cost 25 percent more afterward. |
-| Bea | Salvage faction stops offering jobs. Demolition runs are locked out of this playthrough. |
-| Ozzie | City services faction stops offering jobs. |
-| Rin | Cannot die. |
+| Sanjaya | No gate callouts. Races lose the split-delta HUD until a new spotter is recruited. |
+| Nala | Shop closes for three jobs. Upgrades cost 25 percent more afterward. |
+| Bhima | Salvage faction stops offering jobs. Demolition runs are locked out of this playthrough. |
+| Sushena | City services faction stops offering jobs. |
+| Drona | Cannot die. |
 
 ## What each crew member brings
 
@@ -47,11 +49,11 @@ Each support crew member carries a perk (`Character.perk`, Story 19.4), on while
 
 | Crew | Kind | Name | Perk |
 | --- | --- | --- | --- |
-| Coach Rin | `reputation` | good word | +25 percent reputation from every job |
-| Marlo | `guidance` | spotting | Route guidance one step better on every job |
-| Dot | `price` | trade prices | Garage prices 20 percent lower |
-| Bea | `pay` | site rates | +15 percent pay on every job |
-| Ozzie | `recovery` | quick patch-ups | An injury benches for one job instead of two (not Ozzie's own) |
+| Drona | `reputation` | good word | +25 percent reputation from every job |
+| Sanjaya | `guidance` | spotting | Route guidance one step better on every job |
+| Nala | `price` | trade prices | Garage prices 20 percent lower |
+| Bhima | `pay` | site rates | +15 percent pay on every job |
+| Sushena | `recovery` | quick patch-ups | An injury benches for one job instead of two (not Sushena's own) |
 
 The CREW page shows each perk under its owner's status: struck through with the jobs left while benched, "No more ..." once dead. The results screen names each bonus paid and the perk an injury switches off, and the confirmation before launching with injured crew in the field names each perk a death would take.
 
@@ -59,4 +61,4 @@ The CREW page shows each perk under its owner's status: struck through with the 
 
 - [ ] Species: animals, robots, something new? Decide before any art is commissioned.
 - [ ] Should there be a rookie mode where strikes injure but never kill?
-- [x] Do crew members ever fly drones themselves (Epic 6), and does a dead crew member shrink the fleet? Yes to both: crew tagged `can_fly` (Pip, Marlo, Dot, Ozzie) each fly one fleet drone under autopilot, and a death takes that drone out of every fleet job (Story 7.7).
+- [x] Do crew members ever fly drones themselves (Epic 6), and does a dead crew member shrink the fleet? Yes to both: crew tagged `can_fly` (Arjuna, Sanjaya, Nala, Sushena) each fly one fleet drone under autopilot, and a death takes that drone out of every fleet job (Story 7.7).

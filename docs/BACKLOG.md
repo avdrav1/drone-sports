@@ -1294,7 +1294,7 @@ Owner decisions (all decided):
   - Acceptance: No player-facing string says "Lattice". The boss's name shows as "Ravana" in the job board, briefing, HUD and lines. The boss-disabled tests still prove nothing about the boss loads. The fight's existing tests pass unchanged.
   - Out of scope: New mechanics, new art.
 
-- [ ] **25.4 The docs and the rules**
+- [x] **25.4 The docs and the rules**
   - Goal: The docs and CLAUDE.md describe the new cast and Ravana.
   - Context: `docs/CHARACTERS.md` (cast table, strike examples and consequences), `docs/BOSS.md`, `docs/VISION.md` mentions, and CLAUDE.md rule 9. That rule says the boss's design is original and imitates no existing franchise. Ravana comes from the epics, not a franchise; the rule is reworded to "The boss (Ravana) is a job like any other…", and keeps "disabled, never destroyed" and "no explosions". The cast's namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs.
   - Acceptance: The docs use the new names and ids throughout (a test greps the .md files outside BACKLOG.md for old names, as in 25.1). Rule 9 names Ravana and keeps the disable-only rule. Older backlog stories keep their text.

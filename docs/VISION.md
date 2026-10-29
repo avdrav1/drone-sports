@@ -74,13 +74,13 @@ Take a job, fly it, get graded, get paid, get noticed. Reputation unlocks better
 | Inspection | Hold a tight orbit on a structure, no contact, full coverage | Contractors |
 | Arena | Disable enemy drones, capture a point, protect a payload | League teams |
 
-The demolition run is the signature job. Collision guard is off, the building is falling, and Bea is standing at the base of it.
+The demolition run is the signature job. Collision guard is off, the building is falling, and Bhima is standing at the base of it.
 
 The camera is a flying tool, not a mechanic: chase for racing, FPV for gaps, orbit for inspections, top-down for fleets. Nothing is graded on what the camera sees.
 
 ## The ending
 
-The last job is the Lattice: a rogue drone foundry that captured every drone it touched and built itself into a sphere over the city, a shell of thousands of machines around a core. Some of those machines were your crew's. You do not destroy it. You command your fleet to reclaim drones and open a gap, fly the assembly trench with no assists while your crew calls the turns, and hold station at the override port long enough to switch it off. Every skill in the game gets used once. The job is lethal for the crew in the field, and it can be turned off in data for builds that do not want it. See `docs/BOSS.md`.
+The last job is Ravana: a rogue drone foundry, named for the ten-headed king of Lanka, that captured every drone it touched and built itself into a sphere over the city, a shell of thousands of machines around a core. Some of those machines were your crew's. You do not destroy it. You command your fleet to reclaim drones and open a gap, fly the assembly trench with no assists while your crew calls the turns, and hold station at the override port long enough to switch it off. Every skill in the game gets used once. The job is lethal for the crew in the field, and it can be turned off in data for builds that do not want it. See `docs/BOSS.md`.
 
 ## What the game is not
 

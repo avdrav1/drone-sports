@@ -31,7 +31,7 @@ build/      export output, gitignored
 6. Characters are data in `data/characters/`. Their status (active, injured, dead) lives in the save file. No scene hard-codes a character.
 7. A crew member is only at risk on a job that declares `crew_in_field` and places a `HazardZone`, after a visible warning. Death is permanent. Never add a way to revive.
 8. The camera is a tool for flying, not a mechanic. Views are chase, FPV, orbit, and top-down; nothing is ever graded on what the camera sees.
-9. The boss (the Lattice) is a job like any other. It is disabled, never destroyed: no explosions, no destruction objective. `data/boss/lattice.tres` has `enabled`; when false, nothing about the boss loads or appears. Its design is original; do not reference or imitate existing franchises in names, art, or lines.
+9. The boss (Ravana) is a job like any other. It is disabled, never destroyed: no explosions, no destruction objective. `data/boss/lattice.tres` has `enabled`; when false, nothing about the boss loads or appears. Its name comes from the Ramayana and is treated with respect; the machine's design is original, so do not reference or imitate existing franchises in art or lines.
 
 ## Assist presets by act
 
