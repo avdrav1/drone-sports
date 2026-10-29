@@ -1,72 +1,72 @@
 {
  "crew_alarm": {
   "degree": 5,
-  "hz": 880.98,
+  "hz": 1048.32,
   "octave": 2
  },
  "crew_chirp": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "crew_chirp_celebrate": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "crew_chirp_happy": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "crew_chirp_sad": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "crew_chirp_worried": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "drone_hum": {
   "degree": 1,
-  "hz": 146.83,
+  "hz": 174.72,
   "octave": 0
  },
  "job_countdown": {
   "degree": 5,
-  "hz": 880.98,
+  "hz": 1048.32,
   "octave": 2
  },
  "job_gate": {
   "degree": 1,
-  "hz": 587.32,
+  "hz": 698.88,
   "octave": 2
  },
  "job_go": {
   "degree": 1,
-  "hz": 1174.64,
+  "hz": 1397.76,
   "octave": 3
  },
  "lattice_drone": {
   "degree": 1,
-  "hz": 36.7075,
+  "hz": 43.68,
   "octave": -2
  },
  "lattice_tone": {
   "degree": 5,
-  "hz": 220.245,
+  "hz": 262.08,
   "octave": 0
  },
  "radio_alert": {
   "degree": 5,
-  "hz": 880.98,
+  "hz": 1048.32,
   "octave": 2
  },
  "radio_chime": {
   "degree": 3,
-  "hz": 734.15,
+  "hz": 873.6,
   "octave": 2
  }
 }

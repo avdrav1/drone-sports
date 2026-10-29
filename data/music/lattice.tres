@@ -61,6 +61,6 @@ muffled = ExtResource("m6")
 script = ExtResource("score")
 id = &"lattice"
 tempo = 80.0
-tonic = 146.83
+tonic = 174.72
 bars = 8
 stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4"), SubResource("stem_5"), SubResource("stem_6")])
