@@ -1,7 +1,7 @@
 extends Node
 # Autoload "Garage": upgrade levels bought, kept in the save's "upgrades" section.
 # Buying spends the wallet; `apply` sets the player's drone stats from the levels
-# and the chosen pilot's tweak (Story 7.2).
+# and the chosen pilot's edge (Stories 7.2, 19.1).
 
 signal bought(upgrade: Upgrade, level: int)
 
@@ -50,7 +50,7 @@ func buy(id: StringName) -> bool:
 	return true
 
 ## Set the drone's stats from its scene values plus every level bought and the
-## chosen pilot's tweak. Once per drone.
+## chosen pilot's edge, and tune its assists to the edge. Once per drone.
 func apply(drone: Drone) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
@@ -59,8 +59,16 @@ func apply(drone: Drone) -> void:
 		if level(u.id) > 0:
 			drone.set(u.stat, drone.get(u.stat) + u.step * level(u.id))
 	var pilot := PlayerProfile.pilot()
-	if pilot and pilot.tweak:
-		drone.set(pilot.tweak.stat, drone.get(pilot.tweak.stat) + pilot.tweak.step)
+	if pilot and pilot.edge:
+		pilot.edge.apply_stats(drone)
+	tune(drone)
+
+## Give the drone's assists that are on the chosen pilot's settings; the ones
+## that are off keep their own. Call again after switching assists.
+func tune(drone: Drone) -> void:
+	var pilot := PlayerProfile.pilot()
+	if drone and drone.assists and pilot and pilot.edge:
+		pilot.edge.tune(drone.assists)
 
 func save() -> void:
 	var out := {}

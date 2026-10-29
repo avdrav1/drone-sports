@@ -1008,7 +1008,7 @@ Crew perks, on while the character is alive and not benched:
 | Bea | +15 percent pay on every job |
 | Ozzie | An injury benches a crew member for one job instead of two |
 
-- [ ] **19.1 Pilot edges are data**
+- [x] **19.1 Pilot edges are data**
   - Goal: A pilot can carry several stat changes and a set of assist settings, applied to the player's drone wherever `Garage.apply` runs today.
   - Context: `Character.tweak` (one `Upgrade`) becomes `edge: PilotEdge`: a list of stat steps (stat, step, unit) and assist settings (assist id, property, value). Applying it sets exported properties on the drone and on the assist nodes in its pipeline; it never adds or removes an assist and never touches `drone.gd` physics. Settings for an assist the act has already removed do nothing. The existing pilots move their current tweak into the new form unchanged, so this story changes no numbers. Update the pilot line in `docs/CHARACTERS.md` ("one small stat tweak") to describe edges.
   - Acceptance: Each pilot's edge round-trips from data. Applying an edge changes only the listed drone stats and assist properties, in free flight and on a job. An assist the preset has switched off stays off and unchanged. The assist list is identical for every pilot. Current pilot numbers are unchanged.

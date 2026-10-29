@@ -74,6 +74,7 @@ func apply_preset() -> void:
 		return
 	var stack := presets[preset_index]
 	drone.assists.apply_stack(GameSettings.effective_stack(stack))
+	Garage.tune(drone)
 	readout.header = "preset: %s%s" % [stack.label, "  (expert: all assists off)" if GameSettings.expert_all_assists_off else ""]
 	hud.subtitle = stack.label + ("  ·  expert" if GameSettings.expert_all_assists_off else "") \
 		+ ("  ·  " + weather().label if weather() else "") + "  ·  %s start a job" % ControlsHelp.job_keys()

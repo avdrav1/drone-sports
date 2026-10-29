@@ -1,15 +1,19 @@
-[gd_resource type="Resource" script_class="Character" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
-[ext_resource type="Script" path="res://scripts/progression/upgrade.gd" id="2_up"]
+[ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 
-[sub_resource type="Resource" id="tweak"]
-script = ExtResource("2_up")
-id = &"tally_tweak"
-name = "Easy on the cells"
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("3_step")
 stat = &"battery_flight_time"
 step = 15.0
 unit = "s flight time"
+
+[sub_resource type="Resource" id="edge"]
+script = ExtResource("2_edge")
+name = "Easy on the cells"
+stats = Array[ExtResource("3_step")]([SubResource("step_0")])
 
 [resource]
 script = ExtResource("1_char")
@@ -28,4 +32,4 @@ bounce = Vector2(0.8,0.92)
 death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([&"pilot"])
-tweak = SubResource("tweak")
+edge = SubResource("edge")

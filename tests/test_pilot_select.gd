@@ -1,7 +1,7 @@
 extends RefCounted
 # Story 7.2: pilot select. Pip by default; the choice persists in the save; the
 # race HUD and the flight HUD show the chosen portrait; switching pilots changes
-# only that pilot's tweaked stat; only pilot-tagged characters are offered; a new
+# only that pilot's edge stats; only pilot-tagged characters are offered; a new
 # game reaches the screen before the first job.
 
 const Sim = preload("res://tests/sim.gd")
@@ -12,11 +12,11 @@ const ACT1 := preload("res://data/assists/act1.tres")
 func test_default_is_pip_and_every_pilot_validates() -> bool:
 	var ok: bool = not PlayerProfile.has_pilot() and PlayerProfile.pilot().id == &"pip"
 	var pilots := PlayerProfile.pilots()
-	ok = ok and pilots.size() >= 4 and pilots[0].id == &"pip" and pilots[0].tweak == null
+	ok = ok and pilots.size() >= 4 and pilots[0].id == &"pip"
 	for c in pilots:
 		ok = ok and c.validate().is_empty() and not c.can_be_harmed and ResourceLoader.exists(c.lines)
 		if c.id != &"pip":
-			ok = ok and c.tweak != null and Roster.character(c.id) == null  # the crew of six is unchanged
+			ok = ok and c.edge != null and Roster.character(c.id) == null  # the crew of six is unchanged
 	return ok and Roster.ids().size() == 6
 
 func test_choice_persists_across_load() -> bool:
@@ -82,17 +82,21 @@ func _fingerprint() -> Dictionary:
 	d.free()
 	return out
 
-func test_switching_pilot_changes_only_the_tweaked_stat() -> bool:
+func test_switching_pilot_changes_only_the_edge_stats() -> bool:
+	var pip := PlayerProfile.pilot()
+	var own := pip.edge
+	pip.edge = null  # the drone with no edge at all
 	var base := _fingerprint()
+	pip.edge = own
 	var ok := base.size() > 6
 	for c in PlayerProfile.pilots():
 		PlayerProfile.choose_pilot(c.id)
 		var now := _fingerprint()
+		var want := base.duplicate()
+		for s in c.edge.stats if c.edge else []:
+			want[String(s.stat)] += s.step
 		for key in base:
-			if c.tweak and key == String(c.tweak.stat):
-				ok = ok and is_equal_approx(now[key], base[key] + c.tweak.step)
-			else:
-				ok = ok and now[key] == base[key]
+			ok = ok and (is_equal_approx(now[key], want[key]) if now[key] is float else now[key] == want[key])
 	return ok
 
 func test_new_game_reaches_pilot_select() -> bool:

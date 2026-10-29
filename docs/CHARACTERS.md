@@ -21,7 +21,7 @@ The crew is the heart of the story. They are small, round, expressive, and they 
 | `ozzie` | Ozzie | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs |
 | `rin` | Coach Rin | The scout who recruits you. Story voice | Never in the field | None |
 
-Three more pilot avatars (so "play as" means a choice) can be added as data once Pip works. Each avatar is a portrait, a voice-line set, and one small stat tweak, never a different flight model.
+Three more pilot avatars (so "play as" means a choice) can be added as data once Pip works. Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
 
 ## Strike system
 

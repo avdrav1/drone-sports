@@ -1,7 +1,7 @@
 class_name PilotSelect
 extends Control
 # Pick the pilot avatar (Story 7.2): one card per character tagged pilot, with
-# portrait, role, and its one stat tweak. A full-screen layer over the job board;
+# portrait, role, and its edge (Story 19.1). A full-screen layer over the job board;
 # it opens on its own before the first job and from the board's footer after.
 # Back only shows once a pilot has been chosen, so a new game must pick.
 
@@ -54,9 +54,15 @@ func choose(id: StringName) -> void:
 		hide()
 		chosen.emit(id)
 
-## Pip has no tweak; every other card names its edge, e.g. "+15 s flight time".
+## Each card names its edge and its stat steps, e.g. "+15 s flight time".
+## Without an edge, the baseline drone.
 static func tweak_text(c: Character) -> String:
-	return "%s\n%s" % [c.tweak.name, c.tweak.effect_text()] if c.tweak else "No tweak\nthe baseline drone"
+	if c.edge == null:
+		return "No edge\nthe baseline drone"
+	var steps := PackedStringArray()
+	for s in c.edge.stats:
+		steps.append(s.effect_text())
+	return "%s\n%s" % [c.edge.name, ", ".join(steps)]
 
 func refresh() -> void:
 	for c in _cards_box.get_children():
