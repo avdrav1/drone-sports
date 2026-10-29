@@ -17,6 +17,9 @@ extends Control
 # dead never show either.
 # Story 18.9: pop_in() springs the face in when a radio line opens, from small
 # to a little too big and back to rest within POP_IN_TIME.
+# Story 20.4: the face is a person from the shoulders up, coloured from their
+# CrewLook: skin, ears and neck, hair behind and in front, a shirt in the top
+# colour, and their accessory. The face itself is unchanged.
 
 const EXPRESSIONS: Array[StringName] = [&"neutral", &"happy", &"determined", &"worried", &"shocked", &"sad"]
 
@@ -53,6 +56,15 @@ const BROW_HALF := 0.09
 ## The lowest edge of each headwear's fill, per head radius from the head's
 ## centre (negative is up). Brows always stay below it.
 const HEADWEAR_BOTTOM := {&"hardhat": -0.82, &"tall": -0.82, &"square": -0.82, &"visor": -0.82}
+## The same for the round caps (Pip's and Moss's).
+const CAP_BOTTOM := -0.82
+## Front hair stops level at HAIRLINE (per head radius, above every brow) out to
+## HAIR_EDGE, then runs down the temples to SIDEBURN at the head's edge.
+const HAIRLINE := -0.72
+const HAIR_EDGE := 0.72
+const SIDEBURN := 0.15
+## The shoulders' half width and the top of the shirt, per portrait size from its centre.
+const SHOULDER := Vector2(0.47, 0.3)
 ## Seconds between blinks, and how long the lids stay shut.
 const BLINK_GAP := Vector2(2.0, 6.0)
 const BLINK_LENGTH := Vector2(0.1, 0.2)
@@ -114,6 +126,24 @@ func _process(delta: float) -> void:
 ## True when the face is drawn in code; a `portrait` texture overrides it.
 func drawn() -> bool:
 	return character != null and character.portrait == null
+
+## The portrait's colours: skin, hair, top (the shirt), accessory and detail,
+## from the character's CrewLook; without a look, from `colors`.
+static func palette(c: Character) -> Dictionary:
+	if c.look:
+		var l := c.look
+		return {"skin": l.skin, "hair": l.hair, "top": l.top, "accessory": l.accessory_color, "detail": l.accessory_detail}
+	var detail: Color = c.colors[2] if c.colors.size() > 2 else c.colors[1]
+	return {"skin": c.colors[0], "hair": c.colors[1], "top": c.colors[1], "accessory": c.colors[1], "detail": detail}
+
+## The character's hair style from their look's body; empty without a look.
+static func hair_style(c: Character) -> StringName:
+	return c.look.hair_style() if c.look else &""
+
+## Where the front hair ends at `x` across the face, both per head radius from
+## its centre (negative is up).
+static func hairline(x: float) -> float:
+	return lerpf(HAIRLINE, SIDEBURN, clampf((absf(x) - HAIR_EDGE) / (1.0 - HAIR_EDGE), 0.0, 1.0))
 
 ## The face for `expr` at `t` seconds: brow_angle, brow_height, lid, squint,
 ## eye_scale, pupil, blush, mouth_width, mouth_curve, mouth_open. Pure, so tests read the face, not pixels.
@@ -294,17 +324,26 @@ func _draw() -> void:
 		draw_texture_rect(character.portrait, Rect2(c - Vector2.ONE * s * 0.5, Vector2.ONE * s), false, _tone(Color.WHITE))
 		draw_set_transform(Vector2.ZERO)
 		return
-	var body := _tone(character.colors[0])
-	var accent := _tone(character.colors[1])
-	var detail := _tone(character.colors[2]) if character.colors.size() > 2 else accent
+	var pal := palette(character)
+	for k in pal:
+		pal[k] = _tone(pal[k])
 	var ink := _tone(INK)
 	var r := s * 0.34
 	var center := c + Vector2(0, s * 0.08)
 	var line := ink_width(r)
-	_draw_feature(center, r, body, accent, detail, ink, line)
-	draw_circle(center, r, body)
+	# Shoulders stay on the bottom edge: they take the face's squash, not its bob.
+	var foot := c + Vector2(0, s * 0.5)
+	draw_set_transform(foot - foot * sc, 0.0, sc)
+	_draw_shoulders(c, s, pal, ink, line)
+	draw_set_transform(pivot + (m.offset as Vector2) * s - pivot * sc, 0.0, sc)
+	var style := hair_style(character)
+	for side in [-1.0, 1.0]:
+		_ball(center + Vector2(side * r * 0.96, r * 0.14), r * 0.2, pal.skin, ink, line)
+	_draw_hair_back(center, r, style, pal.hair, ink, line)
+	draw_circle(center, r, pal.skin)
 	draw_circle(center, r, ink, false, line, true)
-	_draw_headwear(center, r, accent, detail, ink, line)
+	_draw_hair_front(center, r, style, pal.hair, ink, line)
+	_draw_headwear(center, r, pal.accessory, pal.detail, ink, line)
 	var p := current_pose()
 	var shine := shows_shine()
 	for side in [-1.0, 1.0]:
@@ -408,51 +447,140 @@ func _draw_mouth(m: Vector2, r: float, p: Dictionary, ink: Color, line: float) -
 	shape.append(shape[0])
 	draw_polyline(shape, ink, line, true)
 
-## Silhouette features behind the head.
-func _draw_feature(center: Vector2, r: float, body: Color, accent: Color, detail: Color, ink: Color, line: float) -> void:
-	match character.shape:
-		&"antenna":
-			var tip := center + Vector2(r * 0.18, -r * 1.42)
-			var stalk := antenna_widths(r)
-			_stroke(center - Vector2(0, r * 0.8), tip, ink, stalk.x)
-			_stroke(center - Vector2(0, r * 0.8), tip, detail, stalk.y)
-			_ball(tip, r * 0.24, accent, ink, line)
-		&"ears":
-			for side in [-1.0, 1.0]:
-				var ear := center + Vector2(side * r * 0.76, -r * 0.74)
-				_ball(ear, r * 0.4, body, ink, line)
-				_ball(ear, r * 0.2, accent, ink, line * 0.6)
-		&"tuft":
-			for x in [-0.32, 0.32, 0.0]:
-				_ball(center + Vector2(r * x, -r * (1.02 - absf(x) * 0.35)), r * 0.3, detail, ink, line)
-		&"fin":
-			_blob(PackedVector2Array([center + Vector2(-r * 0.5, -r * 0.6), center + Vector2(-r * 0.05, -r * 1.25), center + Vector2(r * 0.25, -r * 1.58), center + Vector2(r * 0.55, -r * 0.6)]), detail, ink, line)
+## Shoulders, a shirt in the look's top colour, and the neck under the chin,
+## filling the bottom of the portrait (Story 20.4).
+func _draw_shoulders(c: Vector2, s: float, pal: Dictionary, ink: Color, line: float) -> void:
+	var top := PackedVector2Array()
+	for i in 13:
+		# A soft hump: flat across the collar, rounding down over each shoulder.
+		var u := lerpf(-1.0, 1.0, i / 12.0)
+		top.append(c + Vector2(u * s * SHOULDER.x, s * (SHOULDER.y + 0.14 * pow(absf(u), 3.0))))
+	var shirt := top.duplicate()
+	shirt.append(c + Vector2(s * SHOULDER.x, s * 0.5))
+	shirt.append(c + Vector2(-s * SHOULDER.x, s * 0.5))
+	draw_colored_polygon(shirt, pal.top)
+	draw_polyline(top, ink, line, true)
+	for side in [-1.0, 1.0]:
+		_stroke(c + Vector2(side * s * SHOULDER.x, s * (SHOULDER.y + 0.14)), c + Vector2(side * s * SHOULDER.x, s * 0.5), ink, line)
+	# The neck peeks out under the chin, in a round collar.
+	var neck := _oval(c + Vector2(0, s * 0.425), s * 0.1, s * 0.055)
+	draw_colored_polygon(neck, pal.skin)
+	neck.append(neck[0])
+	draw_polyline(neck, ink, line, true)
 
-## Silhouette features worn on top of the head, in front of it. Each sits with
-## its lowest edge at HEADWEAR_BOTTOM so the brows never cross it.
-func _draw_headwear(center: Vector2, r: float, accent: Color, detail: Color, ink: Color, line: float) -> void:
-	var bottom: float = HEADWEAR_BOTTOM.get(character.shape, 0.0)
-	match character.shape:
+## Hair behind the head: long hair down to the shoulders, buns, a ponytail.
+func _draw_hair_back(center: Vector2, r: float, style: StringName, hair: Color, ink: Color, line: float) -> void:
+	match style:
+		&"long":
+			var band := _rect(center + Vector2(0, -r * 0.25), Vector2(r * 2.0, r * 1.15))
+			_blob(Geometry2D.intersect_polygons(_oval(center + Vector2(0, -r * 0.05), r * 1.3, r * 1.2), band)[0], hair, ink, line)
+		&"twin_buns":
+			for side in [-1.0, 1.0]:
+				_ball(center + Vector2(side * r * 0.9, -r * 0.8), r * 0.36, hair, ink, line)
+		&"bun":
+			_ball(center + Vector2(0, -r * 1.1), r * 0.32, hair, ink, line)
+		&"crop":
+			_blob(_oval(center + Vector2(r * 0.98, -r * 0.42), r * 0.24, r * 0.4), hair, ink, line)
+
+## Hair over the top of the head down to hairline(), or a beard for the bald.
+func _draw_hair_front(center: Vector2, r: float, style: StringName, hair: Color, ink: Color, line: float) -> void:
+	if style == &"bald_beard":
+		# Sideburns into a full beard round the chin, under the mouth.
+		var cut := PackedVector2Array()
+		for i in 13:
+			var x := lerpf(-1.2, 1.2, i / 12.0)
+			cut.append(center + Vector2(x, lerpf(0.42, -0.05, pow(clampf(absf(x), 0.0, 1.0), 4.0))) * r)
+		cut.append(center + Vector2(1.2, 1.6) * r)
+		cut.append(center + Vector2(-1.2, 1.6) * r)
+		var beard := Geometry2D.intersect_polygons(_oval(center + Vector2(0, r * 0.08), r * 1.04, r * 1.08), cut)
+		if not beard.is_empty():
+			_blob(beard[0], hair, ink, line)
+		return
+	if style == &"":
+		return
+	var cut := PackedVector2Array()
+	for i in 17:
+		var x := lerpf(-1.3, 1.3, i / 16.0)
+		cut.append(center + Vector2(x, hairline(x)) * r)
+	cut.append(center + Vector2(1.3, -1.6) * r)
+	cut.append(center + Vector2(-1.3, -1.6) * r)
+	# A little fuller than the head, so it shows past the ears and under hats.
+	var cap := Geometry2D.intersect_polygons(_oval(center + Vector2(0, -r * 0.03), r * 1.13, r * 1.07), cut)
+	if not cap.is_empty():
+		_blob(cap[0], hair, ink, line)
+	if style == &"quiff":
+		_ball(center + Vector2(r * 0.25, -r * 0.98), r * 0.3, hair, ink, line)
+
+## What each crew member wears on their head, in front of the hair: hats sit
+## with their lowest edge at HEADWEAR_BOTTOM or CAP_BOTTOM so the brows never
+## cross them; headsets and ear-muffs go over the ears.
+func _draw_headwear(center: Vector2, r: float, main: Color, detail: Color, ink: Color, line: float) -> void:
+	var bottom: float = HEADWEAR_BOTTOM.get(_accessory(), CAP_BOTTOM)
+	match _accessory():
 		&"hardhat":
 			var brim := bottom - 0.12
 			var dome := PackedVector2Array()
 			for i in 13:
 				var a := lerpf(PI, TAU, i / 12.0)
 				dome.append(center + Vector2(cos(a) * r * 0.8, r * (brim - 0.04) + sin(a) * r * 0.58))
-			_blob(dome, detail, ink, line)
-			_blob(_rect(center + Vector2(0, r * brim), Vector2(r * 1.1, r * 0.12)), detail, ink, line)
+			_blob(dome, main, ink, line)
+			_blob(_rect(center + Vector2(0, r * (brim - 0.34)), Vector2(r * 0.09, r * 0.26)), detail, ink, line * 0.6)
+			_blob(_rect(center + Vector2(0, r * brim), Vector2(r * 1.1, r * 0.12)), main, ink, line)
 		&"tall":
-			_blob(PackedVector2Array([center + Vector2(-r * 0.5, -r * 1.62), center + Vector2(r * 0.5, -r * 1.62), center + Vector2(r * 0.62, r * bottom), center + Vector2(-r * 0.62, r * bottom)]), detail, ink, line)
-			_blob(_rect(center + Vector2(0, r * (bottom - 0.14)), Vector2(r * 0.6, r * 0.1)), accent, ink, line * 0.7)
+			_blob(PackedVector2Array([center + Vector2(-r * 0.5, -r * 1.62), center + Vector2(r * 0.5, -r * 1.62), center + Vector2(r * 0.62, r * bottom), center + Vector2(-r * 0.62, r * bottom)]), main, ink, line)
+			_blob(_rect(center + Vector2(0, r * (bottom - 0.2)), Vector2(r * 0.6, r * 0.11)), detail, ink, line * 0.7)
+			_blob(_rect(center + Vector2(0, r * (bottom - 0.04)), Vector2(r * 0.95, r * 0.08)), main, ink, line)
 		&"square":
 			# Goggles pushed up on top of the head, strap round it.
 			var lens := bottom - 0.19
-			_blob(_rect(center + Vector2(0, r * lens), Vector2(r * 0.98, r * 0.1)), detail, ink, line)
+			_blob(_rect(center + Vector2(0, r * lens), Vector2(r * 1.02, r * 0.1)), main, ink, line)
 			for side in [-1.0, 1.0]:
-				_ball(center + Vector2(side * r * 0.3, r * lens), r * 0.19, accent, ink, line)
+				_ball(center + Vector2(side * r * 0.3, r * lens), r * 0.2, main, ink, line)
+				draw_circle(center + Vector2(side * r * 0.3, r * lens), r * 0.12, detail)
 		&"visor":
-			# Racing visor pushed up on top of the head.
-			_blob(_rect(center + Vector2(0, r * (bottom - 0.13)), Vector2(r * 0.9, r * 0.13)), detail, ink, line)
+			# Racing visor pushed up on top of the head, on a band.
+			_blob(_rect(center + Vector2(0, r * (bottom - 0.08)), Vector2(r * 0.98, r * 0.08)), detail, ink, line)
+			_blob(PackedVector2Array([center + Vector2(-r * 1.08, r * (bottom - 0.16)), center + Vector2(r * 1.08, r * (bottom - 0.16)), center + Vector2(r * 0.8, r * (bottom - 0.42)), center + Vector2(-r * 0.8, r * (bottom - 0.42))]), main, ink, line)
+		&"round", &"fin":
+			# A round cap; Pip's has a peak and a button, Moss's a fin.
+			if _accessory() == &"fin":
+				_blob(PackedVector2Array([center + Vector2(-r * 0.3, -r * 1.3), center + Vector2(r * 0.15, -r * 1.86), center + Vector2(r * 0.45, -r * 1.3)]), detail, ink, line)
+			var dome := PackedVector2Array()
+			for i in 13:
+				var a := lerpf(PI, TAU, i / 12.0)
+				dome.append(center + Vector2(cos(a) * r * 0.98, r * (bottom - 0.02) + sin(a) * r * 0.62))
+			_blob(dome, main, ink, line)
+			if _accessory() == &"round":
+				_blob(PackedVector2Array([center + Vector2(-r * 0.2, r * (bottom - 0.12)), center + Vector2(r * 1.3, r * (bottom - 0.1)), center + Vector2(r * 1.26, r * bottom), center + Vector2(-r * 0.2, r * bottom)]), main, ink, line)
+				_ball(center + Vector2(0, r * (bottom - 0.64)), r * 0.1, detail, ink, line * 0.7)
+		&"antenna":
+			# A headset: a band over the hair, a cup on each ear, the antenna up from one.
+			_band_over(center, r, main, ink, line)
+			var tip := center + Vector2(r * 1.2, -r * 1.25)
+			var stalk := antenna_widths(r)
+			_stroke(center + Vector2(r * 1.02, 0), tip, ink, stalk.x)
+			_stroke(center + Vector2(r * 1.02, 0), tip, main, stalk.y)
+			_ball(tip, r * 0.22, detail, ink, line)
+			for side in [-1.0, 1.0]:
+				_ball(center + Vector2(side * r * 1.0, r * 0.12), r * 0.24, main, ink, line)
+		&"ears":
+			# Fluffy ear-muffs on a band.
+			_band_over(center, r, detail, ink, line)
+			for side in [-1.0, 1.0]:
+				_ball(center + Vector2(side * r * 1.0, r * 0.1), r * 0.32, main, ink, line)
+				draw_circle(center + Vector2(side * r * 0.94, r * 0.0), r * 0.1, main.lightened(0.35))
+		&"tuft":
+			for x in [-0.32, 0.32, 0.0]:
+				_ball(center + Vector2(r * x, -r * (1.02 - absf(x) * 0.35)), r * 0.3, main, ink, line)
+
+## A band over the top of the head from ear to ear, outlined.
+func _band_over(center: Vector2, r: float, col: Color, ink: Color, line: float) -> void:
+	var w := r * 0.14
+	draw_arc(center, r * 1.06, PI * 1.03, PI * 1.97, 20, ink, w + line * 2.0, true)
+	draw_arc(center, r * 1.06, PI * 1.03, PI * 1.97, 20, col, w, true)
+
+func _accessory() -> StringName:
+	return character.look.accessory if character.look else character.shape
 
 func _ball(at: Vector2, radius: float, fill: Color, ink: Color, line: float) -> void:
 	draw_circle(at, radius, fill)
