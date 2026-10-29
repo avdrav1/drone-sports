@@ -1180,7 +1180,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: Start in LIVE pauses the tree and opens the dialog with stay focused; A on stay resumes. Emitting `joy_connection_changed(id, false)` for the device in use pauses a live job, while the same signal on the board or for another pad does nothing. Reconnecting leaves the game paused until the player chooses.
   - Out of scope: Split-screen, more than one player.
 
-- [ ] **23.6 Controller options**
+- [x] **23.6 Controller options**
   - Goal: OPTIONS gains a CONTROLLER section covering stick layout, inverted pitch, stick feel, deadzone and rumble.
   - Context: Layout is Mode 2 (default, today's) or Mode 1 (throttle and pitch swap sticks), applied by rewriting the flight actions' `InputEventJoypadMotion` axes. Invert flips pitch's axis value. Stick feel is `PilotInput.expo` (0 to 1, default 0.4) and deadzone is 0.1 to 0.3 (default 0.2) on the flight actions. Rumble on or off feeds 23.7. These are saved in the save file next to the sound settings and applied on boot. Shaping only (rule 2): nothing here touches the flight model.
   - Acceptance: Each setting survives a save and reload. Mode 1 puts throttle on the right stick's Y and pitch on the left stick's Y, and every other action is unchanged. Invert makes stick-up pitch back. Expo and deadzone reach `PilotInput` and the InputMap. The section is usable by pad (the 23.3 walk covers it). The controls panel and prompts show the swapped sticks.

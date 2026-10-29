@@ -14,7 +14,7 @@ extends Control
 # beside the pages. Up and down move through it, left and right flip the cards
 # while FLY has focus, Enter selects, Esc goes back: from a page to the menu,
 # from the menu to the title. CREW is its own page with big faces; OPTIONS
-# holds Sound, Quality, and Watch intro.
+# holds Sound, Quality, and Watch intro, and (Story 23.6) the CONTROLLER section.
 # Story 17.6: it wears the FrontSkin for the act, the arcade cabinet in Act 1
 # and the team's ops console from Act 2.
 # It explains itself: a line on what the board is for, each card's job in one
@@ -39,7 +39,7 @@ const MENU_HINTS := {
 	&"Garage": "Spend your pay on drone upgrades.",
 	&"Pilot": "Choose who you fly as.",
 	&"Crew": "See your crew and how they're doing.",
-	&"Options": "Sound, graphics, and the intro.",
+	&"Options": "Sound, graphics, the controller, and the intro.",
 }
 
 var jobs: JobList
@@ -748,12 +748,26 @@ func _build_options(stack: Control) -> void:
 		c.custom_minimum_size.x = 280
 		# Left goes back to the menu item that opened the page.
 		c.focus_neighbor_left = c.get_path_to(menu_button(&"Options"))
+	_build_controller(box)
 	var esc := Label.new()
 	esc.name = "BackHint"
 	esc.text = back_text()
 	esc.add_theme_color_override("font_color", DIM)
 	esc.add_theme_font_size_override("font_size", 14)
 	box.add_child(esc)
+
+## OPTIONS > CONTROLLER (Story 23.6): sticks, invert, feel, deadzone, rumble.
+func _build_controller(box: VBoxContainer) -> void:
+	box.add_child(_heading("CONTROLLER"))
+	var pad := ControllerOptions.new()
+	pad.name = "Controller"
+	box.add_child(pad)
+	# Sliders keep left for themselves; the rest go back to the menu.
+	for c in [pad.layout, pad.invert]:
+		c.focus_neighbor_left = c.get_path_to(menu_button(&"Options"))
+	var intro := box.get_node("WatchIntro")
+	intro.focus_neighbor_bottom = intro.get_path_to(pad.layout)
+	pad.layout.focus_neighbor_top = pad.layout.get_path_to(intro)
 
 ## Up and down scroll the crew page.
 func _on_crew_scroll_input(event: InputEvent) -> void:

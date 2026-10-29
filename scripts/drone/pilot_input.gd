@@ -14,7 +14,8 @@ const AXES := {
 
 ## Seconds for a held key to move the stick from center to full.
 @export var key_ramp_time := 0.15
-## Expo on pitch, roll, yaw: 0 is linear, 1 is fully cubic.
+## Expo on pitch, roll, yaw: 0 is linear, 1 is fully cubic. Stick feel in
+## OPTIONS sets it (GameSettings.stick_expo, Story 23.6).
 @export var expo := 0.4
 ## Latched keyboard throttle change per second while W or S is held.
 @export var throttle_nudge_rate := 0.5
@@ -24,6 +25,9 @@ var throttle_level := 0.0
 var _ramped := {&"throttle": 0.0, &"pitch": 0.0, &"roll": 0.0, &"yaw": 0.0}
 var _latched := false
 var _throttle_from_keys := true
+
+func _ready() -> void:
+	expo = GameSettings.stick_expo
 
 func read_intent() -> Intent:
 	var keys := {}
