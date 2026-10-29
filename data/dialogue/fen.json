@@ -113,5 +113,85 @@
     "face": "neutral"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Back! Let's go fast, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Hey! I've been revving.",
+    "face": "happy"
+   },
+   {
+    "text": "Finally. Pick something quick.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Gate gate gate! Keep it up, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "So clean, so fast!",
+    "face": "happy"
+   },
+   {
+    "text": "Don't slow down now!",
+    "face": "determined"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Again! Quicker this time, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Second lap's the fast one.",
+    "face": "determined"
+   },
+   {
+    "text": "Go go go!",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "New stuff, {you}! Is it fast?",
+    "face": "happy"
+   },
+   {
+    "text": "Ooh, faster things!",
+    "face": "happy"
+   },
+   {
+    "text": "Unlocked! Let's try it now.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Bye, {you}! Zip!",
+    "face": "happy"
+   },
+   {
+    "text": "See you on the line.",
+    "face": "happy"
+   },
+   {
+    "text": "Gone already? Fast. Respect.",
+    "face": "happy"
+   }
+  ]
  }
 }

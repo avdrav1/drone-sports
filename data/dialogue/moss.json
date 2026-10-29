@@ -113,5 +113,85 @@
     "face": "neutral"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Hello again, {you}. Nice and calm.",
+    "face": "happy"
+   },
+   {
+    "text": "Welcome back. The air's lovely today.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. Let's float.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "So smooth, {you}. Like a breeze.",
+    "face": "happy"
+   },
+   {
+    "text": "Every gate, gently. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a soft, clean streak.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Breathe out, {you}. Try again softly.",
+    "face": "determined"
+   },
+   {
+    "text": "Second time floats better.",
+    "face": "determined"
+   },
+   {
+    "text": "Easy. You know the air now.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Something new, {you}. How nice.",
+    "face": "happy"
+   },
+   {
+    "text": "A new sky to glide in.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely. Well earned.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Rest well, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Drift off. See you soon.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye. Land softly.",
+    "face": "happy"
+   }
+  ]
  }
 }

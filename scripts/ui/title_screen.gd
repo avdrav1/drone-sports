@@ -8,6 +8,7 @@ extends Node
 # Story 17.6: it wears the act's FrontSkin; the cabinet's Start is a coin chime.
 # Story 17.12: between the logo and PRESS START, the story crawl rolls away
 # into the distance: why you are playing. It loops until you press start.
+# Story 18.5: come from the board, a crew member waves goodbye on the radio.
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
@@ -25,6 +26,10 @@ var press_start: Label
 var best_label: Label
 var crawl: StoryCrawl
 var skin: FrontSkin
+## Set by the board as you leave it: the next title says goodbye, once.
+static var wave_goodbye := false
+var bark: Bark
+var radio: BarkBox
 
 var _age := 0.0
 
@@ -35,6 +40,20 @@ func _ready() -> void:
 	_build()
 	best_label.text = "BEST JOB  " + best_text(Wallet.best_pay)
 	MusicDirector.board()
+	if wave_goodbye:
+		wave_goodbye = false
+		goodbye()
+
+## A crew member's goodbye on the radio, low on the left over the title.
+func goodbye() -> Dictionary:
+	if bark == null:
+		bark = Bark.new()
+		add_child(bark)
+		radio = BarkBox.new()
+		radio.bark = bark
+		title_label.get_parent().add_child(radio)
+		radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return bark.moment(&"goodbye")
 
 func _process(delta: float) -> void:
 	_age += delta

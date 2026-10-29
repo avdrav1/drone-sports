@@ -417,5 +417,85 @@
     "face": "happy"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Hey hey, {you}! Ready to fly?",
+    "face": "happy"
+   },
+   {
+    "text": "You're back! I polished my goggles.",
+    "face": "happy"
+   },
+   {
+    "text": "Hi! Hi! Let's do something cool.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Look at us go, {you}! Gate after gate!",
+    "face": "happy"
+   },
+   {
+    "text": "Clean streak! I'm doing a little dance.",
+    "face": "happy"
+   },
+   {
+    "text": "That's so many gates! Keep it up!",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "One more time, {you}! We've totally got it.",
+    "face": "determined"
+   },
+   {
+    "text": "Round two! I'm ready if you are.",
+    "face": "determined"
+   },
+   {
+    "text": "Again! Practice makes pilots.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "New stuff! New stuff, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Ooh, shiny! Can I touch it?",
+    "face": "happy"
+   },
+   {
+    "text": "We unlocked it! High five!",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Bye, {you}! Same time tomorrow?",
+    "face": "happy"
+   },
+   {
+    "text": "See ya! I'll keep my seat warm.",
+    "face": "happy"
+   },
+   {
+    "text": "Waving! Can you see me waving?",
+    "face": "happy"
+   }
+  ]
  }
 }

@@ -113,5 +113,85 @@
     "face": "neutral"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Hey, {you}. Fully charged and ready.",
+    "face": "happy"
+   },
+   {
+    "text": "Back again! Batteries are topped up.",
+    "face": "happy"
+   },
+   {
+    "text": "Good to see you. Long day ahead?",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Steady streak, {you}. Pace yourself.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean and efficient. My favourite.",
+    "face": "happy"
+   },
+   {
+    "text": "Gate after gate, no waste.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Second run, {you}. Plan the route.",
+    "face": "determined"
+   },
+   {
+    "text": "Again. Save some charge for the end.",
+    "face": "determined"
+   },
+   {
+    "text": "Steady wins it. Try again.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Something new, {you}! More range?",
+    "face": "happy"
+   },
+   {
+    "text": "Unlocked. That'll go the distance.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice. Long-haul approved.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Bye, {you}. Plug in and rest.",
+    "face": "happy"
+   },
+   {
+    "text": "Recharge time. See you.",
+    "face": "happy"
+   },
+   {
+    "text": "Signing off. Full battery tomorrow.",
+    "face": "happy"
+   }
+  ]
  }
 }

@@ -865,5 +865,155 @@
     "face": "happy"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Hey, {you}. Board's warm, coffee's not.",
+    "face": "happy"
+   },
+   {
+    "text": "There's my pilot. Pick something fun.",
+    "face": "happy"
+   },
+   {
+    "text": "Back already? Good. I was getting bored.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Hey, {you}. I'm on the radio from the couch.",
+    "face": "happy"
+   },
+   {
+    "text": "Good to see you. Pick a gentle one.",
+    "face": "neutral"
+   },
+   {
+    "text": "Still here. Still watching gates for you.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "That's a streak, {you}! Keep threading them.",
+    "face": "happy"
+   },
+   {
+    "text": "Gate, gate, gate. I'm running out of ways to say nice.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean line through all of those. Don't look down now.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Clean run, {you}. Best thing I've seen all week.",
+    "face": "happy"
+   },
+   {
+    "text": "All of them, clean. Keep it smooth.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a streak. I'm smiling from the bench.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Run it back, {you}. You know the line now.",
+    "face": "determined"
+   },
+   {
+    "text": "Same course, better pilot. Go.",
+    "face": "determined"
+   },
+   {
+    "text": "Shake it off. I'll call every gate.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Again. I'll talk you through it, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Second try's the good one. Easy.",
+    "face": "determined"
+   },
+   {
+    "text": "You've got it this time. I can tell.",
+    "face": "happy"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Something new! Look at you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Shiny. Don't let it go to your head on my gates.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a big step. Nice one.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Something new. Show me later, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at that. Good for you.",
+    "face": "happy"
+   },
+   {
+    "text": "New stuff. I'll watch from here.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Go rest your thumbs, {you}. See you soon.",
+    "face": "happy"
+   },
+   {
+    "text": "Signing off. Same gates tomorrow.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye, champ. Fly in your dreams.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "See you, {you}. I'll keep the radio on.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye. Rest up. Both of us.",
+    "face": "happy"
+   },
+   {
+    "text": "Signing off. Come back soon.",
+    "face": "happy"
+   }
+  ]
  }
 }

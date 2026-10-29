@@ -827,5 +827,155 @@
     "face": "happy"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Morning, {you}. Hard hat on, smile on.",
+    "face": "happy"
+   },
+   {
+    "text": "There's my favourite pilot. Ready to work?",
+    "face": "happy"
+   },
+   {
+    "text": "Back on site! Good. Coffee's in the trailer.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Hey, {you}. Foreman's on light duty, still glad to see you.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. Clipboard's ready.",
+    "face": "happy"
+   },
+   {
+    "text": "Back! The site's quieter without you.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Every gate, clean as a plumb line, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "That's a tidy run. I'd sign off on it.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean through all of them. Keep that rhythm.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Clean as a plumb line, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Tidy streak. Proud of you.",
+    "face": "happy"
+   },
+   {
+    "text": "All clean. That's how it's done.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Back on the job, {you}. Measure twice, fly once.",
+    "face": "determined"
+   },
+   {
+    "text": "Same building, fresh plan. You've got this.",
+    "face": "determined"
+   },
+   {
+    "text": "Every good crew has a second go. Let's work.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Fresh plan, {you}. Take it steady.",
+    "face": "determined"
+   },
+   {
+    "text": "Second go. Slow and sure.",
+    "face": "determined"
+   },
+   {
+    "text": "You know the site now. Go.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Moving up! That's a promotion in my book, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at that. Bigger jobs, bigger smiles.",
+    "face": "happy"
+   },
+   {
+    "text": "Something fresh. Let's put it to work.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Moving up, {you}! I'll cheer sitting down.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a good step up. Well earned.",
+    "face": "happy"
+   },
+   {
+    "text": "Something fresh. Use it well.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Clocking out, {you}? Good shift.",
+    "face": "happy"
+   },
+   {
+    "text": "See you on site. Bring your smile.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye, chief. Hard hats off.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Good shift, {you}. See you soon.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye. Take care of yourself.",
+    "face": "happy"
+   },
+   {
+    "text": "Clocking out. Come back tomorrow.",
+    "face": "happy"
+   }
+  ]
  }
 }

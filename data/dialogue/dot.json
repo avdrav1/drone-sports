@@ -846,5 +846,155 @@
     "face": "neutral"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Oh, it's you. Hi, {you}. Wipe your feet.",
+    "face": "happy"
+   },
+   {
+    "text": "Hey! The drone missed you. I didn't. Okay, a bit.",
+    "face": "happy"
+   },
+   {
+    "text": "Back! Kettle's on. Pick a job.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Hi, {you}. One-handed wave from the van.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. I've been tightening the same bolt.",
+    "face": "happy"
+   },
+   {
+    "text": "Back! Good. I'm bored of sitting.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Not a bump on her! Keep going, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "She's singing through those gates. I can hear it.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean, clean, clean. Who are you?",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Not a scratch through all of them, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "She sounds happy. So am I.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely streak. My wrench can rest.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "I've patched her up. Go show it who's boss, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Second go. She's ready if you are.",
+    "face": "determined"
+   },
+   {
+    "text": "Fresh props, fresh try. Off you go.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "She's patched. Go get it, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Again. Gently this time, for me.",
+    "face": "determined"
+   },
+   {
+    "text": "I believe in you. Mostly. Go.",
+    "face": "happy"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Ooh, something new! I love new things, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Checked and ready. We've never looked better.",
+    "face": "happy"
+   },
+   {
+    "text": "New and shiny! Try not to break it today.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Something new! I'll check it over one-handed, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "That's lovely. You deserve it.",
+    "face": "happy"
+   },
+   {
+    "text": "Something new. Bring it back shiny.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Off you go, {you}. I'll lock the van.",
+    "face": "happy"
+   },
+   {
+    "text": "Bye! I'll keep her charged.",
+    "face": "happy"
+   },
+   {
+    "text": "Night, kiddo. Don't dream about crashing.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Bye, {you}. I'll be right here.",
+    "face": "happy"
+   },
+   {
+    "text": "See you. I'll keep the kettle warm.",
+    "face": "happy"
+   },
+   {
+    "text": "Night. Rest your hands. I'll rest mine.",
+    "face": "happy"
+   }
+  ]
  }
 }

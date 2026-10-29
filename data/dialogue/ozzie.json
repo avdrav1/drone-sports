@@ -846,5 +846,155 @@
     "face": "happy"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Hi, {you}! Drink some water first.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. I saved you a snack.",
+    "face": "happy"
+   },
+   {
+    "text": "Welcome back! You look well. Good.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Hi, {you}. Still bandaged, still happy to see you.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are. I feel better already.",
+    "face": "happy"
+   },
+   {
+    "text": "Welcome back. Pick something calm for us.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "Steady hands, {you}! Every gate.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a healthy streak. Doctor's orders: keep going.",
+    "face": "happy"
+   },
+   {
+    "text": "So smooth. My heart rate thanks you.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Steady hands, {you}. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "Every gate. Calm and clean.",
+    "face": "happy"
+   },
+   {
+    "text": "That's a healthy streak.",
+    "face": "happy"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Deep breath, {you}. You're okay. Try again.",
+    "face": "determined"
+   },
+   {
+    "text": "Nobody gets it first time. Let's go.",
+    "face": "determined"
+   },
+   {
+    "text": "Shoulders down, eyes up. You've got this.",
+    "face": "determined"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Deep breath, {you}. Again, gently.",
+    "face": "determined"
+   },
+   {
+    "text": "Second tries are brave. Go on.",
+    "face": "determined"
+   },
+   {
+    "text": "I'm with you. Try again.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "Something new! I'm so happy for you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at that. You earned it.",
+    "face": "happy"
+   },
+   {
+    "text": "New things! Careful, then have fun.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Something new! That's lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "You earned that. Well done.",
+    "face": "happy"
+   },
+   {
+    "text": "Something new. Fly safe with it.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Bye, {you}! Stretch your hands.",
+    "face": "happy"
+   },
+   {
+    "text": "Get some sleep. Real sleep.",
+    "face": "happy"
+   },
+   {
+    "text": "Take care. See you soon, pal.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Bye, {you}. Rest well. I will too.",
+    "face": "happy"
+   },
+   {
+    "text": "Take care of yourself.",
+    "face": "happy"
+   },
+   {
+    "text": "See you soon. Sleep well.",
+    "face": "happy"
+   }
+  ]
  }
 }

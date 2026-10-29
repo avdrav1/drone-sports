@@ -19,6 +19,9 @@ extends Control
 # and the team's ops console from Act 2.
 # It explains itself: a line on what the board is for, each card's job in one
 # sentence, a hint for the focused menu item, and the controls along the bottom.
+# Story 18.5: the crew notice you on their radio here: a hello as you come back
+# (not right after someone died), a cheer for an upgrade bought or a job
+# unlocked, and on Esc to the title a wave goodbye, said over the title screen.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -57,6 +60,12 @@ var menu: VBoxContainer
 ## The page showing beside the menu: jobs, crew, or options.
 var page := &"jobs"
 var pages := {}
+## The crew's lines on the board, and the radio that shows them (Story 18.5).
+var bark: Bark
+var radio: BarkBox
+## Job ids flyable when the board last looked, this session; a new one is an unlock.
+static var flyable_seen: Array[StringName] = []
+static var flyable_known := false
 
 var _header: Label
 ## The focused menu item's hint.
@@ -74,13 +83,17 @@ func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	skin = FrontSkin.current()
 	theme = skin.theme()
+	_build_radio()
 	_build()
 	refresh()
 	offer_dialog = OfferDialog.new()
 	offer_dialog.answered.connect(func(_t, _a): refresh())
 	add_child(offer_dialog)
 	shop = ShopDialog.new()
-	shop.purchased.connect(refresh)
+	shop.purchased.connect(func():
+		refresh()
+		if not death_on_last_job():
+			bark.moment(&"unlock"))
 	add_child(shop)
 	sound = SoundDialog.new()
 	sound.name = "SoundDialog"
@@ -108,6 +121,39 @@ func _ready() -> void:
 	MusicDirector.board()
 	Career.check_offers()
 	offer_dialog.show_next()
+	if PlayerProfile.has_pilot() and not death_on_last_job():
+		bark.moment(&"hello")
+
+## The radio sits on its own layer over the board, low on the left.
+func _build_radio() -> void:
+	bark = Bark.new()
+	bark.name = "Bark"
+	add_child(bark)
+	var layer := CanvasLayer.new()
+	layer.name = "Radio"
+	add_child(layer)
+	radio = BarkBox.new()
+	radio.bark = bark
+	layer.add_child(radio)
+	radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+## True when someone died on the last job flown: the board stays quiet then.
+static func death_on_last_job() -> bool:
+	return Roster.ids().any(func(id): return Roster.status(id) == Roster.Status.DEAD and Roster.jobs_since_death(id) == 0)
+
+## Says `unlock` when a job is flyable that was not the last time the board looked.
+## After a death it only takes note: a lock a death sets can open jobs, and
+## nobody cheers that.
+func _note_unlocks() -> void:
+	var now: Array[StringName] = []
+	for job in jobs.jobs:
+		if Consequences.listed(job) and Career.can_fly(job):
+			now.append(job.id)
+	var fresh: bool = flyable_known and now.any(func(id): return not id in flyable_seen)
+	flyable_seen = now
+	flyable_known = true
+	if fresh and not death_on_last_job():
+		bark.moment(&"unlock")
 
 ## Header text: wallet and reputation per faction.
 func money_text() -> String:
@@ -153,6 +199,7 @@ func refresh() -> void:
 		var row := crew_row(id)
 		crew_rows[id] = row
 		_crew_box.add_child(row)
+	_note_unlocks()
 
 ## The comms face on the card showing hops, as you pick that job.
 func hop_comms() -> void:
@@ -234,6 +281,8 @@ func _on_fly_item_input(event: InputEvent) -> void:
 		menu_button(&"Fly").accept_event()
 
 func to_title() -> void:
+	# Nobody waves goodbye off a board that held its hello back for a death.
+	TitleScreen.wave_goodbye = not death_on_last_job()
 	get_tree().change_scene_to_file(TITLE)
 
 func free_flight() -> void:

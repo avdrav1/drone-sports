@@ -17,10 +17,15 @@ extends Node
 # Story 18.4: a line may say {you}, filled from the speaker's `calls_you`.
 # Story 18.6: the chirp follows the line's face (CHIRPS); strike, injury and
 # memorial lines keep the plain one.
+# Story 18.5: little moments (MOMENTS): a hello on the board, a cheer on a
+# streak of clean gates, a retry of the job just failed, an unlock, and a
+# goodbye. Any living crew member but the pilot you fly as may say one, each at
+# most once a MOMENT_COOLDOWN per moment; none is said on a boss job.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
-	&"takeoff", &"near_miss", &"low_pass", &"top_speed", &"battery_low", &"crash", &"reset", &"weather_change", &"long_hover"]
+	&"takeoff", &"near_miss", &"low_pass", &"top_speed", &"battery_low", &"crash", &"reset", &"weather_change", &"long_hover",
+	&"hello", &"streak", &"retry", &"unlock", &"goodbye"]
 ## The face a line makes when its entry names none. Other events look neutral.
 const DEFAULT_FACES := {
 	&"briefing": &"determined",
@@ -29,7 +34,17 @@ const DEFAULT_FACES := {
 	&"strike": &"sad",
 	&"complete": &"happy",
 	&"fail": &"sad",
+	&"hello": &"happy",
+	&"streak": &"happy",
+	&"retry": &"determined",
+	&"unlock": &"happy",
+	&"goodbye": &"happy",
 }
+
+## The little moments (Story 18.5), and the least seconds before the same
+## character says the same one again.
+const MOMENTS: Array[StringName] = [&"hello", &"streak", &"retry", &"unlock", &"goodbye"]
+const MOMENT_COOLDOWN := 60.0
 
 ## The chirp variant for each face (Story 18.6). Sound events in the bank.
 const CHIRPS := {
@@ -41,7 +56,7 @@ const CHIRPS := {
 	&"sad": &"crew_chirp_sad",
 }
 ## A happy or eager line on these events celebrates: the giggle trill.
-const CELEBRATE_EVENTS: Array[StringName] = [&"complete"]
+const CELEBRATE_EVENTS: Array[StringName] = [&"complete", &"unlock", &"streak"]
 const CELEBRATE_CHIRP := &"crew_chirp_celebrate"
 ## Serious events keep the plain chirp whatever the face.
 const PLAIN_EVENTS: Array[StringName] = [&"warning", &"strike", &"hurt", &"memorial"]
@@ -59,6 +74,8 @@ signal said(line: Dictionary)
 @export var watcher: FlightWatcher
 ## Seconds between gate callouts, so a fast lap is not a wall of text.
 @export var gate_gap := 2.5
+## Clean gates in a row that make a streak (Story 18.5).
+@export var streak_gates := 5
 ## Seeds who speaks and which line. Negative picks at random.
 @export var seed := -1
 ## Off when a radio panel plays the chirp as each line opens instead.
@@ -70,8 +87,14 @@ var _rng := RandomNumberGenerator.new()
 var _since_gate := INF
 ## True while say() announces, so _on_spoke leaves `said` to it.
 var _saying := false
+## Gates passed since the last crash, reset, or strike.
+var streak := 0
 
 static var _cache := {}
+## "id/moment" -> when it was last said, s since start: cooldowns hold across scenes.
+static var moment_times := {}
+## The job that just failed, until the next job briefs: relaunching it is a retry.
+static var last_failed: StringName = &""
 
 func _ready() -> void:
 	spoke.connect(_on_spoke)
@@ -169,11 +192,17 @@ func available(id: StringName, event: StringName, as_status := -1) -> Array:
 	return p.filter(func(l): return not l in said)
 
 ## Who may speak: the subject alone, or the crew in the field plus anyone who
-## speaks on this event from afar.
+## speaks on this event from afar. A moment is anyone's but the player's pilot.
 func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]:
 	var out: Array[StringName] = []
 	if subject != &"":
 		out.append(subject)
+		return out
+	if event in MOMENTS:
+		var me := PlayerProfile.pilot()
+		for id in Roster.ids():
+			if not (me and me.id == id):
+				out.append(id)
 		return out
 	if runner and runner.job:
 		for id in runner.crew_in_field():
@@ -190,11 +219,13 @@ func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]
 func say(event: StringName, subject: StringName = &"", announce := true, as_status := -1) -> Dictionary:
 	var who: Array[StringName] = []
 	for id in speakers(event, subject):
-		if not available(id, event, as_status).is_empty():
+		if not available(id, event, as_status).is_empty() and cooled(id, event):
 			who.append(id)
 	if who.is_empty():
 		return {}
 	var id := who[_rng.randi() % who.size()]
+	if event in MOMENTS:
+		moment_times["%s/%s" % [id, event]] = now()
 	var lines := available(id, event, as_status)
 	var text: String = lines[_rng.randi() % lines.size()]
 	if not used.has(id):
@@ -204,6 +235,21 @@ func say(event: StringName, subject: StringName = &"", announce := true, as_stat
 	if announce:
 		announce_line(line)
 	return line
+
+## False while `id` said `event`, a moment, less than MOMENT_COOLDOWN ago.
+static func cooled(id: StringName, event: StringName) -> bool:
+	var at: Variant = moment_times.get("%s/%s" % [id, event])
+	return not event in MOMENTS or at == null or now() - float(at) >= MOMENT_COOLDOWN
+
+## Seconds since the game started, the clock moment cooldowns run on.
+static func now() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+## Says a moment, unless this is a boss job (the Lattice gets no cheer).
+func moment(event: StringName) -> Dictionary:
+	if runner and runner.job and runner.job.job_type == &"boss":
+		return {}
+	return say(event)
 
 ## Puts a line on `spoke` and `said` as given, face and all, e.g. a free-flight
 ## suggestion whose text and face are data (Story 17.10).
@@ -217,13 +263,21 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 	match s:
 		JobRunner.State.BRIEFING:
 			used.clear()
+			streak = 0
 			for z in runner.hazard_zones():
 				if not z.warning_started.is_connected(_on_warning):
 					z.warning_started.connect(_on_warning)
+			var again: bool = runner.job != null and runner.job.id == last_failed
+			last_failed = &""
 			say(&"briefing")
+			if again:
+				moment(&"retry")
 		JobRunner.State.COMPLETE:
+			last_failed = &""
 			say(&"complete")
 		JobRunner.State.FAILED:
+			# After someone is hurt, nobody cheers the next go (Story 18.5).
+			last_failed = runner.job.id if runner.job and runner.casualties.is_empty() else &""
 			say(&"fail")
 
 func _on_finished(result: JobResult) -> void:
@@ -253,13 +307,23 @@ func _on_warning(id: StringName) -> void:
 	say(&"warning", id)
 
 func _on_struck(id: StringName, before: Roster.Status) -> void:
+	streak = 0
 	say(&"strike", id, true, before)
 
 func _on_flight_event(event: StringName) -> void:
+	if event in [&"crash", &"reset"]:
+		streak = 0
 	say(event)
 
 func _on_gate(who: Node3D, _gate: int) -> void:
 	if runner and who != runner.drone:
+		return
+	# The streak's gate cheers instead of the callout, once per streak; never
+	# once the crew is hurt (as with retry).
+	streak += 1
+	var hurt: bool = runner != null and not runner.casualties.is_empty()
+	if streak == streak_gates and not hurt and not moment(&"streak").is_empty():
+		_since_gate = 0.0
 		return
 	# Gates are the spotter's call; without one, nobody makes it (Story 7.6).
 	if Consequences.in_effect(&"no_spotter"):

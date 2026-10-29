@@ -454,5 +454,85 @@
     "face": "happy"
    }
   ]
+ },
+ "hello": {
+  "active": [
+   {
+    "text": "Good to see you, {you}. Let's get to work.",
+    "face": "happy"
+   },
+   {
+    "text": "There's my prospect. Pick your job.",
+    "face": "happy"
+   },
+   {
+    "text": "Welcome back. The board missed you.",
+    "face": "happy"
+   }
+  ]
+ },
+ "streak": {
+  "active": [
+   {
+    "text": "That's a streak, {you}. That's what scouts write down.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean gates, one after another. Good habits.",
+    "face": "happy"
+   },
+   {
+    "text": "Keep that line. That's pro work.",
+    "face": "determined"
+   }
+  ]
+ },
+ "retry": {
+  "active": [
+   {
+    "text": "Run it again, {you}. You learned plenty.",
+    "face": "determined"
+   },
+   {
+    "text": "Good pilots come back. Here you are.",
+    "face": "determined"
+   },
+   {
+    "text": "Second attempt. Fix one thing. Go.",
+    "face": "determined"
+   }
+  ]
+ },
+ "unlock": {
+  "active": [
+   {
+    "text": "New doors, {you}. You earned every one.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at that. Your career's moving.",
+    "face": "happy"
+   },
+   {
+    "text": "Unlocked. Proud of the work.",
+    "face": "happy"
+   }
+  ]
+ },
+ "goodbye": {
+  "active": [
+   {
+    "text": "Good session, {you}. Rest up.",
+    "face": "happy"
+   },
+   {
+    "text": "See you tomorrow. Same drive.",
+    "face": "happy"
+   },
+   {
+    "text": "Take a break. You earned it, rookie.",
+    "face": "happy"
+   }
+  ]
  }
 }
