@@ -14,7 +14,8 @@ extends Control
 # beside the pages. Up and down move through it, left and right flip the cards
 # while FLY has focus, Enter selects, Esc goes back: from a page to the menu,
 # from the menu to the title. CREW is its own page with big faces; OPTIONS
-# holds Sound, Quality, and Watch intro, and (Story 23.6) the CONTROLLER section.
+# holds Sound, Quality, and Watch intro, the CONTROLLER section (Story 23.6),
+# and its PAD CHECK page (Story 23.8).
 # Story 17.6: it wears the FrontSkin for the act, the arcade cabinet in Act 1
 # and the team's ops console from Act 2.
 # It explains itself: a line on what the board is for, each card's job in one
@@ -768,6 +769,24 @@ func _build_controller(box: VBoxContainer) -> void:
 	var intro := box.get_node("WatchIntro")
 	intro.focus_neighbor_bottom = intro.get_path_to(pad.layout)
 	pad.layout.focus_neighbor_top = pad.layout.get_path_to(intro)
+	# PAD CHECK (Story 23.8): its own page; Back from it is OPTIONS again.
+	var check := PadCheck.new()
+	check.name = "PadCheckPage"
+	check.set_anchors_preset(PRESET_FULL_RECT)
+	pages[&"options"].get_parent().add_child(check)
+	pages[&"pad_check"] = check
+	check.closed.connect(close_pad_check)
+	pad.pad_check.pressed.connect(open_pad_check)
+
+func open_pad_check() -> void:
+	show_page(&"pad_check")
+	pages[&"pad_check"].reset()
+	pages[&"pad_check"].grab_focus()
+
+## From PAD CHECK back to OPTIONS, focus on the button that opened it.
+func close_pad_check() -> void:
+	show_page(&"options")
+	pages[&"options"].find_child("PadCheck", true, false).grab_focus()
 
 ## Up and down scroll the crew page.
 func _on_crew_scroll_input(event: InputEvent) -> void:
