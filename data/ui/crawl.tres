@@ -22,5 +22,5 @@ Your crew talks you through every job. Some jobs put them in harm's way. Keep th
 
 THIS IS DRONE SPORTS"
 start_delay = 1.5
-speed = 42.0
+speed = 22.0
 loop_pause = 6.0
