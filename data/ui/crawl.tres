@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Crawl" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/crawl.gd" id="1_crawl"]
+
+[resource]
+script = ExtResource("1_crawl")
+text = "NOT FAR FROM NOW
+
+Drones do most of the world's flying. They race in packed stadiums, carry the city's cargo, check its towers, and find the lost when the weather turns.
+
+Anyone can buy a drone. Almost no one can really fly one. The few who can are stars, and the teams pay them well.
+
+So the teams hide their tryouts where the best pilots already are: inside a racing game, played at home.
+
+You have been playing it for months. Every lap. Every clean gate. Someone has been watching.
+
+Tonight, a scout is on the line.
+
+Take the jobs. Win the races. Shed the assists one by one, until you fly raw, and then until you command a fleet.
+
+Your crew talks you through every job. Some jobs put them in harm's way. Keep them safe. What happens out there is forever.
+
+THIS IS DRONE SPORTS"
+start_delay = 1.5
+speed = 42.0
+loop_pause = 6.0

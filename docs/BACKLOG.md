@@ -892,6 +892,11 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Context: Playtest: the board after PRESS START did not feel intuitive. `Job.summary` is one plain sentence on what you do, shown on the card under the title. One line under the header says what the board is for; a hint under the menu says what the focused item does; the controls run along the bottom; "JOB 2 OF 9" sits beside the dots. The cabinet skin's display font is Press Start 2P (SIL OFL 1.1, `data/ui/fonts/` with `OFL.txt` and a README listing it). Type sizes go up on the card, menu, and header in both skins.
   - Acceptance: Every board job has a summary and its card shows it. The how-to line and the controls are on screen. The menu hint follows focus and every menu item has one. The counter tracks the card and wraps. The cabinet's display font is the arcade font with its licence beside it. The longest card fits at 960×720.
   - Out of scope: The Lattice's card text, skinning the dialogs, the radio font (18.12).
+- [x] **17.12 Story crawl**
+  - Goal: The title says why you are playing: a story crawl rolls up from PRESS START and away towards the logo, over the city.
+  - Context: The story is data (`data/ui/crawl.tres`: text, start delay, speed, loop pause), drawn from VISION.md: pilots are stars, the teams hide tryouts in a home racing game, a scout is watching, the crew are at stake. Its wording is original. The text is set flat in a SubViewport and drawn on a plane tipped away from the viewer by a canvas shader, fading out in the distance and rising out of nothing at the bottom. It uses the skin's display font and accent, loops, and never takes input.
+  - Acceptance: The crawl sits between the logo and PRESS START and ignores the mouse. Its text names the tryout, the scout, and the crew, and ends on "THIS IS DRONE SPORTS". It rises over time and starts over after the last line leaves. Any key mid-crawl still opens the board.
+  - Out of scope: Narration, music cues, skipping the intro.
 
 ## Epic 18: A friendlier crew
 

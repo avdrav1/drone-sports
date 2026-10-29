@@ -6,10 +6,13 @@ extends Node
 # which asks for a pilot first on a new game. The intro forwards here once
 # seen, and Esc on the board comes back.
 # Story 17.6: it wears the act's FrontSkin; the cabinet's Start is a coin chime.
+# Story 17.12: between the logo and PRESS START, the story crawl rolls away
+# into the distance: why you are playing. It loops until you press start.
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
 const NO_SCORE := "- - - -"
+const CRAWL := "res://data/ui/crawl.tres"
 
 ## Input ignored for this long, so the Esc that left the board doesn't start again.
 @export var start_grace := 0.4
@@ -20,6 +23,7 @@ var started := false
 var title_label: Label
 var press_start: Label
 var best_label: Label
+var crawl: StoryCrawl
 var skin: FrontSkin
 
 var _age := 0.0
@@ -80,6 +84,16 @@ func _build() -> void:
 	title_label.theme_type_variation = &"Display"
 	_place(title_label, 0.12, 0.32)
 	root.add_child(title_label)
+	crawl = StoryCrawl.new()
+	crawl.name = "Crawl"
+	crawl.crawl = load(CRAWL)
+	crawl.color = skin.accent
+	crawl.font = skin.display_font if skin.display_font else skin.font
+	crawl.heading_font = crawl.font
+	crawl.anchor_right = 1.0
+	crawl.anchor_top = 0.3
+	crawl.anchor_bottom = 0.7
+	root.add_child(crawl)
 	press_start = _label("PRESS START", 34, skin.text, 8)
 	press_start.theme_type_variation = &"Display"
 	press_start.name = "PressStart"
