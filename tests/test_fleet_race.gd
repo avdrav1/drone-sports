@@ -1,6 +1,7 @@
 extends RefCounted
 # Story 6.4: fleet race. A relay where each lap is a different drone and the
-# start gate is the handoff.
+# start gate is the handoff. Since Story 22.2 it runs on the test path: a leg is
+# a run of gates and its last gate is the handoff.
 
 const Sim = preload("res://tests/sim.gd")
 const SCENE := "res://scenes/jobs/fleet_race.tscn"
@@ -61,7 +62,7 @@ func test_lap_by_the_wrong_drone_is_invalid() -> bool:
 	# Leg two belongs to the second drone; the third flies it instead.
 	var flagged := []
 	relay.lap_invalid.connect(func(d, why): flagged.append([d, why]))
-	relay.send(_fleet(s, 3))
+	relay.send(_fleet(s, 3), 1)
 	await _await_lap(relay, 90.0)
 	var ok: bool = first and relay.leg == 1 and relay.invalid == 1 and flagged.size() == 1 \
 		and flagged[0][0] == _fleet(s, 3) and flagged[0][1] == "wrong drone" and relay.leg_times.size() == 1

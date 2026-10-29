@@ -198,13 +198,8 @@ func test_ai_racers_finish_the_path() -> bool:
 	root.free()
 	return ok
 
-func test_fleet_race_still_loops_with_laps() -> bool:
-	var scene: Node = Sim.add(load("res://scenes/jobs/fleet_race.tscn").instantiate())
-	await Sim.process_frames(2)
-	var fleet: Course = scene.get_node("Course")
-	var ok: bool = fleet.is_closed() and fleet.finish_gate() == 0 \
-		and fleet.data.gates == (load("res://data/courses/test_loop.tres") as CourseData).gates and fleet.laps() > 1
-	scene.free()
+## The fleet race moved to the path in Story 22.2; the loop still runs laps.
+func test_the_loop_still_runs_laps() -> bool:
 	# Round the loop: the first lap ends at the start gate and the race goes on.
 	var c := Course.new()
 	c.data = load("res://data/courses/test_loop.tres").duplicate()
@@ -220,7 +215,7 @@ func test_fleet_race_still_loops_with_laps() -> bool:
 		await _through(r, c.gates[i])
 	await _through(r, c.gates[0])
 	var p := c.progress(r)
-	ok = ok and p.laps == 1 and not p.finished and hud.lap_label() == "LAP" and hud.lap_text() == "2/2"
+	var ok: bool = p.laps == 1 and not p.finished and hud.lap_label() == "LAP" and hud.lap_text() == "2/2"
 	hud.free()
 	c.free()
 	return ok

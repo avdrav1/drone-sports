@@ -19,7 +19,10 @@ func lines() -> String:
 	if relay.done:
 		out.append("Relay done: %d legs" % n)
 	else:
-		out.append("Leg %d/%d  ·  %s to fly" % [relay.leg + 1, n, relay.current().name])
+		var line := "Leg %d/%d  ·  %s to fly" % [relay.leg + 1, n, relay.current().name]
+		if not relay.course.is_closed():
+			line += "  ·  gates %d-%d" % [relay.leg_start(relay.leg), relay.ends()[relay.leg]]
+		out.append(line)
 	for i in relay.handoffs.size():
 		out.append("Handoff %d  %.2f s" % [i + 1, relay.handoffs[i]])
 	if relay.last_invalid != "":

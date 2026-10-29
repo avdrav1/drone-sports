@@ -25,7 +25,7 @@ const GROUPS := [
 	["FLEET (COMMAND VIEW)", [
 		[[&"next_drone"], "Select the next drone (or click one)"],
 		[[&"drop_in"], "Drop into the selected drone, or back out"],
-		[[&"send_lap"], "Relay: send the selected drone round a lap"],
+		[[&"send_lap"], "Relay: send the selected drone along its leg"],
 		[[&"tag_unit"], "Lattice: send the selected drone to tag a unit"],
 	]],
 	["JOBS", [

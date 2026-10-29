@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/golden_hour.tscn" id="1_world"]
 [ext_resource type="PackedScene" path="res://scenes/world/desert.tscn" id="2_desert"]
 [ext_resource type="Script" path="res://scripts/race/course.gd" id="3_course"]
-[ext_resource type="Resource" path="res://data/courses/test_loop.tres" id="4_loop"]
+[ext_resource type="Resource" path="res://data/courses/test_path.tres" id="4_path"]
 [ext_resource type="Script" path="res://scripts/fleet/fleet_crew.gd" id="6_crew"]
 [ext_resource type="Script" path="res://scripts/story/bark.gd" id="7_bark"]
 [ext_resource type="Script" path="res://scripts/ui/bark_box.gd" id="19_barkbox"]
@@ -28,10 +28,10 @@
 
 [node name="Course" type="Node3D" parent="."]
 script = ExtResource("3_course")
-data = ExtResource("4_loop")
+data = ExtResource("4_path")
 
 [node name="Focus" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -50)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -5)
 
 [node name="FleetCrew" type="Node3D" parent="." node_paths=PackedStringArray("command", "runner", "relay", "bark")]
 script = ExtResource("6_crew")
@@ -65,13 +65,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 3, -30)
 camera_rig = NodePath("../CameraRig")
 focus = NodePath("../Focus")
 runner = NodePath("../JobRunner")
-height = 90.0
+height = 120.0
 
 [node name="Relay" type="Node" parent="." node_paths=PackedStringArray("runner", "course", "command")]
 script = ExtResource("12_relay")
 runner = NodePath("../JobRunner")
 course = NodePath("../Course")
 command = NodePath("../CommandView")
+leg_ends = Array[int]([4, 8, 11, 15])
 
 [node name="JobRunner" type="Node" parent="." node_paths=PackedStringArray("camera_rig", "state_label")]
 script = ExtResource("10_runner")

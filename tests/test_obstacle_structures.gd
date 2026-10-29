@@ -10,7 +10,7 @@ const EXTRA := ["res://scenes/boss/lattice_job.tscn"]
 const FINGERPRINTS := {
 	"res://scenes/jobs/demolition.tscn": "3d91fe07b24ca16fe1ba71dd24da646c",
 	"res://scenes/jobs/fleet_inspection.tscn": "d41d8cd98f00b204e9800998ecf8427e",
-	"res://scenes/jobs/fleet_race.tscn": "2ba19f510ffaae4a3f365acb9bcf1ce8",
+	"res://scenes/jobs/fleet_race.tscn": "ceb6061fd0ed316a304f4088fe93e820",
 	"res://scenes/jobs/inspection.tscn": "1261c60e7dd76c75468771614673d4c9",
 	"res://scenes/jobs/rescue.tscn": "6ce6b686220f419c32248a1c0ee6594e",
 	"res://scenes/jobs/sample_delivery.tscn": "a28c6661a910b01c6a47bae0b613470f",
