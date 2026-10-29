@@ -14,7 +14,7 @@ var objectives: Array[Dictionary] = []
 var pay := 0
 var reputation_change := 0
 ## Crew perks paid on top (Story 19.5), already in pay and reputation_change:
-## {id, text, amount, unit}, e.g. {"text": "Bea's site rates", "amount": 18, "unit": ""}.
+## {id, text, amount, unit}, e.g. {"text": "Bhima's site rates", "amount": 18, "unit": ""}.
 var bonuses: Array[Dictionary] = []
 ## Character id -> strikes landed on them this job.
 var strikes := {}

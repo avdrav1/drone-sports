@@ -7,8 +7,8 @@
 [resource]
 script = ExtResource("1_job")
 id = &"rescue"
-title = "Search and rescue: Ozzie"
-summary = "Find Ozzie and hover over them for 3 seconds. You have 60 seconds."
+title = "Search and rescue: Sushena"
+summary = "Find Sushena and hover over them for 3 seconds. You have 60 seconds."
 scene = "res://scenes/jobs/rescue.tscn"
 client = "City medical"
 job_type = &"rescue"

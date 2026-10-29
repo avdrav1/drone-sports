@@ -115,7 +115,7 @@ func test_line_opens_with_static_chirp_face_and_role() -> bool:
 	var ok: bool = box.current == said and box.portrait.expression == &"worried" \
 		and box.portrait.size.x >= 72 and Sfx.count(&"radio_static") == 1 and chirps.size() == 1 \
 		and Sfx.log[0].id == &"radio_chime" and Sfx.log[1].id == &"radio_static" \
-		and String(Sfx.log[2].id).begins_with("crew_chirp") and box.name_label.text == "MARLO  ·  SPOTTER" \
+		and String(Sfx.log[2].id).begins_with("crew_chirp") and box.name_label.text == "SANJAYA  ·  SPOTTER" \
 		and box.label.text == "Grim line."
 	# A queued line chirps when it opens, not when it is said.
 	Sfx.clear_log()

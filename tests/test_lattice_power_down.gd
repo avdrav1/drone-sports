@@ -71,8 +71,8 @@ func test_results_account_for_living_and_dead() -> bool:
 		screen.show_result(r)
 		var rows: Array = screen.rows.get_children().filter(func(n): return n.name.begins_with("Epilogue"))
 		var texts: Array = rows.map(func(n): return (n.get_child(1) as Label).text)
-		ok = ok and rows.size() == r.epilogue.size() and texts.any(func(t): return t.begins_with("Dot is not coming home.")) \
-			and texts.any(func(t): return t.begins_with("Marlo: "))
+		ok = ok and rows.size() == r.epilogue.size() and texts.any(func(t): return t.begins_with("Nala is not coming home.")) \
+			and texts.any(func(t): return t.begins_with("Sanjaya: "))
 		if not ok:
 			print("        %s / %s" % [r.epilogue, texts])
 		screen.free()

@@ -78,6 +78,16 @@ func _card_width() -> float:
 func _text_size(base: int) -> int:
 	return roundi(base * clampf(_card_width() / CARD_MIN, 1.0, 1.25))
 
+## The Fly button's font size: 14, smaller on a narrow card until a long name
+## (Abhimanyu) fits on one line.
+func _button_size(text: String) -> int:
+	var font := get_theme_font("font", "Button")
+	var room := _card_width() - 28.0 - get_theme_stylebox("normal", "Button").get_minimum_size().x
+	var s := 14
+	while s > 10 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x > room:
+		s -= 1
+	return s
+
 ## On a resize, rebuild the cards at the new width, keeping focus where it was.
 func _fit_cards() -> void:
 	if cards.is_empty() or is_equal_approx(cards.values()[0].custom_minimum_size.x, _card_width()):
@@ -160,6 +170,16 @@ func _card(c: Character, current: bool) -> PanelContainer:
 		tag.add_theme_color_override("font_color", ACCENT)
 		tag.add_theme_font_size_override("font_size", _text_size(11))
 		who.add_child(tag)
+	# Their namesake (Story 25.1), under the head, for a pilot with no CREW
+	# row to carry it (the rookie's is on the CREW page).
+	if c.named_for and Roster.character(c.id) == null:
+		var named := Label.new()
+		named.name = "NamedFor"
+		named.text = c.named_for
+		named.autowrap_mode = TextServer.AUTOWRAP_WORD
+		named.add_theme_color_override("font_color", DIM)
+		named.add_theme_font_size_override("font_size", _text_size(11))
+		box.add_child(named)
 	var best := Label.new()
 	best.name = "BestAt"
 	best.text = best_at_text(c)
@@ -199,7 +219,7 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	var b := Button.new()
 	b.name = "Choose"
 	b.text = "Fly as %s" % c.name
-	b.add_theme_font_size_override("font_size", 14)
+	b.add_theme_font_size_override("font_size", _button_size(b.text))
 	b.pressed.connect(choose.bind(c.id))
 	b.focus_entered.connect(face.hop)
 	box.add_child(b)

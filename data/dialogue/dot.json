@@ -272,7 +272,7 @@
    "I'm sore, not gone. Come by the shop and say hi."
   ]
  },
- "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time.",
+ "memorial": "Nala, mechanic. Kept every drone flying, and complained the whole time.",
  "order": {
   "active": [
    "She'll get there. Go easy on the battery.",
@@ -750,7 +750,7 @@
  "free_greet": {
   "active": [
    {
-    "text": "Dot on the radio. Don't break anything on your day off.",
+    "text": "Nala on the radio. Don't break anything on your day off.",
     "face": "neutral"
    },
    {
@@ -762,7 +762,7 @@
     "face": "happy"
    },
    {
-    "text": "Dot here! She's tuned and ready, {you}. Have fun.",
+    "text": "Nala here! She's tuned and ready, {you}. Have fun.",
     "face": "happy"
    },
    {
@@ -776,7 +776,7 @@
   ],
   "injured": [
    {
-    "text": "Dot here. One hand on the wrench, one on the radio.",
+    "text": "Nala here. One hand on the wrench, one on the radio.",
     "face": "neutral"
    },
    {
@@ -788,7 +788,7 @@
     "face": "happy"
    },
    {
-    "text": "Dot, from the bench. Glad to hear you up there.",
+    "text": "Nala, from the bench. Glad to hear you up there.",
     "face": "neutral"
    },
    {

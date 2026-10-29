@@ -71,7 +71,7 @@ const SILENT_BABBLE: Array[StringName] = [&"memorial"]
 
 signal spoke(id: StringName, event: StringName, text: String)
 ## Every line announced on `spoke`, as {id, event, text, face}. A line emitted
-## straight onto `spoke` (Marlo's trench calls) comes here too, its face read
+## straight onto `spoke` (Sanjaya's trench calls) comes here too, its face read
 ## from its entry.
 signal said(line: Dictionary)
 

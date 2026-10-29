@@ -35,7 +35,7 @@ func test_shows_within_1s_with_every_objective() -> bool:
 		# The fit crew's perks follow the objectives (Story 19.5).
 		ok = rows.size() == 5 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
 			and rows[1].contains("No contact") and rows[2].contains("Under 25 s") \
-			and rows[3] == "Bea's site rates +75" and rows[4] == "Coach Rin's good word +3 reputation" \
+			and rows[3] == "Bhima's site rates +75" and rows[4] == "Drona's good word +3 reputation" \
 			and screen.get_node("%Grade").text.contains("Grade A") \
 			and screen.get_node("%Money").text.contains("Pay 575") \
 			and screen.get_node("%Money").text.contains("+13")

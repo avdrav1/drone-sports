@@ -12,7 +12,7 @@ const KINDS: Array[StringName] = [&"pay", &"reputation", &"price", &"guidance", 
 ## One of KINDS.
 @export var kind: StringName
 @export var amount := 0.0
-## What they bring, lower case for mid-sentence: "Bea's site rates +18".
+## What they bring, lower case for mid-sentence: "Bhima's site rates +18".
 @export var name := ""
 
 ## What it does in plain words (Story 19.7), from kind and amount, e.g.

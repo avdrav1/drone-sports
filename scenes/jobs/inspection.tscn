@@ -451,7 +451,7 @@ character = &"marlo"
 [node name="MapMarker" type="Node3D" parent="MarloZone"]
 script = ExtResource("15_marker")
 kind = &"crew"
-label = "Marlo"
+label = "Sanjaya"
 icon = &"circle"
 
 [node name="Station1" type="Node3D" parent="."]

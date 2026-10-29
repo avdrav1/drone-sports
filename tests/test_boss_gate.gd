@@ -65,7 +65,7 @@ func test_unmet_requirements_show_why() -> bool:
 	await Sim.process_frames(1)
 	row = b.job_rows.get(&"lattice")
 	var second: String = row.get_node("Locked").text if row and row.has_node("Locked") else ""
-	var ok := first.contains("Team relay first") and second.contains("Marlo is gone") \
+	var ok := first.contains("Team relay first") and second.contains("Sanjaya is gone") \
 		and second.contains("needs 2 crew who fly, 1 left") and not second.contains("relay") \
 		and b.fly_button(&"lattice") == null and BossGate.loads.is_empty()
 	if not ok:

@@ -56,7 +56,7 @@ const BROW_HALF := 0.09
 ## The lowest edge of each headwear's fill, per head radius from the head's
 ## centre (negative is up). Brows always stay below it.
 const HEADWEAR_BOTTOM := {&"hardhat": -0.82, &"tall": -0.82, &"square": -0.82, &"visor": -0.82}
-## The same for the round caps (Pip's and Moss's).
+## The same for the round caps (Arjuna's and Jatayu's).
 const CAP_BOTTOM := -0.82
 ## Front hair stops level at HAIRLINE (per head radius, above every brow) out to
 ## HAIR_EDGE, then runs down the temples to SIDEBURN at the head's edge.
@@ -542,7 +542,7 @@ func _draw_headwear(center: Vector2, r: float, main: Color, detail: Color, ink: 
 			_blob(_rect(center + Vector2(0, r * (bottom - 0.08)), Vector2(r * 0.98, r * 0.08)), detail, ink, line)
 			_blob(PackedVector2Array([center + Vector2(-r * 1.08, r * (bottom - 0.16)), center + Vector2(r * 1.08, r * (bottom - 0.16)), center + Vector2(r * 0.8, r * (bottom - 0.42)), center + Vector2(-r * 0.8, r * (bottom - 0.42))]), main, ink, line)
 		&"round", &"fin":
-			# A round cap; Pip's has a peak and a button, Moss's a fin.
+			# A round cap; Arjuna's has a peak and a button, Jatayu's a fin.
 			if _accessory() == &"fin":
 				_blob(PackedVector2Array([center + Vector2(-r * 0.3, -r * 1.3), center + Vector2(r * 0.15, -r * 1.86), center + Vector2(r * 0.45, -r * 1.3)]), detail, ink, line)
 			var dome := PackedVector2Array()

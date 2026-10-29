@@ -9,9 +9,9 @@ extends Node
 #    the entrance opens. Losing the whole fleet fails the job.
 #
 # 2. The trench: the pilot's own drone goes live with the job's assists and
-#    flies in through the entrance, round the trench, to the shutter. Marlo
+#    flies in through the entrance, round the trench, to the shutter. Sanjaya
 #    calls the turns at invisible waypoints while alive. Shell contact is a
-#    strike on the crew member calling (Marlo, else Bea), through their
+#    strike on the crew member calling (Sanjaya, else Bhima), through their
 #    HazardZone, which warns first while the drone is near the shell. The
 #    entrance closes trench_time seconds after it opened, failing the job.
 #
@@ -33,7 +33,7 @@ signal unit_reclaimed(unit: int, by: Drone)
 signal fleet_drone_lost(drone: Drone)
 signal hold_complete
 signal boss_disabled
-## Marlo called a turn at trench waypoint `index`.
+## Sanjaya called a turn at trench waypoint `index`.
 signal called(index: int, text: String)
 
 enum Phase { BRIEFING, RECLAIM, TRENCH, OVERRIDE, POWER_DOWN, DONE }
@@ -340,7 +340,7 @@ func _trench_step(delta: float) -> void:
 			lattice.show_unit(u)
 		runner.fail("trench closed")
 
-## Marlo's call at a waypoint, while Marlo is alive to make it.
+## Sanjaya's call at a waypoint, while Sanjaya is alive to make it.
 func _call(index: int) -> void:
 	if not Roster.is_alive(&"marlo"):
 		return

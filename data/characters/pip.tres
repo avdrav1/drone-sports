@@ -71,8 +71,9 @@ assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource
 [resource]
 script = ExtResource("1_char")
 id = &"pip"
-name = "Pip"
+name = "Arjuna"
 role = "Rookie pilot"
+named_for = "Named for the student archer every teacher wanted to train"
 look = ExtResource("9_look")
 shape = &"round"
 colors = PackedColorArray(1, 0.8, 0.3, 1, 1, 0.95, 0.8, 1)

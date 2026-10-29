@@ -43,8 +43,9 @@ assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource
 [resource]
 script = ExtResource("1_char")
 id = &"tally"
-name = "Tally"
+name = "Hanuman"
 role = "Long-haul pilot"
+named_for = "Named for the one who leapt the ocean to Lanka"
 look = ExtResource("9_look")
 shape = &"tuft"
 colors = PackedColorArray(0.45, 0.82, 0.6, 1, 0.95, 0.93, 0.82, 1, 0.2, 0.32, 0.3, 1)

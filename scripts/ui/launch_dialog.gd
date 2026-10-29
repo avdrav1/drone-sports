@@ -17,8 +17,8 @@ func ask(hurt: Array[StringName], lethal: bool) -> void:
 	# Backing out is the default, so a held or doubled Enter never launches unread.
 	get_cancel_button().grab_focus()
 
-## E.g. "Marlo is injured and in the field. Another strike will kill them.
-## You would lose Marlo's spotting (route guidance one step better on every job)."
+## E.g. "Sanjaya is injured and in the field. Another strike will kill them.
+## You would lose Sanjaya's spotting (route guidance one step better on every job)."
 static func risk_text(hurt: Array[StringName], lethal: bool) -> String:
 	var names: Array[String] = []
 	var perks: Array[String] = []

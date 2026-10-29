@@ -118,6 +118,6 @@ func test_results_list_strikes_per_character() -> bool:
 	runner.pays_out = false
 	runner.fail("test")
 	var lines: Array[String] = RESULTS.strike_lines(runner.result)
-	var ok: bool = runner.result.strikes == {&"marlo": 1} and lines == ["Marlo struck 1x"]
+	var ok: bool = runner.result.strikes == {&"marlo": 1} and lines == ["Sanjaya struck 1x"]
 	s[0].free()
 	return ok

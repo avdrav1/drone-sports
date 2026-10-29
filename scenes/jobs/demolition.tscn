@@ -709,7 +709,7 @@ character = &"bea"
 [node name="MapMarker" type="Node3D" parent="BeaZone"]
 script = ExtResource("marker")
 kind = &"crew"
-label = "Bea"
+label = "Bhima"
 icon = &"circle"
 
 [node name="EntryPoint" type="Marker3D" parent="."]

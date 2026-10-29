@@ -14,8 +14,9 @@ name = "quick patch-ups"
 [resource]
 script = ExtResource("1_char")
 id = &"ozzie"
-name = "Ozzie"
+name = "Sushena"
 role = "Medic"
+named_for = "Named for the healer who sent for the life-giving herb"
 look = ExtResource("9_look")
 shape = &"ears"
 colors = PackedColorArray(0.4, 0.58, 0.92, 1, 0.95, 0.97, 1, 1)

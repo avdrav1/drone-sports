@@ -122,7 +122,7 @@ mouse_filter = 2
 script = ExtResource("beaconhud")
 beacon = NodePath("../../Ozzie/Beacon")
 timer = NodePath("../../RescueTimer")
-title = "OZZIE'S BEACON"
+title = "SUSHENA'S BEACON"
 
 [node name="Crew" type="Control" parent="HUD" node_paths=PackedStringArray("runner")]
 layout_mode = 3
@@ -178,7 +178,7 @@ script = ExtResource("hold")
 center = NodePath("../../Ozzie/HoldPoint")
 radius = 3.0
 hold_time = 3.0
-label = "Hold over Ozzie for 3 s"
+label = "Hold over Sushena for 3 s"
 ends_job = true
 
 [node name="UnderTime" type="Node" parent="JobRunner"]
