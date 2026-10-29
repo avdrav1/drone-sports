@@ -1168,7 +1168,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: A "pad walk" test drives title → board → every menu page → a job briefing → launch → leave dialog → results → board using only `Input.parse_input_event` with joypad events. At every step the focus owner is visible, enabled and not null. B backs out of every page and dialog exactly as Esc does. Sliders move with d-pad left/right. The `OptionButton` opens, changes and closes by pad.
   - Out of scope: New menu screens.
 
-- [ ] **23.4 Fleet command on the pad**
+- [x] **23.4 Fleet command on the pad**
   - Goal: The command view (Act 5, the relay, the Lattice) is fully playable with a pad.
   - Context: `CommandView._unhandled_input` handles `drop_in`, `next_drone` and a mouse click. It adds `prev_drone`, and the selection wraps both ways. X runs the job's context action (`send_lap` in the relay, `tag_unit` in the Lattice). The fleet HUD names the selected drone as now.
   - Acceptance: With pad events only, a test selects every drone forwards and backwards (wrapping), drops into one and back out, sends a relay leg and tags a Lattice unit. A mouse click still selects.
