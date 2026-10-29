@@ -1,0 +1,1368 @@
+{
+ "bea": {
+  "briefing": {
+   "active": [
+    "Building's coming down on schedule. Be out before it does.",
+    "Hard hats on. Fly fast, fly smart.",
+    "I call the collapse. You listen."
+   ],
+   "injured": [
+    "Still the foreman. Still calling it. Move.",
+    "Leg's busted. Building doesn't care. Go."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "Good money, short schedule. My kind of job.",
+    "Sign on. I need a pilot who listens.",
+    "Fly it right and nobody gets hurt. Take it."
+   ],
+   "injured": [
+    "Running the crew from a cast. I want you on this.",
+    "Leg's busted. I still need a pilot. You.",
+    "I'll be on site. Slower. Fly it clean."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Through the gap. Good.",
+    "That's a clean entry.",
+    "On line. Keep it."
+   ],
+   "injured": [
+    "Good gap. Keep it that tight.",
+    "Through. Don't get clever."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Watch the cornice! I'm under it!",
+    "Off my site, now!",
+    "Back up, I'm right below you!"
+   ],
+   "injured": [
+    "Not again. Not on me again!",
+    "I can't run on this leg. Back off!"
+   ]
+  },
+  "strike": {
+   "active": [
+    "Ugh! Block came down on me!",
+    "I'm hit. Keep the job moving.",
+    "Somebody get this off my leg."
+   ],
+   "injured": [
+    "That's twice. That's... twice.",
+    "I can't get up. I can't get up."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Out before the roof. That's the job.",
+    "Clean demo. I'll sign it.",
+    "Good. Nobody's under anything."
+   ],
+   "injured": [
+    "Done. I'll sign it from the stretcher.",
+    "Clean work. Wish I'd been upright for it."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Site's shut. We reset tomorrow.",
+    "Too slow. The roof doesn't wait.",
+    "Walk it back. Think about the line."
+   ],
+   "injured": [
+    "Not like this. Not with me hurt.",
+    "Pack it up. We try again slower."
+   ]
+  },
+  "results": {
+   "active": [
+    "Safety's the first grade. The rest is pay.",
+    "Fair work.",
+    "I've seen worse crews."
+   ],
+   "injured": [
+    "Grade's fine. Site safety, not so much.",
+    "Paperwork says injured. Paperwork's right."
+   ]
+  },
+  "hurt": {
+   "active": [
+    "Leg's in a cast. Site runs without me for a bit.",
+    "I'll be back on the site. Give me time.",
+    "Hurt, not done. Remember that."
+   ]
+  },
+  "memorial": "Bea, demolition foreman. Called the collapse, every time.",
+  "epilogue": {
+   "active": [
+    "Quietest demolition I've ever seen. Nothing fell that shouldn't have."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "You're airborne. Watch the site.",
+    "Up. Now mind the scaffolding.",
+    "Clean takeoff. Keep it that tidy."
+   ],
+   "injured": [
+    "You're up. I'm calling it sitting down.",
+    "Airborne. Easy around my crew."
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "That was nearly a hole in my wall.",
+    "Gap discipline! Now!",
+    "Close. The building doesn't move for you."
+   ],
+   "injured": [
+    "Too close. Way too close.",
+    "Keep off the structure. Please."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Low over the site. Hard hats down.",
+    "Watch the rubble, you're right on it.",
+    "Low and fast. Nice gap."
+   ],
+   "injured": [
+    "Low. Mind the crew below.",
+    "Easy, there's people down here."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "That's fast. Fast doesn't stop quickly.",
+    "Flat out near a site? Bold.",
+    "Quick. Now brake early."
+   ],
+   "injured": [
+    "Slow it down near my people.",
+    "Fast. Too fast for me today."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's low. Finish and get clear.",
+    "Low charge. Don't die over the rubble.",
+    "Pack's fading. Wrap it."
+   ],
+   "injured": [
+    "Low battery. Get it out of here.",
+    "Pack's low. Land somewhere safe."
+   ]
+  },
+  "crash": {
+   "active": [
+    "Contact! Is it down?",
+    "That's a hit. Walk it back.",
+    "Structures win. Every time."
+   ],
+   "injured": [
+    "Another impact. Not today.",
+    "Ugh. I know how that feels."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Reset. Start from a safe line.",
+    "Back to the start. Plan it this time.",
+    "Fresh run. Same rules: get clear."
+   ],
+   "injured": [
+    "Reset. Slow and sure.",
+    "Back to the top. Breathe."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Weather's moving in. Dust'll get worse.",
+    "Wind's changing. Watch the loose sheets.",
+    "New weather. Recheck your gaps."
+   ],
+   "injured": [
+    "Weather's turning. Everything aches.",
+    "Air's changing. Fly it careful."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "Standing by? So am I.",
+    "Holding position. Good. Now move.",
+    "You're parked in the air. Clock's running."
+   ],
+   "injured": [
+    "Steady. I'll take steady.",
+    "Holding. Fine. I'm not going anywhere."
+   ]
+  },
+  "free_greet": {
+   "active": [
+    "Bea here. No demolition today. Enjoy the buildings standing.",
+    "Site's closed, sky's open. Fly smart.",
+    "On the radio. Go learn the city."
+   ],
+   "injured": [
+    "Bea, off shift and mending. Fly careful.",
+    "Still sore. Still watching. Go."
+   ]
+  },
+  "free_arrive": {
+   "active": [
+    "Right on it. Good line.",
+    "There. Clean approach.",
+    "That's where I meant. Nice."
+   ],
+   "injured": [
+    "There. Good, steady.",
+    "Made it. Nicely done."
+   ]
+  }
+ },
+ "dot": {
+  "briefing": {
+   "active": [
+    "Props are balanced. Don't make me redo them.",
+    "Battery's fresh. Bring it back that way.",
+    "I tightened everything. Twice. Go."
+   ],
+   "injured": [
+    "Stitched up and still turning wrenches. Go.",
+    "Bring it back in one piece. Unlike me."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "Pays enough to cover the props you'll break. Probably.",
+    "Drone's ready. Don't ask about the van.",
+    "Take it. I need parts money."
+   ],
+   "injured": [
+    "Take it. I'll fix the drone one-handed.",
+    "I'm stitched up and it still pays. Go.",
+    "Bring the drone back whole. I can't bend down."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Motors sound happy.",
+    "That's my tune-up talking.",
+    "Good. Nothing fell off."
+   ],
+   "injured": [
+    "Still running. Good.",
+    "Gate. I heard every bearing."
+   ]
+  },
+  "warning": {
+   "active": [
+    "I'm standing right there, genius!",
+    "Not near the van!",
+    "Hey! Wrench in hand, back off!"
+   ],
+   "injured": [
+    "Don't you dare. I'm still healing!",
+    "I can't move fast. Away!"
+   ]
+  },
+  "strike": {
+   "active": [
+    "My hand! My good hand!",
+    "Who's fixing the fixer now?",
+    "Ow! Okay. Okay. Get a kit."
+   ],
+   "injured": [
+    "Twice. You got me twice.",
+    "I can't... I can't feel my fingers."
+   ]
+  },
+  "complete": {
+   "active": [
+    "It came back! Shocked.",
+    "Not a scratch. I'm almost proud.",
+    "Good. I can go to lunch."
+   ],
+   "injured": [
+    "Back in one piece. One of us is.",
+    "Fine. Good. I'll sit down now."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Do you know what parts cost?",
+    "I'll get the tape.",
+    "That's coming out of something."
+   ],
+   "injured": [
+    "Don't make me fix it like this.",
+    "Great. More work, fewer hands."
+   ]
+  },
+  "results": {
+   "active": [
+    "Grade's nice. The repair bill is nicer.",
+    "I'll price the damage.",
+    "Not bad. Not cheap either."
+   ],
+   "injured": [
+    "Grade's fine. My insurance is not.",
+    "Let's count what's broken. Including me."
+   ]
+  },
+  "hurt": {
+   "active": [
+    "Hand's wrapped. Shop's open, slowly.",
+    "I'll fix the drone. Who fixes me?",
+    "Two jobs off. Don't break anything."
+   ]
+  },
+  "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time.",
+  "order": {
+   "active": [
+    "She'll get there. Go easy on the battery.",
+    "Moving. Motors sound fine.",
+    "Fine, fine. Going."
+   ]
+  },
+  "epilogue": {
+   "active": [
+    "Look at them all coming home. I'm going to be up all night fixing them."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "Props are spinning. Nothing rattled. Good.",
+    "Up it goes. Treat it nice.",
+    "Liftoff. I can hear every bearing."
+   ],
+   "injured": [
+    "Up you go. I can't climb after it today.",
+    "Liftoff. Sounds fine. Keep it fine."
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "Don't scrape my props!",
+    "That was nearly a repair bill.",
+    "Keep a gap. Paint isn't free."
+   ],
+   "injured": [
+    "Close! I can't fix much with one hand.",
+    "Easy. Don't give me more work."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Sand in the motors. Lovely.",
+    "Low enough to pick up grit. Stop it.",
+    "I'll be cleaning that filter tonight."
+   ],
+   "injured": [
+    "Low. Grit. My poor motors.",
+    "Please don't eat the ground."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "Listen to those motors scream.",
+    "That's all she's got. Don't ask for more.",
+    "Top speed. Watch your temps."
+   ],
+   "injured": [
+    "Flat out. Don't cook the motors.",
+    "That's my tune-up. Enjoy it."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's at a quarter. Ugh.",
+    "Low battery. I'm not carrying it home.",
+    "You're draining it. Land before it sags."
+   ],
+   "injured": [
+    "Low battery. I can't run out for it today.",
+    "Quarter left. Come home."
+   ]
+  },
+  "crash": {
+   "active": [
+    "No! My props!",
+    "That's coming out of your pay.",
+    "I heard that from the van."
+   ],
+   "injured": [
+    "Great. Now we're both broken.",
+    "I felt that in my stitches."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Reset. Battery's topped, don't waste it.",
+    "Fresh pack in. Try not to bend it.",
+    "Back to the start. I checked it over."
+   ],
+   "injured": [
+    "Reset. One-handed pack swap. You're welcome.",
+    "Fresh battery. Be nice to it."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Weather's turning. Wet motors, here we go.",
+    "Feel that? The air's heavier.",
+    "New weather. Watch the battery."
+   ],
+   "injured": [
+    "Weather's changing. My stitches itch.",
+    "Air's turning. Mind the pack."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "Hovering burns battery too, you know.",
+    "Motors sound bored.",
+    "Going somewhere, or just humming?"
+   ],
+   "injured": [
+    "Nice and steady. I like steady.",
+    "Just hovering. Fine by me."
+   ]
+  },
+  "free_greet": {
+   "active": [
+    "Dot on the radio. Don't break anything on your day off.",
+    "Fresh pack, free sky. Bring it back in one piece.",
+    "I'm listening to the motors. Go have fun."
+   ],
+   "injured": [
+    "Dot here. One hand on the wrench, one on the radio.",
+    "Fly gentle. I can't fix much right now."
+   ]
+  },
+  "free_arrive": {
+   "active": [
+    "There. And nothing fell off.",
+    "Made it. Motors sound fine.",
+    "Good. That's a landing I like."
+   ],
+   "injured": [
+    "Made it. Good, less work for me.",
+    "There. Nice and gentle."
+   ]
+  }
+ },
+ "fen": {
+  "briefing": {
+   "active": [
+    "Let's make this quick.",
+    "Hands on the sticks. Go time.",
+    "I only know one speed."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Gone!",
+    "Next, next, next.",
+    "Too easy."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Whoa, braking!",
+    "People ahead! Off the gas!",
+    "Okay, okay, backing off."
+   ]
+  },
+  "strike": {
+   "active": [
+    "No. I was going way too fast.",
+    "That's my fault. All of it.",
+    "Is everyone okay? Talk to me."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Done already?",
+    "Fastest one yet, right?",
+    "Told you. Quick."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Overcooked it.",
+    "Came in hot. Too hot.",
+    "Fine. Faster this time. Smarter."
+   ]
+  },
+  "results": {
+   "active": [
+    "What was the time?",
+    "Show me the splits.",
+    "I can shave more off that."
+   ]
+  }
+ },
+ "marlo": {
+  "briefing": {
+   "active": [
+    "I'm on the line. Eyes up, call it as I see it.",
+    "Course is clean. Mostly. Listen for me.",
+    "You fly, I talk. That's the deal."
+   ],
+   "injured": [
+    "Arm's in a sling, but my mouth works fine.",
+    "I'll call it from the chair today. Fly kind."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "I'll be on the line the whole way. Take it.",
+    "Nice one. I can see the whole course from my spot.",
+    "Fly this and I'll talk you through every turn."
+   ],
+   "injured": [
+    "Arm's in a sling, but I can still call it. Take it.",
+    "I'll spot from the chair. Just say yes.",
+    "Ribs hurt. Eyes work. Let's go."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Gate. Good line.",
+    "Through. Next one's left.",
+    "Clean. Keep the speed.",
+    "Nice. Tighter on the next.",
+    "That's how it's done.",
+    "Gate. Don't get cocky."
+   ],
+   "injured": [
+    "Gate. Ow. Good line.",
+    "Through. I felt that one in my ribs.",
+    "Clean. Keep it clean."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Hey! I'm right here!",
+    "Watch it, I'm standing in that!",
+    "Pull up, pull up!"
+   ],
+   "injured": [
+    "Not again, please, not again!",
+    "I can't dodge with this leg. Back off!"
+   ]
+  },
+  "strike": {
+   "active": [
+    "Agh! That's my shoulder!",
+    "Okay. Okay. I'm down.",
+    "Medic. Somebody. Please."
+   ],
+   "injured": [
+    "I told you. I told you.",
+    "That's... not good. That's not good."
+   ]
+  },
+  "complete": {
+   "active": [
+    "That's a finish. Nice flying.",
+    "Done. Buy me a drink.",
+    "I barely had to talk. Good."
+   ],
+   "injured": [
+    "Done. My ribs thank you.",
+    "Finished. Quietly. Nicely done."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Shake it off. We go again.",
+    "Not your day. Happens.",
+    "Listen to me next time, yeah?"
+   ],
+   "injured": [
+    "We'll get it. Slower, maybe.",
+    "Not today. I'm too sore to be mad."
+   ]
+  },
+  "results": {
+   "active": [
+    "Numbers don't lie. Mostly.",
+    "Fair grade. I'd argue the timing.",
+    "Look at those splits."
+   ],
+   "injured": [
+    "Grade's fine. My arm is not.",
+    "We'll do better when I can stand."
+   ]
+  },
+  "hurt": {
+   "active": [
+    "Couple of weeks in a sling. I'll still talk your ear off.",
+    "Benched. Somebody else can stand by the gate for a while.",
+    "I'll live. Fly kinder next time."
+   ]
+  },
+  "memorial": "Marlo, spotter. Called every gate, even the last one.",
+  "order": {
+   "active": [
+    "Copy. Moving.",
+    "Marked. On my way.",
+    "Seen it. Going."
+   ]
+  },
+  "trench": {
+   "active": [
+    "Down the shaft. Slow. Slower than that.",
+    "Floor's under you. Turn left and follow it round.",
+    "Long left curve. Keep off the top, it's low.",
+    "Steady. Middle of the channel.",
+    "Still curving left. Don't chase it, let it come.",
+    "Walls are close here. Small corrections.",
+    "Halfway. You're doing fine. Breathe.",
+    "Keep the curve. Nothing sudden.",
+    "Nearly there. Easy on the speed.",
+    "Shutter's ahead, on the floor. Ease off.",
+    "There. Drop through the shutter. Gently."
+   ]
+  },
+  "epilogue": {
+   "active": [
+    "Good flying. I mean it. Every call, you took it clean."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "You're up. I've got eyes on you.",
+    "Liftoff. Talk to me if it feels wrong.",
+    "Up and clean. Now keep it that way."
+   ],
+   "injured": [
+    "You're up. I'm watching from the chair.",
+    "Liftoff. Easy on my nerves today."
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "Close! Too close!",
+    "That was a hand's width. Breathe.",
+    "You shaved paint off that one."
+   ],
+   "injured": [
+    "Don't do that to me. Not today.",
+    "Close! My ribs just flinched."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Low pass, nice. Watch the lip.",
+    "You're kissing the ground. Pull a hair.",
+    "Under the radar. Pretty line."
+   ],
+   "injured": [
+    "Low and quick. I'd cheer if it didn't hurt.",
+    "That's low. Careful with it."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "You're flat out. Eyes way ahead.",
+    "That's top end. Pick your exit now.",
+    "Fast. Good. Now think."
+   ],
+   "injured": [
+    "Fast. Too fast for my heart today.",
+    "Top end. Pick your exit early."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's low. Start heading home.",
+    "Quarter charge. Don't get greedy.",
+    "You're on reserve. Land it soon."
+   ],
+   "injured": [
+    "Battery's low. Bring it home gentle.",
+    "Reserve. Don't make me watch a dead stick."
+   ]
+  },
+  "crash": {
+   "active": [
+    "Ooh. That one hurt to watch.",
+    "Contact! You okay up there?",
+    "And that's a wall. Shake it off."
+   ],
+   "injured": [
+    "That sound. I know that sound.",
+    "Contact. Join the club."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Reset. Clean slate, same line.",
+    "Back on the pad. Go again.",
+    "Fresh air under you. Try it slower."
+   ],
+   "injured": [
+    "Reset. Take a breath. I am.",
+    "Back to the start. Steady."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Weather's moving. Feel the air change.",
+    "Sky's turning. Adjust your lines.",
+    "New weather. Everything's a bit harder now."
+   ],
+   "injured": [
+    "Weather's turning. My knee called it.",
+    "Sky's changing. Fly it careful."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "You going to fly, or admire the view?",
+    "Nice hold. Now do something with it.",
+    "Still waiting on you, pilot."
+   ],
+   "injured": [
+    "Taking a breather? Fair. Me too.",
+    "Nice hold. I'm in no hurry today."
+   ]
+  },
+  "free_greet": {
+   "active": [
+    "Marlo here. No course today, just sky. Go play.",
+    "I'm on the radio. Fly anywhere, I'll keep you company.",
+    "Free flight, huh? I'll spot for fun."
+   ],
+   "injured": [
+    "Marlo, from the couch. Fly something pretty for me.",
+    "Still on the mend. I can still talk, though. Go."
+   ]
+  },
+  "free_arrive": {
+   "active": [
+    "There it is. Nice find.",
+    "Made it. Clean.",
+    "Good. That's the spot."
+   ],
+   "injured": [
+    "Made it. Nice and easy.",
+    "There. Good flying."
+   ]
+  }
+ },
+ "moss": {
+  "briefing": {
+   "active": [
+    "Let the air do the work.",
+    "Quiet sticks today.",
+    "Find the line, keep the line."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Slipped right through.",
+    "Clean.",
+    "Barely touched the air."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Someone's down there. Drifting off.",
+    "Gently. Gently away.",
+    "Too close. Widening out."
+   ]
+  },
+  "strike": {
+   "active": [
+    "That wasn't clean at all.",
+    "I should have seen it. I'm sorry.",
+    "Please be okay."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Settled. Nice.",
+    "That felt like gliding.",
+    "Down soft."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Lost the line.",
+    "Fought the air and the air won.",
+    "Breathe. Find it again."
+   ]
+  },
+  "results": {
+   "active": [
+    "How clean was it?",
+    "Let's see the grade.",
+    "Smooth enough for me."
+   ]
+  }
+ },
+ "ozzie": {
+  "briefing": {
+   "active": [
+    "Follow the beacon. I'll keep the flare lit.",
+    "I've got supplies. You've got the drone. Find me.",
+    "Weather's bad. Stay calm, so will I."
+   ],
+   "injured": [
+    "Bandaged up and still out here. Find me fast.",
+    "I'm patched. Not fixed. Hurry."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "Somebody's waiting on this one. Let's go.",
+    "I'll be out there. You'll find me.",
+    "Easy pace, clear head. You can do this one."
+   ],
+   "injured": [
+    "I'm patched up enough. Take the job.",
+    "Sore but steady. Come get me.",
+    "I'll keep the flare lit. You keep calm."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Good. Keep that pace.",
+    "Steady hands. Nice.",
+    "That's it. Breathe."
+   ],
+   "injured": [
+    "Steady. Good.",
+    "Keep going. I'm fine. Mostly."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Easy, easy, I'm right here!",
+    "Slow down! I'm under you!",
+    "Careful, I can hear you coming in hot!"
+   ],
+   "injured": [
+    "Please. Slowly. I can't take another.",
+    "Gently! I'm already hurt!"
+   ]
+  },
+  "strike": {
+   "active": [
+    "Ow. Okay. I can treat that.",
+    "That's a fracture. Probably.",
+    "I'm hurt. Note the time."
+   ],
+   "injured": [
+    "I can't treat this one myself.",
+    "Second hit. That's... that's bad."
+   ]
+  },
+  "complete": {
+   "active": [
+    "There you are. Thank you.",
+    "Found me. I knew you would.",
+    "Warm hands. Finally."
+   ],
+   "injured": [
+    "Found me. Just in time.",
+    "Thank you. I'll rest now."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Too late. It's okay. It's okay.",
+    "Cold out here. Come back for me.",
+    "We'll try again. I'll wait."
+   ],
+   "injured": [
+    "It's getting dark. Try again.",
+    "I'll hold on. Somehow."
+   ]
+  },
+  "results": {
+   "active": [
+    "Vitals are fine. Grade's fine.",
+    "Let me check you over too.",
+    "Everyone's breathing. Good job."
+   ],
+   "injured": [
+    "I'll be off my feet a while.",
+    "Grade's fine. I'm not, quite."
+   ]
+  },
+  "hurt": {
+   "active": [
+    "I set my own splint. Not my best work.",
+    "I'll be off the rescue rota a while.",
+    "Patched up. Try not to need me."
+   ]
+  },
+  "memorial": "Ozzie, medic. Waited in the cold for someone to come.",
+  "order": {
+   "active": [
+    "Understood. En route.",
+    "Moving now. Steady.",
+    "On my way. Keep it calm."
+   ]
+  },
+  "epilogue": {
+   "active": [
+    "Everyone breathe. Slowly. It's over."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "You're up. Take your time.",
+    "Off the ground. Steady breaths.",
+    "Liftoff. Good. Calm hands."
+   ],
+   "injured": [
+    "You're up. I'm not going anywhere.",
+    "Liftoff. Gentle, please."
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "Easy. Easy. You're okay.",
+    "That was close. Heart rate down.",
+    "Whoa. Breathe out."
+   ],
+   "injured": [
+    "Close. Please be careful.",
+    "Easy. I can't patch a drone."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Low. Keep your eyes level.",
+    "Close to the ground. Stay loose.",
+    "Nice and low. Gentle."
+   ],
+   "injured": [
+    "Low. Careful now.",
+    "Easy down there."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "Fast. Keep breathing.",
+    "That's quick. Stay calm with it.",
+    "Speed's fine. Panic isn't."
+   ],
+   "injured": [
+    "Fast. Too fast for my nerves.",
+    "Easy on the throttle."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's low. Don't push it.",
+    "Low charge. Head back gently.",
+    "Running low. No heroics."
+   ],
+   "injured": [
+    "Low battery. Come back safe.",
+    "Running low. Gently home."
+   ]
+  },
+  "crash": {
+   "active": [
+    "Oof. Everyone okay? Drone okay?",
+    "That's a bump. Check yourself.",
+    "Hit. It's fine. Reset and breathe."
+   ],
+   "injured": [
+    "Ouch. I felt that.",
+    "Hit. Okay. We're okay."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Reset. Shake out your hands.",
+    "Fresh start. In for four, out for four.",
+    "Back at the start. You're fine."
+   ],
+   "injured": [
+    "Reset. Take a moment.",
+    "Start again. Slowly."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Weather's changing. Layer up, drone.",
+    "Feel the cold coming in? I do.",
+    "New weather. Fly a little softer."
+   ],
+   "injured": [
+    "Weather's turning. That's not good for me.",
+    "It's changing out here. Hurry, gently."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "Good hold. Take a breath.",
+    "Nice and still. Look around.",
+    "Resting? Good. Then go."
+   ],
+   "injured": [
+    "Still. Good. Rest a second.",
+    "Holding. I'll wait."
+   ]
+  },
+  "free_greet": {
+   "active": [
+    "Ozzie here. Warm and dry for once. Go fly.",
+    "No one to find today. Just enjoy it.",
+    "I'm on the radio. Breathe, then fly."
+   ],
+   "injured": [
+    "Ozzie, resting up. Fly something calm.",
+    "Still bandaged. Still here. Go on."
+   ]
+  },
+  "free_arrive": {
+   "active": [
+    "You found it. Nice.",
+    "There you are. Good.",
+    "Made it. Breathe."
+   ],
+   "injured": [
+    "Found it. Good.",
+    "There. Nicely done."
+   ]
+  }
+ },
+ "pip": {
+  "briefing": {
+   "active": [
+    "Okay. Okay. Same as the sim, right?",
+    "Hands steady. Let's do this.",
+    "I've flown worse. In a game, but still."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "Ooh, this one looks fun. Right? Fun?",
+    "I'd fly it. I mean, you'd fly it. Same thing.",
+    "Let's do this one. I've got a good feeling."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Through!",
+    "Clean. Next.",
+    "Ha, nailed it."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Wait, someone's down there!",
+    "Pulling off, pulling off!",
+    "Too close, too close."
+   ]
+  },
+  "strike": {
+   "active": [
+    "No. No, no, no.",
+    "That was me. That was my fault.",
+    "Are they okay? Somebody say something."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Done! We actually did it.",
+    "Wheels down. Well, skids.",
+    "That felt good."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Ugh. Again.",
+    "I had it. I had it until I didn't.",
+    "Okay. Reset. Breathe."
+   ]
+  },
+  "results": {
+   "active": [
+    "Let me see the numbers.",
+    "Not bad for a gamer.",
+    "I'll get that grade up."
+   ]
+  },
+  "order": {
+   "active": [
+    "On it! I think. Yes. On it.",
+    "Heading there now.",
+    "Got it, got it."
+   ]
+  },
+  "epilogue": {
+   "active": [
+    "We did it. I'm going to need to sit down for a week."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "Wheels up! Well, props up.",
+    "Off the ground. Same as the sim.",
+    "And we're flying. Okay. Okay!"
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "Whoa. That was close.",
+    "I did not mean to do that.",
+    "Ha! Missed it. On purpose. Sort of."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Skimming the deck!",
+    "Low and fast, low and fast.",
+    "I can see every pebble down there."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "This thing really goes!",
+    "Everything's a blur. Love it.",
+    "Flat out. Don't blink."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's getting low. Wrap it up?",
+    "Running on fumes here.",
+    "Should've charged it more. Noted."
+   ]
+  },
+  "crash": {
+   "active": [
+    "Ow. Sorry, little drone.",
+    "That was a wall. Walls are real.",
+    "Nope. Not like that."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Fresh start. Nobody saw that.",
+    "Back to the pad. Try again.",
+    "Reset. Breathe. Go."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Uh, the weather's turning.",
+    "Sky looks different. Heads up.",
+    "New weather. New problems."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "Just enjoying the view.",
+    "Hovering. Thinking. Mostly hovering.",
+    "Where to next? Anywhere?"
+   ]
+  }
+ },
+ "rin": {
+  "briefing": {
+   "active": [
+    "Read the brief. Then read it again.",
+    "Clean, safe, fast. In that order.",
+    "Show me why I scouted you."
+   ]
+  },
+  "pitch": {
+   "active": [
+    "This one's worth your time. Prove it.",
+    "Clean, safe, fast. Here's your chance.",
+    "I'd put you on this. Don't make me regret it."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Good line.",
+    "Patience. Then speed.",
+    "Better."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Crew in the zone. Ease off.",
+    "Watch your crew.",
+    "You see them? Then fly like it."
+   ]
+  },
+  "strike": {
+   "active": [
+    "That one's on you. Own it.",
+    "Stop. Breathe. Your crew needs you careful.",
+    "That's the cost. Remember it."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Good work. Not perfect. Good.",
+    "That's a pro finish.",
+    "Job done. Debrief."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Failure's data. Read it.",
+    "Reset. We learn and go again.",
+    "Not today. Tomorrow."
+   ]
+  },
+  "results": {
+   "active": [
+    "Look at the grade, then look at why.",
+    "Here's where you lost time.",
+    "Every number is a lesson."
+   ]
+  },
+  "epilogue": {
+   "active": [
+    "I knew it the first time I watched you fly. I just didn't know it'd be this."
+   ]
+  },
+  "takeoff": {
+   "active": [
+    "Up. Now show me something.",
+    "Clean takeoff. That's the easy part.",
+    "You're flying. Make it count."
+   ]
+  },
+  "near_miss": {
+   "active": [
+    "Close isn't clever.",
+    "Too tight. Learn from it.",
+    "That's luck. Don't spend it."
+   ]
+  },
+  "low_pass": {
+   "active": [
+    "Low pass. Controlled. Good.",
+    "Low is fine if you meant it.",
+    "Nice. Now do it again on purpose."
+   ]
+  },
+  "top_speed": {
+   "active": [
+    "Top speed. Now prove you can stop.",
+    "Fast is easy. Fast and clean is the job.",
+    "That's the ceiling. Fly under it."
+   ]
+  },
+  "battery_low": {
+   "active": [
+    "Battery's low. Plan the landing.",
+    "Watch your charge. Pilots count.",
+    "Low pack. Bring it in clean."
+   ]
+  },
+  "crash": {
+   "active": [
+    "Contact. Ask yourself why.",
+    "That's data. Read it.",
+    "Hit. Reset your head first."
+   ]
+  },
+  "reset": {
+   "active": [
+    "Reset. Same goal, better line.",
+    "Back to the start. Slower this time.",
+    "Again. Clean, safe, fast."
+   ]
+  },
+  "weather_change": {
+   "active": [
+    "Weather changed. So does your plan.",
+    "New conditions. Adapt.",
+    "Read the sky before it reads you."
+   ]
+  },
+  "long_hover": {
+   "active": [
+    "Thinking is good. Too much thinking isn't.",
+    "Clock's running. Pick a line.",
+    "Hovering's a skill. So is moving."
+   ]
+  },
+  "free_greet": {
+   "active": [
+    "Rin here. No grades today. Fly to learn.",
+    "Free flight. Use it. Practice what scares you.",
+    "I'm listening. Show me something."
+   ]
+  },
+  "free_arrive": {
+   "active": [
+    "There. Now find a better line back.",
+    "Good. That's practice.",
+    "Made it. Again, faster."
+   ]
+  }
+ },
+ "tally": {
+  "briefing": {
+   "active": [
+    "Plenty in the tank. Let's not waste it.",
+    "Smooth is fast. Smooth is also long.",
+    "I'll pace it. You'll see."
+   ]
+  },
+  "gate_passed": {
+   "active": [
+    "Through, and still sipping.",
+    "Nice and easy.",
+    "One down, lots of charge left."
+   ]
+  },
+  "warning": {
+   "active": [
+    "Easing off. Someone's there.",
+    "Slow down, slow down.",
+    "Not worth it. Pulling wide."
+   ]
+  },
+  "strike": {
+   "active": [
+    "Oh no. I wasn't gentle enough.",
+    "That's on me. I'm sorry.",
+    "Someone tell me they're alright."
+   ]
+  },
+  "complete": {
+   "active": [
+    "Done, with juice to spare.",
+    "Landed. Battery's barely sweating.",
+    "That's how you go the distance."
+   ]
+  },
+  "fail": {
+   "active": [
+    "Too much, too soon.",
+    "I rushed it. I never rush it.",
+    "Okay. Pace. Again."
+   ]
+  },
+  "results": {
+   "active": [
+    "How long did I stay up?",
+    "Numbers, please. The long ones.",
+    "Not flashy. Just steady."
+   ]
+  }
+ }
+}

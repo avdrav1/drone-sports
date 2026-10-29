@@ -3,11 +3,35 @@
   "active": [
    "Follow the beacon. I'll keep the flare lit.",
    "I've got supplies. You've got the drone. Find me.",
-   "Weather's bad. Stay calm, so will I."
+   "Weather's bad. Stay calm, so will I.",
+   {
+    "text": "You've got this, {you}. I'll be right here.",
+    "face": "happy"
+   },
+   {
+    "text": "Slow breath in. Slow breath out. Now fly.",
+    "face": "neutral"
+   },
+   {
+    "text": "I believe in you. Come find me.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Bandaged up and still out here. Find me fast.",
-   "I'm patched. Not fixed. Hurry."
+   "I'm patched. Not fixed. Hurry.",
+   {
+    "text": "Still patched, still cheering for you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Calm hands. I'm okay. Go.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'll keep the flare up. You keep your chin up.",
+    "face": "determined"
+   }
   ]
  },
  "pitch": {
@@ -23,6 +47,18 @@
    {
     "text": "Easy pace, clear head. You can do this one.",
     "face": "happy"
+   },
+   {
+    "text": "This one's kind. Like you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Someone will be so glad to see you. Take it.",
+    "face": "happy"
+   },
+   {
+    "text": "I'll be waiting with a warm drink.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -37,6 +73,18 @@
    {
     "text": "I'll keep the flare lit. You keep calm.",
     "face": "neutral"
+   },
+   {
+    "text": "I'd love the company, {you}. Take it.",
+    "face": "happy"
+   },
+   {
+    "text": "Gentle job. Gentle pilot. Good fit.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'm mending, but I'll be there for you.",
+    "face": "determined"
    }
   ]
  },
@@ -44,73 +92,184 @@
   "active": [
    "Good. Keep that pace.",
    "Steady hands. Nice.",
-   "That's it. Breathe."
+   "That's it. Breathe.",
+   {
+    "text": "Lovely, {you}. Keep breathing.",
+    "face": "happy"
+   },
+   {
+    "text": "Smooth as anything.",
+    "face": "happy"
+   },
+   {
+    "text": "That's the way.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Steady. Good.",
-   "Keep going. I'm fine. Mostly."
+   "Keep going. I'm fine. Mostly.",
+   {
+    "text": "Beautiful. That helps, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Gentle and clean.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice. Easy does it.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "Easy, easy, I'm right here!",
    "Slow down! I'm under you!",
-   "Careful, I can hear you coming in hot!"
+   "Careful, I can hear you coming in hot!",
+   "I'm right below you. Please ease away.",
+   "Slow down, please. I'm in the zone.",
+   "Give me room. I can't get clear yet."
   ],
   "injured": [
    "Please. Slowly. I can't take another.",
-   "Gently! I'm already hurt!"
+   "Gently! I'm already hurt!",
+   "Please pull away. I'm still healing.",
+   "I can't move quickly. Wide of me, please.",
+   "Careful. I'm right here, and I'm hurt."
   ]
  },
  "strike": {
   "active": [
    "Ow. Okay. I can treat that.",
    "That's a fracture. Probably.",
-   "I'm hurt. Note the time."
+   "I'm hurt. Note the time.",
+   "I'm hit. Stay calm. I'll talk you through it.",
+   "I'm hurt. Stop the drone and call it in.",
+   "Okay. Pressure on it. I need help soon."
   ],
   "injured": [
    "I can't treat this one myself.",
-   "Second hit. That's... that's bad."
+   "Second hit. That's... that's bad.",
+   "I'm hurt badly. Please get help.",
+   "I can't treat this. Someone come now.",
+   "Stay with me. Call it in. Please."
   ]
  },
  "complete": {
   "active": [
    "There you are. Thank you.",
    "Found me. I knew you would.",
-   "Warm hands. Finally."
+   "Warm hands. Finally.",
+   {
+    "text": "You found me! Best feeling in the world, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Thank you. You did so well.",
+    "face": "happy"
+   },
+   {
+    "text": "Warm drink, warm hands, great pilot.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Found me. Just in time.",
-   "Thank you. I'll rest now."
+   "Thank you. I'll rest now.",
+   {
+    "text": "There you are, {you}. Thank you.",
+    "face": "happy"
+   },
+   {
+    "text": "You made it. I'm so proud.",
+    "face": "happy"
+   },
+   {
+    "text": "Found. Safe. Happy.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Too late. It's okay. It's okay.",
    "Cold out here. Come back for me.",
-   "We'll try again. I'll wait."
+   "We'll try again. I'll wait.",
+   {
+    "text": "It's okay, {you}. You did your best.",
+    "face": "neutral"
+   },
+   {
+    "text": "Be kind to yourself. We'll try again.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'll wait. I know you'll come back.",
+    "face": "determined"
+   }
   ],
   "injured": [
    "It's getting dark. Try again.",
-   "I'll hold on. Somehow."
+   "I'll hold on. Somehow.",
+   {
+    "text": "It's alright, {you}. Rest, then retry.",
+    "face": "neutral"
+   },
+   {
+    "text": "No blame. Just another go.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'll hold on. You've got this.",
+    "face": "determined"
+   }
   ]
  },
  "results": {
   "active": [
    "Vitals are fine. Grade's fine.",
    "Let me check you over too.",
-   "Everyone's breathing. Good job."
+   "Everyone's breathing. Good job.",
+   {
+    "text": "Everyone's okay. That's the real grade, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely work. Drink some water.",
+    "face": "happy"
+   },
+   {
+    "text": "Good grade. How are you feeling?",
+    "face": "neutral"
+   }
   ],
   "injured": [
    "I'll be off my feet a while.",
-   "Grade's fine. I'm not, quite."
+   "Grade's fine. I'm not, quite.",
+   {
+    "text": "Good grade, {you}. I'm smiling.",
+    "face": "happy"
+   },
+   {
+    "text": "Steady numbers. Steady pilot.",
+    "face": "neutral"
+   },
+   {
+    "text": "That made me feel better.",
+    "face": "happy"
+   }
   ]
  },
  "hurt": {
   "active": [
    "I set my own splint. Not my best work.",
    "I'll be off the rescue rota a while.",
-   "Patched up. Try not to need me."
+   "Patched up. Try not to need me.",
+   "I'll mend. Look after yourself too.",
+   "Bandaged and resting. It's okay to feel shaken.",
+   "I'll be off the rota a while. Fly gently till I'm back."
   ]
  },
  "memorial": "Ozzie, medic. Waited in the cold for someone to come.",
@@ -118,7 +277,19 @@
   "active": [
    "Understood. En route.",
    "Moving now. Steady.",
-   "On my way. Keep it calm."
+   "On my way. Keep it calm.",
+   {
+    "text": "On my way, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Heading there. Calm and steady.",
+    "face": "happy"
+   },
+   {
+    "text": "Copy. I've got it.",
+    "face": "neutral"
+   }
   ]
  },
  "epilogue": {
@@ -139,6 +310,18 @@
    {
     "text": "Liftoff. Good. Calm hands.",
     "face": "happy"
+   },
+   {
+    "text": "Up you go, {you}. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice lift. Breathe.",
+    "face": "neutral"
+   },
+   {
+    "text": "Flying. Calm and happy.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -149,6 +332,18 @@
    {
     "text": "Liftoff. Gentle, please.",
     "face": "worried"
+   },
+   {
+    "text": "Up! Good to see, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Smooth liftoff. Gently.",
+    "face": "neutral"
+   },
+   {
+    "text": "You're flying. That helps me.",
+    "face": "happy"
    }
   ]
  },
@@ -165,6 +360,18 @@
    {
     "text": "Whoa. Breathe out.",
     "face": "shocked"
+   },
+   {
+    "text": "Oh! You're okay, {you}. Breathe.",
+    "face": "worried"
+   },
+   {
+    "text": "Close! Shoulders down. You're fine.",
+    "face": "shocked"
+   },
+   {
+    "text": "Easy. Nice recovery.",
+    "face": "worried"
    }
   ],
   "injured": [
@@ -174,6 +381,18 @@
    },
    {
     "text": "Easy. I can't patch a drone.",
+    "face": "worried"
+   },
+   {
+    "text": "Close. You're alright, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Oh! Okay. Breathe with me.",
+    "face": "shocked"
+   },
+   {
+    "text": "Gentle now. Plenty of room.",
     "face": "worried"
    }
   ]
@@ -191,6 +410,18 @@
    {
     "text": "Nice and low. Gentle.",
     "face": "happy"
+   },
+   {
+    "text": "Low and calm. Lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice skim. Easy up.",
+    "face": "neutral"
+   },
+   {
+    "text": "That's gentle flying.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -201,6 +432,18 @@
    {
     "text": "Easy down there.",
     "face": "worried"
+   },
+   {
+    "text": "Low and lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Careful. Pretty, though.",
+    "face": "worried"
+   },
+   {
+    "text": "Gentle pass.",
+    "face": "neutral"
    }
   ]
  },
@@ -217,6 +460,18 @@
    {
     "text": "Speed's fine. Panic isn't.",
     "face": "determined"
+   },
+   {
+    "text": "Fast! And so calm, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Quick and steady. Lovely.",
+    "face": "determined"
+   },
+   {
+    "text": "Speedy. Keep breathing.",
+    "face": "worried"
    }
   ],
   "injured": [
@@ -227,6 +482,18 @@
    {
     "text": "Easy on the throttle.",
     "face": "worried"
+   },
+   {
+    "text": "Fast! Gently on the turns, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Quick. Nice and smooth.",
+    "face": "happy"
+   },
+   {
+    "text": "Speed's fine. You're fine.",
+    "face": "neutral"
    }
   ]
  },
@@ -243,6 +510,18 @@
    {
     "text": "Running low. No heroics.",
     "face": "worried"
+   },
+   {
+    "text": "Battery's low, {you}. Home gently.",
+    "face": "worried"
+   },
+   {
+    "text": "Low charge. No rush, just head back.",
+    "face": "neutral"
+   },
+   {
+    "text": "Time to rest the drone.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -253,6 +532,18 @@
    {
     "text": "Running low. Gently home.",
     "face": "worried"
+   },
+   {
+    "text": "Low pack. Come home safe, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Gently home now.",
+    "face": "neutral"
+   },
+   {
+    "text": "Land soon. You did well.",
+    "face": "determined"
    }
   ]
  },
@@ -269,6 +560,18 @@
    {
     "text": "Hit. It's fine. Reset and breathe.",
     "face": "sad"
+   },
+   {
+    "text": "Oh! Are you okay, {you}? Drones mend.",
+    "face": "worried"
+   },
+   {
+    "text": "Ouch. Shake your hands out. You're fine.",
+    "face": "sad"
+   },
+   {
+    "text": "Bumps happen. Breathe and reset.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -279,6 +582,18 @@
    {
     "text": "Hit. Okay. We're okay.",
     "face": "sad"
+   },
+   {
+    "text": "Oof. We'll heal together, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "You okay? That's all that matters.",
+    "face": "worried"
+   },
+   {
+    "text": "It's alright. Reset.",
+    "face": "neutral"
    }
   ]
  },
@@ -295,6 +610,18 @@
    {
     "text": "Back at the start. You're fine.",
     "face": "happy"
+   },
+   {
+    "text": "Fresh start, {you}. You're doing great.",
+    "face": "happy"
+   },
+   {
+    "text": "Breathe in. Breathe out. Go.",
+    "face": "neutral"
+   },
+   {
+    "text": "Again. Calm and kind.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -305,6 +632,18 @@
    {
     "text": "Start again. Slowly.",
     "face": "neutral"
+   },
+   {
+    "text": "Reset. I'm cheering, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Slow and steady.",
+    "face": "neutral"
+   },
+   {
+    "text": "New run. You've got this.",
+    "face": "determined"
    }
   ]
  },
@@ -321,6 +660,18 @@
    {
     "text": "New weather. Fly a little softer.",
     "face": "neutral"
+   },
+   {
+    "text": "Weather's turning. Stay cosy, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "New air. Soft hands.",
+    "face": "neutral"
+   },
+   {
+    "text": "You'll fly through it fine.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -331,6 +682,18 @@
    {
     "text": "It's changing out here. Hurry, gently.",
     "face": "worried"
+   },
+   {
+    "text": "Weather's changing. Careful, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Steady. It's just weather.",
+    "face": "neutral"
+   },
+   {
+    "text": "You've got this. Gently.",
+    "face": "determined"
    }
   ]
  },
@@ -347,6 +710,18 @@
    {
     "text": "Resting? Good. Then go.",
     "face": "neutral"
+   },
+   {
+    "text": "Lovely and still, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Take a breath. Look around.",
+    "face": "neutral"
+   },
+   {
+    "text": "Calm hover. I like it.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -357,6 +732,18 @@
    {
     "text": "Holding. I'll wait.",
     "face": "sad"
+   },
+   {
+    "text": "Resting with me, {you}?",
+    "face": "happy"
+   },
+   {
+    "text": "Still and steady.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice. Peaceful.",
+    "face": "happy"
    }
   ]
  },
@@ -373,6 +760,18 @@
    {
     "text": "I'm on the radio. Breathe, then fly.",
     "face": "neutral"
+   },
+   {
+    "text": "Ozzie here! Lovely day for it, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "No rescues today. Just fun.",
+    "face": "happy"
+   },
+   {
+    "text": "Fly happy. I'm listening.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -383,6 +782,18 @@
    {
     "text": "Still bandaged. Still here. Go on.",
     "face": "neutral"
+   },
+   {
+    "text": "Hi, {you}. Fly something calm for me.",
+    "face": "happy"
+   },
+   {
+    "text": "Ozzie, resting. Glad you're flying.",
+    "face": "neutral"
+   },
+   {
+    "text": "Bandaged and smiling. Go on.",
+    "face": "happy"
    }
   ]
  },
@@ -399,6 +810,18 @@
    {
     "text": "Made it. Breathe.",
     "face": "neutral"
+   },
+   {
+    "text": "You found it! Lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Well done.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Nicely flown.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -409,6 +832,18 @@
    {
     "text": "There. Nicely done.",
     "face": "neutral"
+   },
+   {
+    "text": "Found it, {you}. Nice.",
+    "face": "happy"
+   },
+   {
+    "text": "Gently done.",
+    "face": "happy"
+   },
+   {
+    "text": "There you are.",
+    "face": "happy"
    }
   ]
  }

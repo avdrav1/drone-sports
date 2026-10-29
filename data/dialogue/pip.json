@@ -3,7 +3,19 @@
   "active": [
    "Okay. Okay. Same as the sim, right?",
    "Hands steady. Let's do this.",
-   "I've flown worse. In a game, but still."
+   "I've flown worse. In a game, but still.",
+   {
+    "text": "We've got this, {you}. Probably. Definitely!",
+    "face": "happy"
+   },
+   {
+    "text": "Deep breath. Fun mode on.",
+    "face": "determined"
+   },
+   {
+    "text": "Okay, okay. I'm excited. Are you excited?",
+    "face": "happy"
+   }
   ]
  },
  "pitch": {
@@ -19,6 +31,18 @@
    {
     "text": "Let's do this one. I've got a good feeling.",
     "face": "determined"
+   },
+   {
+    "text": "Ooh, pick this one, {you}! Please?",
+    "face": "happy"
+   },
+   {
+    "text": "Looks like fun. Looks like us.",
+    "face": "happy"
+   },
+   {
+    "text": "We can totally do this one.",
+    "face": "determined"
    }
   ]
  },
@@ -26,49 +50,115 @@
   "active": [
    "Through!",
    "Clean. Next.",
-   "Ha, nailed it."
+   "Ha, nailed it.",
+   {
+    "text": "Yes! Nailed it, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Woo! Next!",
+    "face": "happy"
+   },
+   {
+    "text": "Did you see that? So clean.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "Wait, someone's down there!",
    "Pulling off, pulling off!",
-   "Too close, too close."
+   "Too close, too close.",
+   "Someone's down there. I'm easing off.",
+   "Pulling wide. Give them room.",
+   "Careful. There's a person right there."
   ]
  },
  "strike": {
   "active": [
    "No. No, no, no.",
    "That was me. That was my fault.",
-   "Are they okay? Somebody say something."
+   "Are they okay? Somebody say something.",
+   "Someone's hurt. Stop. We need to help.",
+   "Oh no. Get someone to them, please.",
+   "I'm so sorry. Please be okay."
   ]
  },
  "complete": {
   "active": [
    "Done! We actually did it.",
    "Wheels down. Well, skids.",
-   "That felt good."
+   "That felt good.",
+   {
+    "text": "We did it, {you}! High five!",
+    "face": "happy"
+   },
+   {
+    "text": "Woohoo! That was amazing!",
+    "face": "happy"
+   },
+   {
+    "text": "Best. Run. Ever. Okay, best so far.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Ugh. Again.",
    "I had it. I had it until I didn't.",
-   "Okay. Reset. Breathe."
+   "Okay. Reset. Breathe.",
+   {
+    "text": "That's okay, {you}. We'll get it next time.",
+    "face": "neutral"
+   },
+   {
+    "text": "Oops. Practice run! That counts, right?",
+    "face": "happy"
+   },
+   {
+    "text": "Back up, dust off, go again.",
+    "face": "determined"
+   }
   ]
  },
  "results": {
   "active": [
    "Let me see the numbers.",
    "Not bad for a gamer.",
-   "I'll get that grade up."
+   "I'll get that grade up.",
+   {
+    "text": "Look at that grade, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Getting better every time. I can feel it.",
+    "face": "happy"
+   },
+   {
+    "text": "Not bad! Room to grow, sure.",
+    "face": "neutral"
+   }
   ]
  },
  "order": {
   "active": [
    "On it! I think. Yes. On it.",
    "Heading there now.",
-   "Got it, got it."
+   "Got it, got it.",
+   {
+    "text": "On it, {you}!",
+    "face": "determined"
+   },
+   {
+    "text": "Going! This is fun.",
+    "face": "happy"
+   },
+   {
+    "text": "Heading there. Wish me luck.",
+    "face": "determined"
+   }
   ]
  },
  "epilogue": {
@@ -89,6 +179,18 @@
    {
     "text": "And we're flying. Okay. Okay!",
     "face": "happy"
+   },
+   {
+    "text": "Up we go, {you}! Wheee.",
+    "face": "happy"
+   },
+   {
+    "text": "Liftoff! I love this part.",
+    "face": "happy"
+   },
+   {
+    "text": "Flying for real. Let's go.",
+    "face": "determined"
    }
   ]
  },
@@ -105,6 +207,18 @@
    {
     "text": "Ha! Missed it. On purpose. Sort of.",
     "face": "happy"
+   },
+   {
+    "text": "Eep! Close! You okay, {you}?",
+    "face": "shocked"
+   },
+   {
+    "text": "Phew. That was a whisker.",
+    "face": "worried"
+   },
+   {
+    "text": "Whoa! Nice dodge, though.",
+    "face": "shocked"
    }
   ]
  },
@@ -121,6 +235,18 @@
    {
     "text": "I can see every pebble down there.",
     "face": "shocked"
+   },
+   {
+    "text": "Low pass! So cool, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Skimming! Like in the game.",
+    "face": "happy"
+   },
+   {
+    "text": "Low, low, careful... nice!",
+    "face": "worried"
    }
   ]
  },
@@ -136,6 +262,18 @@
    },
    {
     "text": "Flat out. Don't blink.",
+    "face": "determined"
+   },
+   {
+    "text": "Zoom! Look at us go, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Top speed! My hands are buzzing.",
+    "face": "happy"
+   },
+   {
+    "text": "Fast! Okay, brake soon.",
     "face": "determined"
    }
   ]
@@ -153,6 +291,18 @@
    {
     "text": "Should've charged it more. Noted.",
     "face": "sad"
+   },
+   {
+    "text": "Battery's low, {you}. Let's head home.",
+    "face": "worried"
+   },
+   {
+    "text": "Low charge. Snack break soon.",
+    "face": "neutral"
+   },
+   {
+    "text": "Bring it in. We did good.",
+    "face": "determined"
    }
   ]
  },
@@ -169,6 +319,18 @@
    {
     "text": "Nope. Not like that.",
     "face": "sad"
+   },
+   {
+    "text": "Ouch! Sorry, drone. You okay, {you}?",
+    "face": "sad"
+   },
+   {
+    "text": "Oops. That's what resets are for.",
+    "face": "worried"
+   },
+   {
+    "text": "Ha. Okay. Not the plan. Again!",
+    "face": "happy"
    }
   ]
  },
@@ -185,6 +347,18 @@
    {
     "text": "Reset. Breathe. Go.",
     "face": "determined"
+   },
+   {
+    "text": "Round two, {you}!",
+    "face": "determined"
+   },
+   {
+    "text": "Fresh start. I've got a good feeling.",
+    "face": "happy"
+   },
+   {
+    "text": "Reset. Breathe. We've got this.",
+    "face": "neutral"
    }
   ]
  },
@@ -200,6 +374,18 @@
    },
    {
     "text": "New weather. New problems.",
+    "face": "neutral"
+   },
+   {
+    "text": "Weather's changing, {you}. Ooh, exciting.",
+    "face": "worried"
+   },
+   {
+    "text": "New sky. New challenge.",
+    "face": "determined"
+   },
+   {
+    "text": "Bit windier. We'll be fine.",
     "face": "neutral"
    }
   ]
@@ -217,6 +403,18 @@
    {
     "text": "Where to next? Anywhere?",
     "face": "neutral"
+   },
+   {
+    "text": "Just hanging out up here, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Pretty view. Okay, back to it.",
+    "face": "neutral"
+   },
+   {
+    "text": "Hover break. Nice.",
+    "face": "happy"
    }
   ]
  }

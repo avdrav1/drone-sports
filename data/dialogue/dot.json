@@ -3,11 +3,35 @@
   "active": [
    "Props are balanced. Don't make me redo them.",
    "Battery's fresh. Bring it back that way.",
-   "I tightened everything. Twice. Go."
+   "I tightened everything. Twice. Go.",
+   {
+    "text": "Tuned her up just for you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "She's purring. Go make her sing.",
+    "face": "determined"
+   },
+   {
+    "text": "Fly well. I'll have tea on when you land.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Stitched up and still turning wrenches. Go.",
-   "Bring it back in one piece. Unlike me."
+   "Bring it back in one piece. Unlike me.",
+   {
+    "text": "One hand, still the best tune-up in town. Go on, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "She's ready. You're ready. Go.",
+    "face": "determined"
+   },
+   {
+    "text": "I'll listen from the bench. Make the motors happy.",
+    "face": "neutral"
+   }
   ]
  },
  "pitch": {
@@ -23,6 +47,18 @@
    {
     "text": "Take it. I need parts money.",
     "face": "happy"
+   },
+   {
+    "text": "Fun one. I'll even polish the props for it, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Drone's all set. Just bring yourself back smiling.",
+    "face": "determined"
+   },
+   {
+    "text": "Take it. I want to hear those motors hum.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -37,6 +73,18 @@
    {
     "text": "Bring the drone back whole. I can't bend down.",
     "face": "worried"
+   },
+   {
+    "text": "I'll cheer with my good hand. Take it, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "I patched her up special. Go.",
+    "face": "determined"
+   },
+   {
+    "text": "Take it slow, take it home. Easy money.",
+    "face": "neutral"
    }
   ]
  },
@@ -44,73 +92,184 @@
   "active": [
    "Motors sound happy.",
    "That's my tune-up talking.",
-   "Good. Nothing fell off."
+   "Good. Nothing fell off.",
+   {
+    "text": "Ha! She likes that, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Smooth! I felt that in my wrench.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice. Not a rattle.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Still running. Good.",
-   "Gate. I heard every bearing."
+   "Gate. I heard every bearing.",
+   {
+    "text": "Lovely. My stitches approve.",
+    "face": "happy"
+   },
+   {
+    "text": "Gate! Good one, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Sweet sound. Keep going.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "I'm standing right there, genius!",
    "Not near the van!",
-   "Hey! Wrench in hand, back off!"
+   "Hey! Wrench in hand, back off!",
+   "I'm in the zone. Please pull away from me.",
+   "Ease off. I'm right in your line.",
+   "Give me room, please. I can't get clear."
   ],
   "injured": [
    "Don't you dare. I'm still healing!",
-   "I can't move fast. Away!"
+   "I can't move fast. Away!",
+   "Please, wide of me. I'm not healed yet.",
+   "Pull off. I can't get out of the way.",
+   "Careful, please. I'm right here and I'm slow."
   ]
  },
  "strike": {
   "active": [
    "My hand! My good hand!",
    "Who's fixing the fixer now?",
-   "Ow! Okay. Okay. Get a kit."
+   "Ow! Okay. Okay. Get a kit.",
+   "I'm hurt. Stop the drone and get a kit.",
+   "My arm. I need someone here, please.",
+   "I'm down. Don't panic. Just get help."
   ],
   "injured": [
    "Twice. You got me twice.",
-   "I can't... I can't feel my fingers."
+   "I can't... I can't feel my fingers.",
+   "Again. I need help now. Please.",
+   "I'm hurt badly. Someone come quick.",
+   "Stay calm. Get the medic to me."
   ]
  },
  "complete": {
   "active": [
    "It came back! Shocked.",
    "Not a scratch. I'm almost proud.",
-   "Good. I can go to lunch."
+   "Good. I can go to lunch.",
+   {
+    "text": "Not a scratch! I could hug you, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Came back purring. You're my favourite.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at her! Spotless. Great flying.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Back in one piece. One of us is.",
-   "Fine. Good. I'll sit down now."
+   "Fine. Good. I'll sit down now.",
+   {
+    "text": "Back in one piece! Best news all day, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely. I don't have to fix a thing.",
+    "face": "happy"
+   },
+   {
+    "text": "Good flying. My hand thanks you.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Do you know what parts cost?",
    "I'll get the tape.",
-   "That's coming out of something."
+   "That's coming out of something.",
+   {
+    "text": "Hey. Props are cheap. You're not, {you}.",
+    "face": "neutral"
+   },
+   {
+    "text": "I'll patch it up. You go get a snack.",
+    "face": "happy"
+   },
+   {
+    "text": "Bent metal straightens. Go again.",
+    "face": "determined"
+   }
   ],
   "injured": [
    "Don't make me fix it like this.",
-   "Great. More work, fewer hands."
+   "Great. More work, fewer hands.",
+   {
+    "text": "It's alright, {you}. I've fixed worse with less.",
+    "face": "neutral"
+   },
+   {
+    "text": "Chin up. I'll sort the drone.",
+    "face": "happy"
+   },
+   {
+    "text": "Next time. I'll have her ready.",
+    "face": "determined"
+   }
   ]
  },
  "results": {
   "active": [
    "Grade's nice. The repair bill is nicer.",
    "I'll price the damage.",
-   "Not bad. Not cheap either."
+   "Not bad. Not cheap either.",
+   {
+    "text": "Good grade, {you}. And nothing to fix. Hooray.",
+    "face": "happy"
+   },
+   {
+    "text": "I'm framing this one. The grade, not the bill.",
+    "face": "happy"
+   },
+   {
+    "text": "Look at that. You're getting good at this.",
+    "face": "neutral"
+   }
   ],
   "injured": [
    "Grade's fine. My insurance is not.",
-   "Let's count what's broken. Including me."
+   "Let's count what's broken. Including me.",
+   {
+    "text": "Nice grade. Made my sore hand feel better.",
+    "face": "happy"
+   },
+   {
+    "text": "Good numbers, {you}. Real good.",
+    "face": "happy"
+   },
+   {
+    "text": "Steady work. I like steady.",
+    "face": "neutral"
+   }
   ]
  },
  "hurt": {
   "active": [
    "Hand's wrapped. Shop's open, slowly.",
    "I'll fix the drone. Who fixes me?",
-   "Two jobs off. Don't break anything."
+   "Two jobs off. Don't break anything.",
+   "Hand will heal. Don't you blame yourself into the ground.",
+   "Off a couple of jobs. The shop will wait for me.",
+   "I'm sore, not gone. Come by the shop and say hi."
   ]
  },
  "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time.",
@@ -118,7 +277,19 @@
   "active": [
    "She'll get there. Go easy on the battery.",
    "Moving. Motors sound fine.",
-   "Fine, fine. Going."
+   "Fine, fine. Going.",
+   {
+    "text": "On it, {you}. She's running sweet.",
+    "face": "determined"
+   },
+   {
+    "text": "Going. Motors are happy.",
+    "face": "happy"
+   },
+   {
+    "text": "Heading there. I'll keep her cool.",
+    "face": "determined"
+   }
   ]
  },
  "epilogue": {
@@ -139,6 +310,18 @@
    {
     "text": "Liftoff. I can hear every bearing.",
     "face": "neutral"
+   },
+   {
+    "text": "Up she goes! Hear that hum, {you}?",
+    "face": "happy"
+   },
+   {
+    "text": "Liftoff. Music to my ears.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean spin-up. Let's have a good one.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -149,6 +332,18 @@
    {
     "text": "Liftoff. Sounds fine. Keep it fine.",
     "face": "neutral"
+   },
+   {
+    "text": "Up! That sound beats any painkiller.",
+    "face": "happy"
+   },
+   {
+    "text": "Easy liftoff, {you}. Lovely.",
+    "face": "neutral"
+   },
+   {
+    "text": "She's flying. My favourite part.",
+    "face": "happy"
    }
   ]
  },
@@ -165,6 +360,18 @@
    {
     "text": "Keep a gap. Paint isn't free.",
     "face": "worried"
+   },
+   {
+    "text": "Yikes! Still got all four props, {you}?",
+    "face": "shocked"
+   },
+   {
+    "text": "Phew. Close, but she's fine.",
+    "face": "worried"
+   },
+   {
+    "text": "Whoa! Nice save, though.",
+    "face": "shocked"
    }
   ],
   "injured": [
@@ -174,6 +381,18 @@
    },
    {
     "text": "Easy. Don't give me more work.",
+    "face": "worried"
+   },
+   {
+    "text": "Eek! Okay. All good, {you}?",
+    "face": "shocked"
+   },
+   {
+    "text": "Close. My heart and my stitches jumped.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy. You're fine. Breathe.",
     "face": "worried"
    }
   ]
@@ -191,6 +410,18 @@
    {
     "text": "I'll be cleaning that filter tonight.",
     "face": "sad"
+   },
+   {
+    "text": "Low and lovely. Mind the grit, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Ooh, low. I'll clean the filter happily for that.",
+    "face": "worried"
+   },
+   {
+    "text": "Pretty pass. Up a hair, though.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -201,6 +432,18 @@
    {
     "text": "Please don't eat the ground.",
     "face": "worried"
+   },
+   {
+    "text": "Nice and low, {you}. Gently.",
+    "face": "happy"
+   },
+   {
+    "text": "Low! Careful of my poor motors.",
+    "face": "worried"
+   },
+   {
+    "text": "That's a lovely skim.",
+    "face": "happy"
    }
   ]
  },
@@ -217,6 +460,18 @@
    {
     "text": "Top speed. Watch your temps.",
     "face": "determined"
+   },
+   {
+    "text": "Hear her sing! That's my tune-up, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Flat out and happy. Love it.",
+    "face": "happy"
+   },
+   {
+    "text": "Top end. She can take it. Brake early.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -227,6 +482,18 @@
    {
     "text": "That's my tune-up. Enjoy it.",
     "face": "happy"
+   },
+   {
+    "text": "Zoom! She's flying beautifully.",
+    "face": "happy"
+   },
+   {
+    "text": "Fast! You make my work look good, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Speedy. Go easy on the corners.",
+    "face": "worried"
    }
   ]
  },
@@ -243,6 +510,18 @@
    {
     "text": "You're draining it. Land before it sags.",
     "face": "determined"
+   },
+   {
+    "text": "Pack's tired, {you}. Bring her home for a nap.",
+    "face": "worried"
+   },
+   {
+    "text": "Low battery. Plenty to get back on.",
+    "face": "determined"
+   },
+   {
+    "text": "She's sleepy. Head home.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -253,6 +532,18 @@
    {
     "text": "Quarter left. Come home.",
     "face": "worried"
+   },
+   {
+    "text": "Low charge. Home gently, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Pack's low. I'll have a fresh one ready.",
+    "face": "neutral"
+   },
+   {
+    "text": "Time to land. Nice and easy.",
+    "face": "determined"
    }
   ]
  },
@@ -269,6 +560,18 @@
    {
     "text": "I heard that from the van.",
     "face": "sad"
+   },
+   {
+    "text": "Ouch! Don't worry, I've got tape, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "Bonk. You okay? She'll mend.",
+    "face": "worried"
+   },
+   {
+    "text": "Crashes happen. I'll fix it. You fly.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -279,6 +582,18 @@
    {
     "text": "I felt that in my stitches.",
     "face": "shocked"
+   },
+   {
+    "text": "Oof. We'll both be on the bench, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "That's okay. Bent props, not bent pilots.",
+    "face": "worried"
+   },
+   {
+    "text": "Shake it off. I'll sort her out.",
+    "face": "determined"
    }
   ]
  },
@@ -295,6 +610,18 @@
    {
     "text": "Back to the start. I checked it over.",
     "face": "neutral"
+   },
+   {
+    "text": "Fresh pack, fresh start, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "All fixed! Go again.",
+    "face": "happy"
+   },
+   {
+    "text": "Reset. She's ready when you are.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -305,6 +632,18 @@
    {
     "text": "Fresh battery. Be nice to it.",
     "face": "determined"
+   },
+   {
+    "text": "Swapped one-handed. Go get it, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Fresh battery. You've got this.",
+    "face": "determined"
+   },
+   {
+    "text": "Clean slate. Take it easy.",
+    "face": "neutral"
    }
   ]
  },
@@ -321,6 +660,18 @@
    {
     "text": "New weather. Watch the battery.",
     "face": "determined"
+   },
+   {
+    "text": "Weather's turning. She can handle it, and so can you, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "New air. Trust the tune-up.",
+    "face": "determined"
+   },
+   {
+    "text": "Bit wetter out. Fly smooth and she'll be fine.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -331,6 +682,18 @@
    {
     "text": "Air's turning. Mind the pack.",
     "face": "worried"
+   },
+   {
+    "text": "Weather's moving. Easy does it, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Air's changing. She's sealed up, don't worry.",
+    "face": "neutral"
+   },
+   {
+    "text": "New sky. You'll be fine.",
+    "face": "determined"
    }
   ]
  },
@@ -347,6 +710,18 @@
    {
     "text": "Going somewhere, or just humming?",
     "face": "neutral"
+   },
+   {
+    "text": "Nice hover. She sounds content, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Taking a breather? Me too.",
+    "face": "neutral"
+   },
+   {
+    "text": "Lovely and steady. I could listen all day.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -357,6 +732,18 @@
    {
     "text": "Just hovering. Fine by me.",
     "face": "neutral"
+   },
+   {
+    "text": "Steady hum. Very soothing, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Take your time. I'm resting anyway.",
+    "face": "neutral"
+   },
+   {
+    "text": "Perfect hover. Show-off.",
+    "face": "happy"
    }
   ]
  },
@@ -373,6 +760,18 @@
    {
     "text": "I'm listening to the motors. Go have fun.",
     "face": "happy"
+   },
+   {
+    "text": "Dot here! She's tuned and ready, {you}. Have fun.",
+    "face": "happy"
+   },
+   {
+    "text": "Day off! Go play. I'll listen to the motors.",
+    "face": "happy"
+   },
+   {
+    "text": "Free sky, fresh pack. Enjoy it.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -383,6 +782,18 @@
    {
     "text": "Fly gentle. I can't fix much right now.",
     "face": "worried"
+   },
+   {
+    "text": "Hi, {you}. Fly something nice for me.",
+    "face": "happy"
+   },
+   {
+    "text": "Dot, from the bench. Glad to hear you up there.",
+    "face": "neutral"
+   },
+   {
+    "text": "One hand on the radio. Have fun out there.",
+    "face": "happy"
    }
   ]
  },
@@ -399,6 +810,18 @@
    {
     "text": "Good. That's a landing I like.",
     "face": "happy"
+   },
+   {
+    "text": "Made it! Nice flying, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "There it is. Smooth.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely. Not a rattle the whole way.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -408,6 +831,18 @@
    },
    {
     "text": "There. Nice and gentle.",
+    "face": "neutral"
+   },
+   {
+    "text": "You found it, {you}. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it! She sounds happy.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Soft as you like.",
     "face": "neutral"
    }
   ]

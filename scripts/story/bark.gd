@@ -14,6 +14,7 @@ extends Node
 # radio panel, which then plays the chirp itself when the line opens.
 # Story 17.9: the crew react to a FlightWatcher's flight events, each line with a
 # face; who reacts from afar is their `speaks_on`.
+# Story 18.4: a line may say {you}, filled from the speaker's `calls_you`.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
@@ -100,13 +101,21 @@ static func lines_of(id: StringName) -> Dictionary:
 static func text_of(line: Variant) -> String:
 	return str(line.get("text", "")) if line is Dictionary else str(line)
 
+## A line as said: {you} becomes one of the speaker's names for you, picked by
+## the line itself so the same line always reads the same.
+static func fill(c: Character, text: String) -> String:
+	if not text.contains("{you}"):
+		return text
+	var names: PackedStringArray = c.calls_you if c and not c.calls_you.is_empty() else PackedStringArray(["pilot"])
+	return text.replace("{you}", names[absi(hash(text)) % names.size()])
+
 ## The face for a line: its entry's `face` when that is a known expression,
 ## otherwise the event's default.
 static func face_of(id: StringName, event: StringName, text: String) -> StringName:
 	var e: Variant = lines_of(id).get(String(event), {})
 	if e is Dictionary:
 		for line in e.get("active", []) + e.get("injured", []):
-			if line is Dictionary and text_of(line) == text:
+			if line is Dictionary and fill(Roster.character(id), text_of(line)) == text:
 				var face := StringName(str(line.get("face", "")))
 				if face in CharacterPortrait.EXPRESSIONS:
 					return face
@@ -121,7 +130,8 @@ static func pool(id: StringName, event: StringName, as_status := -1) -> Array:
 	var e: Dictionary = lines_of(id).get(String(event), {})
 	var status: int = Roster.status(id) if as_status < 0 else as_status
 	var lines: Array = e.injured if status == Roster.Status.INJURED and e.has("injured") else e.get("active", [])
-	return lines.map(text_of)
+	var c: Character = Roster.character(id)
+	return lines.map(func(l): return fill(c, text_of(l)))
 
 ## Lines not yet said this job; the whole pool when it holds a single line.
 func available(id: StringName, event: StringName, as_status := -1) -> Array:

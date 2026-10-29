@@ -3,49 +3,115 @@
   "active": [
    "Let's make this quick.",
    "Hands on the sticks. Go time.",
-   "I only know one speed."
+   "I only know one speed.",
+   {
+    "text": "Ready, {you}? Let's fly fast and have fun.",
+    "face": "determined"
+   },
+   {
+    "text": "Green light. I love this bit.",
+    "face": "happy"
+   },
+   {
+    "text": "Quick one. Fun one.",
+    "face": "happy"
+   }
   ]
  },
  "gate_passed": {
   "active": [
    "Gone!",
    "Next, next, next.",
-   "Too easy."
+   "Too easy.",
+   {
+    "text": "Zip! Nice, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Ha! Gone.",
+    "face": "happy"
+   },
+   {
+    "text": "So smooth.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "Whoa, braking!",
    "People ahead! Off the gas!",
-   "Okay, okay, backing off."
+   "Okay, okay, backing off.",
+   "Braking now. Someone's in there.",
+   "Pulling wide. They come first.",
+   "Off the gas. Giving them room."
   ]
  },
  "strike": {
   "active": [
    "No. I was going way too fast.",
    "That's my fault. All of it.",
-   "Is everyone okay? Talk to me."
+   "Is everyone okay? Talk to me.",
+   "Someone's hurt. Stopping. Get help.",
+   "I'm so sorry. Is help on the way?",
+   "Stop everything. Check on them first."
   ]
  },
  "complete": {
   "active": [
    "Done already?",
    "Fastest one yet, right?",
-   "Told you. Quick."
+   "Told you. Quick.",
+   {
+    "text": "Quick and clean, {you}! Love it.",
+    "face": "happy"
+   },
+   {
+    "text": "Woo! That was a rush.",
+    "face": "happy"
+   },
+   {
+    "text": "Done! Again?",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Overcooked it.",
    "Came in hot. Too hot.",
-   "Fine. Faster this time. Smarter."
+   "Fine. Faster this time. Smarter.",
+   {
+    "text": "Too hot. It's fine, {you}. Next one.",
+    "face": "neutral"
+   },
+   {
+    "text": "Learned something. Go again.",
+    "face": "determined"
+   },
+   {
+    "text": "Wipeout. Ha. Okay, reset.",
+    "face": "happy"
+   }
   ]
  },
  "results": {
   "active": [
    "What was the time?",
    "Show me the splits.",
-   "I can shave more off that."
+   "I can shave more off that.",
+   {
+    "text": "Good time, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "I'll beat that. With you.",
+    "face": "happy"
+   },
+   {
+    "text": "Fast enough. For now.",
+    "face": "neutral"
+   }
   ]
  }
 }

@@ -3,7 +3,19 @@
   "active": [
    "Read the brief. Then read it again.",
    "Clean, safe, fast. In that order.",
-   "Show me why I scouted you."
+   "Show me why I scouted you.",
+   {
+    "text": "You're ready, {you}. I wouldn't send you otherwise.",
+    "face": "determined"
+   },
+   {
+    "text": "Fly it like you love it. You do.",
+    "face": "happy"
+   },
+   {
+    "text": "I'm in your corner. Always was.",
+    "face": "determined"
+   }
   ]
  },
  "pitch": {
@@ -19,6 +31,18 @@
    {
     "text": "I'd put you on this. Don't make me regret it.",
     "face": "happy"
+   },
+   {
+    "text": "I picked this one with you in mind, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "You can do this. I've seen you do harder.",
+    "face": "determined"
+   },
+   {
+    "text": "Take it. Then come tell me about it.",
+    "face": "happy"
    }
   ]
  },
@@ -26,42 +50,96 @@
   "active": [
    "Good line.",
    "Patience. Then speed.",
-   "Better."
+   "Better.",
+   {
+    "text": "That's it, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely. You're getting it.",
+    "face": "happy"
+   },
+   {
+    "text": "Good. Keep that up.",
+    "face": "determined"
+   }
   ]
  },
  "warning": {
   "active": [
    "Crew in the zone. Ease off.",
    "Watch your crew.",
-   "You see them? Then fly like it."
+   "You see them? Then fly like it.",
+   "Crew in the zone. Ease off now, carefully.",
+   "Slow down. There's a person in your path.",
+   "Pull wide and give them room. You can do it."
   ]
  },
  "strike": {
   "active": [
    "That one's on you. Own it.",
    "Stop. Breathe. Your crew needs you careful.",
-   "That's the cost. Remember it."
+   "That's the cost. Remember it.",
+   "Stop. Check on them first. Then we talk.",
+   "Stay calm. Help them. I'm here.",
+   "Someone's hurt. Breathe and call it in."
   ]
  },
  "complete": {
   "active": [
    "Good work. Not perfect. Good.",
    "That's a pro finish.",
-   "Job done. Debrief."
+   "Job done. Debrief.",
+   {
+    "text": "That's my pilot! Well flown, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "I knew you could. Great job.",
+    "face": "happy"
+   },
+   {
+    "text": "That's the one. Proud of you.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Failure's data. Read it.",
    "Reset. We learn and go again.",
-   "Not today. Tomorrow."
+   "Not today. Tomorrow.",
+   {
+    "text": "It's okay, {you}. Everyone fails on the way up.",
+    "face": "neutral"
+   },
+   {
+    "text": "You'll get it. I've seen you learn faster than this.",
+    "face": "determined"
+   },
+   {
+    "text": "Rest, then go again. I'm not going anywhere.",
+    "face": "neutral"
+   }
   ]
  },
  "results": {
   "active": [
    "Look at the grade, then look at why.",
    "Here's where you lost time.",
-   "Every number is a lesson."
+   "Every number is a lesson.",
+   {
+    "text": "Look at that progress, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Better than last time. That's all I ask.",
+    "face": "happy"
+   },
+   {
+    "text": "Good numbers. Better pilot.",
+    "face": "neutral"
+   }
   ]
  },
  "epilogue": {
@@ -82,6 +160,18 @@
    {
     "text": "You're flying. Make it count.",
     "face": "determined"
+   },
+   {
+    "text": "Up you go, {you}. Enjoy it.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean lift. You've got this.",
+    "face": "determined"
+   },
+   {
+    "text": "Flying. Smile a bit.",
+    "face": "happy"
    }
   ]
  },
@@ -97,6 +187,18 @@
    },
    {
     "text": "That's luck. Don't spend it.",
+    "face": "worried"
+   },
+   {
+    "text": "Close! You're okay, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Whoa. Good recovery.",
+    "face": "shocked"
+   },
+   {
+    "text": "Tight, but you held it.",
     "face": "worried"
    }
   ]
@@ -114,6 +216,18 @@
    {
     "text": "Nice. Now do it again on purpose.",
     "face": "determined"
+   },
+   {
+    "text": "Lovely low pass, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Controlled and low. Proud of that.",
+    "face": "determined"
+   },
+   {
+    "text": "Pretty line.",
+    "face": "happy"
    }
   ]
  },
@@ -130,6 +244,18 @@
    {
     "text": "That's the ceiling. Fly under it.",
     "face": "neutral"
+   },
+   {
+    "text": "Look at that speed, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Fast and composed. That's growth.",
+    "face": "determined"
+   },
+   {
+    "text": "Flat out. Enjoy it, then brake.",
+    "face": "happy"
    }
   ]
  },
@@ -146,6 +272,18 @@
    {
     "text": "Low pack. Bring it in clean.",
     "face": "determined"
+   },
+   {
+    "text": "Pack's low, {you}. Plan a nice landing.",
+    "face": "worried"
+   },
+   {
+    "text": "Head home. You've earned it.",
+    "face": "determined"
+   },
+   {
+    "text": "Low charge. Smooth finish.",
+    "face": "neutral"
    }
   ]
  },
@@ -162,6 +300,18 @@
    {
     "text": "Hit. Reset your head first.",
     "face": "sad"
+   },
+   {
+    "text": "Ouch. You'll be fine, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "Everyone crashes. The good ones get up.",
+    "face": "neutral"
+   },
+   {
+    "text": "Shake it off. Go again.",
+    "face": "determined"
    }
   ]
  },
@@ -178,6 +328,18 @@
    {
     "text": "Again. Clean, safe, fast.",
     "face": "determined"
+   },
+   {
+    "text": "Fresh start, {you}. You've got this.",
+    "face": "determined"
+   },
+   {
+    "text": "Again. I like your odds.",
+    "face": "happy"
+   },
+   {
+    "text": "Reset. Breathe, then fly.",
+    "face": "neutral"
    }
   ]
  },
@@ -194,6 +356,18 @@
    {
     "text": "Read the sky before it reads you.",
     "face": "determined"
+   },
+   {
+    "text": "New weather. You're ready for it, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Sky's changed. Trust your hands.",
+    "face": "neutral"
+   },
+   {
+    "text": "Wind's up. You'll manage.",
+    "face": "worried"
    }
   ]
  },
@@ -209,6 +383,18 @@
    },
    {
     "text": "Hovering's a skill. So is moving.",
+    "face": "neutral"
+   },
+   {
+    "text": "Take your time, {you}.",
+    "face": "neutral"
+   },
+   {
+    "text": "Enjoying the view? Good.",
+    "face": "happy"
+   },
+   {
+    "text": "Thinking's fine. I'll wait.",
     "face": "neutral"
    }
   ]
@@ -226,6 +412,18 @@
    {
     "text": "I'm listening. Show me something.",
     "face": "determined"
+   },
+   {
+    "text": "Rin here. Have fun today, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "No grades. Just enjoy flying.",
+    "face": "happy"
+   },
+   {
+    "text": "Try something new. I'll cheer.",
+    "face": "determined"
    }
   ]
  },
@@ -242,6 +440,18 @@
    {
     "text": "Made it. Again, faster.",
     "face": "determined"
+   },
+   {
+    "text": "Nice find, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Good flying. Really.",
+    "face": "happy"
+   },
+   {
+    "text": "There. Enjoy that.",
+    "face": "happy"
    }
   ]
  }

@@ -3,49 +3,115 @@
   "active": [
    "Plenty in the tank. Let's not waste it.",
    "Smooth is fast. Smooth is also long.",
-   "I'll pace it. You'll see."
+   "I'll pace it. You'll see.",
+   {
+    "text": "Long day, good company, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Pace yourself. We'll get there.",
+    "face": "determined"
+   },
+   {
+    "text": "Plenty of charge, plenty of time.",
+    "face": "happy"
+   }
   ]
  },
  "gate_passed": {
   "active": [
    "Through, and still sipping.",
    "Nice and easy.",
-   "One down, lots of charge left."
+   "One down, lots of charge left.",
+   {
+    "text": "Nice and steady, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Smooth. Sipping power.",
+    "face": "happy"
+   },
+   {
+    "text": "One more, easy.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "Easing off. Someone's there.",
    "Slow down, slow down.",
-   "Not worth it. Pulling wide."
+   "Not worth it. Pulling wide.",
+   "Easing off. There's someone down there.",
+   "Slowing now. Giving them space.",
+   "Pulling wide. Not worth the risk."
   ]
  },
  "strike": {
   "active": [
    "Oh no. I wasn't gentle enough.",
    "That's on me. I'm sorry.",
-   "Someone tell me they're alright."
+   "Someone tell me they're alright.",
+   "Someone's hurt. Stop and get help.",
+   "I'm sorry. Please be alright.",
+   "Help first. Everything else waits."
   ]
  },
  "complete": {
   "active": [
    "Done, with juice to spare.",
    "Landed. Battery's barely sweating.",
-   "That's how you go the distance."
+   "That's how you go the distance.",
+   {
+    "text": "Made it with charge to spare, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Long haul, happy landing.",
+    "face": "happy"
+   },
+   {
+    "text": "Steady wins. Every time.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Too much, too soon.",
    "I rushed it. I never rush it.",
-   "Okay. Pace. Again."
+   "Okay. Pace. Again.",
+   {
+    "text": "That's alright, {you}. Steady next time.",
+    "face": "neutral"
+   },
+   {
+    "text": "Pace it out. Again.",
+    "face": "determined"
+   },
+   {
+    "text": "No rush. We'll get it.",
+    "face": "neutral"
+   }
   ]
  },
  "results": {
   "active": [
    "How long did I stay up?",
    "Numbers, please. The long ones.",
-   "Not flashy. Just steady."
+   "Not flashy. Just steady.",
+   {
+    "text": "Look how long we stayed up, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Steady numbers. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "Good and even.",
+    "face": "neutral"
+   }
   ]
  }
 }

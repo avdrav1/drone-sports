@@ -3,11 +3,35 @@
   "active": [
    "Building's coming down on schedule. Be out before it does.",
    "Hard hats on. Fly fast, fly smart.",
-   "I call the collapse. You listen."
+   "I call the collapse. You listen.",
+   {
+    "text": "You're my best flyer, {you}. Show the site.",
+    "face": "determined"
+   },
+   {
+    "text": "Big job, good crew. That includes you.",
+    "face": "happy"
+   },
+   {
+    "text": "Plan the gaps, fly the plan. You've got this.",
+    "face": "determined"
+   }
   ],
   "injured": [
    "Still the foreman. Still calling it. Move.",
-   "Leg's busted. Building doesn't care. Go."
+   "Leg's busted. Building doesn't care. Go.",
+   {
+    "text": "Leg's in a cast, faith's not. Go on, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "I'll call it from the chair. You make it look good.",
+    "face": "happy"
+   },
+   {
+    "text": "Steady and clean. I trust you.",
+    "face": "neutral"
+   }
   ]
  },
  "pitch": {
@@ -23,6 +47,18 @@
    {
     "text": "Fly it right and nobody gets hurt. Take it.",
     "face": "determined"
+   },
+   {
+    "text": "I want my best on this. That's you, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Good site, good pay, good pilot. Let's go.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean job. You'll own it.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -37,6 +73,18 @@
    {
     "text": "I'll be on site. Slower. Fly it clean.",
     "face": "sad"
+   },
+   {
+    "text": "I'll be watching from my chair. Show me, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Leg's slow, you're not. Take it.",
+    "face": "happy"
+   },
+   {
+    "text": "Fly it clean and I'll buy lunch.",
+    "face": "neutral"
    }
   ]
  },
@@ -44,73 +92,184 @@
   "active": [
    "Through the gap. Good.",
    "That's a clean entry.",
-   "On line. Keep it."
+   "On line. Keep it.",
+   {
+    "text": "Textbook, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Sweet gap. That's my pilot.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean. Keep that rhythm.",
+    "face": "determined"
+   }
   ],
   "injured": [
    "Good gap. Keep it that tight.",
-   "Through. Don't get clever."
+   "Through. Don't get clever.",
+   {
+    "text": "Lovely line, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean through. That's the stuff.",
+    "face": "happy"
+   },
+   {
+    "text": "Tidy. Keep it coming.",
+    "face": "determined"
+   }
   ]
  },
  "warning": {
   "active": [
    "Watch the cornice! I'm under it!",
    "Off my site, now!",
-   "Back up, I'm right below you!"
+   "Back up, I'm right below you!",
+   "I'm under you. Pull off the site now, please.",
+   "Stop. My crew and I are right below.",
+   "Give us room. Back away from the structure."
   ],
   "injured": [
    "Not again. Not on me again!",
-   "I can't run on this leg. Back off!"
+   "I can't run on this leg. Back off!",
+   "Please, pull away. I can't get clear in time.",
+   "Back off the site. I'm still hurt down here.",
+   "Easy. Wide of me. I'm counting on you."
   ]
  },
  "strike": {
   "active": [
    "Ugh! Block came down on me!",
    "I'm hit. Keep the job moving.",
-   "Somebody get this off my leg."
+   "Somebody get this off my leg.",
+   "I'm hit. Stop the job. Get someone to me.",
+   "Leg's pinned. Stay calm and call it in.",
+   "I'm hurt. Nobody else move. Help me first."
   ],
   "injured": [
    "That's twice. That's... twice.",
-   "I can't get up. I can't get up."
+   "I can't get up. I can't get up.",
+   "Hit again. I need a medic. Now.",
+   "I'm in a bad way. Please hurry.",
+   "Stay with me. Get help down here."
   ]
  },
  "complete": {
   "active": [
    "Out before the roof. That's the job.",
    "Clean demo. I'll sign it.",
-   "Good. Nobody's under anything."
+   "Good. Nobody's under anything.",
+   {
+    "text": "That's the job, {you}. Proud of you.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean demo, nobody hurt. Perfect.",
+    "face": "happy"
+   },
+   {
+    "text": "I'll sign it twice. Great work.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Done. I'll sign it from the stretcher.",
-   "Clean work. Wish I'd been upright for it."
+   "Clean work. Wish I'd been upright for it.",
+   {
+    "text": "Done right. You made my week, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean site. I'd stand and clap if I could.",
+    "face": "happy"
+   },
+   {
+    "text": "Beautiful work. Every gap.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Site's shut. We reset tomorrow.",
    "Too slow. The roof doesn't wait.",
-   "Walk it back. Think about the line."
+   "Walk it back. Think about the line.",
+   {
+    "text": "Not today. We regroup, {you}. No shame in that.",
+    "face": "neutral"
+   },
+   {
+    "text": "Every good crew has a bad day. Reset.",
+    "face": "determined"
+   },
+   {
+    "text": "Walk it off. Coffee's on me.",
+    "face": "happy"
+   }
   ],
   "injured": [
    "Not like this. Not with me hurt.",
-   "Pack it up. We try again slower."
+   "Pack it up. We try again slower.",
+   {
+    "text": "It's okay, {you}. We'll come back stronger.",
+    "face": "neutral"
+   },
+   {
+    "text": "Off day. We go again.",
+    "face": "determined"
+   },
+   {
+    "text": "Chin up. I've seen you do it.",
+    "face": "happy"
+   }
   ]
  },
  "results": {
   "active": [
    "Safety's the first grade. The rest is pay.",
    "Fair work.",
-   "I've seen worse crews."
+   "I've seen worse crews.",
+   {
+    "text": "Safe and paid. My favourite grade, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Good crew work. You fit right in.",
+    "face": "happy"
+   },
+   {
+    "text": "That's honest work. I'm glad you're on my site.",
+    "face": "neutral"
+   }
   ],
   "injured": [
    "Grade's fine. Site safety, not so much.",
-   "Paperwork says injured. Paperwork's right."
+   "Paperwork says injured. Paperwork's right.",
+   {
+    "text": "Good grade. Best part of my day, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Solid numbers. Proud of my crew.",
+    "face": "neutral"
+   },
+   {
+    "text": "Look at that. Clean.",
+    "face": "happy"
+   }
   ]
  },
  "hurt": {
   "active": [
    "Leg's in a cast. Site runs without me for a bit.",
    "I'll be back on the site. Give me time.",
-   "Hurt, not done. Remember that."
+   "Hurt, not done. Remember that.",
+   "Cast for a while. Keep the crew safe for me.",
+   "I'll heal. Don't blame yourself. Learn and come back.",
+   "I'm off the site, not off the team."
   ]
  },
  "memorial": "Bea, demolition foreman. Called the collapse, every time.",
@@ -132,6 +291,18 @@
    {
     "text": "Clean takeoff. Keep it that tidy.",
     "face": "happy"
+   },
+   {
+    "text": "Airborne. Lovely start, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Up and steady. Let's take something down. Carefully.",
+    "face": "determined"
+   },
+   {
+    "text": "Clean lift. That's how my crew does it.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -142,6 +313,18 @@
    {
     "text": "Airborne. Easy around my crew.",
     "face": "worried"
+   },
+   {
+    "text": "You're up. Looking good, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Airborne. Nice and easy.",
+    "face": "neutral"
+   },
+   {
+    "text": "Steady lift. That's my pilot.",
+    "face": "determined"
    }
   ]
  },
@@ -158,6 +341,18 @@
    {
     "text": "Close. The building doesn't move for you.",
     "face": "worried"
+   },
+   {
+    "text": "Whoa! You alright, {you}? Ease off a touch.",
+    "face": "shocked"
+   },
+   {
+    "text": "Close shave. You're fine. Widen it.",
+    "face": "worried"
+   },
+   {
+    "text": "Yikes. Good save, though.",
+    "face": "shocked"
    }
   ],
   "injured": [
@@ -167,6 +362,18 @@
    },
    {
     "text": "Keep off the structure. Please.",
+    "face": "worried"
+   },
+   {
+    "text": "Close! Breathe, {you}.",
+    "face": "shocked"
+   },
+   {
+    "text": "That gave me a jolt. You're okay.",
+    "face": "worried"
+   },
+   {
+    "text": "Easy now. Give it space.",
     "face": "worried"
    }
   ]
@@ -184,6 +391,18 @@
    {
     "text": "Low and fast. Nice gap.",
     "face": "happy"
+   },
+   {
+    "text": "Low and clean. Lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Skimming the rubble. Tidy.",
+    "face": "determined"
+   },
+   {
+    "text": "That's a pretty pass.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -194,6 +413,18 @@
    {
     "text": "Easy, there's people down here.",
     "face": "worried"
+   },
+   {
+    "text": "Nice and low, {you}. Careful.",
+    "face": "happy"
+   },
+   {
+    "text": "Low. Mind the crew, but nice.",
+    "face": "worried"
+   },
+   {
+    "text": "Smooth pass. Good.",
+    "face": "happy"
    }
   ]
  },
@@ -210,6 +441,18 @@
    {
     "text": "Quick. Now brake early.",
     "face": "determined"
+   },
+   {
+    "text": "Look at that go, {you}!",
+    "face": "happy"
+   },
+   {
+    "text": "Fast and tidy. Brake early and you're golden.",
+    "face": "determined"
+   },
+   {
+    "text": "Speed suits you.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -220,6 +463,18 @@
    {
     "text": "Fast. Too fast for me today.",
     "face": "worried"
+   },
+   {
+    "text": "Quick! Nice, {you}. Easy near the crew.",
+    "face": "happy"
+   },
+   {
+    "text": "Fast. Careful, but fun to watch.",
+    "face": "worried"
+   },
+   {
+    "text": "Top end. Plan your stop.",
+    "face": "determined"
    }
   ]
  },
@@ -236,6 +491,18 @@
    {
     "text": "Pack's fading. Wrap it.",
     "face": "determined"
+   },
+   {
+    "text": "Pack's low, {you}. Bring it home safe.",
+    "face": "worried"
+   },
+   {
+    "text": "Low charge. You've got time to land.",
+    "face": "determined"
+   },
+   {
+    "text": "Wrap it up. Good shift.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -246,6 +513,18 @@
    {
     "text": "Pack's low. Land somewhere safe.",
     "face": "worried"
+   },
+   {
+    "text": "Battery's low. Easy home, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Pack's fading. Land it somewhere nice.",
+    "face": "determined"
+   },
+   {
+    "text": "Time to come in. Good work.",
+    "face": "neutral"
    }
   ]
  },
@@ -262,6 +541,18 @@
    {
     "text": "Structures win. Every time.",
     "face": "sad"
+   },
+   {
+    "text": "Ouch. Everybody bumps a wall, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "You okay? Drones mend.",
+    "face": "worried"
+   },
+   {
+    "text": "Dust off. We go again.",
+    "face": "determined"
    }
   ],
   "injured": [
@@ -272,6 +563,18 @@
    {
     "text": "Ugh. I know how that feels.",
     "face": "sad"
+   },
+   {
+    "text": "Ooh. We're a matching pair now, {you}.",
+    "face": "sad"
+   },
+   {
+    "text": "It's fine. Walls are walls.",
+    "face": "worried"
+   },
+   {
+    "text": "Shake it off. Back to work.",
+    "face": "determined"
    }
   ]
  },
@@ -288,6 +591,18 @@
    {
     "text": "Fresh run. Same rules: get clear.",
     "face": "determined"
+   },
+   {
+    "text": "Fresh start, {you}. Plan the gap.",
+    "face": "determined"
+   },
+   {
+    "text": "Reset. You'll nail it.",
+    "face": "happy"
+   },
+   {
+    "text": "Back to the top. Take your time.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -297,6 +612,18 @@
    },
    {
     "text": "Back to the top. Breathe.",
+    "face": "neutral"
+   },
+   {
+    "text": "Again, {you}. Slow and sure.",
+    "face": "determined"
+   },
+   {
+    "text": "Reset. I believe in you.",
+    "face": "happy"
+   },
+   {
+    "text": "Fresh run. Breathe first.",
     "face": "neutral"
    }
   ]
@@ -314,6 +641,18 @@
    {
     "text": "New weather. Recheck your gaps.",
     "face": "determined"
+   },
+   {
+    "text": "Weather's shifting, {you}. You'll handle it.",
+    "face": "worried"
+   },
+   {
+    "text": "New wind. Adjust and carry on.",
+    "face": "determined"
+   },
+   {
+    "text": "Sky's changing. Fly it soft.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -324,6 +663,18 @@
    {
     "text": "Air's changing. Fly it careful.",
     "face": "worried"
+   },
+   {
+    "text": "Weather's moving. Steady, {you}.",
+    "face": "worried"
+   },
+   {
+    "text": "Air's changing. You've got this.",
+    "face": "neutral"
+   },
+   {
+    "text": "New sky. Same good pilot.",
+    "face": "determined"
    }
   ]
  },
@@ -340,6 +691,18 @@
    {
     "text": "You're parked in the air. Clock's running.",
     "face": "determined"
+   },
+   {
+    "text": "Taking a look? Good habit, {you}.",
+    "face": "neutral"
+   },
+   {
+    "text": "Nice still hover. Very professional.",
+    "face": "happy"
+   },
+   {
+    "text": "Survey's done when you say.",
+    "face": "neutral"
    }
   ],
   "injured": [
@@ -350,6 +713,18 @@
    {
     "text": "Holding. Fine. I'm not going anywhere.",
     "face": "sad"
+   },
+   {
+    "text": "Take your time, {you}.",
+    "face": "neutral"
+   },
+   {
+    "text": "Steady. I like that.",
+    "face": "happy"
+   },
+   {
+    "text": "Rest a second. Then go.",
+    "face": "neutral"
    }
   ]
  },
@@ -366,6 +741,18 @@
    {
     "text": "On the radio. Go learn the city.",
     "face": "neutral"
+   },
+   {
+    "text": "Bea here. Day off, {you}! Enjoy the view.",
+    "face": "happy"
+   },
+   {
+    "text": "No hard hats today. Go have fun.",
+    "face": "happy"
+   },
+   {
+    "text": "City's yours. Fly happy.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -376,6 +763,18 @@
    {
     "text": "Still sore. Still watching. Go.",
     "face": "neutral"
+   },
+   {
+    "text": "Hey, {you}. Fly something nice for me.",
+    "face": "happy"
+   },
+   {
+    "text": "Bea, resting the leg. Glad you're up there.",
+    "face": "neutral"
+   },
+   {
+    "text": "On the radio, off my feet. Have fun.",
+    "face": "happy"
    }
   ]
  },
@@ -392,6 +791,18 @@
    {
     "text": "That's where I meant. Nice.",
     "face": "happy"
+   },
+   {
+    "text": "Spot on, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice approach. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "Made it. Good flying.",
+    "face": "happy"
    }
   ],
   "injured": [
@@ -401,6 +812,18 @@
    },
    {
     "text": "Made it. Nicely done.",
+    "face": "happy"
+   },
+   {
+    "text": "There! Good one, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Clean arrival. Nice.",
+    "face": "happy"
+   },
+   {
+    "text": "You made it. Lovely.",
     "face": "happy"
    }
   ]

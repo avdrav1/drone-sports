@@ -3,49 +3,115 @@
   "active": [
    "Let the air do the work.",
    "Quiet sticks today.",
-   "Find the line, keep the line."
+   "Find the line, keep the line.",
+   {
+    "text": "Easy air today, {you}. Enjoy it.",
+    "face": "happy"
+   },
+   {
+    "text": "Soft hands, happy heart.",
+    "face": "neutral"
+   },
+   {
+    "text": "Let's float through this one.",
+    "face": "happy"
+   }
   ]
  },
  "gate_passed": {
   "active": [
    "Slipped right through.",
    "Clean.",
-   "Barely touched the air."
+   "Barely touched the air.",
+   {
+    "text": "Lovely, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Like a leaf.",
+    "face": "happy"
+   },
+   {
+    "text": "Gentle and clean.",
+    "face": "happy"
+   }
   ]
  },
  "warning": {
   "active": [
    "Someone's down there. Drifting off.",
    "Gently. Gently away.",
-   "Too close. Widening out."
+   "Too close. Widening out.",
+   "Someone's below. Drifting wide now.",
+   "Easing off. They need the space.",
+   "Slowing down. Giving them room."
   ]
  },
  "strike": {
   "active": [
    "That wasn't clean at all.",
    "I should have seen it. I'm sorry.",
-   "Please be okay."
+   "Please be okay.",
+   "Someone's hurt. Let's stop and help.",
+   "I'm sorry. Please get them help.",
+   "Stay with them. Call it in."
   ]
  },
  "complete": {
   "active": [
    "Settled. Nice.",
    "That felt like gliding.",
-   "Down soft."
+   "Down soft.",
+   {
+    "text": "Soft landing, {you}. Lovely.",
+    "face": "happy"
+   },
+   {
+    "text": "That felt like flying in a dream.",
+    "face": "happy"
+   },
+   {
+    "text": "Floated it. So nice.",
+    "face": "happy"
+   }
   ]
  },
  "fail": {
   "active": [
    "Lost the line.",
    "Fought the air and the air won.",
-   "Breathe. Find it again."
+   "Breathe. Find it again.",
+   {
+    "text": "It's okay, {you}. The air will be kinder next time.",
+    "face": "neutral"
+   },
+   {
+    "text": "We'll find the line again.",
+    "face": "neutral"
+   },
+   {
+    "text": "Breathe. Try again.",
+    "face": "determined"
+   }
   ]
  },
  "results": {
   "active": [
    "How clean was it?",
    "Let's see the grade.",
-   "Smooth enough for me."
+   "Smooth enough for me.",
+   {
+    "text": "Smooth, {you}. I like it.",
+    "face": "happy"
+   },
+   {
+    "text": "Calm numbers.",
+    "face": "happy"
+   },
+   {
+    "text": "Gentle progress.",
+    "face": "neutral"
+   }
   ]
  }
 }

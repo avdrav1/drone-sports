@@ -26,6 +26,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## Events this character speaks on even when not in the field, e.g. gate_passed
 ## for the spotter. Crew in the field speak on every event.
 @export var speaks_on: Array[StringName] = []
+## Their names for you (Story 18.4), e.g. "ace" or "buddy": a line's {you}
+## becomes one of these. Lower case, since it sits mid-sentence.
+@export var calls_you: PackedStringArray = []
 @export var death_consequence: StringName
 ## False for anyone never in the field: the player's own pilot, Coach Rin.
 @export var can_be_harmed := true
@@ -53,6 +56,8 @@ func validate() -> Array[String]:
 		out.append("%s: unknown shape %s" % [id, shape])
 	if lines != "res://data/dialogue/%s.json" % id:
 		out.append("%s: lines should be data/dialogue/%s.json" % [id, id])
+	if calls_you.is_empty():
+		out.append("%s: needs at least one name in calls_you" % id)
 	if chirp_pitch < 0.5 or chirp_pitch > 2.0:
 		out.append("%s: chirp_pitch must be 0.5 to 2" % id)
 	if bounce.x < 0.3 or bounce.x > 2.0 or bounce.y < 0.0 or bounce.y >= 1.0:
