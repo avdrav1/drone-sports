@@ -402,7 +402,7 @@
  "free_greet": {
   "active": [
    {
-    "text": "Rin here. No grades today. Fly to learn.",
+    "text": "Drona here. No grades today. Fly to learn.",
     "face": "neutral"
    },
    {
@@ -414,7 +414,7 @@
     "face": "determined"
    },
    {
-    "text": "Rin here. Have fun today, {you}.",
+    "text": "Drona here. Have fun today, {you}.",
     "face": "happy"
    },
    {

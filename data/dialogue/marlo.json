@@ -276,7 +276,7 @@
    "It hurts, but I'm here. Fly careful while I mend."
   ]
  },
- "memorial": "Marlo, spotter. Called every gate, even the last one.",
+ "memorial": "Sanjaya, spotter. Called every gate, even the last one.",
  "order": {
   "active": [
    "Copy. Moving.",
@@ -802,7 +802,7 @@
  "free_greet": {
   "active": [
    {
-    "text": "Marlo here. No course today, just sky. Go play.",
+    "text": "Sanjaya here. No course today, just sky. Go play.",
     "face": "happy"
    },
    {
@@ -814,7 +814,7 @@
     "face": "neutral"
    },
    {
-    "text": "Marlo here! Fly anywhere, {you}. I'll tag along.",
+    "text": "Sanjaya here! Fly anywhere, {you}. I'll tag along.",
     "face": "happy"
    },
    {
@@ -828,7 +828,7 @@
   ],
   "injured": [
    {
-    "text": "Marlo, from the couch. Fly something pretty for me.",
+    "text": "Sanjaya, from the couch. Fly something pretty for me.",
     "face": "neutral"
    },
    {
@@ -840,7 +840,7 @@
     "face": "happy"
    },
    {
-    "text": "Marlo, resting up. Glad to hear your props.",
+    "text": "Sanjaya, resting up. Glad to hear your props.",
     "face": "neutral"
    },
    {

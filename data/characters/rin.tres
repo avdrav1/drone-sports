@@ -13,8 +13,9 @@ name = "good word"
 [resource]
 script = ExtResource("1_char")
 id = &"rin"
-name = "Coach Rin"
+name = "Drona"
 role = "Scout"
+named_for = "Named for the teacher who found and trained the great archers"
 look = ExtResource("9_look")
 shape = &"tall"
 colors = PackedColorArray(0.55, 0.4, 0.8, 1, 0.9, 0.85, 1, 1, 0.2, 0.18, 0.28, 1)

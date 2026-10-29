@@ -95,7 +95,7 @@ func test_face_follows_each_line_then_neutral() -> bool:
 			print("        %s: during %s held %s after %s" % [expr, during, held, after])
 			ok = false
 	# Someone else's line leaves Marlo's face alone.
-	bark.announce_line({"id": &"bea", "event": &"complete", "text": "Not Marlo.", "face": &"shocked"})
+	bark.announce_line({"id": &"bea", "event": &"complete", "text": "Not Sanjaya.", "face": &"shocked"})
 	face.advance(0.0)
 	ok = ok and face.expression == CrewFace.REST and not face.talking
 	root.free()

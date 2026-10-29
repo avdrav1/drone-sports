@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("1_job")
 id = &"spotter_drill"
-title = "Spotter drill: Marlo on the radio"
-summary = "The same path race, with Marlo on the radio calling out your splits."
+title = "Spotter drill: Sanjaya on the radio"
+summary = "The same path race, with Sanjaya on the radio calling out your splits."
 scene = "res://scenes/jobs/spotter_drill.tscn"
 client = "Skyline League"
 job_type = &"race"

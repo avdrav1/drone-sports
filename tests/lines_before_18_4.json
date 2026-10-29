@@ -96,7 +96,7 @@
     "Hurt, not done. Remember that."
    ]
   },
-  "memorial": "Bea, demolition foreman. Called the collapse, every time.",
+  "memorial": "Bhima, demolition foreman. Called the collapse, every time.",
   "epilogue": {
    "active": [
     "Quietest demolition I've ever seen. Nothing fell that shouldn't have."
@@ -203,12 +203,12 @@
   },
   "free_greet": {
    "active": [
-    "Bea here. No demolition today. Enjoy the buildings standing.",
+    "Bhima here. No demolition today. Enjoy the buildings standing.",
     "Site's closed, sky's open. Fly smart.",
     "On the radio. Go learn the city."
    ],
    "injured": [
-    "Bea, off shift and mending. Fly careful.",
+    "Bhima, off shift and mending. Fly careful.",
     "Still sore. Still watching. Go."
    ]
   },
@@ -321,7 +321,7 @@
     "Two jobs off. Don't break anything."
    ]
   },
-  "memorial": "Dot, mechanic. Kept every drone flying, and complained the whole time.",
+  "memorial": "Nala, mechanic. Kept every drone flying, and complained the whole time.",
   "order": {
    "active": [
     "She'll get there. Go easy on the battery.",
@@ -435,12 +435,12 @@
   },
   "free_greet": {
    "active": [
-    "Dot on the radio. Don't break anything on your day off.",
+    "Nala on the radio. Don't break anything on your day off.",
     "Fresh pack, free sky. Bring it back in one piece.",
     "I'm listening to the motors. Go have fun."
    ],
    "injured": [
-    "Dot here. One hand on the wrench, one on the radio.",
+    "Nala here. One hand on the wrench, one on the radio.",
     "Fly gentle. I can't fix much right now."
    ]
   },
@@ -608,7 +608,7 @@
     "I'll live. Fly kinder next time."
    ]
   },
-  "memorial": "Marlo, spotter. Called every gate, even the last one.",
+  "memorial": "Sanjaya, spotter. Called every gate, even the last one.",
   "order": {
    "active": [
     "Copy. Moving.",
@@ -737,12 +737,12 @@
   },
   "free_greet": {
    "active": [
-    "Marlo here. No course today, just sky. Go play.",
+    "Sanjaya here. No course today, just sky. Go play.",
     "I'm on the radio. Fly anywhere, I'll keep you company.",
     "Free flight, huh? I'll spot for fun."
    ],
    "injured": [
-    "Marlo, from the couch. Fly something pretty for me.",
+    "Sanjaya, from the couch. Fly something pretty for me.",
     "Still on the mend. I can still talk, though. Go."
    ]
   },
@@ -906,7 +906,7 @@
     "Patched up. Try not to need me."
    ]
   },
-  "memorial": "Ozzie, medic. Waited in the cold for someone to come.",
+  "memorial": "Sushena, medic. Waited in the cold for someone to come.",
   "order": {
    "active": [
     "Understood. En route.",
@@ -1020,12 +1020,12 @@
   },
   "free_greet": {
    "active": [
-    "Ozzie here. Warm and dry for once. Go fly.",
+    "Sushena here. Warm and dry for once. Go fly.",
     "No one to find today. Just enjoy it.",
     "I'm on the radio. Breathe, then fly."
    ],
    "injured": [
-    "Ozzie, resting up. Fly something calm.",
+    "Sushena, resting up. Fly something calm.",
     "Still bandaged. Still here. Go on."
    ]
   },
@@ -1301,7 +1301,7 @@
   },
   "free_greet": {
    "active": [
-    "Rin here. No grades today. Fly to learn.",
+    "Drona here. No grades today. Fly to learn.",
     "Free flight. Use it. Practice what scares you.",
     "I'm listening. Show me something."
    ]

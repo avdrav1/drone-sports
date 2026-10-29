@@ -29,7 +29,7 @@ func _without_rin(f: Callable):
 
 func test_bea_fit_pays_15_percent_more() -> bool:
 	var fit := _settle()
-	var named := fit.bonuses.any(func(b): return b.text == "Bea's site rates" and b.amount == 150)
+	var named := fit.bonuses.any(func(b): return b.text == "Bhima's site rates" and b.amount == 150)
 	Roster.injure(&"bea")
 	var benched := _settle()
 	Roster.kill(&"bea")
@@ -45,7 +45,7 @@ func test_rin_fit_raises_reputation_gains_by_25_percent() -> bool:
 	return without.reputation_change == 10 and with_rin.reputation_change == 13 \
 		and b_grade.reputation_change == 6 + roundi(6 * 0.25) \
 		and loss.reputation_change == -5 and loss.bonuses.is_empty() \
-		and with_rin.bonuses.any(func(b): return b.text == "Coach Rin's good word" and b.unit == " reputation")
+		and with_rin.bonuses.any(func(b): return b.text == "Drona's good word" and b.unit == " reputation")
 
 func test_dot_fit_takes_20_percent_off_every_price() -> bool:
 	var fit := true
@@ -78,5 +78,5 @@ func test_results_screen_names_each_bonus() -> bool:
 		.filter(func(c): return c is Label and c.name.begins_with("Bonus")).map(func(l): return l.text)
 	var money: String = screen.get_node("%Money").text
 	screen.free()
-	return lines == ["Bea's site rates +150", "Coach Rin's good word +3 reputation"] \
+	return lines == ["Bhima's site rates +150", "Drona's good word +3 reputation"] \
 		and money.contains("Pay 1150") and money.contains("+13")

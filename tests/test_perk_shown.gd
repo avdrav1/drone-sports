@@ -67,8 +67,8 @@ func test_crew_in_field_confirmation_names_each_perk_at_risk() -> bool:
 	var text := runner.launch_dialog.dialog_text
 	runner.launch_dialog.hide()
 	root.free()
-	return text.contains("Marlo and Bea are injured") and text.contains("You would lose") \
-		and text.contains("Marlo's spotting") and text.contains("Bea's site rates (+15% pay on every job)")
+	return text.contains("Sanjaya and Bhima are injured") and text.contains("You would lose") \
+		and text.contains("Sanjaya's spotting") and text.contains("Bhima's site rates (+15% pay on every job)")
 
 func test_results_injury_line_names_the_perk_off() -> bool:
 	Roster.injure(&"marlo")
@@ -82,4 +82,4 @@ func test_results_injury_line_names_the_perk_off() -> bool:
 	var dead_row: HBoxContainer = RESULTS.casualty_row(r, &"marlo")
 	var dead: String = (dead_row.get_child(1) as Label).text
 	dead_row.free()
-	return text == "Marlo injured, out for 1 job: no spotting." and dead == "Marlo died."
+	return text == "Sanjaya injured, out for 1 job: no spotting." and dead == "Sanjaya died."

@@ -75,14 +75,14 @@ func show_offers() -> void:
 	offer_dialog.show_next()
 
 ## One line per crew perk paid on this job (Story 19.5), e.g.
-## "Bea's site rates +18" or "Coach Rin's good word +3 reputation".
+## "Bhima's site rates +18" or "Drona's good word +3 reputation".
 static func bonus_lines(r: JobResult) -> Array[String]:
 	var out: Array[String] = []
 	for b in r.bonuses:
 		out.append("%s %+d%s" % [b.text, b.amount, b.unit])
 	return out
 
-## One line per struck character, e.g. "Marlo struck 1x".
+## One line per struck character, e.g. "Sanjaya struck 1x".
 static func strike_lines(r: JobResult) -> Array[String]:
 	var out: Array[String] = []
 	for id in r.strikes:
@@ -112,7 +112,7 @@ static func emote_event(r: JobResult, event: StringName = &"results") -> StringN
 		return &"clean_finish"
 	return event
 
-## "Marlo injured, out for 2 jobs" with their line, or "Marlo died" with the
+## "Sanjaya injured, out for 2 jobs" with their line, or "Sanjaya died" with the
 ## memorial line and a greyed portrait.
 static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var c: Character = Roster.character(id)

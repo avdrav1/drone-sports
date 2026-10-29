@@ -116,7 +116,7 @@ func test_new_game_reaches_pilot_select() -> bool:
 	ok = ok and ps.is_ancestor_of(last.find_next_valid_focus())
 	ok = ok and ps.is_ancestor_of(first.find_prev_valid_focus())
 	b.pilot_select.choose(&"fen")
-	ok = ok and not b.pilot_select.visible and b.menu_button(&"Pilot").text == "PILOT  ·  Fen"
+	ok = ok and not b.pilot_select.visible and b.menu_button(&"Pilot").text == "PILOT  ·  Abhimanyu"
 	# Closed, the board's own buttons take focus again.
 	ok = ok and b.menu_button(&"Pilot").focus_mode != Control.FOCUS_NONE
 	ok = ok and b.menu_button(&"Pilot").get_focus_mode_with_override() == Control.FOCUS_ALL

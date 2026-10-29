@@ -2,9 +2,9 @@ class_name PlayerProfile
 extends RefCounted
 # Who the player is, from the save's "profile" section: their handle and the
 # pilot avatar they fly as (Story 7.2). Avatars are the characters tagged pilot
-# in data/characters/pilots.tres; Pip until the player picks.
+# in data/characters/pilots.tres; Arjuna until the player picks.
 
-const DEFAULT_HANDLE := "PIP_07"
+const DEFAULT_HANDLE := "ARJUNA_07"
 const PILOTS := "res://data/characters/pilots.tres"
 const DEFAULT_PILOT := &"pip"
 
@@ -23,7 +23,7 @@ static func pilots() -> Array[Character]:
 static func has_pilot() -> bool:
 	return _profile().has("pilot")
 
-## The chosen avatar, or Pip when none is chosen (or the saved one is gone).
+## The chosen avatar, or Arjuna when none is chosen (or the saved one is gone).
 static func pilot() -> Character:
 	var id := StringName(str(_profile().get("pilot", DEFAULT_PILOT)))
 	var fallback: Character = null

@@ -19,7 +19,7 @@ static func settle(result: JobResult, scale: GradeScale) -> void:
 	Reputation.save()
 
 ## Each fit owner's share of `base` from their perk of `kind`, listed in
-## result.bonuses as {id, text, amount}, e.g. "Bea's site rates", 18. The total.
+## result.bonuses as {id, text, amount}, e.g. "Bhima's site rates", 18. The total.
 static func _bonus(result: JobResult, kind: StringName, base: int, unit: String) -> int:
 	var total := 0
 	for c in Perks.owners(kind):

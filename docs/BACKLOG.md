@@ -1276,7 +1276,7 @@ Owner decisions (all decided):
 - The names in the table, Hanuman for Tally included.
 - The boss is called Ravana everywhere a player sees it, and its units are "his heads". The fight does not change (still disabled, never destroyed, rule 9). The code's `Lattice*` class names stay, as an internal name.
 
-- [ ] **25.1 New names on screen**
+- [x] **25.1 New names on screen**
   - Goal: Every character the player sees, hears about or reads about uses the new name.
   - Context: `name` on each `data/characters/*.tres`, the speaker names and lines in `data/dialogue/*.json` and `data/radio/`, job texts in `data/jobs/` (briefings, summaries, memorial lines), team texts in `data/teams/`, cutscene beats in `data/story/`, and any player-facing string under `scripts/` (for example, crew-warning and CREW-page text). Ids stay as they are in this story, so saves and code are untouched. Lines that rhymed or punned on an old name are rewritten. Each character's CREW row gains one short "named for" line about their namesake (for example, "Named for the engineer who bridged the sea to Lanka").
   - Acceptance: No player-facing text under `data/` or `scripts/` holds an old name (a test checks every character's old name, case-insensitive and as a whole word, with an allow-list for ids). The title, board, CREW page, radio, cutscenes and results show the new names. Every character's "named for" line exists and fits its row at 960×720 and 1920×1080. Every existing test passes.

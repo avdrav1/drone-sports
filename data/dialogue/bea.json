@@ -272,7 +272,7 @@
    "I'm off the site, not off the team."
   ]
  },
- "memorial": "Bea, demolition foreman. Called the collapse, every time.",
+ "memorial": "Bhima, demolition foreman. Called the collapse, every time.",
  "epilogue": {
   "active": [
    "Quietest demolition I've ever seen. Nothing fell that shouldn't have."
@@ -731,7 +731,7 @@
  "free_greet": {
   "active": [
    {
-    "text": "Bea here. No demolition today. Enjoy the buildings standing.",
+    "text": "Bhima here. No demolition today. Enjoy the buildings standing.",
     "face": "happy"
    },
    {
@@ -743,7 +743,7 @@
     "face": "neutral"
    },
    {
-    "text": "Bea here. Day off, {you}! Enjoy the view.",
+    "text": "Bhima here. Day off, {you}! Enjoy the view.",
     "face": "happy"
    },
    {
@@ -757,7 +757,7 @@
   ],
   "injured": [
    {
-    "text": "Bea, off shift and mending. Fly careful.",
+    "text": "Bhima, off shift and mending. Fly careful.",
     "face": "neutral"
    },
    {
@@ -769,7 +769,7 @@
     "face": "happy"
    },
    {
-    "text": "Bea, resting the leg. Glad you're up there.",
+    "text": "Bhima, resting the leg. Glad you're up there.",
     "face": "neutral"
    },
    {

@@ -272,7 +272,7 @@
    "I'll be off the rota a while. Fly gently till I'm back."
   ]
  },
- "memorial": "Ozzie, medic. Waited in the cold for someone to come.",
+ "memorial": "Sushena, medic. Waited in the cold for someone to come.",
  "order": {
   "active": [
    "Understood. En route.",
@@ -750,7 +750,7 @@
  "free_greet": {
   "active": [
    {
-    "text": "Ozzie here. Warm and dry for once. Go fly.",
+    "text": "Sushena here. Warm and dry for once. Go fly.",
     "face": "happy"
    },
    {
@@ -762,7 +762,7 @@
     "face": "neutral"
    },
    {
-    "text": "Ozzie here! Lovely day for it, {you}.",
+    "text": "Sushena here! Lovely day for it, {you}.",
     "face": "happy"
    },
    {
@@ -776,7 +776,7 @@
   ],
   "injured": [
    {
-    "text": "Ozzie, resting up. Fly something calm.",
+    "text": "Sushena, resting up. Fly something calm.",
     "face": "neutral"
    },
    {
@@ -788,7 +788,7 @@
     "face": "happy"
    },
    {
-    "text": "Ozzie, resting. Glad you're flying.",
+    "text": "Sushena, resting. Glad you're flying.",
     "face": "neutral"
    },
    {

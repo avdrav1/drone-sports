@@ -547,10 +547,22 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	info.size_flags_vertical = SIZE_SHRINK_CENTER
 	info.add_theme_constant_override("separation", 2)
 	info.add_child(text)
+	if c.named_for:
+		info.add_child(named_for_label(c))
 	if c.perk:
 		info.add_child(perk_label(id))
 	row.add_child(info)
 	return row
+
+## Their namesake's line under a crew row (Story 25.1), quiet and small.
+static func named_for_label(c: Character) -> Label:
+	var l := Label.new()
+	l.name = "NamedFor"
+	l.text = c.named_for
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.add_theme_color_override("font_color", DIM)
+	l.add_theme_font_size_override("font_size", 15)
+	return l
 
 ## The perk line under a crew row: what they bring while fit, struck through
 ## with the jobs left while benched, a memorial note once dead.

@@ -11,6 +11,10 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 @export var id: StringName
 @export var name := ""
 @export var role := ""
+## One short line about their namesake in the epics (Story 25.1), shown on
+## their CREW row or pilot card, e.g. "Named for the engineer who bridged the
+## sea to Lanka".
+@export var named_for := ""
 ## Optional art. Without it the portrait is drawn from `shape` and `colors`.
 @export var portrait: Texture2D
 ## How they look as a person (Story 20.1): body, skin, hair, outfit and accessory.
@@ -43,7 +47,7 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## becomes one of these. Lower case, since it sits mid-sentence.
 @export var calls_you: PackedStringArray = []
 @export var death_consequence: StringName
-## False for anyone never in the field: the player's own pilot, Coach Rin.
+## False for anyone never in the field: the player's own pilot, Drona.
 @export var can_be_harmed := true
 ## E.g. pilot (a selectable avatar).
 @export var tags: Array[StringName] = []

@@ -95,7 +95,7 @@ func test_launch_with_injured_crew_asks_first() -> bool:
 	await Sim.process_frames(1)
 	var dialog := runner.launch_dialog
 	var asked: bool = runner.state == JobRunner.State.BRIEFING and dialog != null and dialog.visible \
-		and dialog.dialog_text.contains("Marlo") and dialog.dialog_text.contains("kill")
+		and dialog.dialog_text.contains("Sanjaya") and dialog.dialog_text.contains("kill")
 	dialog.canceled.emit()
 	var backed_out: bool = declined[0] and runner.state == JobRunner.State.BRIEFING
 	dialog.confirmed.emit()
@@ -136,9 +136,9 @@ func test_results_show_injury_and_death_with_lines() -> bool:
 	var dead := await _job_with_strike()
 	var dead_row: HBoxContainer = RESULTS.casualty_row(dead, &"marlo")
 	var dead_text: String = (dead_row.get_child(1) as Label).text
-	var ok: bool = hurt_text.contains("Marlo injured") and hurt_line in Bark.lines_of(&"marlo").hurt.active \
+	var ok: bool = hurt_text.contains("Sanjaya injured") and hurt_line in Bark.lines_of(&"marlo").hurt.active \
 		and hurt_text.contains(hurt_line) and not (hurt_row.get_child(0) as CharacterPortrait).greyed \
-		and dead_text.contains("Marlo died") and dead_text.contains(Bark.memorial(&"marlo")) \
+		and dead_text.contains("Sanjaya died") and dead_text.contains(Bark.memorial(&"marlo")) \
 		and Bark.memorial(&"marlo") != "" and (dead_row.get_child(0) as CharacterPortrait).greyed
 	hurt_row.free()
 	dead_row.free()
