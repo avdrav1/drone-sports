@@ -41,6 +41,12 @@ func _trap_focus() -> void:
 		if c != self and c is Control:
 			c.focus_behavior_recursive = FOCUS_BEHAVIOR_DISABLED if visible else FOCUS_BEHAVIOR_INHERITED
 
+## Esc or pad B is Back, once there is a pilot to go back with (Story 23.3).
+func _unhandled_input(event: InputEvent) -> void:
+	if visible and _back.visible and event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		hide()
+
 func open() -> void:
 	refresh()
 	show()

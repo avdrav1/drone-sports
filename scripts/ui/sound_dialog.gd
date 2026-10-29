@@ -45,6 +45,8 @@ func open() -> void:
 	for bus in sliders:
 		sliders[bus].set_value_no_signal(GameSettings.volumes.get(String(bus), 1.0))
 	popup_centered()
+	# Focus starts at the top, so the d-pad walks down the sliders to Done (Story 23.3).
+	mute.grab_focus()
 
 ## "Mute (N)"; just "Mute" on a pad, which has no mute button (OPTIONS has the box).
 func _mute_text() -> String:
