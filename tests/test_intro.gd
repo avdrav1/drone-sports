@@ -3,7 +3,8 @@ extends RefCounted
 # key ends it, sets intro_seen, and opens the board; once seen, launch goes
 # straight to the board; the beats hold together; the board marks START HERE
 # and can replay it. Since Story 17.3 the title stands between the intro and
-# the board.
+# the board. The game now opens on the title, even the first time; the intro
+# plays only from Watch intro.
 
 const Sim = preload("res://tests/sim.gd")
 const INTRO := "res://scenes/story/intro.tscn"
@@ -19,8 +20,14 @@ func _close() -> void:
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
 
-func test_main_scene_plays_from_the_first_beat() -> bool:
-	var ok: bool = ProjectSettings.get_setting("application/run/main_scene") == INTRO
+func test_launch_opens_the_title_and_the_intro_plays_from_the_first_beat() -> bool:
+	# A first launch goes straight to the title and its crawl, not the intro.
+	var ok: bool = ProjectSettings.get_setting("application/run/main_scene") == TITLE \
+		and not StoryFlags.is_set(&"intro_seen")
+	var t: TitleScreen = await _open(TITLE)
+	ok = ok and t is TitleScreen and t.crawl != null and t.crawl.is_visible_in_tree()
+	await _close()
+	CutscenePlayer.replay = true
 	var p: CutscenePlayer = await _open(INTRO)
 	ok = ok and p is CutscenePlayer and p.index == 0 and not p.done and p.camera.current \
 		and p.caption.text == p.cutscene.beats[0].caption and p.backdrop != null

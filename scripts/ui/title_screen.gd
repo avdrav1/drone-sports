@@ -3,8 +3,9 @@ extends Node
 # The title (Story 17.3): the game's name, PRESS START, and the best score over
 # the city slowly orbiting behind (a backdrop-only CutscenePlayer on the
 # sandbox, HUDs hidden). Any key, click, or pad button opens the job board,
-# which asks for a pilot first on a new game. The intro forwards here once
-# seen, and Esc on the board comes back.
+# which asks for a pilot first on a new game. Esc on the board comes back.
+# The game opens here, even the first time: the intro is only shown from
+# OPTIONS > Watch intro, and forwards here when it ends.
 # Story 17.6: it wears the act's FrontSkin; the cabinet's Start is a coin chime.
 # Story 17.12: between the logo and PRESS START, the story crawl rolls away
 # into the distance: why you are playing. It loops until you press start.

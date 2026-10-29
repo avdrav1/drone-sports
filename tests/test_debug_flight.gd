@@ -5,7 +5,7 @@ const Sim = preload("res://tests/sim.gd")
 const SCENE := "res://scenes/debug_flight.tscn"
 
 ## Main scene until Story 5.3; now reached from the job board's Free flight button,
-## past the intro and the title (Story 17.3).
+## past the title (Story 17.3), where the game opens.
 func test_reachable_from_main_scene() -> bool:
 	return (load("res://data/story/intro.tres") as Cutscene).next_scene == JobBoard.TITLE \
 		and TitleScreen.BOARD == "res://scenes/ui/job_board.tscn" and JobBoard.FREE_FLIGHT == SCENE
