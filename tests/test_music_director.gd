@@ -47,11 +47,12 @@ func test_act_1_director_plays_act_1() -> bool:
 	_stop()
 	return ok
 
-func test_the_board_plays_drone_and_pad() -> bool:
+## Since Story 17.13 the board plays the main title theme, every stem.
+func test_the_board_plays_the_theme() -> bool:
 	_stop()
 	var b: JobBoard = Sim.add(load("res://scenes/ui/job_board.tscn").instantiate())
 	await Sim.process_frames(1)
-	var ok: bool = Music.score != null and Music.score.id == &"act_1" and _mix_is([&"drone", &"pad"])
+	var ok: bool = Music.score != null and Music.score.id == &"theme" and _mix_is([])
 	b.free()
 	_stop()
 	return ok

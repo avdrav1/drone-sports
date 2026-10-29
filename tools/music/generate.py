@@ -543,6 +543,128 @@ def lattice():
     write_score("lattice", tempo, key.TONIC, bars, stems, {"plays": plays, "densities": densities, "drone": drone})
 
 
+# The main title (Story 17.13): an original space-opera march for the title
+# and the board, brass over strings, timpani and snare. Its two tunes are the
+# mantra's call and answer (Story 16.3) recast as a fanfare: same contour, new
+# rhythm, so even the front end is built from the one hook. Nothing in it
+# quotes an existing theme. Chords are scale degrees (root first); each tune
+# note is (beat in the bar, degree, length in beats), played an octave up.
+THEME_TEMPO = 104
+THEME_CHORDS = (
+    # Intro: a tutti hit on the tonic, then the dominant with a snare roll.
+    (1, 3, 5), (5, 7, 9),
+    # A, the call: I IV I V | I ii vi-V I.
+    (1, 3, 5), (4, 6, 8), (1, 3, 5), (5, 7, 9), (1, 3, 5), (2, 4, 6), (6, 8, 10), (1, 3, 5),
+    # B, the answer: vi ii I V | vi IV ii V.
+    (6, 8, 10), (2, 4, 6), (1, 3, 5), (5, 7, 9), (6, 8, 10), (4, 6, 8), (2, 4, 6), (5, 7, 9),
+    # A again, the full band.
+    (1, 3, 5), (4, 6, 8), (1, 3, 5), (5, 7, 9), (1, 3, 5), (2, 4, 6), (6, 8, 10), (1, 3, 5),
+)
+# Bar 9's second half (and its repeat) turns to the dominant for the cadence.
+THEME_SPLIT = {8: (5, 7, 9), 24: (5, 7, 9)}
+THEME_CALL = (
+    ((0, 5, 1.5), (1.5, 5, 0.5), (2, 6, 1), (3, 5, 1)),
+    ((0, 8, 3), (3, 6, 1)),
+    ((0, 5, 1.5), (1.5, 3, 0.5), (2, 5, 1), (3, 6, 1)),
+    ((0, 5, 4),),
+    ((0, 5, 1.5), (1.5, 5, 0.5), (2, 6, 1), (3, 8, 1)),
+    ((0, 9, 3), (3, 8, 1)),
+    ((0, 10, 1.5), (1.5, 9, 0.5), (2, 8, 1), (3, 9, 1)),
+    ((0, 8, 4),),
+)
+THEME_ANSWER = (
+    ((0, 6, 2), (2, 5, 1), (3, 3, 1)),
+    ((0, 2, 2), (2, 3, 1), (3, 2, 1)),
+    ((0, 1, 2), (2, 2, 1), (3, 3, 1)),
+    ((0, 5, 4),),
+    ((0, 6, 2), (2, 5, 1), (3, 3, 1)),
+    ((0, 4, 1), (1, 5, 1), (2, 6, 1), (3, 8, 1)),
+    ((0, 9, 2), (2, 10, 1), (3, 9, 1)),
+    ((0, 9, 2), (2, 7, 1), (3, 5, 1)),
+)
+
+
+def theme():
+    """Story 17.13: the main title. Intro (2 bars), the call on the trumpets
+    (8), the answer on the strings with the horns under it (8), the call again
+    with the whole band (8), then round to the intro's hit. 26 bars at 104 bpm.
+    Two stems, `orchestra` and `drums`, so the drums can drop out."""
+    tempo = THEME_TEMPO
+    bars = len(THEME_CHORDS)
+    n = bar_samples(tempo, bars)
+    t = {k: instruments.Track(n, tempo) for k in ("brass", "horns", "low", "strings", "tune_strings", "timpani", "snare", "crash")}
+    beat = t["brass"].seconds(1)
+    I = instruments
+    for bar, chord in enumerate(THEME_CHORDS):
+        b = bar * BEATS_PER_BAR
+        seed = 3000 + bar * 10
+        section = "intro" if bar < 2 else "a" if bar < 10 else "b" if bar < 18 else "a2"
+        halves = [(0, chord, 2), (2, THEME_SPLIT[bar], 2)] if bar in THEME_SPLIT else [(0, chord, 4)]
+        for start, ch, length in halves:
+            root = ch[0]
+            # Low brass: the root on the beat, the fifth answering on three.
+            t["low"].add(b + start, I.brass(key.hz(root, -1), beat * min(length, 2) * 0.9), 0.55)
+            if length == 4:
+                t["low"].add(b + 2, I.brass(key.hz(root + 4, -2), beat * 1.8), 0.4)
+            if section == "b":
+                # The answer: horns hold the chord under the strings' tune.
+                for d in ch:
+                    t["horns"].add(b + start, I.brass(key.hz(d, 0), beat * length * 0.97), 0.22)
+                for d in ch:
+                    t["strings"].add(b + start, I.strings(key.hz(d, 0), beat * length * 0.98), 0.25)
+            else:
+                # The march: strings drive eighths on the chord, horns punch the downbeat.
+                for k in range(int(length * 2)):
+                    accent = 1.0 if k % 2 == 0 else 0.7
+                    for d in ch:
+                        t["strings"].add(b + start + k * 0.5, I.strings(key.hz(d, 0), beat * 0.3), 0.18 * accent)
+                for d in ch:
+                    t["horns"].add(b + start, I.brass(key.hz(d, 0), beat * 0.9), 0.3)
+                    if length == 4:
+                        t["horns"].add(b + 2.5, I.brass(key.hz(d, 0), beat * 0.4), 0.18)
+            # Timpani on the root, the fifth on three.
+            t["timpani"].add(b + start, I.timpani(key.hz(root, -2) * 2, seed=seed + start), 0.6 if section != "b" else 0.35)
+            if length == 4 and section != "b":
+                t["timpani"].add(b + 2, I.timpani(key.hz(root + 4, -2), seed=seed + 7), 0.4)
+        if section == "intro":
+            # Bar 1: the hit. Bar 2: the dominant held while the snare rolls up.
+            for d in chord:
+                for o in (0, 1):
+                    t["brass"].add(b, I.brass(key.hz(d, o), beat * (3.8 if bar == 0 else 3.8)), 0.25)
+            if bar == 1:
+                for k in range(16):
+                    t["snare"].add(b + k * 0.25, I.snare(seed=seed + k), 0.15 + 0.35 * k / 15)
+        elif section in ("a", "a2"):
+            phrase = THEME_CALL[(bar - 2) % 8]
+            for at, d, length in phrase:
+                t["brass"].add(b + at, I.brass(key.hz(d, 1), beat * length * 0.93), 0.5)
+                if section == "a2":
+                    # The full band: horns double the call an octave down, strings an octave up.
+                    t["brass"].add(b + at, I.brass(key.hz(d, 0), beat * length * 0.93), 0.35)
+                    t["tune_strings"].add(b + at, I.strings(key.hz(d, 2), beat * length * 0.95), 0.25)
+            if section == "a2":
+                # Marching snare: a flam on one, eighths and a drag into three.
+                for at, g in ((0, 0.5), (1, 0.3), (1.5, 0.25), (2, 0.4), (2.75, 0.2), (3, 0.3), (3.5, 0.25)):
+                    t["snare"].add(b + at, I.snare(seed=seed + int(at * 4)), g)
+        else:
+            phrase = THEME_ANSWER[(bar - 10) % 8]
+            for at, d, length in phrase:
+                t["tune_strings"].add(b + at, I.strings(key.hz(d, 1), beat * length * 0.97), 0.45)
+                t["tune_strings"].add(b + at, I.strings(key.hz(d, 0), beat * length * 0.97), 0.25)
+        if bar in (0, 2, 10, 18, 25):
+            t["crash"].add(b, I.cymbals(key.hz(5, 4), length=2.5, seed=seed), 0.25)
+    # The last bar rolls the timpani back up into the intro's hit.
+    last = (bars - 1) * BEATS_PER_BAR
+    for k in range(8):
+        t["timpani"].add(last + 2 + k * 0.25, I.timpani(key.hz(1, -1), length=0.5, seed=3900 + k), 0.12 + 0.25 * k / 7)
+    mix = lambda parts: [sum(v) for v in zip(*parts)]
+    orchestra = mix([t["brass"].buf, [x * 0.9 for x in t["horns"].buf], t["low"].buf,
+                     t["strings"].buf, t["tune_strings"].buf])
+    drums = mix([t["timpani"].buf, t["snare"].buf, t["crash"].buf])
+    write_score("theme", tempo, key.TONIC, bars, [("orchestra", orchestra, -8.0), ("drums", drums, -12.0)],
+                {"call": "mantra call", "answer": "mantra answer"})
+
+
 def write_manifest():
     MANIFEST.update({
         "tonic": key.TONIC,
@@ -589,6 +711,7 @@ def generate():
     act_4()
     act_5()
     lattice()
+    theme()
     write_manifest()
 
 

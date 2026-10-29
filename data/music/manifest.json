@@ -11,7 +11,11 @@
   "bass",
   "arp",
   "pad",
-  "lead"
+  "lead",
+  "brass",
+  "strings",
+  "timpani",
+  "snare"
  ],
  "mantra": {
   "answer_beats": 16,
@@ -199,7 +203,7 @@
    "tonic": 146.83
   },
   "demo": {
-   "bars": 11,
+   "bars": 15,
    "instruments": [
     {
      "bar": 0,
@@ -244,6 +248,22 @@
     {
      "bar": 10,
      "instrument": "lead"
+    },
+    {
+     "bar": 11,
+     "instrument": "brass"
+    },
+    {
+     "bar": 12,
+     "instrument": "strings"
+    },
+    {
+     "bar": 13,
+     "instrument": "timpani"
+    },
+    {
+     "bar": 14,
+     "instrument": "snare"
     }
    ],
    "stems": [
@@ -300,6 +320,17 @@
     "tonic"
    ],
    "tempo": 120.0,
+   "tonic": 146.83
+  },
+  "theme": {
+   "answer": "mantra answer",
+   "bars": 26,
+   "call": "mantra call",
+   "stems": [
+    "orchestra",
+    "drums"
+   ],
+   "tempo": 104.0,
    "tonic": 146.83
   }
  },

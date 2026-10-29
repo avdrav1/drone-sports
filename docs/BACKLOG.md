@@ -897,6 +897,11 @@ Order: faces first (17.1, 17.2), since the board and the radio both use them; th
   - Context: The story is data (`data/ui/crawl.tres`: text, start delay, speed, loop pause), drawn from VISION.md: pilots are stars, the teams hide tryouts in a home racing game, a scout is watching, the crew are at stake. Its wording is original. The text is set flat in a SubViewport and drawn on a plane tipped away from the viewer by a canvas shader, fading out in the distance and rising out of nothing at the bottom. It uses the skin's display font and accent, loops, and never takes input.
   - Acceptance: The crawl sits between the logo and PRESS START and ignores the mouse. Its text names the tryout, the scout, and the crew, and ends on "THIS IS DRONE SPORTS". It rises over time and starts over after the last line leaves. Any key mid-crawl still opens the board.
   - Out of scope: Narration, music cues, skipping the intro.
+- [x] **17.13 Main title theme**
+  - Goal: The title and the job board have their own theme music: an original heroic space-opera march, brass over strings, timpani, and snare.
+  - Context: Generated like every score (Epic 16 rules: stdlib, fixed seeds, baked Ogg stems, in the one key, original, quoting nothing). New instruments in `tools/music/instruments.py`: `brass`, `strings`, `timpani`, `snare`. `generate.py`'s `theme()` builds 26 bars at 104 bpm: a tutti intro hit, the mantra's call recast as a trumpet fanfare, its answer on the strings over horns, then the call with the full band, rolling round to the hit. Two stems, `orchestra` and `drums`. `MusicDirector.title()` plays it with every stem; the title screen and the board call it, so the theme carries from one to the other. `board()` (the act score's board mix) stays for jobs.
+  - Acceptance: `data/music/theme.tres` has the two stems and is in the manifest, in the key, marked as built from the mantra's call and answer. `title()` plays every stem at its level. Opening the title then the board plays the theme once, in Act 1 and Act 2. A job still plays its act's score. `data/music/` stays under 8 MB and every new file is in `LICENSES.md`.
+  - Out of scope: A different theme per act, a results-screen fanfare.
 
 ## Epic 18: A friendlier crew
 

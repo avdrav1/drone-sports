@@ -24,8 +24,12 @@ extends Node
 # at none, sparse at all), during the override only the lone voice and the
 # drone are left, and once the boss is disabled every stem falls silent. With
 # the boss disabled in data/boss/lattice.tres the score is never loaded.
+# The main title (Story 17.13): the title screen and the job board play the
+# theme (data/music/theme.tres), every stem, whatever the act; going from one
+# to the other keeps it playing. A job's runner brings in the act's score.
 
 const SCORE_PATH := "res://data/music/act_%d.tres"
+const THEME_PATH := "res://data/music/theme.tres"
 ## Stems that sound in each mix; ALL means every stem in the score.
 const ALL := [&"*"]
 ## From Act 2 the harmonium (`reed`) has the pad's place and the tanpura's
@@ -37,6 +41,7 @@ const MIXES := {
 	&"live": ALL,
 	&"results": [&"drone", &"pad", &"reed"],
 	&"tension": [&"drone", &"pulse"],
+	&"title": ALL,
 }
 ## The mix for each runner state.
 const STATE_MIX := {
@@ -253,6 +258,10 @@ func tense() -> bool:
 ## The job board: the act's score, drone and pad.
 func board() -> void:
 	play_act(&"board")
+
+## The title and the job board: the main title theme, every stem.
+func title() -> void:
+	play_score(load(THEME_PATH), &"title")
 
 ## Follows `runner`'s states from now on.
 func watch(runner: JobRunner) -> void:

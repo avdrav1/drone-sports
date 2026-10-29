@@ -19,6 +19,7 @@ RATE = 22050
 INSTRUMENTS = (
     "tanpura", "reed", "voice", "frame_drum", "cymbals",
     "kick", "clap", "bass", "arp", "pad", "lead",
+    "brass", "strings", "timpani", "snare",
 )
 # The formant voice's vowel syllables: the only syllables any lyric may use.
 VOWELS = ("ah", "oo", "ee", "mm")
@@ -289,6 +290,71 @@ def lead(freq, length, seed=0):
     return _lowpass([s[i] * env[i] for i in range(len(env))], 0.5)
 
 
+def brass(freq, length, seed=0):
+    """The brass section (the main title): two detuned saws behind a low-pass
+    that blares open on the attack and settles, with a little delayed vibrato."""
+    tab = _table(_saw_amps(freq * 1.01))
+    env = _envelope(int(length * RATE), 0.035, 0.18)
+    n = len(env)
+    a_ = _osc(tab, freq, n, vibrato=0.004, rate=5.2, delay=0.35)
+    b_ = _osc(tab, freq * 1.004, n, vibrato=0.004, rate=4.9, delay=0.4, phase=0.5)
+    y = 0.0
+    out = []
+    for i in range(n):
+        t = i / RATE
+        a = 0.12 + 0.38 * math.exp(-t * 9) + 0.12 * min(1.0, t * 4)
+        y += a * ((a_[i] + b_[i]) * 0.5 - y)
+        out.append(y * env[i])
+    return out
+
+
+def strings(freq, length, seed=0):
+    """The string section: three detuned saws, bowed in (or bitten, for a
+    short note) with vibrato on held notes, softened."""
+    tab = _table(_saw_amps(freq * 1.01))
+    env = _envelope(int(length * RATE), min(0.12, max(0.008, length * 0.25)), min(0.3, 0.05 + length * 0.2))
+    n = len(env)
+    voices = [_osc(tab, freq * d, n, vibrato=0.006, rate=r, delay=0.25, phase=p)
+              for d, r, p in ((1.0, 5.6, 0.0), (1.005, 5.1, 0.33), (0.995, 6.0, 0.66))]
+    s = [(voices[0][i] + voices[1][i] + voices[2][i]) / 3 * env[i] for i in range(n)]
+    return _lowpass(_lowpass(s, 0.3), 0.45)
+
+
+def timpani(freq, length=1.6, seed=0):
+    """A tuned kettle drum: the head's partials (1, 1.5, 2) dropping a touch
+    in pitch as they ring, over a soft felt thump."""
+    rng = random.Random(seed)
+    n = int(length * RATE)
+    out = []
+    ph = [0.0, 0.0, 0.0]
+    thump = 0.0
+    for i in range(n):
+        t = i / RATE
+        bend = 1.0 + 0.03 * math.exp(-t * 18)
+        v = 0.0
+        for k, (r, g, d) in enumerate(((1.0, 1.0, 2.2), (1.5, 0.45, 3.5), (2.0, 0.25, 5.0))):
+            ph[k] += 2 * math.pi * freq * r * bend / RATE
+            v += g * math.sin(ph[k]) * math.exp(-t * d)
+        thump += 0.08 * (rng.uniform(-1, 1) - thump)
+        out.append(v * min(1.0, i / 60) + thump * 2.5 * math.exp(-t * 40))
+    return out
+
+
+def snare(freq=0.0, length=0.25, seed=0):
+    """A military snare: a short tone for the shell under a burst of rattle."""
+    rng = random.Random(seed)
+    n = int(length * RATE)
+    out = []
+    y = 0.0
+    for i in range(n):
+        t = i / RATE
+        x = rng.uniform(-1, 1)
+        y += 0.6 * (x - y)
+        tone = math.sin(2 * math.pi * 190 * t) * math.exp(-t * 35)
+        out.append((x - y) * 0.9 * math.exp(-t * 22) + tone * 0.5)
+    return out
+
+
 PLAY = {name: globals()[name] for name in INSTRUMENTS}
 
 
@@ -338,3 +404,15 @@ def demo_bar(track, instrument, bar, seed):
     elif instrument == "lead":
         for t, d, l in ((0, 5, 1), (1, 6, 0.5), (1.5, 5, 0.5), (2, 3, 1), (3, 1, 1)):
             track.add(b + t, lead(key.hz(d, 1), beat * l * 0.95), 0.5)
+    elif instrument == "brass":
+        for t, d, l in ((0, 1, 1.5), (1.5, 5, 0.5), (2, 8, 2)):
+            track.add(b + t, brass(key.hz(d, 1), beat * l * 0.95), 0.5)
+    elif instrument == "strings":
+        for d in (1, 3, 5, 8):
+            track.add(b, strings(key.hz(d, 0), 4 * beat - 0.4), 0.3)
+    elif instrument == "timpani":
+        for t, d in ((0, 1), (1, 5), (2, 1), (3, 5)):
+            track.add(b + t, timpani(key.hz(d, -1), seed=seed + t), 0.8)
+    elif instrument == "snare":
+        for t in (0, 0.75, 1, 2, 2.75, 3, 3.5):
+            track.add(b + t, snare(seed=seed + int(t * 4)), 0.6)

@@ -120,7 +120,7 @@ func _ready() -> void:
 		lines.name = "Scanlines"
 		add_child(lines)
 	UiSounds.wire(self)
-	MusicDirector.board()
+	MusicDirector.title()
 	Career.check_offers()
 	offer_dialog.show_next()
 	if PlayerProfile.has_pilot() and not death_on_last_job():

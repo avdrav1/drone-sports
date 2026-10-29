@@ -17,5 +17,5 @@ script = ExtResource("score")
 id = &"demo"
 tempo = 120.0
 tonic = 146.83
-bars = 11
+bars = 15
 stems = Array[ExtResource("stem")]([SubResource("stem_1")])

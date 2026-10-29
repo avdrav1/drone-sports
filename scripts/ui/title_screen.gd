@@ -39,7 +39,7 @@ func _ready() -> void:
 	skin = FrontSkin.current()
 	_build()
 	best_label.text = "BEST JOB  " + best_text(Wallet.best_pay)
-	MusicDirector.board()
+	MusicDirector.title()
 	if wave_goodbye:
 		wave_goodbye = false
 		goodbye()

@@ -202,3 +202,7 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/lattice_drone.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice.ogg` | `tools/music/generate.py` | generated |
+| `../music/theme_orchestra.ogg` | `tools/music/generate.py` | generated |
+| `../music/theme_orchestra_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/theme_drums.ogg` | `tools/music/generate.py` | generated |
+| `../music/theme_drums_muffled.ogg` | `tools/music/generate.py` | generated |
