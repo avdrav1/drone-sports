@@ -28,7 +28,7 @@ const GROUPS := [
 		[[&"prev_drone"], "Select the previous drone"],
 		[[&"drop_in"], "Drop into the selected drone, or back out"],
 		[[&"send_lap"], "Relay: send the selected drone along its leg"],
-		[[&"tag_unit"], "Lattice: send the selected drone to tag a unit"],
+		[[&"tag_unit"], "Ravana: send the selected drone to tag one of his heads"],
 	]],
 	["JOBS", [
 		[[&"ui_accept"], "Launch from the briefing"],
@@ -101,6 +101,10 @@ static func listed_actions() -> Array[StringName]:
 			out.append_array(row[0])
 	return out
 
+## The boss's row names Ravana, so it shows only while the boss is on (rule 9).
+static func boss_row_shows(row: Array) -> bool:
+	return not &"tag_unit" in row[0] or BossGate.listed()
+
 ## One line for a job briefing: the flying keys, camera, map, leaving, and help.
 ## On a pad whose one stick climbs and turns, that stick is named once.
 static func hint_line() -> String:
@@ -127,7 +131,7 @@ func _build() -> void:
 	var column: VBoxContainer
 	for i in GROUPS.size():
 		var g: Array = GROUPS[i]
-		var rows: Array = g[1].filter(func(row): return row[0].all(func(a): return InputPrompt.text(a) != ""))
+		var rows: Array = g[1].filter(func(row): return row[0].all(func(a): return InputPrompt.text(a) != "") and boss_row_shows(row))
 		if i == 0 or i == LEFT_GROUPS:
 			column = VBoxContainer.new()
 			column.add_theme_constant_override("separation", 4)

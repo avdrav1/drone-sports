@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1_job")
 id = &"lattice"
-title = "The Lattice"
+title = "Ravana"
 scene = "res://scenes/boss/lattice_job.tscn"
 client = "Everyone under it"
 job_type = &"boss"

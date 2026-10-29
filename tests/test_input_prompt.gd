@@ -195,7 +195,7 @@ func test_lattice_hint_names_the_tag_button() -> bool:
 	var ps := hud.lines()
 	InputPrompt.use_keys()
 	s.free()
-	return keys.contains("T tags a unit") and ps.contains("Square tags a unit")
+	return keys.contains("T tags a head") and ps.contains("Square tags a head")
 
 ## Player-facing strings name keys through InputPrompt, never by hand. The key
 ## table in InputPrompt is the one place key names live.
