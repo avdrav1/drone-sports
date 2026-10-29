@@ -1068,11 +1068,12 @@ Done when every crew member looks like a person, not a bubble: a rigged cartoon 
   - Out of scope: Faces on the figure (20.3), walking.
   - Note: `CrewProp` builds `CrewFigure.build(look, height)` for a character with a look (keeps the capsule otherwise) and, deferred after `_ready`, finds its character's `HazardZone` and the `JobRunner` under the top scene node, storing them in `zone` and `runner`; `action()` reports what it plays. Hurt (from `runner.crew_struck`) outranks flinch (while `zone.warning()`), which outranks cheer (state COMPLETE), a 1.4 s wave (once per pass: within `wave_distance` 6 m, rearmed beyond `pass_distance` 10 m) and idle; the figure yaws toward a drone within 30 m, except when hurt. CrewFigure now loops idle, wave and cheer; 20.3 should put the face on `prop.figure`'s Head attachment.
 
-- [ ] **20.3 Faces on the figures**
+- [x] **20.3 Faces on the figures**
   - Goal: The figure's face is the same cartoon face as their portrait: same eyes, brows, mouth and blush, changing expression with what they say, and blinking.
   - Context: Reuse 18.7's approach (`scripts/drone/drone_face.gd`, `scenes/drone/drone_face.gdshader`): the head's face material reads `CharacterPortrait.pose()` fields for the current expression, so there is one source of truth. When the character speaks on the radio, their figure takes the line's face.
   - Acceptance: A figure's face shows the speaker's expression for each line and returns to neutral after it. It blinks on its own rhythm. A dead character's face never shows (the prop does not spawn). The face reads at 3 m in a screenshot of each job site.
   - Out of scope: Lip sync.
+  - Note: `CrewFace` (`scripts/crew/crew_face.gd`, a quad on the figure's `Head` attachment at head-bone z 0.168, drawn by `scenes/crew/crew_face.gdshader`) covers the pack's eyes, mouth and Rin's glasses with the portrait's face from `CharacterPortrait.pose()`, blink seed `hash(id)`, on the look's skin lit like `crew_body.gdshader`; Ozzie's beard and every fringe stay in front of it. `CrewProp` makes it with `CrewFace.wear(figure, character)` (null for the dead, and it hides once they die) and points `face.radio` at the job's `BarkBox`, whose current line from that character sets the face and talking; `hold(expr, s)` is a manual override. The face fits the head's skin front (0.24 by 0.271 head units, mouth at 0.52 instead of the portrait's 0.62); 20.4's portraits can stay as they are for it to match.
 
 - [ ] **20.4 Portraits as people**
   - Goal: The radio, board and crew-page portraits show each crew member from the shoulders up, with their skin, hair, outfit and accessory from `CrewLook`, keeping the big cartoon eyes and every expression.

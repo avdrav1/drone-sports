@@ -7,6 +7,8 @@ extends Node3D
 # zone warns, sits hurt after a strike, is gone at once after one that kills,
 # and cheers when the job completes. It only reads the zone's and runner's
 # signals and the drone's position.
+# Story 20.3: the figure wears the character's cartoon face (CrewFace), which
+# makes the face of each of their lines on the job's radio.
 # Without one, it is a plain capsule figure in `color`.
 
 ## Character id from data/characters/.
@@ -27,6 +29,8 @@ extends Node3D
 
 ## The person, when the character has a look.
 var figure: CrewFigure
+## Their face on the figure's head.
+var face: CrewFace
 var runner: JobRunner
 var zone: HazardZone
 ## What the figure does when nothing is happening: idle, cheer or hurt.
@@ -39,6 +43,7 @@ func _ready() -> void:
 	if c and c.look:
 		figure = CrewFigure.build(c.look, height)
 		add_child(figure)
+		face = CrewFace.wear(figure, c)
 		_hook_up.call_deferred()
 		return
 	var mat := StandardMaterial3D.new()
@@ -73,6 +78,9 @@ func _hook_up() -> void:
 			zone = z
 	var runners := scope.find_children("*", "JobRunner", true, false)
 	runner = runners[0] if runners else null
+	var radios := scope.find_children("*", "BarkBox", true, false)
+	if face and radios:
+		face.radio = radios[0]
 	if zone:
 		zone.warning_started.connect(_on_warning)
 		zone.warning_ended.connect(_on_warning)
