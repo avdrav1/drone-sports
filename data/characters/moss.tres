@@ -1,19 +1,35 @@
-[gd_resource type="Resource" script_class="Character" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
+[ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
 stat = &"drag"
-step = -0.015
+step = -0.04
 unit = "drag"
+
+[sub_resource type="Resource" id="setting_0"]
+script = ExtResource("4_setting")
+assist = &"auto_level"
+property = &"max_angle"
+value = 45.0
+degrees = true
+
+[sub_resource type="Resource" id="setting_1"]
+script = ExtResource("4_setting")
+assist = &"brake"
+property = &"max_yaw_rate"
+value = 130.0
+degrees = true
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Clean lines"
 stats = Array[ExtResource("3_step")]([SubResource("step_0")])
+assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1")])
 
 [resource]
 script = ExtResource("1_char")

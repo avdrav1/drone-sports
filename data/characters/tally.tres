@@ -1,19 +1,39 @@
-[gd_resource type="Resource" script_class="Character" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
+[ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
 stat = &"battery_flight_time"
-step = 15.0
+step = 60.0
 unit = "s flight time"
+
+[sub_resource type="Resource" id="setting_0"]
+script = ExtResource("4_setting")
+assist = &"altitude_hold"
+property = &"climb_rate"
+value = 7.0
+
+[sub_resource type="Resource" id="setting_1"]
+script = ExtResource("4_setting")
+assist = &"altitude_hold"
+property = &"height_gain"
+value = 3.0
+
+[sub_resource type="Resource" id="setting_2"]
+script = ExtResource("4_setting")
+assist = &"collision_guard"
+property = &"brake_accel"
+value = 8.0
 
 [sub_resource type="Resource" id="edge"]
 script = ExtResource("2_edge")
 name = "Easy on the cells"
 stats = Array[ExtResource("3_step")]([SubResource("step_0")])
+assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1"), SubResource("setting_2")])
 
 [resource]
 script = ExtResource("1_char")

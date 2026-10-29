@@ -1,7 +1,65 @@
-[gd_resource type="Resource" script_class="Character" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Character" load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/story/character.gd" id="1_char"]
 [ext_resource type="Resource" path="res://data/crew/styles/clumsy.tres" id="2_style"]
+[ext_resource type="Script" path="res://scripts/story/pilot_edge.gd" id="2_edge"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
+[ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
+
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("3_step")
+stat = &"max_thrust"
+step = 0.25
+unit = "N max thrust per motor"
+
+[sub_resource type="Resource" id="step_1"]
+script = ExtResource("3_step")
+stat = &"drag"
+step = -0.02
+unit = "drag"
+
+[sub_resource type="Resource" id="step_2"]
+script = ExtResource("3_step")
+stat = &"battery_flight_time"
+step = 30.0
+unit = "s flight time"
+
+[sub_resource type="Resource" id="setting_0"]
+script = ExtResource("4_setting")
+assist = &"speed_governor"
+property = &"max_speed"
+value = 13.0
+
+[sub_resource type="Resource" id="setting_1"]
+script = ExtResource("4_setting")
+assist = &"auto_level"
+property = &"max_angle"
+value = 38.0
+degrees = true
+
+[sub_resource type="Resource" id="setting_2"]
+script = ExtResource("4_setting")
+assist = &"altitude_hold"
+property = &"climb_rate"
+value = 5.0
+
+[sub_resource type="Resource" id="setting_3"]
+script = ExtResource("4_setting")
+assist = &"collision_guard"
+property = &"margin"
+value = 0.7
+
+[sub_resource type="Resource" id="setting_4"]
+script = ExtResource("4_setting")
+assist = &"collision_guard"
+property = &"reaction_time"
+value = 0.2
+
+[sub_resource type="Resource" id="edge"]
+script = ExtResource("2_edge")
+name = "Steady hands"
+stats = Array[ExtResource("3_step")]([SubResource("step_0"), SubResource("step_1"), SubResource("step_2")])
+assists = Array[ExtResource("4_setting")]([SubResource("setting_0"), SubResource("setting_1"), SubResource("setting_2"), SubResource("setting_3"), SubResource("setting_4")])
 
 [resource]
 script = ExtResource("1_char")
@@ -22,3 +80,4 @@ death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([&"pilot", &"can_fly"])
 flight_style = ExtResource("2_style")
+edge = SubResource("edge")

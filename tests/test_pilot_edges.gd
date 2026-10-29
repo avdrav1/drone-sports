@@ -173,12 +173,10 @@ func test_every_pilot_flies_the_same_assists() -> bool:
 		ok = ok and l == (lists[0] if l[0] == ACT1.label else lists[1]) and l[1].size() == 6
 	return ok
 
-## 19.1 moves the tweaks into edges unchanged; new numbers are Story 19.2's.
-func test_current_pilot_numbers_are_unchanged() -> bool:
-	var want := {&"fen": [&"max_thrust", 0.15], &"moss": [&"drag", -0.015], &"tally": [&"battery_flight_time", 15.0]}
-	var ok := PlayerProfile.pilots()[0].edge == null
+## Every pilot has an edge (Story 19.2): stat steps and assist settings both.
+## The numbers themselves live only in the pilots' .tres files.
+func test_every_pilot_has_an_edge() -> bool:
+	var ok := true
 	for c in PlayerProfile.pilots():
-		if want.has(c.id):
-			ok = ok and c.edge.stats.size() == 1 and c.edge.assists.is_empty() \
-				and c.edge.stats[0].stat == want[c.id][0] and is_equal_approx(c.edge.stats[0].step, want[c.id][1])
+		ok = ok and c.edge != null and not c.edge.stats.is_empty() and not c.edge.assists.is_empty()
 	return ok

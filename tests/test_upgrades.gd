@@ -33,8 +33,12 @@ func test_buying_thrust_raises_climb_rate() -> bool:
 		assists_same = assists_same and not a.enabled  # applying upgrades never switches assists
 	var count := d.assists.assists().size()
 	d.free()
+	# Stock 4.5 N plus one 0.5 N level, plus whatever the pilot's edge adds (Story 19.2).
+	var want := 5.0
+	for s in PlayerProfile.pilot().edge.stats:
+		want += s.step if s.stat == &"max_thrust" else 0.0
 	print("        climb after 0.5 s: stock %.2f m/s, upgraded %.2f m/s" % [stock, tuned])
-	return bought and Wallet.balance == 0 and tuned > stock * 1.1 and is_equal_approx(thrust, 5.0) \
+	return bought and Wallet.balance == 0 and tuned > stock * 1.1 and is_equal_approx(thrust, want) \
 		and assists_same and count == 6
 
 func test_prices_and_effects_are_data() -> bool:
