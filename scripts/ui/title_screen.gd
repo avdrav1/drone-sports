@@ -9,6 +9,7 @@ extends Node
 # Story 17.12: between the logo and PRESS START, the story crawl rolls away
 # into the distance: why you are playing. It loops until you press start.
 # Story 18.5: come from the board, a crew member waves goodbye on the radio.
+# Story 24.1: the logo is the game's name from the project settings.
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
@@ -98,7 +99,7 @@ func _build() -> void:
 		shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		shade.texture = _fade_texture(top)
 		root.add_child(shade)
-	title_label = _label("DRONE SPORTS", 96, skin.accent, 14)
+	title_label = _label(GameName.title(), 96, skin.accent, 14)
 	title_label.name = "Title"
 	title_label.theme_type_variation = &"Display"
 	_place(title_label, 0.12, 0.32)

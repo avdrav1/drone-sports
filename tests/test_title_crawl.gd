@@ -19,7 +19,7 @@ func test_story_says_why_you_are_playing() -> bool:
 	var paras := c.text.split("\n\n", false)
 	var t := c.text.to_lower()
 	return paras.size() >= 5 and StoryCrawl.is_heading(paras[0].strip_edges()) \
-		and paras[-1].strip_edges() == "THIS IS DRONE SPORTS" \
+		and paras[-1].strip_edges() == "THIS IS JAISALMER" \
 		and t.contains("tryout") and t.contains("scout") and t.contains("crew") and c.speed > 0.0
 
 func test_crawl_sits_between_logo_and_press_start() -> bool:

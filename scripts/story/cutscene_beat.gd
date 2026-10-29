@@ -22,6 +22,9 @@ enum Camera { ORBIT, CHASE, FIXED }
 @export_multiline var caption := ""
 ## Large centred text, e.g. the title card.
 @export var title := ""
+## The title card is the game's name from the project settings (Story 24.1),
+## in place of `title`.
+@export var game_title := false
 ## Character shown beside the caption; `silhouette` blacks them out.
 @export var portrait: StringName
 @export var silhouette := false

@@ -1215,7 +1215,7 @@ Owner decisions:
 - Web saves do not carry over (decided): a browser keeps saves per site, so careers saved at avdrav1.github.io start fresh on the new domain.
 - Which font the title is lettered in (24.6), from the comparison sheet.
 
-- [ ] **24.1 The name in one place**
+- [x] **24.1 The name in one place**
   - Goal: Every player-facing "Drone Sports" reads "Jaisalmer", and the name lives in one place so it never drifts again.
   - Context: `config/name` becomes "Jaisalmer", and that setting is the one source: the title logo and the intro title card read it (upper-cased) instead of holding the text. The Web export uses `config/name` for the page `<title>`. The crawl's last line is "THIS IS JAISALMER". `config/icon` points at `res://icon.svg`, which does not exist; that is out of scope here, but noted.
   - Acceptance: `config/name` is "Jaisalmer". The title screen and intro title card show "JAISALMER" and change with the setting. The crawl ends on the decided line. No string literal under `scripts/`, `scenes/` or `data/` contains "Drone Sports" in any case (a test greps). Lower-case "drone sports" as the name of the sport, in dialogue or lines, is allowed and listed in the test's allow-list. The exported `build/web/index.html` title reads "Jaisalmer".

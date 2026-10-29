@@ -73,7 +73,7 @@ script = ExtResource("2_beat")
 camera = 1
 focus = NodePath("Opponent2")
 offset = Vector3(0, 1.4, 4.5)
-title = "DRONE SPORTS"
+game_title = true
 caption = "Finish top three. Get noticed."
 duration = 6.0
 

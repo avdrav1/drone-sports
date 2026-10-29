@@ -102,7 +102,7 @@ func advance() -> void:
 		_place_camera(0.0, true)
 		return
 	caption.text = beat.caption
-	title_label.text = beat.title
+	title_label.text = GameName.title() if beat.game_title else beat.title
 	card.visible = beat.portrait != &""
 	if card.visible:
 		var c: Character = Roster.character(beat.portrait)
