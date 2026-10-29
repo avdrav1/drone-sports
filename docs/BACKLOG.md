@@ -1186,7 +1186,7 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: Each setting survives a save and reload. Mode 1 puts throttle on the right stick's Y and pitch on the left stick's Y, and every other action is unchanged. Invert makes stick-up pitch back. Expo and deadzone reach `PilotInput` and the InputMap. The section is usable by pad (the 23.3 walk covers it). The controls panel and prompts show the swapped sticks.
   - Out of scope: Per-button rebinding.
 
-- [ ] **23.7 Rumble**
+- [x] **23.7 Rumble**
   - Goal: The pad rumbles for the moments that matter: a crash or hard hit (scaled by impact), a gate passed (a short tick), a hazard warning or strike, and a job's end.
   - Context: A small `Rumble` autoload wraps `Input.start_joy_vibration` on the last-used pad, and logs each request the way `Music.log` does so tests can read it. It does nothing when rumble is off (23.6), the last device is the keyboard, or the platform doesn't vibrate (the web export may not; then it is silently skipped). It hooks the drone's existing collision, gate, `HazardZone` warning and `JobRunner` state signals, so no job gets job-specific code (rule 3).
   - Acceptance: Each event logs one request with the listed strength and length, and a harder hit asks for more. Nothing is requested with rumble off or after a key press. Nothing about play depends on rumble.

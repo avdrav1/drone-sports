@@ -100,6 +100,8 @@ func set_deadzone(v: float) -> void:
 func set_rumble(on: bool) -> void:
 	GameSettings.rumble = on
 	_save()
+	# Turned on, it shows itself (Story 23.7).
+	Rumble.play(&"gate")
 
 func _save() -> void:
 	GameSettings.save()

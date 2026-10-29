@@ -5,6 +5,8 @@ extends Node
 # view change. A child of CameraRig, so it follows whichever drone is being
 # flown. Each plays once per event: an assist that flickers on and off counts as
 # one event until it has stayed off for `rearm_time`. Reads state; never flies.
+# Story 23.7: each knock the flown drone's DroneSound plays also shakes the pad
+# (Rumble.hit), harder for a harder hit.
 
 ## Battery fraction where the HUD bar turns red.
 @export var low_battery := 0.2
@@ -23,6 +25,7 @@ var _view := -1
 var _battery_low := false
 var _active := {}  # cue id -> true while its assist is in an event
 var _out_for := {}  # cue id -> seconds its assist has been out
+var _impacts := 0  # the flown drone's DroneSound.impacts already felt
 
 func _ready() -> void:
 	rig = get_parent() as CameraRig
@@ -45,6 +48,7 @@ func _physics_process(delta: float) -> void:
 	_battery_low = low
 	_assist(GUARD, _guard_braking(), delta)
 	_assist(BRAKE, _brake_stopping(), delta)
+	_feel_impacts()
 
 ## Follows a new drone. Whatever state it is already in is not an event.
 func _watch(d: Drone) -> void:
@@ -59,6 +63,19 @@ func _watch(d: Drone) -> void:
 	_battery_low = drone.battery <= low_battery
 	_active[GUARD] = _guard_braking()
 	_active[BRAKE] = _brake_stopping()
+	var sound := _sound()
+	_impacts = sound.impacts if sound else 0
+
+## The pad feels each new knock of the flown drone (Story 23.7).
+func _feel_impacts() -> void:
+	var sound := _sound()
+	if sound == null or sound.impacts == _impacts:
+		return
+	_impacts = sound.impacts
+	Rumble.hit(sound.last_impact_speed)
+
+func _sound() -> DroneSound:
+	return drone.get_node_or_null("Sound") as DroneSound
 
 func _assist(id: StringName, on: bool, delta: float) -> void:
 	if on:

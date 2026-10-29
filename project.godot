@@ -22,6 +22,7 @@ Music="*res://scripts/audio/music.gd"
 MusicDirector="*res://scripts/audio/music_director.gd"
 InputPrompt="*res://scripts/ui/input_prompt.gd"
 PadMenus="*res://scripts/ui/pad_menus.gd"
+Rumble="*res://scripts/audio/rumble.gd"
 
 [shader_globals]
 
