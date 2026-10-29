@@ -12,10 +12,10 @@ extends Node
 # Story 18.5: come from the board, a crew member waves goodbye on the radio.
 # Story 24.1: the logo is the game's name from the project settings.
 # Story 24.6: lettered like Hindi, hanging from a headline bar (TitleMark).
-# On the web a browser keeps the game silent until the player presses
-# something, so the first title shows PLAY where PRESS START goes: that first
-# press starts the theme and the crawl together from the top, and the next one
-# goes in. Desktop plays its music at once and never asks.
+# The first title of a launch shows only the name and PLAY: that first press
+# starts the theme and the crawl together from the top, and the next one goes
+# in, so the menu is two presses away. (A browser keeps the game silent until
+# the player presses something, so on the web it is also what lets music play.)
 
 const BOARD := "res://scenes/ui/job_board.tscn"
 ## Shown for a best score of zero.
@@ -36,8 +36,8 @@ var crawl: StoryCrawl
 var skin: FrontSkin
 ## Set by the board as you leave it: the next title says goodbye, once.
 static var wave_goodbye := false
-## The browser has not let the music play yet: the title asks for PLAY first.
-static var needs_play := OS.has_feature("web")
+## Nothing has been pressed this launch: the title waits on PLAY, silent and still.
+static var needs_play := true
 var bark: Bark
 var radio: BarkBox
 
@@ -49,7 +49,8 @@ func _ready() -> void:
 	skin = FrontSkin.current()
 	_build()
 	best_label.text = "BEST JOB  " + best_text(Wallet.best_pay)
-	MusicDirector.title()
+	if not needs_play:
+		MusicDirector.title()
 	if wave_goodbye:
 		wave_goodbye = false
 		goodbye()
@@ -86,13 +87,14 @@ func _input(event: InputEvent) -> void:
 		else:
 			start()
 
-## The first press on the web: the theme from its first bar and the crawl from
-## its first line, now that the browser lets the game make sound.
+## The first press: the theme from its first bar and the crawl from its first line.
 func play() -> void:
 	needs_play = false
 	Music.play(null, 0.0)
 	MusicDirector.title()
 	crawl.restart()
+	crawl.visible = true
+	crawl.process_mode = Node.PROCESS_MODE_INHERIT
 	press_start.visible = true
 	play_button.visible = false
 
@@ -142,6 +144,10 @@ func _build() -> void:
 	crawl.anchor_right = 1.0
 	crawl.anchor_top = 0.3
 	crawl.anchor_bottom = 0.7
+	# Until PLAY the crawl is not there, and does not roll.
+	crawl.visible = not needs_play
+	if needs_play:
+		crawl.process_mode = Node.PROCESS_MODE_DISABLED
 	root.add_child(crawl)
 	press_start = _label("PRESS START", 34, skin.text, 8)
 	press_start.theme_type_variation = &"Display"

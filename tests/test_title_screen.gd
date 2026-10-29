@@ -3,8 +3,9 @@ extends RefCounted
 # the board; any key, click, or pad button opens the board, with pilot select
 # first on a new game; the best score is the save's best single payout; the
 # backdrop loads and its camera orbits; Esc on the board comes back.
-# On the web the first press is PLAY: it starts the theme and the crawl, and
-# only the next press opens the board.
+# The first title of a launch waits on PLAY, silent and still: that press
+# starts the theme and the crawl, and only the next one opens the board.
+# (Every other test starts past it: tests/run.gd clears needs_play.)
 
 const Sim = preload("res://tests/sim.gd")
 const INTRO := "res://scenes/story/intro.tscn"
@@ -134,21 +135,28 @@ func test_esc_on_the_board_returns_to_the_title() -> bool:
 	await _close()
 	return ok
 
-func test_on_the_web_the_first_press_plays_and_the_next_goes_in() -> bool:
+func test_the_first_press_plays_and_the_next_goes_in() -> bool:
 	TitleScreen.needs_play = true
+	_stop_music()
 	var t: TitleScreen = await _open(TITLE)
-	var ok: bool = t.play_button.visible and not t.press_start.visible
-	t.crawl.scroll = 500.0
+	# Only the name and PLAY: no music, and the crawl neither shown nor rolling.
+	var still := t.crawl.scroll
+	await Sim.process_frames(10)
+	var ok: bool = t.play_button.visible and not t.press_start.visible and Music.score == null \
+		and not t.crawl.visible and t.crawl.scroll == still
 	t._age = t.start_grace
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_ENTER
 	key.pressed = true
 	t.get_viewport().push_input(key)
 	await Sim.process_frames(3)
-	# Still the title, now with music, the crawl from its top, and PRESS START.
+	# Still the title, now with the song, the crawl rolling from its top, and PRESS START.
 	ok = ok and Sim.tree().current_scene == t and not t.started and not TitleScreen.needs_play \
-		and Music.score == load(MusicDirector.THEME_PATH) and not Music.players.is_empty() \
-		and t.crawl.scroll < 0.0 and t.press_start.visible and not t.play_button.visible
+		and Music.score == load(MusicDirector.THEME_PATH) and Music.players[&"song"].playing \
+		and t.crawl.visible and t.crawl.scroll < 0.0 and t.press_start.visible and not t.play_button.visible
+	still = t.crawl.scroll
+	await Sim.process_frames(10)
+	ok = ok and t.crawl.scroll > still
 	key = key.duplicate()
 	t.get_viewport().push_input(key)
 	await Sim.process_frames(3)
@@ -156,6 +164,11 @@ func test_on_the_web_the_first_press_plays_and_the_next_goes_in() -> bool:
 	await _close()
 	# Back from the board, the title does not ask again.
 	t = await _open(TITLE)
-	ok = ok and not t.play_button.visible and t.press_start.visible
+	ok = ok and not t.play_button.visible and t.press_start.visible and t.crawl.visible
 	await _close()
+	_stop_music()
 	return ok
+
+func _stop_music() -> void:
+	Music.play(null, 0.0)
+	Music.clear_log()

@@ -1,19 +1,19 @@
 extends RefCounted
-# Story 21.1: the song as the theme. data/music/theme.tres is one stem, a
-# stretch of the user's own song cut on bar lines, that loops with no gap or
-# click (checked on the decoded samples either side of the loop point). It
+# Story 21.1: the song as the theme. data/music/theme.tres is one stem, the
+# user's own song cut on bar lines. It is the whole song, start to finish (at
+# first it was 72 s of the last chorus, which sounded like the end on repeat),
+# and loops back to its top without a click (checked on the decoded samples
+# either side of the loop point). It
 # plays from the title, through the intro, to the board in every act a team
 # can be in; a job still plays its act's score. 17.13's generated stems are
-# gone, data/music/ stays under 10 MB, and the song is listed as own work.
+# gone, data/music/ stays under 16 MB, and the song is listed as own work.
 
 const Sim = preload("res://tests/sim.gd")
 const TITLE := "res://scenes/ui/title.tscn"
 const BOARD := "res://scenes/ui/job_board.tscn"
 const MUSIC_DIR := "res://data/music"
 const LICENSES := "res://data/audio/LICENSES.md"
-const BUDGET := 10 * 1024 * 1024
-## Samples looked at on each side of the loop point.
-const NEAR := 1024
+const BUDGET := 16 * 1024 * 1024
 ## No team or none (Act 1), then a team for each of Acts 2, 3 and 4.
 const TEAMS := [&"", &"skyline_juniors", &"city_rescue_air", &"deadweight"]
 
@@ -59,30 +59,22 @@ func _rms_db(bytes: PackedByteArray, ch: int, from: int, count: int) -> float:
 		sum += v * v
 	return linear_to_db(sqrt(sum / count))
 
-## The jump from the last sample to the first is no bigger than the steps the
-## song itself takes either side of the loop point (its 99th percentile), and
-## neither side is silent: no click and no gap. Both the song and its muffled copy.
-func test_loop_point_has_no_click_or_gap() -> bool:
-	var ok := true
+## The whole song: 301 bars of 1.5 s, heard through the middle. At the loop
+## point the song has ended and not yet begun, so the jump from the last sample
+## to the first is tiny: no click. Both the song and its muffled copy.
+func test_the_whole_song_loops_without_a_click() -> bool:
+	var ok: bool = absf(_song().stream.get_length() - 451.5) < 0.05
 	for path in [MUSIC_DIR + "/theme_song.ogg", MUSIC_DIR + "/theme_song_muffled.ogg"]:
 		var bytes := _decode(path)
 		var n := bytes.size() / 4
-		if n < NEAR * 4:
+		if absi(n - 451.5 * 44100) > 2048:
+			print("        %s: %d samples, not the whole song" % [path, n])
 			return false
 		for ch in 2:
-			var at := func(i: int) -> int: return bytes.decode_s16((i * 2 + ch) * 2)
-			var steps: Array[int] = []
-			for i in range(n - NEAR, n):
-				steps.append(absi(at.call(i) - at.call(i - 1)))
-			for i in range(1, NEAR):
-				steps.append(absi(at.call(i) - at.call(i - 1)))
-			steps.sort()
-			var jump := absi(at.call(0) - at.call(n - 1))
-			var limit: int = steps[int(steps.size() * 0.99)]
-			var tail := _rms_db(bytes, ch, n - 2205, 2205)
-			var head := _rms_db(bytes, ch, 0, 2205)
-			if jump > limit or tail < -40.0 or head < -40.0:
-				print("        %s ch %d: jump %d (limit %d), last 50 ms %.1f dB, first %.1f dB" % [path, ch, jump, limit, tail, head])
+			var jump := absi(bytes.decode_s16(ch * 2) - bytes.decode_s16(((n - 1) * 2 + ch) * 2))
+			var middle := _rms_db(bytes, ch, n / 2, 44100)
+			if jump > 64 or middle < -30.0:
+				print("        %s ch %d: jump %d, middle %.1f dB" % [path, ch, jump, middle])
 				ok = false
 	return ok
 
@@ -135,7 +127,7 @@ func test_old_generated_theme_stems_are_gone() -> bool:
 	var m: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MUSIC_DIR + "/manifest.json"))
 	return ok and m.scores.theme.stems == ["song"]
 
-func test_music_folder_stays_under_ten_mb() -> bool:
+func test_music_folder_stays_under_budget() -> bool:
 	var total := 0
 	for f in DirAccess.open(MUSIC_DIR).get_files():
 		if f.get_extension() != "import":

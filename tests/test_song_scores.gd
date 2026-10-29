@@ -9,7 +9,8 @@ const PROFILE := "res://tools/music/song_profile.json"
 const MANIFEST := "res://data/music/manifest.json"
 const MUSIC_DIR := "res://data/music"
 const LICENSES := "res://data/audio/LICENSES.md"
-const BUDGET := 10 * 1024 * 1024
+## 16 MB since the theme became the whole song (it was 10).
+const BUDGET := 16 * 1024 * 1024
 const ACTS := 5
 
 func _json(path: String) -> Dictionary:
@@ -81,7 +82,7 @@ func test_each_act_has_fewer_stems_than_the_one_before() -> bool:
 		last = sc.stems.size() if sc else 0
 	return ok
 
-func test_music_is_under_ten_megabytes() -> bool:
+func test_music_is_under_budget() -> bool:
 	var total := 0
 	for f in DirAccess.open(MUSIC_DIR).get_files():
 		if f.get_extension() != "import":

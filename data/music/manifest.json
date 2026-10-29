@@ -406,11 +406,11 @@
    "tonic": 174.72
   },
   "theme": {
-   "bars": 48,
+   "bars": 301,
    "rate": 44100,
-   "seam": 0.1875,
+   "seam": 0.0,
    "song": "There's Only Love in My Heart (Avdrav)",
-   "start": 360.0,
+   "start": 0.0,
    "stems": [
     "song"
    ],

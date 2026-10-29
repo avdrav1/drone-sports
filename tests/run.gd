@@ -20,6 +20,9 @@ func _initialize() -> void:
 func _run() -> void:
 	# Let the root viewport enter the tree before any test adds nodes.
 	await process_frame
+	# Tests open the title already past its PLAY; test_title_screen.gd asks for it.
+	# (Loaded here, not named: the title's script needs the autoloads to compile.)
+	load("res://scripts/ui/title_screen.gd").needs_play = false
 	_install_error_logger()
 	_use_test_save()
 	var passed := 0

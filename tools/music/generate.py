@@ -686,20 +686,23 @@ def lattice():
 # The main title (Story 21.1): the user's own song, "There's Only Love in My
 # Heart" by Avdrav, used with their permission. Its FLAC (from their own
 # upload) sits in tools/music/source/, gitignored and never committed; the
-# theme is one stretch of it cut on bar lines, so the score's one stem is
-# audio data, not generated. The song sits on a 160 bpm grid from 0:00 (bars
-# every 1.5 s). The loop is 6:00 to 7:12 of the last chorus, 48 bars, where
-# the music either side of the cut matches best (chroma and level, measured
-# around every 4-bar line); its last half beat crossfades into the half beat
-# before 6:00, so the end runs on into the start without a gap or a click.
+# theme is cut from it on bar lines, so the score's one stem is audio data,
+# not generated. The song sits on a 160 bpm grid from 0:00 (bars every 1.5 s).
+# The theme is the whole song, start to finish (301 bars, its last note gone
+# by 7:31), and loops back to its first bar after the ending, as a song on
+# repeat does. (21.1 first looped 6:00-7:12 of the last chorus, which heard on
+# the menu was the end of the song over and over.)
 # Stereo 44.1 kHz, unlike the generated mono stems: it is a finished mix.
 SONG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source", "song.flac")
 SONG_RATE = 44100
 SONG_QUALITY = "4"
+# The muffled copy has no highs to keep, so it spends far fewer bits.
+SONG_MUFFLED_QUALITY = "0"
 SONG_TEMPO = SONG_BPM
-SONG_START = 360.0
-SONG_BARS = 48
-SONG_SEAM = 0.1875
+SONG_START = 0.0
+SONG_BARS = 301
+# No crossfade: the song ends in silence and starts again from its top.
+SONG_SEAM = 0.0
 # Matches the act 1 full mix's loudness (the song is mastered loud).
 SONG_DB = -3.0
 
@@ -730,10 +733,11 @@ def song_theme():
             loop[n - seam + i] = loop[n - seam + i] * math.cos(t) + x[start - seam + i] / 32768.0 * math.sin(t)
         loops.append(loop)
     peak = max(1e-9, max(abs(v) for loop in loops for v in loop))
-    for suffix, chans in (("", loops), ("_muffled", [muffle(loop, SONG_RATE) for loop in loops])):
+    for suffix, chans, quality in (("", loops, SONG_QUALITY),
+                                   ("_muffled", [muffle(loop, SONG_RATE) for loop in loops], SONG_MUFFLED_QUALITY)):
         wav = os.path.join(WAV_DIR, "theme_song%s.wav" % suffix)
         write_wav(wav, [v for pair in zip(*chans) for v in pair], peak, 2, SONG_RATE)
-        encode(wav, os.path.join(OUT, "theme_song%s.ogg" % suffix), 2, SONG_RATE, SONG_QUALITY)
+        encode(wav, os.path.join(OUT, "theme_song%s.ogg" % suffix), 2, SONG_RATE, quality)
 
 
 def write_manifest():

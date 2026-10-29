@@ -21,12 +21,14 @@ func _close() -> void:
 	await Sim.process_frames(1)
 
 func test_launch_opens_the_title_and_the_intro_plays_from_the_first_beat() -> bool:
-	# A first launch goes straight to the title and its crawl, not the intro.
+	# A first launch goes straight to the title and its PLAY, not the intro.
 	var ok: bool = ProjectSettings.get_setting("application/run/main_scene") == TITLE \
 		and not StoryFlags.is_set(&"intro_seen")
+	TitleScreen.needs_play = true
 	var t: TitleScreen = await _open(TITLE)
-	ok = ok and t is TitleScreen and t.crawl != null and t.crawl.is_visible_in_tree()
+	ok = ok and t is TitleScreen and t.play_button.visible and t.crawl != null
 	await _close()
+	TitleScreen.needs_play = false
 	CutscenePlayer.replay = true
 	var p: CutscenePlayer = await _open(INTRO)
 	ok = ok and p is CutscenePlayer and p.index == 0 and not p.done and p.camera.current \

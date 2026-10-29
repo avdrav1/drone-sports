@@ -4,12 +4,12 @@ extends RefCounted
 # length in samples; the Music volume saves, reloads and mutes; data/music/
 # stays under budget and every file in it is licensed as generated (since
 # Story 21.1 the title theme's song is the user's own work, and the budget is
-# 10 MB).
+# 16 MB, since the theme became the whole song).
 
 const Sim = preload("res://tests/sim.gd")
 const MUSIC_DIR := "res://data/music"
 const LICENSES := "res://data/audio/LICENSES.md"
-const BUDGET := 10 * 1024 * 1024
+const BUDGET := 16 * 1024 * 1024
 
 ## Two stems of silence, one quieter, for tests that need more than one.
 func _score(id: StringName) -> Score:
