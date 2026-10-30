@@ -1299,3 +1299,63 @@ Owner decisions (all decided):
   - Context: `docs/CHARACTERS.md` (cast table, strike examples and consequences), `docs/BOSS.md`, `docs/VISION.md` mentions, and CLAUDE.md rule 9. That rule says the boss's design is original and imitates no existing franchise. Ravana comes from the epics, not a franchise; the rule is reworded to "The boss (Ravana) is a job like any other…", and keeps "disabled, never destroyed" and "no explosions". The cast's namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs.
   - Acceptance: The docs use the new names and ids throughout (a test greps the .md files outside BACKLOG.md for old names, as in 25.1). Rule 9 names Ravana and keeps the disable-only rule. Older backlog stories keep their text.
   - Out of scope: Rewriting backlog history.
+
+---
+
+## Epic 26: Faces from the epics, and a radio you can read
+
+Done when every crew face is drawn bigger and more lifelike, as its namesake from the Ramayana or the Mahabharata, and the radio's lines are big, stay up long enough to read, and scroll as a chat.
+
+Owner's direction: "make bigger, better drawn faces … but make the characters explicitly Indian mythology." Faces stay drawn in code (no image files), but leave the Saturday-morning cartoon (18.1, 18.2) for a painted, lifelike style. Each character looks like their namesake, in that figure's traditional iconography. The namesakes are treated with respect: Hanuman is worshipped, so Hanuman's face is dignified and never comic, and no face is played for laughs. Characters still have no stated pronouns in the game's text.
+
+Order: the face rig (26.1), then the looks (26.2), then the sizes (26.3); the radio stories (26.4, 26.5) can run beside them; docs last (26.6).
+
+| Id | Namesake | Drawn as |
+| --- | --- | --- |
+| `arjuna` | Arjuna, the archer prince | A young prince: a gold crown (mukut), long dark hair, the bow Gandiva over the shoulder |
+| `abhimanyu` | Abhimanyu, the young warrior | A youth in a warrior's helmet and armour, with a chakra (wheel) emblem |
+| `bhima` | Bhima, the strongest brother | Broad and heavy-browed, a thick moustache, the gada (mace) on the shoulder |
+| `drona` | Drona, the teacher | An elder brahmin teacher: white beard, a tilak, rudraksha beads, a bow behind |
+| `sanjaya` | Sanjaya, who saw the battle from afar | A court narrator in a turban, with a soft glow at the brow for the divine sight |
+| `nala` | Nala, who bridged the sea | A vanara (monkey-faced) builder, with a stone marked "Rama" and a builder's sash |
+| `sushena` | Sushena, the healer | An elder vanara physician, with a sprig of the sanjivani herb |
+| `jatayu` | Jatayu, the great bird | A great vulture: a hooked beak, a feathered crest, a gold neck ring |
+| `hanuman` | Hanuman, who leapt to Lanka | A vanara with a crown, the gada, and a calm, devoted face |
+
+Assumption to confirm: Nala and Sushena are vanaras in the Ramayana, so they are drawn as vanaras, as Hanuman is. Jatayu is drawn as a bird. Ravana (the boss) has no portrait, only its dot grid (`scripts/boss/chorus.gd`), and is out of scope.
+
+- [ ] **26.1 A lifelike face rig**
+  - Goal: `CharacterPortrait` draws a lifelike, painted head and shoulders in place of 18.1's cartoon: human (and vanara and bird) proportions, a nose, smaller eyes with irises and lids, soft shading on skin and cloth (gradients, a key light and a shadow side), and hair or fur with strands, not one flat shape.
+  - Context: `scripts/ui/character_portrait.gd`. `pose(expression, t)`, EXPRESSIONS, DISTRESS, blinking on the seeded timer, `talking`, `look_at`, `pop_in`, `signal_lost` and the dead (greyed, eyes closed, still) all keep their API, so every place a face shows keeps working. 18.2's cartoon motion (squash and stretch, eye pops, the hop) becomes subtle: a breath, a small head tilt, the jaw moving while talking. Drawing stays in `_draw` (no image files, no shaders the web build lacks). Three head types: human, vanara and bird, picked by data (26.2).
+  - Acceptance: Every expression still gives a distinct pose (17.1's checks still pass). A face drawn at 256 px has a nose, irises and shading (a test reads the draw calls or a rendered image's colour spread, not exact pixels). No face uses the cartoon outline or the two shine dots. Every character draws without errors at 48, 128 and 256 px. The dead are greyed with eyes closed. Talking moves the mouth; a dead face never moves.
+  - Out of scope: Image-file portraits, lip sync, 3D heads.
+
+- [ ] **26.2 Looks from the epics**
+  - Goal: Each crew member is drawn as their namesake, per the table above.
+  - Context: `data/crew/looks/*.tres` (CrewLook: colours, accessory) gains the head type (human, vanara, bird) and the iconography: crown, helmet, turban, beard, tilak, beads, glow, and the held object (bow, gada, chakra, stone, herb). Data over code: a new look is a .tres, not a branch in the portrait. The CREW page's "named for" lines stay. Colours from the traditional depictions: Arjuna's and Hanuman's gold, Drona's white and saffron, and so on.
+  - Acceptance: Every character's look names its head type and at least one item of iconography from the table, and the portrait draws it (a test checks each look against the table). Nala, Sushena and Hanuman are vanaras; Jatayu is a bird; the rest are human. No two faces share the same headwear and held object. Faces still read at 48 px: each one's silhouette differs from every other's (a test compares their rendered outlines at 48 px).
+  - Out of scope: New characters, changing names, lines or voices.
+
+- [ ] **26.3 Bigger faces**
+  - Goal: Faces are much bigger everywhere they show.
+  - Context: The radio panel (`BarkBox.FACE`, 80 px now), the CREW page rows (64) and cards (88), pilot select (64), results (48), the crew warning, the race and flight HUD pilot face, the fleet command view, and the intro's portraits. Roughly doubled: the radio to 192 px, CREW and pilot select to 160, results to 112, the HUDs to what fits beside their readouts at 960×720. The layouts move to fit; nothing overlaps.
+  - Acceptance: Each place's face is at least twice its old size, or at the HUD limit stated in the story's test. At 960×720 and 1920×1080 no face overlaps text or another control (a test checks the rects). Pad focus and mouse clicks still reach every control.
+  - Out of scope: New screens.
+
+- [ ] **26.4 Radio text you can read**
+  - Goal: The crew's lines on the radio are bigger and stay up long enough to read.
+  - Context: `scripts/ui/bark_box.gd`. The pixel font stays crisp only at whole multiples of 16 px, so lines go to 32 px (the name too). Lines stay up for a time set by their length (about 2 s plus 0.07 s a character, at least 5 s) instead of a flat `hold` of 3.5 s. The panel grows to fit the bigger face (26.3) and text. Urgent lines still cut in at once.
+  - Acceptance: Lines draw at 32 px. A line of N characters stays at least max(5, 2 + 0.07 N) s after it finishes typing. The longest existing line fits the panel at 960×720 and 1920×1080 (18.12's test, at the new size). Urgent lines still cut in.
+  - Out of scope: The chat log (26.5).
+
+- [ ] **26.5 The radio as a chat**
+  - Goal: The radio keeps the last few lines on screen as a scrolling chat, so a line missed mid-flight can still be read.
+  - Context: `BarkBox` and the radio panel. The newest line types out at the bottom with its speaker's face and name; older lines move up, smaller faces beside them, and fade with age. Up to four lines show; older ones scroll off the top. The chat empties after a while with no new lines. It sits low on the left, as now, and never covers the gates or the drone's centre of the screen. On the board and the title the same chat shows the goodbye and the other front-end lines.
+  - Acceptance: After three lines, all three show, newest at the bottom, each with its speaker's name. A fifth line scrolls the first one off. Lines older than 20 s fade out. The chat never covers the middle third of the screen at 960×720 or 1920×1080. Pausing holds the chat as it is.
+  - Out of scope: Replying, a full radio history page.
+
+- [ ] **26.6 The docs show the faces**
+  - Goal: `docs/CHARACTERS.md` describes each character's look as their namesake.
+  - Context: The cast table gains a "Drawn as" column from the table above. The respect line covers the faces too.
+  - Acceptance: Every character's row has a "Drawn as" entry matching their look. The respect line names the faces. 25.4's docs tests still pass.
+  - Out of scope: Backlog history.
