@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Part" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/part.gd" id="1_part"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("2_step")
+stat = &"battery_flight_time"
+step = 120.0
+unit = "s flight time"
+
+[sub_resource type="Resource" id="step_1"]
+script = ExtResource("2_step")
+stat = &"mass"
+step = 0.15
+unit = "kg"
+
+[resource]
+script = ExtResource("1_part")
+id = &"long_battery"
+kind = &"battery"
+name = "Long-range battery"
+blurb = "Flies far, weighs more."
+stats = Array[ExtResource("2_step")]([SubResource("step_0"), SubResource("step_1")])

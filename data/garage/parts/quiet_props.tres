@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Part" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/part.gd" id="1_part"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("2_step")
+stat = &"battery_flight_time"
+step = 60.0
+unit = "s flight time"
+
+[sub_resource type="Resource" id="step_1"]
+script = ExtResource("2_step")
+stat = &"max_thrust"
+step = -0.35
+unit = "N max thrust per motor"
+
+[resource]
+script = ExtResource("1_part")
+id = &"quiet_props"
+kind = &"props"
+name = "Quiet props"
+blurb = "Easy on the battery, soft on lift."
+stats = Array[ExtResource("2_step")]([SubResource("step_0"), SubResource("step_1")])

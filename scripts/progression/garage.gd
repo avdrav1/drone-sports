@@ -1,7 +1,7 @@
 extends Node
 # Autoload "Garage": upgrade levels bought, kept in the save's "upgrades" section.
-# Buying spends the wallet; `apply` sets the player's drone stats from the levels
-# and the chosen pilot's edge (Stories 7.2, 19.1).
+# Buying spends the wallet; `apply` sets the player's drone stats from the levels,
+# the hangar slot's parts and the chosen pilot's edge (Stories 7.2, 19.1, 27.4).
 
 signal bought(upgrade: Upgrade, level: int)
 
@@ -54,21 +54,23 @@ func buy(id: StringName) -> bool:
 	bought.emit(upgrade(id), levels[id])
 	return true
 
-## Set the drone's stats from its scene values plus every level bought and the
-## chosen pilot's edge, and tune its assists to the edge, and dress it in its
-## hangar slot's livery (Story 27.2). Once per drone.
-func apply(drone: Drone) -> void:
+## Set the drone's stats from its scene values plus every level bought, the
+## parts fitted in its hangar slot (Story 27.4) and the chosen pilot's edge, and
+## tune its assists to the edge, and dress it in the slot's livery (Story 27.2).
+## Slot 0 is the player's drone. Once per drone.
+func apply(drone: Drone, slot := 0) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
 	drone.set_meta(APPLIED, true)
 	for u in upgrades.upgrades:
 		if level(u.id) > 0:
 			drone.set(u.stat, drone.get(u.stat) + u.step * level(u.id))
+	Hangar.apply_parts(drone, slot)
 	var pilot := PlayerProfile.pilot()
 	if pilot and pilot.edge:
 		pilot.edge.apply_stats(drone)
 	tune(drone)
-	Hangar.dress(drone)
+	Hangar.dress(drone, slot)
 
 ## Give the drone's assists that are on the chosen pilot's settings; the ones
 ## that are off keep their own. Call again after switching assists.

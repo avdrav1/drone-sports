@@ -6,4 +6,5 @@
 script = ExtResource("1_part")
 id = &"stock_battery"
 kind = &"battery"
-name = "Stock battery"
+name = "Standard battery"
+blurb = "The battery it came with: no trade."

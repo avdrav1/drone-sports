@@ -7,3 +7,4 @@ script = ExtResource("1_part")
 id = &"stock_props"
 kind = &"props"
 name = "Stock props"
+blurb = "The props it came with: no trade."

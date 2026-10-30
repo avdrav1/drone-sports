@@ -10,5 +10,6 @@ extends Resource
 @export var decals: Array[StringName] = []
 ## Every part, of every kind.
 @export var parts: Array[Part] = []
-## One part per kind, fitted to every slot until changed. They change nothing.
+## One part per kind, fitted to every slot until changed. They change nothing:
+## the drone as it was (Story 27.4's defaults).
 @export var default_parts: Array[Part] = []
