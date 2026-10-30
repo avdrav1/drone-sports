@@ -1393,7 +1393,7 @@ Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
   - Acceptance: A drone with a non-default livery shows each colour on its part (a test reads the materials). The front and back heading lights are present in every livery. Every decal draws on the hull without errors. The default livery looks as before (the materials match today's). Ten drones with ten liveries in one scene add no more than ten sets of materials.
   - Out of scope: Choosing them (27.5), unlocks (27.3).
 
-- [ ] **27.3 Unlocks: money and achievements**
+- [x] **27.3 Unlocks: money and achievements**
   - Goal: Every look and part that is not a default is locked until bought with job money or earned by an achievement, and the player can see how to unlock it.
   - Context: An `Unlock` on each item: a price (from the wallet, as `Garage` upgrades are), an achievement, or both (either one opens it). Achievements are data: a job completed, a job completed under a time or with no crashes, a best payout reached, a reputation level with a faction, a story flag, or the fleet first flown. Earned unlocks open at the job's results, with a line on the results screen and a radio line. Price markups and perks that already touch the shop (shop_closed, Story 7.6, and the price perk, Story 19.5) apply to hangar prices too.
   - Acceptance: A locked item cannot be applied; buying it spends exactly its price, and an unaffordable item cannot be bought. Meeting an achievement opens its item once, shows it on the results screen, and keeps it unlocked after reload. An item with both a price and an achievement opens by either. Every item names how it unlocks. The shop markup and price perk change hangar prices as they do upgrades.

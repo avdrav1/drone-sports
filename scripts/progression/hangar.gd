@@ -3,10 +3,17 @@ extends Node
 # is unlocked, kept in the save's "hangar" section. Slot 0 is the player's
 # drone; slots 1 and up are the fleet's, one per crew member who flies. A slot
 # never set wears the default livery and parts, which are the drone as it was.
+# Story 27.3: every look and part that is not a default is locked until bought
+# with job money (priced as the shop's upgrades are) or earned by an
+# achievement at a job's results. A locked item cannot be applied.
 
 signal changed(slot: int)
+## An item opened, bought or earned.
+signal opened(id: StringName)
 
 const CATALOG := "res://data/garage/catalog.tres"
+## The item id of lit lights: the livery's glow.
+const GLOW := &"glow"
 
 var catalog: HangarCatalog
 ## Slot -> Livery, for slots set away from the default.
@@ -33,12 +40,17 @@ func livery(slot: int) -> Livery:
 	var l: Livery = liveries.get(slot, catalog.default_livery)
 	return l.duplicate()
 
-func set_livery(slot: int, l: Livery) -> void:
+## Sets the slot's livery; false, and nothing changes, if it wears a locked item.
+func set_livery(slot: int, l: Livery) -> bool:
 	if not has_slot(slot) or l == null:
-		return
-	liveries[slot] = _clean(l)
+		return false
+	var clean := _clean(l)
+	if not locked_in(clean).is_empty():
+		return false
+	liveries[slot] = clean
 	save()
 	changed.emit(slot)
+	return true
 
 ## Puts the slot's livery on the drone (Story 27.2), on its frame's hull, with
 ## the arms at the drone's arm length (Story 27.4). Looks only.
@@ -83,10 +95,10 @@ func parts(slot: int) -> Dictionary:
 		out[kind] = part_id(slot, kind)
 	return out
 
-## Fits a known part in the slot; false, and nothing changes, otherwise.
+## Fits a known, unlocked part in the slot; false, and nothing changes, otherwise.
 func fit(slot: int, id: StringName) -> bool:
 	var p := part(id)
-	if p == null or not has_slot(slot):
+	if p == null or not has_slot(slot) or not is_open(id):
 		return false
 	var row: Dictionary = fitted.get(slot, {})
 	row[p.kind] = p.id
@@ -97,6 +109,94 @@ func fit(slot: int, id: StringName) -> bool:
 
 func is_unlocked(id: StringName) -> bool:
 	return id in unlocked
+
+## How the item opens, or null for a default (or anything else with none).
+func unlock_of(id: StringName) -> Unlock:
+	for u in catalog.unlocks:
+		if u.item == id:
+			return u
+	return null
+
+## May be applied: a default, or unlocked.
+func is_open(id: StringName) -> bool:
+	return unlock_of(id) == null or is_unlocked(id)
+
+## The palette's swatch of this colour, or null.
+func swatch_of(c: Color) -> Swatch:
+	for s in catalog.palette:
+		if s.color.is_equal_approx(c):
+			return s
+	return null
+
+## The locked items the livery wears: its decal, a colour's swatch, lit lights.
+## A colour off the palette is no item; the hangar only offers the palette.
+func locked_in(l: Livery) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	if l.decal != &"":
+		ids.append(l.decal)
+	if l.glow:
+		ids.append(GLOW)
+	for key in Livery.COLORS:
+		var s := swatch_of(l.get(key))
+		if s:
+			ids.append(s.id)
+	var out: Array[StringName] = []
+	for id in ids:
+		if not is_open(id) and not id in out:
+			out.append(id)
+	return out
+
+## What the hangar charges for a locked item now, with the shop's markup and
+## the price perk as on upgrades (Garage.marked_up); -1 when it is open or not
+## for sale.
+func price(id: StringName) -> int:
+	var u := unlock_of(id)
+	if u == null or u.price <= 0 or is_unlocked(id):
+		return -1
+	return Garage.marked_up(u.price)
+
+## As upgrades: affordable, for sale, and the shop not closed.
+func can_buy(id: StringName) -> bool:
+	var p := price(id)
+	return p >= 0 and Wallet.balance >= p and Consequences.shop_closed_jobs() == 0
+
+## Spends the item's price from the wallet and opens it. False, and nothing
+## changes, if it cannot be bought.
+func buy(id: StringName) -> bool:
+	if not can_buy(id):
+		return false
+	Wallet.add(-price(id))
+	Wallet.save()
+	_open(id)
+	return true
+
+## How the item opens, as the hangar shows it; empty for an open item.
+func how(id: StringName) -> String:
+	var u := unlock_of(id)
+	if u == null or is_unlocked(id):
+		return ""
+	return u.describe(price(id))
+
+## Opens every locked item whose achievement `result` (the job just flown) or
+## the save now meets, once each, and saves. The opened ones, in catalog order.
+func earn(result: JobResult = null) -> Array[Unlock]:
+	var out: Array[Unlock] = []
+	for u in catalog.unlocks:
+		if u.achievement and not is_unlocked(u.item) and u.achievement.met(result):
+			unlocked.append(u.item)
+			out.append(u)
+	if not out.is_empty():
+		save()
+		for u in out:
+			opened.emit(u.item)
+	return out
+
+func _open(id: StringName) -> void:
+	if is_unlocked(id):
+		return
+	unlocked.append(id)
+	save()
+	opened.emit(id)
 
 ## A copy with an unknown decal put back to the default's.
 func _clean(l: Livery) -> Livery:

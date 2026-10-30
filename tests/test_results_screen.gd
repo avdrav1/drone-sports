@@ -31,9 +31,13 @@ func test_shows_within_1s_with_every_objective() -> bool:
 	var screen: Control = runner.results_screen
 	var ok: bool = ended and screen != null and screen.is_visible_in_tree()
 	if ok:
-		var rows: Array = screen.get_node("%Rows").get_children().filter(func(l): return l is Label).map(func(l): return l.text)
+		var labels: Array = screen.get_node("%Rows").get_children().filter(func(l): return l is Label)
+		# A first finish of the parcel job opens hangar items, listed after the
+		# perks (Story 27.3); the rows checked here are the rest.
+		var opened: Array = labels.filter(func(l): return l.name.begins_with("Unlock"))
+		var rows: Array = labels.filter(func(l): return not l in opened).map(func(l): return l.text)
 		# The fit crew's perks follow the objectives (Story 19.5).
-		ok = rows.size() == 5 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
+		ok = opened.any(func(l): return l.text.begins_with("Unlocked: Stripes decal")) and rows.size() == 5 and rows[0].contains("Reach the drop pad") and rows[0].contains("100%") \
 			and rows[1].contains("No contact") and rows[2].contains("Under 25 s") \
 			and rows[3] == "Bhima's site rates +75" and rows[4] == "Drona's good word +3 reputation" \
 			and screen.get_node("%Grade").text.contains("Grade A") \

@@ -33,9 +33,14 @@ func price(id: StringName) -> int:
 	var l := level(id)
 	if u == null or l >= u.max_level():
 		return -1
+	return marked_up(u.prices[l])
+
+## A shop price as charged now: the markup and the price perk on `base`. The
+## hangar's items are priced the same way (Story 27.3).
+func marked_up(base: int) -> int:
 	var factor := Consequences.price_factor() * maxf(0.0, 1.0 - Perks.amount(&"price"))
 	# Snapped first, so 500 x 0.8 is 400, not 401 from float error.
-	return ceili(snappedf(u.prices[l] * factor, 0.001))
+	return ceili(snappedf(base * factor, 0.001))
 
 func can_buy(id: StringName) -> bool:
 	var p := price(id)

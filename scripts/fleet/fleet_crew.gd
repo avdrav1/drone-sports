@@ -79,6 +79,11 @@ func _ready() -> void:
 		relay.lap_invalid.connect(func(_d, _why): advise())
 	if runner and lead_runner and not drones.is_empty():
 		runner.drone = drones[0]
+	# The fleet first flown (Story 27.3's achievement) once a real run goes live.
+	if runner and not drones.is_empty():
+		runner.state_changed.connect(func(s, _p):
+			if s == JobRunner.State.LIVE and runner.pays_out:
+				StoryFlags.set_flag(Achievement.FLEET_FLAG))
 
 ## Gives `auto` the way `c` flies, swaying on their own phase.
 static func fly_as(auto: Autopilot, c: Character) -> void:
