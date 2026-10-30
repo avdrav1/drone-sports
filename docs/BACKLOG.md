@@ -1365,3 +1365,60 @@ Assumption to confirm: Nala and Sushena are vanaras in the Ramayana, so they are
   - Acceptance: Every character's row has a "Drawn as" entry matching their look. The respect line names the faces. 25.4's docs tests still pass.
   - Out of scope: Backlog history.
   - Note: The cast table gains a "Drawn as" column and a row for each pilot avatar (Abhimanyu, Jatayu, Hanuman), so every character with a portrait has one; `tests/test_docs_faces.gd` reads each entry against the character's `CrewLook` (a vanara or bird head, and every headwear, hair, beard, held object and mark it names). The respect line covers the faces and Hanuman's dignified face. Rule 5 (round, big-eyed, placeholder shapes) now describes the painted faces, the intro line drops "small, round", and the species question is ticked: humans, vanaras and a great bird.
+
+---
+
+## Epic 27: Your ride
+
+Done when the player can make each drone their own: its paint, lights, decals and name, and parts that trade one strength for another. All of it is set up in a hangar on the board, unlocked with job money or by achievement, and every drone in a fleet is set up on its own.
+
+Owner decisions (all decided):
+- Scope: looks, and parts with trade-offs.
+- Unlocks: both with job money and by achievement.
+- Fleet: each fleet drone is customized separately.
+
+Rules this epic keeps: one flight model (rule 1), so parts only change the drone's exported stats (rule 5), never add or remove an assist and never change physics code. Looks are visual only: `DroneLook` never touches physics, and nothing is graded on looks (rule 8). Data over code (rule 4): liveries, decals, parts and unlocks are `.tres` resources under `data/garage/`. The decals and patterns are original art made in code or in the repo, in Rajasthani and epic motifs (block print, jharokha lattice, chakra, lotus); no team, brand or franchise logos beyond the game's own teams.
+
+Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
+
+- [ ] **27.1 A livery in the save**
+  - Goal: Each drone slot has a livery (its looks and its name) and a set of parts, kept in the save. Slot 0 is the player's drone; slots 1 and up are the fleet's, as many as the largest fleet.
+  - Context: A `Livery` resource: body, arm, prop and canopy colours, light colour, decal id and its colour, a race number, and a name. Parts are ids per kind (frame, props, battery; 27.4). The save gets a "hangar" section (slot -> livery and parts, plus what is unlocked), read and written like `Garage`'s "upgrades". A new or old save starts every slot on the default livery, which is today's look exactly, and the default parts, which change nothing.
+  - Acceptance: A save with no hangar section loads with every slot on the default livery and parts, and a drone looks and flies exactly as before (stats unchanged). Changing slot 2's livery and parts and reloading keeps them, and slot 0 is untouched. An unknown decal or part id in a save falls back to the default instead of failing.
+  - Out of scope: The look itself (27.2), parts' stats (27.4), the hangar page (27.5).
+
+- [ ] **27.2 Paint, lights and decals**
+  - Goal: A drone wears its slot's livery: colours on body, arms, props and canopy, under-glow and arm lights in the light colour, a decal on the top of the hull, and its race number.
+  - Context: `scripts/drone/drone_look.gd` builds the body from parts in `_build()`; it reads the livery there, and `still_mesh` (the boss's shell) keeps the default. Lights keep the white front and red back marks that show heading, with the livery's colour as an under-glow and arm strips, so heading still reads at a glance. Decals (at least eight to start: block print, jharokha lattice, chakra, lotus, peacock, sun, stripes, the team's emblem in team colours) are textures drawn in code or files made in the repo, with their licence listed. Works on the web build (GL Compatibility) and the fleet draws many drones, so materials are shared per livery, not per part.
+  - Acceptance: A drone with a non-default livery shows each colour on its part (a test reads the materials). The front and back heading lights are present in every livery. Every decal draws on the hull without errors. The default livery looks as before (the materials match today's). Ten drones with ten liveries in one scene add no more than ten sets of materials.
+  - Out of scope: Choosing them (27.5), unlocks (27.3).
+
+- [ ] **27.3 Unlocks: money and achievements**
+  - Goal: Every look and part that is not a default is locked until bought with job money or earned by an achievement, and the player can see how to unlock it.
+  - Context: An `Unlock` on each item: a price (from the wallet, as `Garage` upgrades are), an achievement, or both (either one opens it). Achievements are data: a job completed, a job completed under a time or with no crashes, a best payout reached, a reputation level with a faction, a story flag, or the fleet first flown. Earned unlocks open at the job's results, with a line on the results screen and a radio line. Price markups and perks that already touch the shop (shop_closed, Story 7.6, and the price perk, Story 19.5) apply to hangar prices too.
+  - Acceptance: A locked item cannot be applied; buying it spends exactly its price, and an unaffordable item cannot be bought. Meeting an achievement opens its item once, shows it on the results screen, and keeps it unlocked after reload. An item with both a price and an achievement opens by either. Every item names how it unlocks. The shop markup and price perk change hangar prices as they do upgrades.
+  - Out of scope: New jobs made only for unlocks.
+
+- [ ] **27.4 Parts with trade-offs**
+  - Goal: Parts that change how the drone flies by trading one strength for another: frames, props and batteries.
+  - Context: A `Part` is a kind (frame, props, battery) and steps on the drone's exported stats (mass, drag, angular drag, max thrust, arm length, yaw torque, battery flight time), applied by `Garage.apply` with the upgrades and the pilot's edge (Stories 7.2, 19.1), in the same way, so the flight model and assists are untouched (rules 1, 2, 5). Start with three frames (light racer: fast and twitchy, short battery; heavy hauler: steady in wind, slow to turn; freestyle: balanced, quick to yaw), three props (grip, speed, quiet efficiency) and three batteries (long range and heavy, light and short, standard). A frame also changes the look: arm length and hull shape follow it. Defaults are today's drone.
+  - Acceptance: Every non-default part makes at least one stat better and at least one worse. No part adds or removes an assist (a test compares the assist stack with and without each part). The default parts leave every stat as it is today. Every job can still be finished with every frame (the existing scripted runs pass with each frame fitted). Parts apply to the slot's drone only.
+  - Out of scope: Parts beyond these three kinds, tuning the jobs for parts.
+
+- [ ] **27.5 The hangar**
+  - Goal: The board's Garage opens the hangar: the drone on a turntable, with Paint, Lights, Decals, Parts and Upgrades, and every change shown live before it is applied.
+  - Context: Replaces `ShopDialog` (the upgrades become the hangar's Upgrades tab, prices and rules unchanged). A SubViewport turntable of the drone with the slot's livery and parts; the player turns it with the right stick, the mouse or the arrow keys. Colours pick from a palette (no free colour wheel). Parts and upgrades show stat bars with the change highlighted before buying. The name is typed on keys, or picked from a list of names on a pad. Locked items show their price or their achievement (27.3). Works by pad alone, as Epic 23 requires, and at 960x720 and 1920x1080.
+  - Acceptance: Changing a colour, light, decal or part updates the turntable at once; leaving without applying keeps the old livery. Applying writes the slot (27.1). Stat bars show the change of a part before it is fitted. Every control is reachable by pad, keys and mouse, and B or Esc backs out. Nothing overlaps at either size. The old shop's tests pass against the Upgrades tab.
+  - Out of scope: Sharing liveries between players.
+
+- [ ] **27.6 A livery for every fleet drone**
+  - Goal: In fleet jobs each drone flies its own slot's livery and parts, and the hangar sets each one up.
+  - Context: The hangar has a slot picker (your drone, then Fleet 1, Fleet 2, …, as many as the largest fleet; slots past the fleet you have reached are shown locked until the fleet is first flown). Fleet jobs build each drone from its slot. The fleet command view (`scripts/fleet/command_view.gd`) marks each drone's ring and name in its light colour, so the player can tell them apart, and a "copy to all" sets every fleet slot from the current one.
+  - Acceptance: In a fleet job, drone N wears slot N's livery and flies with slot N's parts (a test checks materials and stats per drone). The command view's ring for each drone is in its light colour. "Copy to all" copies the livery and parts but leaves names. Slot 0 never changes a fleet drone.
+  - Out of scope: Assigning crew pilots to drones by livery.
+
+- [ ] **27.7 The crew notice**
+  - Goal: The ride is part of the game's people: the crew comment on new paint and parts, and the drone's name shows where the player's name does.
+  - Context: New bark events (`new_livery`, `new_part`), said the next time the board opens, by a living crew member, in each character's voice in `data/dialogue/`. Nala, the mechanic, has lines about parts. The drone's name shows on the results screen and in the flight HUD's job panel. Lines are respectful, with no pronouns for characters, as Epics 25 and 26 require.
+  - Acceptance: After a livery change, the next board says a `new_livery` line once; after a part change, a `new_part` line, by Nala when Nala is alive. No line plays for the dead. The drone's name shows on results and in the HUD, and a drone with no name shows none. Every new line fits the radio at both sizes (26.4's test).
+  - Out of scope: Voice audio beyond the existing babble.
