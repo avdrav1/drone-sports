@@ -25,6 +25,8 @@ func _press_alone(b: BaseButton) -> int:
 	var others := b.pressed.get_connections().filter(func(c): return not (c.callable.get_object() is UiSounds))
 	for c in others:
 		b.pressed.disconnect(c.callable)
+	# The log keeps only its last entries; the hangar's many chips would fill it.
+	Sfx.clear_log()
 	var before := Sfx.count(UiSounds.CLICK)
 	b.pressed.emit()
 	var clicks := Sfx.count(UiSounds.CLICK) - before

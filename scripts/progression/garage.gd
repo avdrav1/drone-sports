@@ -67,15 +67,39 @@ func apply(drone: Drone, slot := 0) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
 	drone.set_meta(APPLIED, true)
-	for u in upgrades.upgrades:
-		if level(u.id) > 0:
-			drone.set(u.stat, drone.get(u.stat) + u.step * level(u.id))
+	_add_levels(drone, levels)
 	Hangar.apply_parts(drone, slot)
+	_add_edge(drone)
+	tune(drone)
+	Hangar.dress(drone, slot)
+
+## What `apply` would set the stats to with these parts (kind -> part id) and
+## upgrade levels (id -> level; null is the levels bought): Part.STATS by name.
+## The hangar's stat bars (Story 27.5); no drone in the game is touched.
+func stats_with(parts: Dictionary, at_levels = null) -> Dictionary:
+	var d := Drone.new()
+	_add_levels(d, levels if at_levels == null else at_levels)
+	for kind in parts:
+		var p := Hangar.part(parts[kind])
+		if p:
+			p.apply_stats(d)
+	_add_edge(d)
+	var out := {}
+	for stat in Part.STATS:
+		out[stat] = d.get(stat)
+	d.free()
+	return out
+
+func _add_levels(drone: Drone, at_levels: Dictionary) -> void:
+	for u in upgrades.upgrades:
+		var l: int = at_levels.get(u.id, 0)
+		if l > 0:
+			drone.set(u.stat, drone.get(u.stat) + u.step * l)
+
+func _add_edge(drone: Drone) -> void:
 	var pilot := PlayerProfile.pilot()
 	if pilot and pilot.edge:
 		pilot.edge.apply_stats(drone)
-	tune(drone)
-	Hangar.dress(drone, slot)
 
 ## Give the drone's assists that are on the chosen pilot's settings; the ones
 ## that are off keep their own. Call again after switching assists.
