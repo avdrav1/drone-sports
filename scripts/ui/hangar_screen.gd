@@ -11,6 +11,10 @@ extends Control
 # or bought. UPGRADES is the old shop: same rows, prices and rules, and it
 # still buys at once. Pad, keys and mouse all reach everything; B or Esc
 # backs out, LB and RB flip the tabs.
+# Story 27.6: a slot picker in the head (your drone, then Fleet 1, Fleet 2, …;
+# the fleet's slots locked until the fleet is first flown) picks the drone
+# being set up, and on a fleet slot COPY TO ALL applies the draft and sets
+# every fleet slot's looks and parts from it, each keeping its name and number.
 
 ## Bought an upgrade or a hangar item.
 signal purchased
@@ -63,6 +67,9 @@ var name_list: OptionButton
 var number_slider: HSlider
 var glow_toggle: CheckButton
 var apply_button: Button
+## Your drone, then each fleet slot (Story 27.6).
+var slot_picker: OptionButton
+var copy_button: Button
 var back_button: Button
 var buy_button_item: Button
 ## The item picked last, which the info line is about.
@@ -106,6 +113,9 @@ func _trap_focus() -> void:
 
 ## Opens on the slot as saved, focus on the open tab.
 func open() -> void:
+	if not Hangar.is_slot_open(slot):
+		slot = 0
+	_fill_slots()
 	draft = Hangar.livery(slot)
 	draft_parts = Hangar.parts(slot)
 	picked = &""
@@ -116,6 +126,50 @@ func open() -> void:
 		var b: Button = tab_buttons[tab]
 		if b.is_visible_in_tree() and b.get_focus_mode_with_override() != FOCUS_NONE:
 			b.grab_focus()).call_deferred()
+
+## Sets up another slot, from it as saved; a draft not applied is dropped,
+## as on leaving. False, and nothing changes, for a locked or unknown slot.
+func pick_slot(n: int) -> bool:
+	if not Hangar.is_slot_open(n):
+		_fill_slots()
+		return false
+	slot = n
+	draft = Hangar.livery(slot)
+	draft_parts = Hangar.parts(slot)
+	picked = &""
+	_status.text = ""
+	_fill_slots()
+	refresh()
+	return true
+
+## Applies the draft to this fleet slot and copies its looks and parts to
+## every other fleet slot; names and race numbers stay each slot's own.
+func copy_to_all() -> bool:
+	if slot == 0 or not locked_items().is_empty():
+		return false
+	if changed() and not apply():
+		return false
+	if not Hangar.copy_to_fleet(slot):
+		return false
+	_status.text = "Copied to every fleet drone."
+	_sync()
+	return true
+
+## The picker's names: YOUR DRONE, then FLEET 1, FLEET 2, …, locked ones so.
+static func slot_name(n: int) -> String:
+	return "YOUR DRONE" if n == 0 else "FLEET %d" % n
+
+func _fill_slots() -> void:
+	if slot_picker == null:
+		return
+	slot_picker.clear()
+	for n in Hangar.slot_count():
+		var open := Hangar.is_slot_open(n)
+		slot_picker.add_item(slot_name(n) + ("" if open else "  (locked)"), n)
+		slot_picker.set_item_disabled(n, not open)
+	slot_picker.select(slot)
+	slot_picker.tooltip_text = "" if Hangar.slot_count() < 2 or Hangar.is_slot_open(1) else \
+		"The fleet's drones open once the fleet is first flown."
 
 ## Leaves without applying: the slot keeps what it had.
 func leave() -> void:
@@ -183,6 +237,13 @@ func _wire_focus() -> void:
 	for t in TABS:
 		var first: Array = _rows(pages[t])[0]
 		tab_buttons[t].focus_neighbor_bottom = tab_buttons[t].get_path_to(first[0])
+		tab_buttons[t].focus_neighbor_top = tab_buttons[t].get_path_to(slot_picker)
+	for c in [slot_picker, copy_button]:
+		c.focus_neighbor_bottom = c.get_path_to(tab_button)
+	# Along the head, not off down to the tabs by distance.
+	slot_picker.focus_neighbor_right = slot_picker.get_path_to(copy_button if not copy_button.disabled else slot_picker)
+	copy_button.focus_neighbor_left = copy_button.get_path_to(slot_picker)
+	copy_button.focus_neighbor_right = copy_button.get_path_to(copy_button)
 	for i in rows.size():
 		for j in rows[i].size():
 			var c: Control = rows[i][j]
@@ -339,6 +400,7 @@ func _sync() -> void:
 		return
 	_syncing = true
 	_wallet.text = "Wallet  %d" % Wallet.balance
+	copy_button.disabled = slot == 0 or not locked_items().is_empty()
 	for c in chips:
 		match c.page:
 			&"paint", &"lights":
@@ -390,15 +452,16 @@ func _show_parts(focus_id := &"") -> void:
 	var shown := Hangar.part(focus_id if focus_id != &"" else picked)
 	if shown and focus_id != &"":
 		after[shown.kind] = shown.id
-	_part_bars.show_change(Garage.stats_with(Hangar.parts(slot)), Garage.stats_with(after))
+	_part_bars.show_change(Garage.stats_with(Hangar.parts(slot), null, slot), Garage.stats_with(after, null, slot))
 	if shown == null:
 		shown = Hangar.part(draft_parts.get(&"frame", &""))
 	_part_blurb.text = "%s: %s" % [shown.name, shown.blurb] if shown else ""
 
 ## UPGRADES: the bars now, and with the next level of `u` when there is one.
+## Upgrades are the player's drone's: on a fleet slot they change nothing.
 func _show_upgrade(u: Upgrade) -> void:
-	var now := Garage.stats_with(Hangar.parts(slot))
-	if u == null or Garage.price(u.id) < 0:
+	var now := Garage.stats_with(Hangar.parts(slot), null, slot)
+	if u == null or Garage.price(u.id) < 0 or slot != 0:
 		_upgrade_bars.show_change(now, now)
 		return
 	var next := Garage.levels.duplicate()
@@ -482,11 +545,24 @@ func _build() -> void:
 	page.add_child(head)
 	var title := _label("HANGAR", 36, Color.WHITE, true)
 	head.add_child(title)
-	var which := _label("YOUR DRONE" if slot == 0 else "FLEET %d" % slot, 20, skin.accent)
-	which.name = "Slot"
-	which.size_flags_horizontal = SIZE_EXPAND_FILL
-	which.size_flags_vertical = SIZE_SHRINK_END
-	head.add_child(which)
+	slot_picker = OptionButton.new()
+	slot_picker.name = "Slot"
+	slot_picker.fit_to_longest_item = true
+	slot_picker.size_flags_vertical = SIZE_SHRINK_CENTER
+	slot_picker.add_theme_color_override("font_color", skin.accent)
+	slot_picker.item_selected.connect(func(i): pick_slot(slot_picker.get_item_id(i)))
+	head.add_child(slot_picker)
+	_fill_slots()
+	copy_button = Button.new()
+	copy_button.name = "CopyToAll"
+	copy_button.text = "COPY TO ALL"
+	copy_button.tooltip_text = "Applies this drone's look and parts to every fleet drone. Names and numbers stay."
+	copy_button.size_flags_vertical = SIZE_SHRINK_CENTER
+	copy_button.pressed.connect(copy_to_all)
+	head.add_child(copy_button)
+	var gap := Control.new()
+	gap.size_flags_horizontal = SIZE_EXPAND_FILL
+	head.add_child(gap)
 	_wallet = _label("", 20)
 	_wallet.name = "Wallet"
 	_wallet.size_flags_vertical = SIZE_SHRINK_END

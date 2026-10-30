@@ -6,6 +6,10 @@ extends Node
 # Story 27.3: every look and part that is not a default is locked until bought
 # with job money (priced as the shop's upgrades are) or earned by an
 # achievement at a job's results. A locked item cannot be applied.
+# Story 27.6: fleet drone N (1 up) is built from slot N in fleet jobs. The
+# fleet's slots open once the fleet is first flown, and `copy_to_fleet` sets
+# every fleet slot's looks and parts from one slot, keeping each one's name
+# and race number.
 
 signal changed(slot: int)
 ## An item opened, bought or earned.
@@ -34,6 +38,40 @@ func slot_count() -> int:
 
 func has_slot(slot: int) -> bool:
 	return slot >= 0 and slot < slot_count()
+
+## The slot may be set up in the hangar: the player's drone always; the
+## fleet's once the fleet is first flown (Story 27.6).
+func is_slot_open(slot: int) -> bool:
+	return has_slot(slot) and (slot == 0 or StoryFlags.is_set(Achievement.FLEET_FLAG))
+
+## Sets every other fleet slot's livery and parts from `from`. Each keeps its
+## own name and race number, so the drones can still be told apart. False, and
+## nothing changes, if `from` is not an open fleet slot or wears a locked item.
+func copy_to_fleet(from: int) -> bool:
+	if from <= 0 or not is_slot_open(from):
+		return false
+	var source := livery(from)
+	if not locked_in(source).is_empty():
+		return false
+	var row: Dictionary = fitted.get(from, {})
+	var touched: Array[int] = []
+	for slot in range(1, slot_count()):
+		if slot == from:
+			continue
+		var l: Livery = source.duplicate()
+		var own := livery(slot)
+		l.drone_name = own.drone_name
+		l.race_number = own.race_number
+		liveries[slot] = _clean(l)
+		if row.is_empty():
+			fitted.erase(slot)
+		else:
+			fitted[slot] = row.duplicate()
+		touched.append(slot)
+	save()
+	for slot in touched:
+		changed.emit(slot)
+	return true
 
 ## A copy of the slot's livery; change it and hand it to `set_livery`.
 func livery(slot: int) -> Livery:

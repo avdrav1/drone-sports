@@ -184,12 +184,19 @@ func _cycle(step := 1) -> void:
 		at = -1 if step > 0 else 0
 	select(drones[posmod(at + step, drones.size())])
 
+## The colour `d`'s ring and name are drawn in: its livery's light colour
+## (Story 27.6), so each drone in the fleet can be told apart.
+static func mark_color(d: Drone) -> Color:
+	var look := d.get_node_or_null("Look") as DroneLook if is_instance_valid(d) else null
+	var c: Color = look.worn().light_color if look else DroneLook.ACCENT
+	return Color(c, 1.0)
+
 ## The portrait shown for `d` in the overlay, or null.
 func portrait(d: Drone) -> CharacterPortrait:
 	return $Overlay.get_child(0).portraits.get(d)
 
-## Rings on the drones (the selected one lit), each pilot's portrait, and lines
-## through each queue.
+## Rings on the drones, each in its drone's light colour (the selected one
+## wider, in a white halo), each pilot's portrait, and lines through each queue.
 class _Overlay extends Control:
 	const RING := Color(1, 1, 1, 0.75)
 	const LIT := Color(1.0, 0.76, 0.25)
@@ -338,7 +345,10 @@ class _Overlay extends Control:
 					draw_line(prev, p, LIT if lit else RING, 1.5)
 					draw_circle(p, 3.0, LIT if lit else RING)
 					prev = p
-			draw_arc(at, 14.0 if lit else 10.0, 0.0, TAU, 24, LIT if lit else RING, 2.0)
+			var mark := CommandView.mark_color(d)
+			draw_arc(at, 14.0 if lit else 10.0, 0.0, TAU, 24, mark, 3.0 if lit else 2.0)
+			if lit:
+				draw_arc(at, 16.5, 0.0, TAU, 24, Color.WHITE, 1.5)
 			# A face moved off its drone keeps a thin line back to the ring.
 			var face: CharacterPortrait = portraits.get(d)
 			if face and face.visible:
@@ -347,4 +357,7 @@ class _Overlay extends Control:
 				if c.distance_to(home) > 1.0:
 					var dir := at.direction_to(c)
 					draw_line(at + dir * 16.0, c - dir * FACE * 0.45, LIT if lit else RING, 1.0)
-			draw_string(get_theme_default_font(), at + Vector2(-40, -18), d.name, HORIZONTAL_ALIGNMENT_CENTER, 80, NAME_SIZE, LIT if lit else RING)
+			# The name in the same colour, on a dark shadow so a dark light colour reads.
+			var font := get_theme_default_font()
+			draw_string(font, at + Vector2(-39, -17), d.name, HORIZONTAL_ALIGNMENT_CENTER, 80, NAME_SIZE, Color(0, 0, 0, 0.7))
+			draw_string(font, at + Vector2(-40, -18), d.name, HORIZONTAL_ALIGNMENT_CENTER, 80, NAME_SIZE, mark)
