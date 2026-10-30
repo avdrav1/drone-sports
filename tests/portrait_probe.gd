@@ -7,16 +7,23 @@ extends SceneTree
 # Story 26.1: the faces are shaded, so a pixel shows a colour when it is that
 # colour lit or in shadow (the same mix, brighter or darker); and four faces are
 # also drawn at 256 px, where `spread` counts their distinct colours.
+# Story 26.2: every face is drawn again at 48 px, and `outlines` gives the least
+# share of pixels where two faces' silhouettes (what is not background) differ.
 
 const IDS := ["arjuna", "sanjaya", "nala", "bhima", "sushena", "drona", "hanuman", "abhimanyu", "jatayu"]
 const SIZES := [32, 64, 128]
 ## A pixel shows a colour when, scaled to the same brightness, its r, g and b
-## differ from it by less than this in all, at LIT.x to LIT.y of its brightness.
-const MATCH := 0.06
-const LIT := Vector2(0.55, 1.4)
+## differ from it by less than this in all, at LIT.x to LIT.y of its brightness:
+## as dark as the painted shadow side (Paint.lit keeps about 0.4 of the colour,
+## warmer) up to its highlights.
+const MATCH := 0.1
+const LIT := Vector2(0.38, 1.4)
 ## The big size, drawn in a row of its own, and how many faces get one.
 const BIG := 256
 const BIG_FACES := 4
+## The silhouette size, and how far a pixel is from the background to be in one.
+const SMALL := 48
+const EDGE := 0.1
 ## Two pixels differ when their r, g and b differ by more than this in all.
 const DIFFER := 0.2
 
@@ -33,8 +40,9 @@ func _initialize() -> void:
 		logger.sink = _errors
 		OS.call("add_logger", logger)
 	var vp := SubViewport.new()
-	vp.size = Vector2i(16 + 136 * IDS.size(), 16 + 136 * SIZES.size() + BIG + 8)
+	vp.size = Vector2i(16 + 136 * IDS.size(), 16 + 136 * SIZES.size() + BIG + 8 + SMALL + 8)
 	var big_y := 8 + 136 * SIZES.size()
+	var small_y := big_y + BIG + 8
 	vp.transparent_bg = false
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(vp)
@@ -56,6 +64,12 @@ func _initialize() -> void:
 		p.character = load("res://data/characters/%s.tres" % IDS[i])
 		p.size = Vector2.ONE * BIG
 		p.position = Vector2(8 + (BIG + 8) * i, big_y)
+		vp.add_child(p)
+	for i in IDS.size():
+		var p: Control = CP.new()
+		p.character = load("res://data/characters/%s.tres" % IDS[i])
+		p.size = Vector2.ONE * SMALL
+		p.position = Vector2(8 + (SMALL + 8) * i, small_y)
 		vp.add_child(p)
 	for i in 8:
 		await process_frame
@@ -102,8 +116,28 @@ func _initialize() -> void:
 				var c := crop.get_pixel(x, y)
 				seen[(int(c.r * 31.0) << 10) | (int(c.g * 31.0) << 5) | int(c.b * 31.0)] = true
 		spread[IDS[i]] = seen.size()
+	var masks: Array[PackedByteArray] = []
+	for i in IDS.size():
+		var crop := img.get_region(Rect2i(8 + (SMALL + 8) * i, small_y, SMALL, SMALL))
+		var m := PackedByteArray()
+		for y in SMALL:
+			for x in SMALL:
+				var c := crop.get_pixel(x, y)
+				m.append(1 if absf(c.r - bg.color.r) + absf(c.g - bg.color.g) + absf(c.b - bg.color.b) > EDGE else 0)
+		masks.append(m)
+	var outlines := 1.0
+	var pair := ""
+	for a in IDS.size():
+		for b in range(a + 1, IDS.size()):
+			var differ := 0
+			for k in SMALL * SMALL:
+				differ += 1 if masks[a][k] != masks[b][k] else 0
+			var share := float(differ) / (SMALL * SMALL)
+			if share < outlines:
+				outlines = share
+				pair = "%s/%s" % [IDS[a], IDS[b]]
 	var f := FileAccess.open(out_path, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"counts": counts, "apart": apart, "spread": spread, "errors": _errors}))
+	f.store_string(JSON.stringify({"counts": counts, "apart": apart, "spread": spread, "outlines": outlines, "closest": pair, "errors": _errors}))
 	f.close()
 	quit()
 

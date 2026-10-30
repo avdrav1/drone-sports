@@ -22,6 +22,8 @@ extends Control
 # the look. 18.2's motion is painted subtly: a breath, a small head tilt, and
 # the jaw moving while talking. The still parts are built once per character
 # and size and kept as meshes; only the eyes, brows and mouth are drawn anew.
+# Story 26.2: each face is its namesake from the epics: the look's headwear,
+# hair, beard, held object and marks, painted in the look's colours.
 
 const EXPRESSIONS: Array[StringName] = [&"neutral", &"happy", &"determined", &"worried", &"shocked", &"sad"]
 
@@ -440,7 +442,7 @@ func _moving_parts(s: float, p: Dictionary) -> Array[Paint]:
 						_paint_eye(pt, kind, side, q, shine)
 				1:
 					for side: float in [-1.0, 1.0]:
-						_paint_brow(pt, kind, side, q, palette(character))
+						_paint_brow(pt, kind, side, q, palette(character), _look_of(character).build)
 				2:
 					_paint_mouth_of(pt, character, q)
 			_moving[key] = pt
@@ -500,6 +502,8 @@ class Paint:
 	var origin := Vector2.ZERO
 	var unit := 1.0
 	var grey := false
+	## Applied to every point before it is placed, e.g. to fit a tall crown.
+	var warp := Transform2D.IDENTITY
 
 	func _init(at := Vector2.ZERO, r := 1.0, is_grey := false) -> void:
 		origin = at
@@ -518,7 +522,7 @@ class Paint:
 		return 1.0 / unit
 
 	func vert(p: Vector2, c: Color) -> int:
-		points.append(origin + p * unit)
+		points.append(origin + warp * p * unit)
 		colors.append(tone(c, grey))
 		return points.size() - 1
 
@@ -657,7 +661,7 @@ class Paint:
 			var e1 := (p - poly[(i - 1 + n) % n]).normalized()
 			var e2 := (poly[(i + 1) % n] - p).normalized()
 			var nrm := (Vector2(e1.y, -e1.x) + Vector2(e2.y, -e2.x)).normalized() * sgn
-			points.append(origin + (p + nrm * w) * unit)
+			points.append(origin + warp * (p + nrm * w) * unit)
 			colors.append(Color(colors[base + i], 0.0))
 		for i in n:
 			var j := (i + 1) % n
@@ -712,7 +716,7 @@ static func _skull(kind: StringName) -> PackedVector2Array:
 				else:
 					pts.append(Vector2(0.8 * sx * (1.0 - 0.18 * pow(y, 3.0)), 1.04 * y))
 			&"bird":
-				pts.append(Vector2(0.62 * sx * (1.0 - 0.25 * maxf(y, 0.0)), -0.1 + (0.78 if y < 0.0 else 0.66) * y))
+				pts.append(Vector2(0.74 * sx * (1.0 - 0.35 * maxf(y, 0.0) * maxf(y, 0.0)), -0.1 + (0.82 if y < 0.0 else 0.95) * y))
 			_:
 				if y < 0.0:
 					pts.append(Vector2(0.78 * signf(x) * pow(absf(x), 0.9), 0.98 * y))
@@ -720,8 +724,9 @@ static func _skull(kind: StringName) -> PackedVector2Array:
 					pts.append(Vector2(0.78 * signf(x) * pow(absf(x), 0.75) * (1.0 - 0.25 * pow(y, 3.0)), 1.12 * y))
 	return pts
 
-## The hair a face wears: long, jata (a knot on top), short or bald; and a
-## beard. Read from the look's body until the look names its own (Story 26.2).
+## The hair a face wears: long, curls (to the jaw), jata (a knot on top), short or bald; and a
+## beard (empty, moustache or beard). The look's own hair_cut and beard win;
+## without them, read from the look's body.
 static func hair_of(c: Character) -> Dictionary:
 	var style := hair_style(c)
 	var cut := &"short"
@@ -732,7 +737,15 @@ static func hair_of(c: Character) -> Dictionary:
 			cut = &"jata"
 		&"bald_beard":
 			cut = &"bald"
-	return {"cut": cut, "beard": style == &"bald_beard"}
+	var beard := &"beard" if style == &"bald_beard" else &""
+	if c.look and (c.look.hair_cut != &"" or c.look.beard != &""):
+		cut = c.look.hair_cut if c.look.hair_cut != &"" else cut
+		beard = c.look.beard
+	return {"cut": cut, "beard": beard}
+
+## The character's look, or a plain one when they have none.
+static func _look_of(c: Character) -> CrewLook:
+	return c.look if c.look else CrewLook.new()
 
 ## The still layers of `c`'s face at `s` px: back (hair behind), body (neck,
 ## shoulders, clothes), head (skull, face, hair), jaw (beard; it drops as the
@@ -746,17 +759,19 @@ static func paint(c: Character, s: float, dead: bool) -> Dictionary:
 		layers[k] = Paint.new(at, r, dead)
 	var pal := palette(c)
 	var kind := head_kind(c)
+	var look := _look_of(c)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(c.id)
 	match kind:
 		&"bird":
 			_paint_bird(layers, pal, rng)
 		&"vanara":
-			_paint_body(layers.body, pal, pal.hair)
-			_paint_vanara(layers, pal, rng)
+			_paint_body(layers.body, pal, pal.hair, look)
+			_paint_vanara(layers, pal, look, rng)
 		_:
-			_paint_body(layers.body, pal, pal.skin)
-			_paint_human(layers, pal, hair_of(c), rng)
+			_paint_body(layers.body, pal, pal.skin, look)
+			_paint_human(layers, pal, hair_of(c), look, rng)
+	_paint_iconography(layers, pal, look, kind, rng)
 	var out := {"parts": PackedStringArray()}
 	for k in layers:
 		out[k] = layers[k].mesh()
@@ -765,9 +780,10 @@ static func paint(c: Character, s: float, dead: bool) -> Dictionary:
 
 ## Neck, shoulders and chest in `skin` (fur for a vanara), under a draped
 ## cloth in the look's top colour with a border in its accessory colour.
-static func _paint_body(p: Paint, pal: Dictionary, skin: Color) -> void:
+static func _paint_body(p: Paint, pal: Dictionary, skin: Color, look: CrewLook) -> void:
 	# The neck, a lit column with its right side in shadow.
-	var neck := PackedVector2Array([Vector2(-0.36, 0.5), Vector2(0.36, 0.5), Vector2(0.44, 1.9), Vector2(-0.44, 1.9)])
+	var nw := look.build
+	var neck := PackedVector2Array([Vector2(-0.36 * nw, 0.5), Vector2(0.36 * nw, 0.5), Vector2(0.46 * nw, 1.9), Vector2(-0.46 * nw, 1.9)])
 	p.dome(Vector2(-0.12, 1.2), neck, skin, 0.9, 0.0, 3)
 	p.soft(Vector2(0.06, 1.12), 0.5, 0.26, Color(_shade(skin), 0.75))
 	# Chest and shoulders.
@@ -777,6 +793,9 @@ static func _paint_body(p: Paint, pal: Dictionary, skin: Color) -> void:
 		# Collarbones catch the light.
 		p.soft(Vector2(side * 0.55, 1.86), 0.3, 0.05, Color(skin.lightened(0.25), 0.3), side * -0.15)
 		p.soft(Vector2(side * 0.55, 1.94), 0.3, 0.04, Color(_shade(skin), 0.3), side * -0.15)
+	if &"armour" in look.marks:
+		_paint_armour(p, pal)
+		return
 	# The cloth over both shoulders, open in a V at the chest.
 	var cloth: Color = pal.top
 	var border: Color = pal.accessory
@@ -820,27 +839,35 @@ static func _locks(p: Paint, count: int, at: Callable, base: Color, width: float
 		var col := _shade(base, 0.55).lerp(base.lightened(0.35), light)
 		p.stroke(_bez(pts[0], pts[1], pts[2], pts[3], 10), width * rng.randf_range(0.6, 1.3), width * 0.3, Color(col, 0.0), Color(col, 0.85), true)
 
-static func _paint_human(layers: Dictionary, pal: Dictionary, hair: Dictionary, rng: RandomNumberGenerator) -> void:
+static func _paint_human(layers: Dictionary, pal: Dictionary, hair: Dictionary, look: CrewLook, rng: RandomNumberGenerator) -> void:
 	var skin: Color = pal.skin
 	var hc: Color = pal.hair
 	var p: Paint = layers.head
 	var cut: StringName = hair.cut
 	if cut == &"long":
 		_paint_long_hair(layers.back, hc, rng)
+	elif cut == &"curls":
+		_paint_curls(layers.back, hc, rng)
 	# Ears, half behind the skull's edge.
 	for side: float in [-1.0, 1.0]:
 		var e := Vector2(side * 0.77, 0.24)
 		p.dome(e, _oval(e, 0.13, 0.27, 20), skin, 0.7)
 		p.soft(e + Vector2(side * 0.02, 0.0), 0.06, 0.16, Color(_shade(skin), 0.7))
-	p.dome(Vector2(-0.1, -0.05), _skull(&"human"), skin, 0.75, 0.04, 6)
+	var skull := _skull(&"human")
+	for i in skull.size():
+		# A broad build widens the jaw more than the crown.
+		skull[i].x *= lerpf(1.0, look.build, clampf(skull[i].y + 0.3, 0.0, 1.0))
+	p.dome(Vector2(-0.1, -0.05), skull, skin, 0.75, 0.04, 6)
 	p.parts.append("ears")
 	_paint_human_face(p, skin)
+	if look.age > 0.0:
+		_paint_age(p, skin, look.age)
 	if cut != &"bald":
 		_paint_hair_cap(p, hc, cut, rng)
 	if cut == &"jata":
 		_paint_knot(layers.front, hc, rng)
-	if hair.beard:
-		_paint_beard(layers.jaw, layers.front, hc, 0.5, rng)
+	if hair.beard != &"":
+		_paint_beard(layers.jaw, layers.front, hc, 0.3 + look.age * 0.7, hair.beard == &"beard", rng)
 
 ## The modelling of a human face: forehead and cheekbones in the light, the
 ## right side and the eye sockets in shadow, a nose, the folds by the mouth,
@@ -913,6 +940,32 @@ static func _paint_long_hair(p: Paint, hc: Color, rng: RandomNumberGenerator) ->
 		return [root, root + Vector2(side * 0.35, 0.4), tip + Vector2(side * 0.1, -0.8), tip], hc, 0.05, rng)
 	p.parts.append("hair")
 
+## Curls to the jaw, showing beside the face and the neck.
+static func _paint_curls(p: Paint, hc: Color, rng: RandomNumberGenerator) -> void:
+	var mass := PackedVector2Array()
+	for i in 17:
+		var a := lerpf(PI * 0.97, PI * 2.03, i / 16.0)
+		mass.append(Vector2(0.95 * cos(a), -0.08 + 1.08 * sin(a)))
+	for i in 13:
+		var t := i / 12.0
+		var y := lerpf(0.2, 1.0, t)
+		mass.append(Vector2(1.0 + 0.08 * sin(t * 12.0), y))
+	for i in 13:
+		var t := 1.0 - i / 12.0
+		var y := lerpf(0.2, 1.0, t)
+		mass.append(Vector2(-1.0 - 0.08 * sin(t * 12.0), y))
+	p.shaded(mass, hc, Vector2(-0.2, -0.2), Vector2(1.1, 1.2), 0.2)
+	for i in 34:
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var at := Vector2(side * rng.randf_range(0.82, 1.02), rng.randf_range(0.0, 0.95))
+		var curl := PackedVector2Array()
+		for k in 9:
+			var a := k * 0.8
+			curl.append(at + Vector2(cos(a) * side, sin(a)) * 0.07 * (1.0 - k / 12.0))
+		var col := hc.lightened(0.3) if i % 3 == 0 else _shade(hc, 0.5)
+		p.stroke(curl, 0.025, 0.015, Color(col, 0.8), Color(col, 0.3))
+	p.parts.append("hair")
+
 ## The jata: hair gathered and coiled up on the crown.
 static func _paint_knot(p: Paint, hc: Color, rng: RandomNumberGenerator) -> void:
 	var at := Vector2(0.0, -1.12)
@@ -926,7 +979,12 @@ static func _paint_knot(p: Paint, hc: Color, rng: RandomNumberGenerator) -> void
 
 ## A full beard round the jaw (in the jaw layer, so it drops as the mouth
 ## opens) and a moustache over the upper lip (in front). `length` past the chin.
-static func _paint_beard(jaw: Paint, front: Paint, hc: Color, length: float, rng: RandomNumberGenerator) -> void:
+static func _paint_beard(jaw: Paint, front: Paint, hc: Color, length: float, full: bool, rng: RandomNumberGenerator) -> void:
+	if full:
+		_paint_full_beard(jaw, hc, length, rng)
+	_paint_moustache(front, hc, rng)
+
+static func _paint_full_beard(jaw: Paint, hc: Color, length: float, rng: RandomNumberGenerator) -> void:
 	var beard := PackedVector2Array()
 	beard.append_array(_bez(Vector2(-0.8, 0.15), Vector2(-0.85, 0.8), Vector2(-0.5, 1.2 + length), Vector2(0.0, 1.25 + length), 10))
 	beard.append_array(_bez(Vector2(0.0, 1.25 + length), Vector2(0.5, 1.2 + length), Vector2(0.85, 0.8), Vector2(0.8, 0.15), 10))
@@ -938,6 +996,9 @@ static func _paint_beard(jaw: Paint, front: Paint, hc: Color, length: float, rng
 		var tip := Vector2(x * 0.55 + g.randf_range(-0.05, 0.05), 1.0 + length * (1.0 - absf(x)) + 0.2 * (1.0 - absf(x)))
 		return [root, root + Vector2(0.0, 0.3), tip + Vector2(x * 0.2, -0.2), tip], hc, 0.05, rng)
 	jaw.parts.append("beard")
+
+## A full moustache over the upper lip, drooping past the corners of the mouth.
+static func _paint_moustache(front: Paint, hc: Color, rng: RandomNumberGenerator) -> void:
 	var lip := PackedVector2Array()
 	lip.append_array(_bez(Vector2(-0.4, 0.92), Vector2(-0.34, 0.7), Vector2(-0.2, 0.58), Vector2(0.0, 0.6), 8))
 	lip.append_array(_bez(Vector2(0.0, 0.6), Vector2(0.2, 0.58), Vector2(0.34, 0.7), Vector2(0.4, 0.92), 8))
@@ -952,7 +1013,7 @@ static func _paint_beard(jaw: Paint, front: Paint, hc: Color, length: float, rng
 
 ## A vanara: a ruff of fur round a bare face, a heavy brow, a pale muzzle with
 ## a broad nose, and fur over the shoulders.
-static func _paint_vanara(layers: Dictionary, pal: Dictionary, rng: RandomNumberGenerator) -> void:
+static func _paint_vanara(layers: Dictionary, pal: Dictionary, look: CrewLook, rng: RandomNumberGenerator) -> void:
 	var p: Paint = layers.head
 	var fur: Color = pal.hair
 	var face: Color = pal.skin
@@ -1015,79 +1076,88 @@ static func _paint_vanara(layers: Dictionary, pal: Dictionary, rng: RandomNumber
 		return [root, root.lerp(tip, 0.3), root.lerp(tip, 0.7) + Vector2(0, 0.04), tip], fur, 0.05, rng)
 	p.parts.append("fur")
 
-## A great bird: dark wings over the shoulders, a pale ruff, a feathered
-## neck, a bare head with fine down, and a hooked beak (in front).
+## A great bird: dark wings folded over the shoulders in rows of feathers, a
+## pale ruff, a broad pale head with fine feathers, and a heavy hooked beak.
 static func _paint_bird(layers: Dictionary, pal: Dictionary, rng: RandomNumberGenerator) -> void:
 	var body: Paint = layers.body
 	var wing: Color = pal.top
 	var plume: Color = pal.hair
 	var head: Color = pal.skin
-	# Folded wings over the shoulders, in rows of feathers.
-	var torso := PackedVector2Array()
-	for i in 15:
-		var u := lerpf(-1.0, 1.0, i / 14.0)
-		torso.append(Vector2(u * SIDE, 1.5 + 0.5 * pow(absf(u), 1.4)))
-	torso.append(Vector2(SIDE, BOTTOM))
-	torso.append(Vector2(-SIDE, BOTTOM))
-	body.dome(Vector2(-0.6, 2.4), torso, wing, 0.55, 0.05, 3)
-	for row in 5:
-		for i in 13:
-			var u := lerpf(-1.0, 1.0, (i + 0.5 * (row % 2)) / 12.0)
-			var at := Vector2(u * SIDE, 1.62 + 0.5 * pow(absf(u), 1.4) + row * 0.24)
-			if at.y > BOTTOM - 0.05:
+	var ruff := head.lightened(0.35)
+	body.dome(Vector2(-0.6, 2.3), _shoulders(1.0), wing, 0.55, 0.05, 3)
+	# Feathers from the top row down, each row overlapping the one above.
+	for row in range(7, -1, -1):
+		var n := 13
+		for i in n:
+			var u := lerpf(-1.0, 1.0, (i + 0.5 * (row % 2)) / (n - 1))
+			var at := Vector2(u * 2.05, 1.6 + 0.16 * row + 0.32 * pow(absf(u), 1.5))
+			var down := Vector2(u * 0.3, 1.0).normalized()
+			var size := rng.randf_range(0.3, 0.38)
+			if absf(at.x) > SIDE - 0.15 or at.y + size > BOTTOM:
 				continue
-			var f := PackedVector2Array(_bez(at + Vector2(-0.2, -0.12), at + Vector2(-0.2, 0.15), at + Vector2(0.2, 0.15), at + Vector2(0.2, -0.12), 8))
-			body.fill(f, Color(Paint.lit(wing, Vector3(-u * 0.5, 0.0, 1.0).normalized()).lightened(0.1 * rng.randf()), 0.9))
-			body.stroke(f, 0.03, 0.03, Color(wing.lightened(0.35), 0.0), Color(wing.lightened(0.35), 0.5))
+			var tip := at + down * size
+			var side := Vector2(-down.y, down.x) * size * 0.45
+			var f := PackedVector2Array(_bez(at - side, at - side * 1.05 + down * size * 0.7, tip - side * 0.7, tip, 6))
+			f.append_array(_bez(tip, tip + side * 0.7, at + side * 1.05 + down * size * 0.7, at + side, 6))
+			var col := Paint.lit(wing, Vector3(u * 0.5, -0.2 + 0.05 * row, 0.8).normalized()).lightened(rng.randf() * 0.12)
+			body.shaded(f, col, at + down * size * 0.3 + Vector2(-0.08, -0.08), Vector2(size * 0.6, size * 0.8), 0.1)
+			body.stroke(PackedVector2Array([at + down * 0.04, tip - down * 0.06]), 0.018, 0.008, Color(col.lightened(0.35), 0.5), Color(col.lightened(0.35), 0.1))
+			body.stroke(f.slice(6, 13), 0.03, 0.02, Color(col.lightened(0.3), 0.0), Color(col.lightened(0.3), 0.45))
 	# The neck in feathers, the ruff at its foot.
-	var neck := PackedVector2Array([Vector2(-0.4, 0.2), Vector2(0.4, 0.2), Vector2(0.55, 1.6), Vector2(-0.55, 1.6)])
+	var neck := PackedVector2Array([Vector2(-0.5, 0.3), Vector2(0.5, 0.3), Vector2(0.62, 1.4), Vector2(-0.62, 1.4)])
 	body.dome(Vector2(-0.15, 0.9), neck, plume, 0.85, 0.05, 3)
-	_locks(body, 40, func(t: float, g: RandomNumberGenerator) -> Array:
-		var x := lerpf(-0.42, 0.42, t)
-		var y := g.randf_range(0.4, 1.3)
-		return [Vector2(x, y), Vector2(x, y + 0.06), Vector2(x * 1.05, y + 0.14), Vector2(x * 1.1, y + 0.22)], plume, 0.05, rng)
-	body.soft(Vector2(0.05, 0.62), 0.45, 0.2, Color(_shade(plume), 0.7))
-	var ruff: Color = (pal.detail as Color).lerp(Color(0.95, 0.92, 0.84), 0.6)
+	_locks(body, 50, func(t: float, g: RandomNumberGenerator) -> Array:
+		var x := lerpf(-0.5, 0.5, t)
+		var y := g.randf_range(0.5, 1.3)
+		return [Vector2(x, y), Vector2(x, y + 0.06), Vector2(x * 1.05, y + 0.14), Vector2(x * 1.1, y + 0.24)], plume, 0.06, rng)
+	body.soft(Vector2(0.05, 0.72), 0.55, 0.25, Color(_shade(plume), 0.7))
 	var collar := PackedVector2Array()
-	for i in 36:
-		var a := TAU * i / 36.0
-		var k := 1.0 if i % 2 == 0 else 1.14
-		collar.append(Vector2(cos(a) * 1.05 * k, 1.62 + sin(a) * 0.32 * k))
-	body.dome(Vector2(-0.3, 1.5), collar, ruff, 0.7, 0.1)
-	_locks(body, 70, func(t: float, g: RandomNumberGenerator) -> Array:
+	for i in 48:
+		var a := TAU * i / 48.0
+		var k := 1.0 + 0.05 * sin(a * 11.0)
+		collar.append(Vector2(cos(a) * 1.15 * k, 1.42 + sin(a) * 0.3 * k))
+	body.dome(Vector2(-0.3, 1.32), collar, ruff, 0.7, 0.1)
+	_locks(body, 110, func(t: float, g: RandomNumberGenerator) -> Array:
 		var a := TAU * t
-		var root := Vector2(cos(a) * 0.55, 1.62 + sin(a) * 0.12)
-		var tip := Vector2(cos(a) * 1.15, 1.62 + sin(a) * 0.38) * Vector2(g.randf_range(0.9, 1.05), 1.0)
-		return [root, root.lerp(tip, 0.4) + Vector2(0, -0.05), root.lerp(tip, 0.8), tip], ruff, 0.07, rng)
+		var root := Vector2(cos(a) * 0.5, 1.37 + sin(a) * 0.1)
+		var tip := Vector2(cos(a) * 1.25, 1.44 + sin(a) * 0.36) * Vector2(g.randf_range(0.88, 1.05), 1.0)
+		return [root, root.lerp(tip, 0.4) + Vector2(0, -0.06), root.lerp(tip, 0.8) + Vector2(0, 0.02), tip], ruff, 0.08, rng)
 	body.parts.append_array(["shoulders", "feathers"])
-	# The head: a bare crown with fine down, darker toward the back.
+	# The head: broad and pale, fine feathers laid back from the beak.
 	var p: Paint = layers.head
-	p.dome(Vector2(-0.15, -0.25), _skull(&"bird"), head, 0.8, 0.08, 5)
-	_locks(p, 60, func(t: float, g: RandomNumberGenerator) -> Array:
-		var a := lerpf(PI * 0.95, PI * 2.05, t)
-		var root := Vector2(cos(a) * 0.55, -0.1 + sin(a) * 0.7)
-		var tip := root * g.randf_range(0.75, 0.9) + Vector2(0, -0.02)
-		return [root, root.lerp(tip, 0.3), root.lerp(tip, 0.7), tip], plume.lerp(head, 0.4), 0.025, rng)
+	p.dome(Vector2(-0.18, -0.3), _skull(&"bird"), head, 0.8, 0.08, 5)
+	_locks(p, 110, func(t: float, g: RandomNumberGenerator) -> Array:
+		var side := -1.0 if t < 0.5 else 1.0
+		var k := absf(t - 0.5) * 2.0
+		var a := lerpf(-PI * 0.5, PI * 0.35, k) + g.randf_range(-0.05, 0.05)
+		var root := Vector2(side * cos(a) * 0.3, sin(a) * 0.5 - 0.1)
+		var tip := Vector2(side * cos(a) * 0.74, sin(a) * 0.8 - 0.1) * g.randf_range(0.92, 1.0)
+		return [root, root.lerp(tip, 0.3), root.lerp(tip, 0.7), tip], head.darkened(0.12), 0.035, rng)
 	var sh := _shade(head)
-	p.soft(Vector2(0.4, 0.2), 0.25, 0.5, Color(sh, 0.4))
+	p.soft(Vector2(0.42, 0.15), 0.28, 0.55, Color(sh, 0.45))
 	for side: float in [-1.0, 1.0]:
-		p.soft(Vector2(side * 0.34, -0.02), 0.2, 0.16, Color(sh, 0.5))
+		p.soft(Vector2(side * 0.36, -0.03), 0.2, 0.15, Color(sh, 0.55))
+		# A dark stripe from the eye back along the head, as raptors have.
+		p.stroke(_bez(Vector2(side * 0.46, -0.0), Vector2(side * 0.56, 0.05), Vector2(side * 0.62, 0.12), Vector2(side * 0.68, 0.22)), 0.07, 0.02, Color(plume, 0.6), Color(plume, 0.0))
 	p.parts.append("shading")
 	# The beak: a waxy cere with its nostrils, then the horn of the upper
-	# mandible hooking down to a dark tip, lit along its ridge.
+	# mandible, broad at the base, hooking down to a dark tip, lit along its ridge.
 	var f: Paint = layers.front
-	var horn := Color(0.86, 0.78, 0.55)
+	var horn := Color(0.88, 0.8, 0.56)
 	var beak := PackedVector2Array()
-	beak.append_array(_bez(Vector2(-0.2, 0.2), Vector2(-0.22, 0.5), Vector2(-0.14, 0.75), Vector2(0.0, 0.95), 10))
-	beak.append_array(_bez(Vector2(0.0, 0.95), Vector2(0.14, 0.75), Vector2(0.22, 0.5), Vector2(0.2, 0.2), 10))
-	f.dome(Vector2(-0.06, 0.4), beak, horn, 0.9, 0.5)
-	f.soft(Vector2(0.0, 0.86), 0.09, 0.1, Color(0.18, 0.15, 0.13, 0.9))
-	f.soft(Vector2(0.11, 0.55), 0.07, 0.25, Color(_shade(horn), 0.5))
-	f.stroke(_bez(Vector2(-0.04, 0.25), Vector2(-0.05, 0.5), Vector2(-0.04, 0.7), Vector2(-0.01, 0.85)), 0.03, 0.02, Color(1, 1, 0.95, 0.6), Color(1, 1, 0.95, 0.0))
-	var cere := Color(0.9, 0.68, 0.3)
-	f.dome(Vector2(-0.04, 0.15), _oval(Vector2(0.0, 0.18), 0.23, 0.08, 20), cere, 0.8, 0.3)
+	beak.append_array(_bez(Vector2(-0.27, 0.16), Vector2(-0.3, 0.45), Vector2(-0.18, 0.78), Vector2(0.0, 1.02), 12))
+	beak.append_array(_bez(Vector2(0.0, 1.02), Vector2(0.18, 0.78), Vector2(0.3, 0.45), Vector2(0.27, 0.16), 12))
+	f.dome(Vector2(-0.08, 0.38), beak, horn, 0.9, 0.55)
+	f.soft(Vector2(0.0, 0.9), 0.11, 0.14, Color(0.2, 0.17, 0.15, 0.95))
+	f.soft(Vector2(0.0, 0.97), 0.05, 0.05, Color(0.12, 0.1, 0.09, 1.0))
+	f.soft(Vector2(0.14, 0.55), 0.09, 0.3, Color(_shade(horn), 0.55))
+	f.stroke(_bez(Vector2(-0.06, 0.22), Vector2(-0.07, 0.5), Vector2(-0.05, 0.72), Vector2(-0.01, 0.9)), 0.04, 0.02, Color(1, 1, 0.95, 0.65), Color(1, 1, 0.95, 0.0))
+	var cere := Color(0.92, 0.7, 0.28)
+	var c := PackedVector2Array(_bez(Vector2(-0.3, 0.2), Vector2(-0.25, 0.04), Vector2(0.25, 0.04), Vector2(0.3, 0.2), 10))
+	c.append_array(_bez(Vector2(0.3, 0.2), Vector2(0.2, 0.26), Vector2(-0.2, 0.26), Vector2(-0.3, 0.2), 10))
+	f.shaded(c, cere, Vector2(-0.08, 0.1), Vector2(0.35, 0.2), 0.4)
 	for side: float in [-1.0, 1.0]:
-		f.fill(_oval(Vector2(side * 0.08, 0.19), 0.035, 0.012, 10, side * 0.3), Color(0.15, 0.1, 0.06))
+		f.fill(_oval(Vector2(side * 0.1, 0.17), 0.045, 0.016, 10, side * 0.3), Color(0.15, 0.1, 0.06))
 	f.parts.append_array(["beak", "nose"])
 
 ## The parts of the face that move: eyes (whites, irises, lids and lashes),
@@ -1097,7 +1167,7 @@ static func paint_face(p: Paint, c: Character, pz: Dictionary, shine: bool) -> v
 	var pal := palette(c)
 	for side: float in [-1.0, 1.0]:
 		_paint_eye(p, kind, side, pz, shine)
-		_paint_brow(p, kind, side, pz, pal)
+		_paint_brow(p, kind, side, pz, pal, _look_of(c).build)
 	_paint_mouth_of(p, c, pz)
 
 ## The mouth for each kind of head: lips, a vanara's on the muzzle, a bird's gape.
@@ -1135,7 +1205,7 @@ static func _paint_eye(p: Paint, kind: StringName, side: float, pz: Dictionary, 
 		var x := at.x + side * u * half.x
 		var arc := sqrt(1.0 - u * u) if bird else pow(1.0 - u * u, 0.75)
 		var base := at.y + (0.0 if bird else -u * half.y * 0.12)
-		var up := base - half.y * arc * (1.0 if bird else 1.0 - 0.12 * u)
+		var up := base - half.y * arc * (0.6 if bird else 1.0 - 0.12 * u)
 		var lo := base + half.y * arc * (1.0 if bird else 0.75 * (1.0 + 0.1 * u))
 		var meet := base + half.y * 0.45 * arc
 		lo = lerpf(lo, meet - half.y * 0.15 * arc, squint * 0.7)
@@ -1187,13 +1257,13 @@ static func _paint_eye(p: Paint, kind: StringName, side: float, pz: Dictionary, 
 	p.stroke(crease, 0.016, 0.016, Color(0.3, 0.15, 0.1, 0.0), Color(0.3, 0.15, 0.1, 0.3), true)
 	p.parts.append("lids")
 
-static func _paint_brow(p: Paint, kind: StringName, side: float, pz: Dictionary, pal: Dictionary) -> void:
+static func _paint_brow(p: Paint, kind: StringName, side: float, pz: Dictionary, pal: Dictionary, build := 1.0) -> void:
 	var e: Dictionary = EYES[kind]
 	var at: Vector2 = e.at * Vector2(side, 1.0)
 	var half: Vector2 = e.half
 	var mid := at + Vector2(side * 0.02, -half.y * float(pz.eye_scale) - BROW_GAP - float(pz.brow_height) * BROW_LIFT)
 	var col: Color = _shade(pal.hair, 0.3)
-	var thick := 0.065
+	var thick := 0.065 * build * build
 	if kind == &"vanara":
 		col = _shade(pal.hair, 0.5)
 		thick = 0.08
@@ -1291,3 +1361,476 @@ static func _paint_beak_gape(p: Paint, pz: Dictionary) -> void:
 	for side: float in [-1.0, 1.0]:
 		p.soft(Vector2(side * 0.21, 0.3 - curve), 0.05, 0.04, Color(0.3, 0.15, 0.08, 0.6))
 	p.parts.append("lips")
+
+
+# --- Iconography (Story 26.2) -------------------------------------------------
+
+## Where each headwear's lowest edge sits over the brow, per head radius (the
+## brows always stay below it).
+const HEADWEAR_BOTTOM := {&"crown": -0.48, &"helmet": -0.46, &"turban": -0.5, &"band": -0.52, &"crest": -0.7}
+## Wood for a bow, and the colours of the healer's herb.
+const BOW_WOOD := Color(0.32, 0.17, 0.09)
+const LEAF := Color(0.28, 0.55, 0.22)
+const BLOOM := Color(1.0, 0.85, 0.35)
+const STONE := Color(0.62, 0.58, 0.52)
+const VERMILION := Color(0.86, 0.2, 0.1)
+
+## The look's headwear, held object and marks, each painted in its layer.
+static func _paint_iconography(layers: Dictionary, pal: Dictionary, look: CrewLook, kind: StringName, rng: RandomNumberGenerator) -> void:
+	var gold: Color = pal.accessory
+	var gem: Color = pal.detail
+	var front: Paint = layers.front
+	if kind == &"vanara" and look.beard == &"beard":
+		_paint_goatee(layers.jaw, pal.hair, rng)
+	for m in look.marks:
+		match m:
+			&"tilak":
+				_paint_tilak(front, kind)
+			&"tripundra":
+				_paint_tripundra(front)
+			&"earrings":
+				_paint_earrings(front, kind, gold, gem)
+			&"necklace":
+				_paint_necklace(layers.body, gold, gem)
+			&"beads":
+				_paint_beads(layers.body)
+			&"sacred_thread":
+				_paint_thread(layers.body)
+			&"sash":
+				_paint_sash(layers.body, gem)
+			&"neck_ring":
+				_paint_neck_ring(layers.body, gold, gem)
+	match look.headwear:
+		&"crown":
+			_paint_crown(front, gold, gem)
+		&"helmet":
+			_paint_helmet(front, gold, gem)
+		&"turban":
+			_paint_turban(front, gold, gem, rng)
+		&"band":
+			_paint_band(front, gold, gem)
+		&"crest":
+			_paint_crest(layers.back, pal.hair, rng)
+	var side := signf(look.held_side) if look.held_side != 0.0 else -1.0
+	match look.held:
+		&"bow":
+			_paint_bow(layers.back, layers.held, side, gold)
+		&"gada":
+			_paint_gada(layers.held, side, gold, gem)
+		&"chakra":
+			_paint_chakra(layers.held, gold, gem)
+		&"stone":
+			_paint_stone(layers.held, side, rng)
+		&"herb":
+			_paint_herb(layers.held, side, rng)
+	# Glow last, over everything on the face.
+	if &"glow" in look.marks:
+		_paint_glow(front)
+
+## Lines of a life: across the forehead, at the corners of the eyes, under
+## them, and deeper by the mouth.
+static func _paint_age(p: Paint, skin: Color, age: float) -> void:
+	var sh := Color(_shade(skin), 0.3 * age)
+	var hi := Color(skin.lightened(0.3), 0.25 * age)
+	for k in 3:
+		var y := -0.3 - 0.1 * k
+		p.stroke(_bez(Vector2(-0.42, y + 0.03), Vector2(-0.15, y - 0.02), Vector2(0.15, y - 0.02), Vector2(0.42, y + 0.03)), 0.018, 0.018, Color(sh, 0.0), sh, true)
+		p.stroke(_bez(Vector2(-0.42, y + 0.05), Vector2(-0.15, y), Vector2(0.15, y), Vector2(0.42, y + 0.05)), 0.014, 0.014, Color(hi, 0.0), hi, true)
+	for side: float in [-1.0, 1.0]:
+		for k in 3:
+			var a := Vector2(side * (EYE_X + EYE.x + 0.02), EYE_DROP - 0.03 + 0.04 * k)
+			p.stroke(PackedVector2Array([a, a + Vector2(side * 0.07, (k - 1) * 0.03)]), 0.012, 0.004, sh, Color(sh, 0.0))
+		p.stroke(_bez(Vector2(side * 0.2, 0.17), Vector2(side * 0.27, 0.22), Vector2(side * 0.37, 0.22), Vector2(side * 0.45, 0.16)), 0.02, 0.02, Color(sh, 0.0), Color(_shade(skin), 0.45 * age), true)
+		p.stroke(_bez(Vector2(side * 0.18, 0.5), Vector2(side * 0.28, 0.6), Vector2(side * 0.32, 0.72), Vector2(side * 0.33, 0.86)), 0.03, 0.012, Color(_shade(skin), 0.4 * age), Color(_shade(skin), 0.0))
+	p.parts.append("age")
+
+## A breastplate over the chest and plates over the shoulders, in the look's
+## top colour as burnished metal, trimmed in its accessory colour.
+static func _paint_armour(p: Paint, pal: Dictionary) -> void:
+	var steel: Color = pal.top
+	var trim: Color = pal.accessory
+	for side: float in [-1.0, 1.0]:
+		for k in 3:
+			var plate := PackedVector2Array()
+			var y := 1.75 + k * 0.22
+			plate.append_array(_bez(Vector2(side * (0.8 + 0.1 * k), y), Vector2(side * 1.5, y - 0.2), Vector2(side * 2.1, y + 0.05), Vector2(side * (2.25 - 0.02 * k), y + 0.5), 8))
+			plate.append_array(_bez(Vector2(side * (2.25 - 0.02 * k), y + 0.5), Vector2(side * 2.0, y + 0.3), Vector2(side * 1.5, y + 0.12), Vector2(side * (0.85 + 0.1 * k), y + 0.2), 8))
+			p.shaded(plate, steel.darkened(0.06 * k), Vector2(side * 1.4 - 0.3, y - 0.2), Vector2(1.1, 0.6), 0.9)
+			p.stroke(plate.slice(0, 9), 0.035, 0.035, Paint.lit(trim, Vector3(-0.3, -0.6, 0.8).normalized(), 0.8), Paint.lit(trim, Vector3(side * 0.6, 0.0, 0.8).normalized(), 0.8))
+	var chest := PackedVector2Array()
+	chest.append_array(_bez(Vector2(-1.25, BOTTOM), Vector2(-1.3, 2.3), Vector2(-0.9, 1.85), Vector2(-0.45, 1.74), 8))
+	chest.append_array(_bez(Vector2(-0.45, 1.74), Vector2(-0.2, 1.9), Vector2(0.2, 1.9), Vector2(0.45, 1.74), 6))
+	chest.append_array(_bez(Vector2(0.45, 1.74), Vector2(0.9, 1.85), Vector2(1.3, 2.3), Vector2(1.25, BOTTOM), 8))
+	p.shaded(chest, steel, Vector2(-0.4, 2.0), Vector2(1.5, 1.0), 0.9)
+	p.stroke(chest.slice(8, 15), 0.06, 0.06, Paint.lit(trim, Vector3(0, -0.5, 0.9).normalized(), 0.9), Paint.lit(trim, Vector3(0.3, -0.5, 0.9).normalized(), 0.9))
+	# The ridge down the middle, lit on its left.
+	p.stroke(PackedVector2Array([Vector2(-0.02, 1.9), Vector2(-0.02, BOTTOM)]), 0.05, 0.05, Color(steel.lightened(0.4), 0.5), Color(steel.lightened(0.4), 0.2))
+	p.parts.append_array(["shoulders", "armour"])
+
+## The kirita-mukut: a tall gold crown in tiers over a band at the brow, set
+## with gems, with fans over the ears.
+static func _paint_crown(p: Paint, gold: Color, gem: Color) -> void:
+	var b: float = HEADWEAR_BOTTOM[&"crown"]
+	# Drawn tall, then fitted under the portrait's top edge.
+	p.warp = Transform2D(0.0, Vector2(1.0, 0.86), 0.0, Vector2(0.0, b * 0.14))
+	var body := PackedVector2Array([Vector2(-0.84, b - 0.06), Vector2(-0.8, -0.92), Vector2(-0.66, -0.98), Vector2(-0.62, -1.24), Vector2(-0.46, -1.3), Vector2(-0.4, -1.52),
+		Vector2(-0.12, -1.74), Vector2(0.0, -1.84), Vector2(0.12, -1.74), Vector2(0.4, -1.52), Vector2(0.46, -1.3), Vector2(0.62, -1.24), Vector2(0.66, -0.98), Vector2(0.8, -0.92), Vector2(0.84, b - 0.06)])
+	for i in 9:
+		var x := lerpf(0.84, -0.84, i / 8.0)
+		body.append(Vector2(x, b + 0.14 * x * x - 0.06))
+	for side: float in [-1.0, 1.0]:
+		var fan := PackedVector2Array()
+		for i in 9:
+			var a := lerpf(-PI * 0.75, PI * 0.25, i / 8.0)
+			fan.append(Vector2(side * 0.86, -0.62) + Vector2(side * cos(a), sin(a)) * 0.24)
+		fan.append(Vector2(side * 0.78, -0.5))
+		p.shaded(fan, gold.darkened(0.08), Vector2(side * 0.8 - 0.1, -0.75), Vector2(0.3, 0.3), 0.8)
+		for i in 4:
+			var a := lerpf(-PI * 0.7, PI * 0.15, i / 3.0)
+			p.stroke(PackedVector2Array([Vector2(side * 0.84, -0.6), Vector2(side * 0.84, -0.6) + Vector2(side * cos(a), sin(a)) * 0.2]), 0.02, 0.01, Color(_shade(gold), 0.7), Color(_shade(gold), 0.2))
+	p.shaded(body, gold, Vector2(-0.3, -1.1), Vector2(1.0, 0.9), 0.9)
+	# Rims at each tier, beaded.
+	for t in [[b - 0.04, 0.84], [-0.95, 0.72], [-1.27, 0.54], [-1.5, 0.38]]:
+		var y: float = t[0]
+		var w: float = t[1]
+		var rim := _bez(Vector2(-w, y + 0.08 * w), Vector2(-w * 0.4, y - 0.03), Vector2(w * 0.4, y - 0.03), Vector2(w, y + 0.08 * w), 10)
+		p.stroke(rim, 0.05, 0.05, Color(_shade(gold, 0.8), 0.8), Color(_shade(gold, 0.8), 0.8))
+		for i in range(1, 10):
+			p.soft(rim[i] + Vector2(0, -0.02), 0.018, 0.018, Color(1.0, 0.95, 0.75, 0.8))
+	# Lotus-petal work between the rims.
+	for t in [[-1.12, 0.6, 5], [-1.4, 0.42, 3]]:
+		for i in t[2]:
+			var x := lerpf(-t[1], t[1], (i + 0.5) / t[2]) * 0.85
+			p.stroke(_bez(Vector2(x - 0.06, t[0] + 0.1), Vector2(x - 0.06, t[0] - 0.02), Vector2(x + 0.06, t[0] - 0.02), Vector2(x + 0.06, t[0] + 0.1), 6), 0.025, 0.025, Color(_shade(gold, 0.7), 0.7), Color(_shade(gold, 0.7), 0.7))
+	_gem(p, Vector2(0.0, b - 0.12), 0.1, gem)
+	_gem(p, Vector2(0.0, -1.12), 0.07, gem)
+	for side: float in [-1.0, 1.0]:
+		_gem(p, Vector2(side * 0.45, b - 0.1 + 0.03), 0.05, gem)
+	p.dome(Vector2(-0.02, -1.9), _oval(Vector2(0.0, -1.88), 0.07, 0.08, 14), gold, 0.9, 0.9)
+	p.warp = Transform2D.IDENTITY
+	p.parts.append("crown")
+
+## A cut gem: a dark rim, its colour, and a glint.
+static func _gem(p: Paint, at: Vector2, r: float, col: Color) -> void:
+	p.fill(_oval(at, r * 1.25, r * 1.25, 16), _shade(Color(0.85, 0.65, 0.3), 0.6))
+	p.dome(at + Vector2(r * 0.2, r * 0.25), _oval(at, r, r, 16), col, 0.9, 0.0)
+	p.soft(at + Vector2(-r * 0.35, -r * 0.35), r * 0.35, r * 0.35, Color(1, 1, 1, 0.85))
+
+## A warrior's helmet: a steel dome with a gold rim and ridge, a finial and a
+## red plume, and mail over the ears.
+static func _paint_helmet(p: Paint, steel: Color, trim: Color) -> void:
+	var b: float = HEADWEAR_BOTTOM[&"helmet"]
+	for side: float in [-1.0, 1.0]:
+		var guard := PackedVector2Array([Vector2(side * 0.72, b - 0.05), Vector2(side * 0.95, b - 0.05), Vector2(side * 1.0, 0.42), Vector2(side * 0.8, 0.5), Vector2(side * 0.72, 0.1)])
+		p.shaded(guard, steel.darkened(0.12), Vector2(side * 0.85, -0.2), Vector2(0.4, 0.8), 0.5)
+		for k in 6:
+			var y := b + 0.12 + k * 0.15
+			p.stroke(PackedVector2Array([Vector2(side * 0.74, y), Vector2(side * 0.97, y + 0.02)]), 0.025, 0.025, Color(_shade(steel), 0.7), Color(_shade(steel), 0.7))
+	var dome := PackedVector2Array()
+	for i in 21:
+		var a := lerpf(PI, TAU, i / 20.0)
+		dome.append(Vector2(cos(a) * 0.9, b - 0.05 + sin(a) * 0.82))
+	for i in 9:
+		var x := lerpf(0.9, -0.9, i / 8.0)
+		dome.append(Vector2(x, b + 0.12 * x * x))
+	p.shaded(dome, steel, Vector2(-0.3, -1.0), Vector2(0.95, 0.85), 0.95)
+	var rim := PackedVector2Array()
+	for i in 13:
+		var x := lerpf(-0.92, 0.92, i / 12.0)
+		rim.append(Vector2(x, b - 0.03 + 0.12 * x * x))
+	p.stroke(rim, 0.1, 0.1, Paint.lit(trim, Vector3(-0.4, -0.4, 0.8).normalized(), 0.8), Paint.lit(trim, Vector3(0.6, -0.2, 0.7).normalized(), 0.8))
+	p.stroke(_bez(Vector2(0.0, b - 0.06), Vector2(0.0, -1.0), Vector2(0.0, -1.3), Vector2(0.0, -1.42)), 0.07, 0.04, Paint.lit(trim, Vector3(-0.3, 0.0, 1.0).normalized(), 0.8), Paint.lit(trim, Vector3(-0.3, -0.6, 0.7).normalized(), 0.8))
+	# The finial and its plume, sweeping back.
+	p.dome(Vector2(-0.02, -1.45), _oval(Vector2(0.0, -1.44), 0.08, 0.07, 14), trim, 0.9, 0.9)
+	p.stroke(PackedVector2Array([Vector2(0.0, -1.48), Vector2(0.0, -1.68)]), 0.05, 0.01, trim, trim)
+	var plume := Color(0.72, 0.1, 0.1)
+	for i in 9:
+		var t := i / 8.0
+		p.stroke(_bez(Vector2(0.0, -1.62), Vector2(0.25, -1.85 + t * 0.1), Vector2(0.55, -1.7 + t * 0.15), Vector2(0.72 + 0.1 * t, -1.35 + t * 0.2), 10), 0.07, 0.02, Color(plume.lightened(0.25 * t), 0.9), Color(plume.darkened(0.2), 0.5), true)
+	p.parts.append("helmet")
+
+## A turban wound round the head in folds, with a jewelled clasp and a plume.
+static func _paint_turban(p: Paint, cloth: Color, gem: Color, rng: RandomNumberGenerator) -> void:
+	var b: float = HEADWEAR_BOTTOM[&"turban"]
+	var mass := PackedVector2Array()
+	mass.append_array(_bez(Vector2(-0.86, b), Vector2(-1.08, -0.8), Vector2(-0.95, -1.32), Vector2(-0.35, -1.42), 10))
+	mass.append_array(_bez(Vector2(-0.35, -1.42), Vector2(0.1, -1.5), Vector2(0.75, -1.45), Vector2(0.95, -1.15), 8))
+	mass.append_array(_bez(Vector2(0.95, -1.15), Vector2(1.1, -0.9), Vector2(1.02, -0.6), Vector2(0.86, b), 8))
+	for i in 9:
+		var x := lerpf(0.86, -0.86, i / 8.0)
+		mass.append(Vector2(x, b + 0.1 * x * x - 0.04 * (1.0 - x * x)))
+	p.shaded(mass, cloth, Vector2(-0.3, -1.0), Vector2(1.1, 0.8), 0.15)
+	# Folds wound across from lower left to upper right.
+	for k in 7:
+		var y0 := b - 0.02 - 0.12 * k
+		var y1 := b - 0.3 - 0.13 * k
+		var pts := _bez(Vector2(-0.9 + 0.03 * k, y0), Vector2(-0.3, y0 - 0.02), Vector2(0.4, y1 + 0.08), Vector2(0.98 - 0.05 * k, y1), 12)
+		p.stroke(pts, 0.05, 0.08, Color(_shade(cloth), 0.5), Color(_shade(cloth), 0.25), true)
+		var hi := pts.duplicate()
+		for i in hi.size():
+			hi[i] += Vector2(0, -0.045)
+		p.stroke(hi, 0.03, 0.05, Color(cloth.lightened(0.35), 0.45), Color(cloth.lightened(0.35), 0.2), true)
+	# The sarpech: a jewel at the front with a white plume rising from it.
+	for i in 7:
+		var t := i / 6.0
+		p.stroke(_bez(Vector2(0.05, -0.92), Vector2(0.1, -1.25), Vector2(0.28 + 0.06 * t, -1.5), Vector2(0.45 + 0.1 * t, -1.66 + 0.06 * t), 10), 0.04, 0.01, Color(0.97, 0.95, 0.9, 0.9), Color(0.97, 0.95, 0.9, 0.4), true)
+	p.dome(Vector2(0.0, -0.82), _oval(Vector2(0.03, -0.8), 0.13, 0.17, 18), Color(0.95, 0.75, 0.32), 0.9, 0.8)
+	_gem(p, Vector2(0.03, -0.8), 0.08, gem)
+	for i in 3:
+		p.soft(Vector2(0.03, -0.6 + 0.0 * i) + Vector2(0, 0.05 * i), 0.025, 0.025, Color(1, 0.97, 0.9, 0.95))
+	p.parts.append("turban")
+
+## A gold band across the brow over the hair, with an ornament at the front.
+static func _paint_band(p: Paint, gold: Color, gem: Color) -> void:
+	var b: float = HEADWEAR_BOTTOM[&"band"]
+	var band := PackedVector2Array()
+	for i in 17:
+		var x := lerpf(-0.86, 0.86, i / 16.0)
+		band.append(Vector2(x, b - 0.1 + 0.16 * x * x))
+	for i in 17:
+		var x := lerpf(0.86, -0.86, i / 16.0)
+		band.append(Vector2(x, b + 0.16 * x * x))
+	p.shaded(band, gold, Vector2(-0.3, b - 0.3), Vector2(1.0, 0.5), 0.9)
+	var leaf := PackedVector2Array(_bez(Vector2(-0.16, b - 0.04), Vector2(-0.2, b - 0.3), Vector2(-0.03, b - 0.38), Vector2(0.0, b - 0.46), 8))
+	leaf.append_array(_bez(Vector2(0.0, b - 0.46), Vector2(0.03, b - 0.38), Vector2(0.2, b - 0.3), Vector2(0.16, b - 0.04), 8))
+	p.shaded(leaf, gold, Vector2(-0.05, b - 0.3), Vector2(0.25, 0.3), 0.9)
+	_gem(p, Vector2(0.0, b - 0.16), 0.06, gem)
+	p.parts.append("band")
+
+## A crest of long feathers sweeping up and back from a bird's crown, dark
+## with pale tips.
+static func _paint_crest(p: Paint, plume: Color, rng: RandomNumberGenerator) -> void:
+	for i in 7:
+		var t := i / 6.0
+		var a := lerpf(-PI * 0.8, -PI * 0.2, t) + (t - 0.5) * 0.4
+		var root := Vector2(cos(a) * 0.3, -0.7)
+		var len := lerpf(0.75, 1.0, 1.0 - absf(t - 0.5) * 2.0) * rng.randf_range(0.92, 1.05)
+		var dir := Vector2(cos(a), sin(a))
+		var tip := root + dir * len + Vector2(signf(t - 0.5) * 0.12, 0.0)
+		var nrm := Vector2(-dir.y, dir.x) * 0.14
+		var f := PackedVector2Array(_bez(root - nrm * 0.5, root.lerp(tip, 0.4) - nrm, root.lerp(tip, 0.8) - nrm * 0.6, tip, 8))
+		f.append_array(_bez(tip, root.lerp(tip, 0.8) + nrm * 0.6, root.lerp(tip, 0.4) + nrm, root + nrm * 0.5, 8))
+		var cols := PackedColorArray()
+		for q in f:
+			var k := clampf((q - root).length() / len, 0.0, 1.0)
+			cols.append(Paint.lit(plume.darkened(0.15), Vector3(dir.x * -0.2, -0.4, 0.8).normalized()).lerp(Color(0.9, 0.86, 0.78), smoothstep(0.82, 1.0, k)))
+		p.fill_colors(f, cols)
+		p.stroke(_bez(root, root.lerp(tip, 0.35), root.lerp(tip, 0.7), tip, 8), 0.015, 0.005, Color(plume.lightened(0.4), 0.6), Color(plume.lightened(0.4), 0.2))
+	p.parts.append("crest")
+
+## A vaishnava tilak: a white U from the bridge of the nose with a red line in it.
+static func _paint_tilak(p: Paint, kind: StringName) -> void:
+	var y0 := -0.12 if kind == &"human" else -0.2
+	var top := y0 - 0.48
+	for side: float in [-1.0, 1.0]:
+		p.stroke(_bez(Vector2(side * 0.025, y0), Vector2(side * 0.07, y0 - 0.05), Vector2(side * 0.08, y0 - 0.2), Vector2(side * 0.085, top)), 0.03, 0.035, Color(0.97, 0.95, 0.9, 0.95), Color(0.97, 0.95, 0.9, 0.95))
+	p.stroke(PackedVector2Array([Vector2(0.0, y0 - 0.06), Vector2(0.0, top + 0.02)]), 0.035, 0.035, VERMILION, VERMILION)
+	p.parts.append("tilak")
+
+## The tripundra: three lines of ash across the brow, a red dot at the middle.
+static func _paint_tripundra(p: Paint) -> void:
+	for k in 3:
+		var y := -0.32 - 0.075 * k
+		p.stroke(_bez(Vector2(-0.4, y + 0.03), Vector2(-0.15, y - 0.01), Vector2(0.15, y - 0.01), Vector2(0.4, y + 0.03), 10), 0.035, 0.035, Color(0.92, 0.92, 0.9, 0.85), Color(0.92, 0.92, 0.9, 0.85), true)
+	p.soft(Vector2(0.0, -0.4), 0.045, 0.045, Color(VERMILION, 1.0))
+	p.fill(_oval(Vector2(0.0, -0.4), 0.028, 0.028, 12), VERMILION)
+	p.parts.append("tilak")
+
+## Divine sight: a soft light at the brow, with faint rays.
+static func _paint_glow(p: Paint) -> void:
+	var at := Vector2(0.0, -0.33)
+	var light := Color(1.0, 0.9, 0.55)
+	p.soft(at, 0.5, 0.42, Color(light, 0.35))
+	for i in 16:
+		var a := TAU * i / 16.0
+		var dir := Vector2(cos(a), sin(a) * 0.85)
+		p.stroke(PackedVector2Array([at + dir * 0.08, at + dir * 0.5]), 0.03, 0.005, Color(light, 0.5), Color(light, 0.0))
+	p.soft(at, 0.12, 0.12, Color(1.0, 0.97, 0.85, 0.9))
+	p.soft(at, 0.04, 0.05, Color(1, 1, 1, 1))
+	p.parts.append("glow")
+
+## Kundala: a gold ring hanging from each ear, a gem below.
+static func _paint_earrings(p: Paint, kind: StringName, gold: Color, gem: Color) -> void:
+	var lobe := Vector2(0.8, 0.46) if kind == &"human" else Vector2(0.9, 0.28)
+	for side: float in [-1.0, 1.0]:
+		var at := lobe * Vector2(side, 1.0) + Vector2(0, 0.1)
+		var ring := _oval(at, 0.085, 0.095, 18)
+		ring.append(ring[0])
+		p.stroke(ring, 0.04, 0.04, Paint.lit(gold, Vector3(-0.5, -0.5, 0.7).normalized(), 0.8), Paint.lit(gold, Vector3(0.5, 0.3, 0.7).normalized(), 0.8))
+		_gem(p, at + Vector2(0, 0.12), 0.035, gem)
+	p.parts.append("earrings")
+
+## A gold necklace close round the neck, with a pendant.
+static func _paint_necklace(p: Paint, gold: Color, gem: Color) -> void:
+	for k in 2:
+		var pts := _bez(Vector2(-0.6, 1.72), Vector2(-0.5, 2.1 + 0.15 * k), Vector2(0.5, 2.1 + 0.15 * k), Vector2(0.6, 1.72), 16)
+		p.stroke(pts, 0.05, 0.05, Paint.lit(gold, Vector3(-0.4, -0.4, 0.8).normalized(), 0.7), Paint.lit(gold, Vector3(0.4, -0.4, 0.8).normalized(), 0.7))
+		for i in range(1, 16, 2):
+			p.soft(pts[i] + Vector2(-0.01, -0.01), 0.02, 0.02, Color(1.0, 0.95, 0.75, 0.8))
+	p.dome(Vector2(0.0, 2.1), _oval(Vector2(0.0, 2.12), 0.1, 0.13, 16), gold, 0.9, 0.8)
+	_gem(p, Vector2(0.0, 2.12), 0.06, gem)
+	p.parts.append("necklace")
+
+## A rudraksha mala: a loop of dark beads hanging on the chest.
+static func _paint_beads(p: Paint) -> void:
+	var pts := _bez(Vector2(-0.55, 1.68), Vector2(-0.6, 2.55), Vector2(0.6, 2.55), Vector2(0.55, 1.68), 24)
+	var bead := Color(0.42, 0.22, 0.14)
+	for i in pts.size():
+		p.dome(pts[i] + Vector2(-0.01, -0.01), _oval(pts[i], 0.045, 0.045, 12), bead, 0.9, 0.3)
+	p.parts.append("beads")
+
+## The sacred thread, over the left shoulder and across the chest.
+static func _paint_thread(p: Paint) -> void:
+	for k in 3:
+		var o := Vector2(0.025 * k, 0.0)
+		p.stroke(_bez(Vector2(-1.15, 1.74) + o, Vector2(-0.6, 2.0) + o, Vector2(0.0, 2.3) + o, Vector2(0.75, BOTTOM) + o, 16), 0.018, 0.018, Color(0.97, 0.95, 0.88, 0.95), Color(0.97, 0.95, 0.88, 0.95))
+	p.parts.append("sacred_thread")
+
+## A builder's sash, knotted, from the right shoulder across the chest.
+static func _paint_sash(p: Paint, col: Color) -> void:
+	var sash := PackedVector2Array()
+	sash.append_array(_bez(Vector2(0.75, 1.7), Vector2(0.3, 2.0), Vector2(-0.4, 2.3), Vector2(-1.05, BOTTOM), 10))
+	sash.append(Vector2(-0.55, BOTTOM))
+	sash.append_array(_bez(Vector2(-0.4, 2.55), Vector2(0.1, 2.2), Vector2(0.7, 2.0), Vector2(1.05, 1.82), 10))
+	p.shaded(sash, col, Vector2(0.0, 2.0), Vector2(1.2, 0.8), 0.1)
+	for k in 3:
+		var t := 0.25 + 0.25 * k
+		var a := Vector2(0.75, 1.7).lerp(Vector2(-1.05, BOTTOM), t)
+		p.stroke(PackedVector2Array([a, a + Vector2(0.2, 0.18)]), 0.03, 0.03, Color(_shade(col), 0.5), Color(_shade(col), 0.2))
+	p.dome(Vector2(0.75, 1.82), _oval(Vector2(0.8, 1.84), 0.14, 0.12, 14), col.darkened(0.08), 0.8, 0.1)
+	p.parts.append("sash")
+
+## A gold ring round a bird's neck, above the ruff.
+static func _paint_neck_ring(p: Paint, gold: Color, gem: Color) -> void:
+	var front := PackedVector2Array()
+	for i in 13:
+		var x := lerpf(-0.5, 0.5, i / 12.0)
+		front.append(Vector2(x, 0.88 + 0.12 * (1.0 - x * x / 0.25)))
+	for i in 13:
+		var x := lerpf(0.5, -0.5, i / 12.0)
+		front.append(Vector2(x, 1.02 + 0.12 * (1.0 - x * x / 0.25)))
+	p.shaded(front, gold, Vector2(-0.15, 0.9), Vector2(0.6, 0.3), 0.9)
+	_gem(p, Vector2(0.0, 1.07), 0.06, gem)
+	p.parts.append("neck_ring")
+
+## A vanara elder's beard: a tuft of fur below the muzzle.
+static func _paint_goatee(p: Paint, fur: Color, rng: RandomNumberGenerator) -> void:
+	_locks(p, 40, func(t: float, g: RandomNumberGenerator) -> Array:
+		var x := lerpf(-0.36, 0.36, t)
+		var root := Vector2(x, 0.88 + 0.08 * (1.0 - absf(x) / 0.36))
+		var tip := Vector2(x * 0.4 + g.randf_range(-0.04, 0.04), 1.32 + 0.14 * (1.0 - absf(x) / 0.36))
+		return [root, root + Vector2(0, 0.15), tip + Vector2(x * 0.3, -0.12), tip], fur, 0.07, rng)
+	p.parts.append("beard")
+
+## A bow over one shoulder: its upper limb rising behind the head, lacquered
+## wood bound in gold, with a recurved tip, and the string behind the shoulder.
+static func _paint_bow(back: Paint, front: Paint, side: float, gold: Color) -> void:
+	var tip := Vector2(side * 1.15, -1.6)
+	var limb := _bez(tip, Vector2(side * 2.0, -0.9), Vector2(side * 2.1, 0.8), Vector2(side * 1.65, BOTTOM), 20)
+	back.stroke(PackedVector2Array([Vector2(side * 1.22, BOTTOM), tip + Vector2(side * 0.02, 0.04)]), 0.025, 0.025, Color(0.9, 0.86, 0.75, 0.9), Color(0.9, 0.86, 0.75, 0.9))
+	back.stroke(limb, 0.07, 0.16, Paint.lit(BOW_WOOD, Vector3(-side * 0.2, -0.5, 0.8).normalized(), 0.5), Paint.lit(BOW_WOOD, Vector3(side * 0.5, 0.2, 0.8).normalized(), 0.5))
+	back.stroke(limb, 0.02, 0.04, Color(BOW_WOOD.lightened(0.4), 0.5), Color(BOW_WOOD.lightened(0.4), 0.3))
+	for k in 6:
+		var i := 2 + k * 3
+		var dir := (limb[i + 1] - limb[i - 1]).normalized()
+		var n := Vector2(-dir.y, dir.x) * (0.05 + 0.004 * i)
+		back.stroke(PackedVector2Array([limb[i] - n, limb[i] + n]), 0.05, 0.05, Paint.lit(gold, Vector3(-0.4, -0.4, 0.8).normalized(), 0.8), Paint.lit(gold, Vector3(0.4, 0.2, 0.8).normalized(), 0.8))
+	back.stroke(_bez(tip, tip + Vector2(-side * 0.1, -0.05), tip + Vector2(-side * 0.18, 0.02), tip + Vector2(-side * 0.16, 0.12), 6), 0.07, 0.03, Paint.lit(gold, Vector3(-0.4, -0.5, 0.8).normalized(), 0.8), gold)
+	back.parts.append("bow")
+
+## The gada: a fluted gold mace head with a finial, resting on a shoulder on
+## its banded haft.
+static func _paint_gada(p: Paint, side: float, gold: Color, gem: Color) -> void:
+	var head := Vector2(side * 1.6, 0.15)
+	var haft := PackedVector2Array([Vector2(side * 0.9, BOTTOM), head])
+	p.stroke(haft, 0.16, 0.13, Paint.lit(gold, Vector3(-0.5, 0.0, 0.8).normalized(), 0.7).darkened(0.15), Paint.lit(gold, Vector3(-0.5, -0.3, 0.8).normalized(), 0.7))
+	for k in 4:
+		var a := haft[0].lerp(haft[1], 0.45 + 0.13 * k)
+		p.stroke(PackedVector2Array([a + Vector2(-0.1, 0.04 * side), a + Vector2(0.1, -0.04 * side)]), 0.06, 0.06, Paint.lit(gold, Vector3(-0.5, -0.5, 0.7).normalized(), 0.9), Paint.lit(gold, Vector3(0.5, 0.2, 0.7).normalized(), 0.9))
+	p.dome(head + Vector2(-0.16, -0.16), _oval(head, 0.52, 0.56, 32), gold, 0.95, 0.9)
+	# Flutes down the head, each lit on its left and shaded on its right.
+	for k in 7:
+		var x := lerpf(-0.36, 0.36, k / 6.0)
+		var w := sqrt(maxf(1.0 - pow(x / 0.52, 2.0), 0.0)) * 0.54
+		var pts := _bez(head + Vector2(x * 0.6, -w), head + Vector2(x * 1.25, -w * 0.4), head + Vector2(x * 1.25, w * 0.4), head + Vector2(x * 0.6, w), 10)
+		p.stroke(pts, 0.035, 0.035, Color(_shade(gold, 0.8), 0.0), Color(_shade(gold, 0.8), 0.55), true)
+		for i in pts.size():
+			pts[i] += Vector2(-0.035, 0.0)
+		p.stroke(pts, 0.025, 0.025, Color(1.0, 0.95, 0.75, 0.0), Color(1.0, 0.95, 0.75, 0.4), true)
+	for y in [-0.56, 0.54]:
+		p.stroke(_bez(head + Vector2(-0.2, y), head + Vector2(-0.1, y + 0.03), head + Vector2(0.1, y + 0.03), head + Vector2(0.2, y), 6), 0.08, 0.08, Paint.lit(gold, Vector3(-0.3, -0.6, 0.7).normalized(), 0.9), Paint.lit(gold, Vector3(0.4, -0.2, 0.8).normalized(), 0.9))
+	p.dome(head + Vector2(-0.03, -0.68), _oval(head + Vector2(0.0, -0.66), 0.1, 0.11, 14), gold, 0.9, 0.9)
+	p.stroke(PackedVector2Array([head + Vector2(0.0, -0.72), head + Vector2(0.0, -0.94)]), 0.07, 0.01, gold, gold.lightened(0.3))
+	_gem(p, head + Vector2(-0.05, 0.02), 0.07, gem)
+	p.parts.append("gada")
+
+## A chakra worked on the breastplate: a gold wheel with its spokes and hub.
+static func _paint_chakra(p: Paint, gold: Color, gem: Color) -> void:
+	var at := Vector2(0.0, 2.2)
+	p.soft(at, 0.42, 0.42, Color(gold.lightened(0.3), 0.25))
+	var ring := _oval(at, 0.3, 0.3, 32)
+	ring.append(ring[0])
+	p.stroke(ring, 0.07, 0.07, Paint.lit(gold, Vector3(-0.5, -0.5, 0.7).normalized(), 0.9), Paint.lit(gold, Vector3(0.5, 0.5, 0.7).normalized(), 0.9))
+	for i in 8:
+		var a := TAU * i / 8.0 + PI / 8.0
+		var dir := Vector2(cos(a), sin(a))
+		p.stroke(PackedVector2Array([at + dir * 0.07, at + dir * 0.27]), 0.04, 0.025, Paint.lit(gold, Vector3(dir.x * 0.3, dir.y * 0.3, 0.9).normalized(), 0.8), gold)
+		p.soft(at + dir * 0.36, 0.035, 0.035, Color(gold.lightened(0.2), 0.9))
+	p.dome(at + Vector2(-0.02, -0.02), _oval(at, 0.08, 0.08, 16), gold, 0.9, 0.9)
+	_gem(p, at, 0.04, gem)
+	p.parts.append("chakra")
+
+## A stone for the bridge to Lanka, carried on the shoulder, with "राम"
+## (Rama) written on it in vermilion.
+static func _paint_stone(p: Paint, side: float, rng: RandomNumberGenerator) -> void:
+	var at := Vector2(side * 1.5, 1.38)
+	var ring := PackedVector2Array()
+	for i in 24:
+		var a := TAU * i / 24.0
+		var k := 1.0 + 0.06 * sin(a * 3.0 + 1.0) + 0.04 * sin(a * 5.0)
+		ring.append(at + Vector2(cos(a) * 0.62, sin(a) * 0.46) * k)
+	p.dome(at + Vector2(-0.2, -0.18), ring, STONE, 0.75, 0.05, 5)
+	for i in 24:
+		var q := at + Vector2(rng.randf_range(-0.5, 0.5), rng.randf_range(-0.35, 0.35))
+		p.soft(q, 0.04, 0.03, Color(STONE.darkened(0.3) if i % 2 == 0 else STONE.lightened(0.25), 0.4))
+	p.soft(at + Vector2(0.0, 0.42), 0.6, 0.12, Color(0.1, 0.07, 0.05, 0.35))
+	# राम: the headline, then र, the ा bar and म.
+	var ink := VERMILION
+	var w := 0.035
+	var top := at.y - 0.12
+	var base := at.y + 0.14
+	var x := at.x - 0.3
+	p.stroke(PackedVector2Array([Vector2(x - 0.02, top), Vector2(x + 0.62, top)]), w, w, ink, ink)
+	p.stroke(_bez(Vector2(x + 0.06, top), Vector2(x + 0.17, top + 0.08), Vector2(x + 0.02, top + 0.12), Vector2(x + 0.04, top + 0.16), 8), w, w, ink, ink)
+	p.stroke(_bez(Vector2(x + 0.04, top + 0.16), Vector2(x + 0.06, top + 0.2), Vector2(x + 0.12, top + 0.22), Vector2(x + 0.16, base), 8), w, w, ink, ink)
+	p.stroke(PackedVector2Array([Vector2(x + 0.24, top), Vector2(x + 0.24, base)]), w, w, ink, ink)
+	# म: a stem down from the headline into a small loop at its foot, joined
+	# across to a full upright on the right.
+	p.stroke(PackedVector2Array([Vector2(x + 0.56, top), Vector2(x + 0.56, base)]), w, w, ink, ink)
+	p.stroke(PackedVector2Array([Vector2(x + 0.35, top), Vector2(x + 0.35, top + 0.09)]), w, w, ink, ink)
+	var loop := _oval(Vector2(x + 0.38, top + 0.13), 0.045, 0.04, 12)
+	loop.append(loop[0])
+	p.stroke(loop, w * 0.9, w * 0.9, ink, ink)
+	p.stroke(_bez(Vector2(x + 0.42, top + 0.14), Vector2(x + 0.47, top + 0.15), Vector2(x + 0.52, top + 0.14), Vector2(x + 0.56, top + 0.12), 6), w, w, ink, ink)
+	p.parts.append("stone")
+
+## A sprig of the sanjivani herb rising past the shoulder: leaves on a stem
+## and small golden flowers that glow.
+static func _paint_herb(p: Paint, side: float, rng: RandomNumberGenerator) -> void:
+	var stem := _bez(Vector2(side * 1.25, BOTTOM), Vector2(side * 1.35, 1.6), Vector2(side * 1.75, 0.6), Vector2(side * 1.55, -0.35), 16)
+	p.soft(stem[15], 0.5, 0.5, Color(BLOOM, 0.25))
+	p.stroke(stem, 0.06, 0.03, LEAF.darkened(0.3), LEAF)
+	for i in range(3, 16, 2):
+		var dir := (stem[mini(i + 1, 16)] - stem[i - 1]).normalized()
+		var out := Vector2(-dir.y, dir.x) * (1.0 if i % 4 == 1 else -1.0)
+		var tip := stem[i] + (out * 0.32 + dir * 0.12) * lerpf(1.0, 0.6, i / 16.0)
+		var leaf := PackedVector2Array(_bez(stem[i], stem[i].lerp(tip, 0.3) + dir * 0.09, stem[i].lerp(tip, 0.7) + dir * 0.07, tip, 8))
+		leaf.append_array(_bez(tip, stem[i].lerp(tip, 0.7) - dir * 0.05, stem[i].lerp(tip, 0.3) - dir * 0.06, stem[i], 8))
+		var col := LEAF.lerp(Color(0.5, 0.75, 0.3), rng.randf() * 0.5)
+		p.shaded(leaf, col, stem[i].lerp(tip, 0.4) + Vector2(-0.05, -0.05), Vector2(0.3, 0.3), 0.3)
+		p.stroke(PackedVector2Array([stem[i], tip]), 0.012, 0.004, Color(col.lightened(0.3), 0.6), Color(col.lightened(0.3), 0.1))
+	for i in 7:
+		var q := stem[16] + Vector2(rng.randf_range(-0.22, 0.22), rng.randf_range(-0.15, 0.25))
+		p.soft(q, 0.13, 0.13, Color(BLOOM, 0.45))
+		p.dome(q + Vector2(-0.01, -0.01), _oval(q, 0.05, 0.05, 12), BLOOM, 0.8, 0.6)
+	p.parts.append("herb")

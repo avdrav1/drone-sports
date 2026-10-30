@@ -6,7 +6,9 @@ extends RefCounted
 # The existing portrait, motion, emote, distress and incoming-call tests run
 # unchanged in their own files.
 # Story 26.1: the probe counts a colour lit or in shadow, since faces are now
-# shaded, and the hair is checked against the painted face's brows.
+# shaded, and the hair is checked against the painted face's brows. Story 26.2
+# took "in shadow" down to the painted shadow side's depth, since crowns,
+# helmets, turbans and held things now cover more of each look's colours.
 
 const Sim = preload("res://tests/sim.gd")
 const PROBE := "res://tests/portrait_probe.gd"

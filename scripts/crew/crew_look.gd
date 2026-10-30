@@ -6,6 +6,14 @@ extends Resource
 
 ## Parts of a body a look colours, in the order crew_body.gdshader numbers them.
 const ROLES: Array[StringName] = [&"skin", &"hair", &"top", &"bottom", &"shoes"]
+## The portrait's iconography (Story 26.2), each drawn by CharacterPortrait:
+## what is worn on the head, the hair (empty takes the body's), the beard, the
+## held object, and marks on the face and body.
+const HEADWEAR: Array[StringName] = [&"", &"crown", &"helmet", &"turban", &"band", &"crest"]
+const HAIR: Array[StringName] = [&"", &"long", &"curls", &"short", &"jata", &"bald"]
+const BEARDS: Array[StringName] = [&"", &"moustache", &"beard"]
+const HELD: Array[StringName] = [&"", &"bow", &"gada", &"chakra", &"stone", &"herb"]
+const MARKS: Array[StringName] = [&"tilak", &"tripundra", &"glow", &"earrings", &"necklace", &"beads", &"sacred_thread", &"armour", &"sash", &"neck_ring"]
 
 @export var body: CrewBody
 @export var skin := Color(0.96, 0.78, 0.62)
@@ -22,6 +30,22 @@ const ROLES: Array[StringName] = [&"skin", &"hair", &"top", &"bottom", &"shoes"]
 ## The kind of head their portrait paints (Story 26.1), one of
 ## CharacterPortrait.HEADS: human, vanara or bird.
 @export var head: StringName = &"human"
+## On the portrait's head, one of HEADWEAR, in accessory_color with
+## accessory_detail for its jewels and trim (Story 26.2).
+@export var headwear: StringName
+## The portrait's hair, one of HAIR; empty takes the body's hair style.
+@export var hair_cut: StringName
+## One of BEARDS, in the hair colour.
+@export var beard: StringName
+## What they carry, one of HELD, on the left (-1) or right (1) shoulder.
+@export var held: StringName
+@export var held_side := -1.0
+## Marks and ornaments, each one of MARKS.
+@export var marks: Array[StringName] = []
+## 0 is young, 1 an elder: lines on the face, a drawn jaw, greying.
+@export_range(0.0, 1.0) var age := 0.0
+## 1 is an average frame; more is broader in the jaw, neck and brow.
+@export_range(0.8, 1.4) var build := 1.0
 
 ## The colour of one of ROLES.
 func color(role: StringName) -> Color:
@@ -42,4 +66,10 @@ func validate() -> Array[String]:
 		out.append("unknown accessory %s" % accessory)
 	if not head in CharacterPortrait.HEADS:
 		out.append("unknown head %s" % head)
+	for pair in [[headwear, HEADWEAR], [hair_cut, HAIR], [beard, BEARDS], [held, HELD]]:
+		if not pair[0] in pair[1]:
+			out.append("unknown %s" % pair[0])
+	for m in marks:
+		if not m in MARKS:
+			out.append("unknown mark %s" % m)
 	return out

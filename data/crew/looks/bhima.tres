@@ -6,11 +6,20 @@
 [resource]
 script = ExtResource("1_look")
 body = ExtResource("2_body")
-skin = Color(0.93, 0.72, 0.58, 1)
-hair = Color(0.75, 0.35, 0.15, 1)
-top = Color(0.85, 0.32, 0.27, 1)
+skin = Color(0.52, 0.34, 0.23, 1)
+hair = Color(0.08, 0.06, 0.05, 1)
+top = Color(0.66, 0.12, 0.1, 1)
 bottom = Color(0.3, 0.32, 0.4, 1)
 shoes = Color(0.4, 0.25, 0.15, 1)
 accessory = &"hardhat"
-accessory_color = Color(1, 0.82, 0.2, 1)
-accessory_detail = Color(1, 0.95, 0.6, 1)
+accessory_color = Color(0.8, 0.6, 0.28, 1)
+accessory_detail = Color(0.2, 0.55, 0.35, 1)
+head = &"human"
+headwear = &"band"
+hair_cut = &"short"
+beard = &"moustache"
+held = &"gada"
+held_side = 1.0
+marks = Array[StringName]([&"earrings"])
+age = 0.15
+build = 1.3
