@@ -74,6 +74,8 @@ static var flyable_seen: Array[StringName] = []
 static var flyable_known := false
 
 var _header: Label
+## The header (title, wallet, how-to), faded out under the radio (Story 26.4).
+var _under_radio: Array[Control] = []
 ## The focused menu item's hint.
 var menu_hint: Label
 ## Shows SaveGame.warning, once, when the save had to be reset.
@@ -134,7 +136,15 @@ func _ready() -> void:
 	if PlayerProfile.has_pilot() and not death_on_last_job():
 		bark.moment(&"hello")
 
-## The radio sits on its own layer over the board, low on the left.
+## The radio's bar hangs over the header, so the header fades out while the
+## radio is up, rather than peek out in pieces beside the bar.
+func _process(_delta: float) -> void:
+	if radio:
+		for c in _under_radio:
+			c.modulate.a = 1.0 - radio.modulate.a if radio.visible else 1.0
+
+## The radio sits on its own layer over the board. Its foot is all menu and
+## card, so the radio hangs from the top, over the header, and is solid.
 func _build_radio() -> void:
 	bark = Bark.new()
 	bark.name = "Bark"
@@ -144,6 +154,8 @@ func _build_radio() -> void:
 	add_child(layer)
 	radio = BarkBox.new()
 	radio.bark = bark
+	radio.at_top = true
+	radio.panel_alpha = 1.0
 	layer.add_child(radio)
 	radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
@@ -624,6 +636,7 @@ func _build() -> void:
 	margin.add_child(page)
 	var head := HBoxContainer.new()
 	page.add_child(head)
+	_under_radio.append(head)
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = SIZE_EXPAND_FILL
 	head.add_child(titles)
@@ -646,6 +659,7 @@ func _build() -> void:
 	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	how.add_theme_font_size_override("font_size", 20)
 	page.add_child(how)
+	_under_radio.append(how)
 	warning_label = Label.new()
 	warning_label.add_theme_color_override("font_color", HURT)
 	warning_label.text = SaveGame.warning

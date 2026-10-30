@@ -49,10 +49,19 @@ func _process(delta: float) -> void:
 		label.text = ""
 	else:
 		label.text = "%s: %s" % [who, text] if who else text
-	var s := get_viewport_rect().size
-	label.position = Vector2(s.x - 560, s.y - 190)
-	label.size = Vector2(440, 64)
+	var r := label_rect(get_viewport_rect().size)
+	label.position = r.position
+	label.size = r.size
 	queue_redraw()
+
+## Where the line sits on a HUD of size `s`: left of the grid, and moved up
+## above the crew radio's bar (BarkBox) where the bar reaches it (Story 26.4).
+static func label_rect(s: Vector2) -> Rect2:
+	var r := Rect2(Vector2(s.x - 560, s.y - 190), Vector2(440, 64))
+	var bar := BarkBox.panel_rect(s)
+	if r.intersects(bar):
+		r.position.y = bar.position.y - r.size.y - 8.0
+	return r
 
 ## Share of the shell still standing, 0..1.
 func density() -> float:
