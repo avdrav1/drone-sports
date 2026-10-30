@@ -900,18 +900,19 @@ route = NodePath("../../Route")
 camera_rig = NodePath("../../CameraRig")
 
 [node name="ControlsHint" type="Label" parent="HUD" node_paths=PackedStringArray("runner")]
-anchors_preset = 7
-anchor_left = 0.5
+anchors_preset = 12
 anchor_top = 1.0
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -480.0
-offset_top = -112.0
-offset_right = 480.0
-offset_bottom = -86.0
+offset_left = 252.0
+offset_top = -296.0
+offset_right = -204.0
+offset_bottom = -244.0
 grow_horizontal = 2
 grow_vertical = 0
 horizontal_alignment = 1
+vertical_alignment = 2
+autowrap_mode = 3
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 15

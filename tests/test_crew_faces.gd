@@ -88,7 +88,7 @@ func test_face_follows_each_line_then_neutral() -> bool:
 		box.skip()
 		face.advance(0.0)
 		var held := face.expression == expr and not face.talking
-		box._process(box.hold + 0.1)
+		box._process(box.hold_time(box.current.text) + 0.1)
 		face.advance(0.0)
 		var after := face.expression == CrewFace.REST and not face.talking
 		if not (during and held and after):

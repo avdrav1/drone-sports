@@ -137,12 +137,13 @@ func test_panel_clear_of_radar_objectives_and_race_hud() -> bool:
 	for s in [Vector2(960, 720), Vector2(1920, 1080)]:
 		for c in [radar, flight, race]:
 			c.size = s
-		var panel := BarkBox.panel_rect(s)
 		var others: Array[Rect2] = [radar.rect(), flight.panel_rect(), race.panel_rect()]
-		for r in others:
-			if panel.intersects(r):
-				print("        %s: panel %s overlaps %s" % [s, panel, r])
-				ok = false
-		ok = ok and Rect2(Vector2.ZERO, s).encloses(panel)
+		# Story 26.4: the face stands up out of the bar; neither may overlap.
+		for panel in [BarkBox.panel_rect(s), BarkBox.face_rect(s)]:
+			for r in others:
+				if panel.intersects(r):
+					print("        %s: panel %s overlaps %s" % [s, panel, r])
+					ok = false
+			ok = ok and Rect2(Vector2.ZERO, s).encloses(panel)
 	scene.free()
 	return ok
