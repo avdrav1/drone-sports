@@ -4,6 +4,8 @@ extends PanelContainer
 # for the device the player last touched (InputPrompt, Story 23.2): on a pad,
 # keyboard-only rows drop out. `toggle_help` shows and hides it; any flying key
 # or stick hides it, so it never sits over a flight. The sandbox opens with it up.
+# On keys, flying comes first, drawn as key caps laid out as on the keyboard, so
+# the arrow keys can't be missed.
 
 ## Rows per group: [actions, what they do]. Pairs show as "A / B".
 const GROUPS := [
@@ -51,6 +53,20 @@ const HEAD := Color(0.35, 0.8, 0.95)
 const ROW_SIZE := 15
 ## Groups in the left column; the rest go on the right.
 const LEFT_GROUPS := 2
+## The default font has no arrow glyphs and the web build has no system font to
+## fall back on, so any text naming an arrow key or stick direction falls back
+## to this one.
+const ARROW_FONT := preload("res://data/ui/fonts/PressStart2P-Regular.ttf")
+
+static var _font: Font
+
+## The default UI font, with arrows. Labels that may show an arrow use it.
+static func font() -> Font:
+	if _font == null:
+		var f: Font = ThemeDB.fallback_font.duplicate()
+		f.fallbacks = [ARROW_FONT]
+		_font = f
+	return _font
 
 func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
@@ -118,28 +134,28 @@ static func hint_line() -> String:
 
 func _build() -> void:
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
+	box.add_theme_constant_override("separation", 6)
 	add_child(box)
-	var title := Label.new()
-	title.text = "CONTROLS"
-	title.add_theme_font_size_override("font_size", 18)
-	box.add_child(title)
+	box.add_child(_label("CONTROLS", 18))
+	# On keys, flying is the key diagram; on a pad, its rows like the rest.
+	var first := 0
+	if not InputPrompt.pad:
+		first = 1
+		box.add_child(_label(GROUPS[0][0], 13, HEAD))
+		box.add_child(_fly())
 	# Two columns so every group fits a 720 px screen.
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 32)
 	box.add_child(columns)
 	var column: VBoxContainer
-	for i in GROUPS.size():
+	for i in range(first, GROUPS.size()):
 		var g: Array = GROUPS[i]
 		var rows: Array = g[1].filter(func(row): return row[0].all(func(a): return InputPrompt.text(a) != "") and boss_row_shows(row))
-		if i == 0 or i == LEFT_GROUPS:
+		if i == first or i == first + LEFT_GROUPS:
 			column = VBoxContainer.new()
 			column.add_theme_constant_override("separation", 4)
 			columns.add_child(column)
-		var head := Label.new()
-		head.text = g[0]
-		head.add_theme_color_override("font_color", HEAD)
-		head.add_theme_font_size_override("font_size", 13)
+		var head := _label(g[0], 13, HEAD)
 		head.visible = not rows.is_empty()
 		column.add_child(head)
 		var grid := GridContainer.new()
@@ -148,19 +164,64 @@ func _build() -> void:
 		grid.add_theme_constant_override("v_separation", 0)
 		column.add_child(grid)
 		for row in rows:
-			var k := Label.new()
-			k.text = keys_text(row[0])
-			k.add_theme_color_override("font_color", KEY)
+			var k := _label(keys_text(row[0]), ROW_SIZE, KEY)
 			k.custom_minimum_size.x = 90
-			k.add_theme_font_size_override("font_size", ROW_SIZE)
 			grid.add_child(k)
-			var what := Label.new()
-			what.text = row[1]
-			what.add_theme_font_size_override("font_size", ROW_SIZE)
-			grid.add_child(what)
-	var foot := Label.new()
-	foot.text = "Any flying %s closes this.  %s brings it back." % ["stick" if InputPrompt.pad else "key",
-		InputPrompt.text(&"toggle_help")]
+			grid.add_child(_label(row[1], ROW_SIZE))
+	var foot := _label("Any flying %s closes this.  %s brings it back." % ["stick" if InputPrompt.pad else "key",
+		InputPrompt.text(&"toggle_help")], 13)
 	foot.modulate = Color(1, 1, 1, 0.6)
-	foot.add_theme_font_size_override("font_size", 13)
 	box.add_child(foot)
+
+## The flying keys as two key clusters, each key captioned with what it does:
+## the arrows move, the letters climb and turn.
+func _fly() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 48)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var fly: Array = GROUPS[0][1]
+	var move := "ARROW KEYS: MOVE" if InputPrompt.key_text(fly[0][0][0]) == "↑" else "MOVE"
+	row.add_child(_cluster(move, [fly[0][0][0], fly[1][0][0], fly[0][0][1], fly[1][0][1]],
+		["forward", "left", "back", "right"]))
+	row.add_child(_cluster("HEIGHT AND TURN", [fly[2][0][0], fly[3][0][0], fly[2][0][1], fly[3][0][1]],
+		["climb", "turn left", "descend", "turn right"]))
+	return row
+
+## A key cluster laid out as on the keyboard: one key on top, three below.
+## `actions` and `words` run top, left, middle, right.
+func _cluster(caption: String, actions: Array, words: Array) -> VBoxContainer:
+	var out := VBoxContainer.new()
+	out.add_theme_constant_override("separation", 2)
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 0)
+	var at := {1: 0, 3: 1, 4: 2, 5: 3}
+	for cell in 6:
+		var slot := VBoxContainer.new()
+		slot.custom_minimum_size.x = 70
+		slot.add_theme_constant_override("separation", 0)
+		if at.has(cell):
+			var n: int = at[cell]
+			var cap := KeyCap.new(InputPrompt.key_text(actions[n]), KEY)
+			cap.name = "Key_%s" % actions[n]
+			cap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			slot.add_child(cap)
+			var word := _label(words[n], 12)
+			word.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			slot.add_child(word)
+		grid.add_child(slot)
+	out.add_child(grid)
+	var name_label := _label(caption, 14, HEAD)
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	out.add_child(name_label)
+	return out
+
+func _label(text: String, size: int, tint := Color.WHITE) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_override("font", font())
+	l.add_theme_font_size_override("font_size", size)
+	if tint != Color.WHITE:
+		l.add_theme_color_override("font_color", tint)
+	return l

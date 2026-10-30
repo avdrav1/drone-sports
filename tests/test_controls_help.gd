@@ -125,3 +125,33 @@ func test_free_flight_says_how_to_start_a_job() -> bool:
 		and ControlsHelp.hint_line().contains("Esc leave") and &"ui_cancel" in ControlsHelp.listed_actions()
 	scene.free()
 	return ok
+
+## The arrow keys used to vanish on the web: the default font has no arrow
+## glyphs. The panel draws every flying key as a key cap, the arrows as shapes,
+## and any label that names an arrow key uses a font that has them.
+func test_flying_keys_show_as_key_caps_with_arrows() -> bool:
+	var scene: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
+	await Sim.process_frames(2)
+	var help: ControlsHelp = scene.get_node("HUD/Help")
+	var ok := true
+	for a in ControlsHelp.FLY_ACTIONS:
+		var cap := help.find_child("Key_%s" % a, true, false) as KeyCap
+		ok = ok and cap != null and cap.text == InputPrompt.key_text(a)
+	for a in [&"pitch_forward", &"pitch_back", &"roll_left", &"roll_right"]:
+		var cap := help.find_child("Key_%s" % a, true, false) as KeyCap
+		ok = ok and cap != null and cap.is_arrow()
+	var font := ControlsHelp.font()
+	for c in "↑↓←→":
+		ok = ok and font.has_char(c.unicode_at(0))
+	var said := false
+	for l in help.find_children("*", "Label", true, false):
+		said = said or (l as Label).text.begins_with("ARROW KEYS")
+	scene.free()
+	var job: Node = load("res://scenes/jobs/test_race.tscn").instantiate()
+	(job.get_node("JobRunner") as JobRunner).pays_out = false
+	Sim.add(job)
+	await Sim.process_frames(2)
+	var hint: ControlsHint = job.get_node("HUD/ControlsHint")
+	var hint_ok := hint.get_theme_font("font").has_char("↑".unicode_at(0))
+	job.free()
+	return ok and said and hint_ok

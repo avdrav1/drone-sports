@@ -7,6 +7,7 @@ extends Label
 
 func _ready() -> void:
 	text = ControlsHelp.hint_line()
+	add_theme_font_override("font", ControlsHelp.font())
 	mouse_filter = MOUSE_FILTER_IGNORE
 	InputPrompt.device_changed.connect(_on_device_changed)
 
