@@ -23,6 +23,8 @@ extends Control
 # Story 18.5: the crew notice you on their radio here: a hello as you come back
 # (not right after someone died), a cheer for an upgrade bought or a job
 # unlocked, and on Esc to the title a wave goodbye, said over the title screen.
+# Story 27.5: GARAGE opens the hangar (HangarScreen), a layer over the board
+# like the pilot select; its UPGRADES tab is the old shop.
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -41,7 +43,7 @@ const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get te
 const MENU_HINTS := {
 	&"Fly": "Fly the job on the card.",
 	&"FreeFlight": "Fly around the city. No job, no clock.",
-	&"Garage": "Spend your pay on drone upgrades.",
+	&"Garage": "Paint your drone, fit parts, buy upgrades.",
 	&"Pilot": "Choose who you fly as.",
 	&"Crew": "See your crew and how they're doing.",
 	&"Options": "Sound, graphics, the controller, and the intro.",
@@ -51,7 +53,8 @@ var jobs: JobList
 ## The look for this act; set before the board builds.
 var skin: FrontSkin
 var offer_dialog: OfferDialog
-var shop: ShopDialog
+## The hangar (Story 27.5). Still `shop`: its UPGRADES tab is the old shop.
+var shop: HangarScreen
 var pilot_select: PilotSelect
 var sound: SoundDialog
 ## Job id -> its card's content (Fly or Locked inside), rebuilt on every refresh.
@@ -69,6 +72,10 @@ var pages := {}
 ## The crew's lines on the board, and the radio that shows them (Story 18.5).
 var bark: Bark
 var radio: BarkBox
+## The radio's own layer: hidden while the hangar is up (Story 27.5).
+var radio_layer: CanvasLayer
+## A purchase in the hangar, cheered once the hangar closes (Story 27.5).
+var _cheer_on_close := false
 ## Job ids flyable when the board last looked, this session; a new one is an unlock.
 static var flyable_seen: Array[StringName] = []
 static var flyable_known := false
@@ -98,11 +105,18 @@ func _ready() -> void:
 	offer_dialog = OfferDialog.new()
 	offer_dialog.answered.connect(func(_t, _a): refresh())
 	add_child(offer_dialog)
-	shop = ShopDialog.new()
+	shop = HangarScreen.new()
+	shop.name = "Hangar"
+	shop.skin = skin
+	shop.visible = false
+	# The cheer waits for the hangar to close: the radio is hidden over it.
 	shop.purchased.connect(func():
 		refresh()
-		if not death_on_last_job():
-			bark.moment(&"unlock"))
+		_cheer_on_close = true)
+	shop.closed.connect(_on_hangar_closed)
+	# The radio is hidden while the hangar is up: it would hang over the
+	# hangar's title and tabs, which it does not know to keep clear of.
+	shop.visibility_changed.connect(func(): radio_layer.visible = not shop.visible)
 	add_child(shop)
 	sound = SoundDialog.new()
 	sound.name = "SoundDialog"
@@ -152,6 +166,7 @@ func _build_radio() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "Radio"
 	add_child(layer)
+	radio_layer = layer
 	radio = BarkBox.new()
 	radio.bark = bark
 	radio.at_top = true
@@ -270,11 +285,22 @@ func _on_pilot_select_closed() -> void:
 	if f == null or pilot_select.is_ancestor_of(f) or not f.is_visible_in_tree():
 		menu_button(&"Pilot").grab_focus()
 
+## Out of the hangar, focus goes back to GARAGE, and the crew may notice what
+## changed: Story 27.7's `say_notices`, once that story is in.
+func _on_hangar_closed() -> void:
+	refresh()
+	menu_button(&"Garage").grab_focus()
+	if _cheer_on_close and not death_on_last_job():
+		bark.moment(&"unlock")
+	_cheer_on_close = false
+	if has_method(&"say_notices"):
+		call(&"say_notices")
+
 ## Esc (or pad B) with nothing open over the board: from a page back to the
 ## menu, from the menu back to the title.
 ## Left and right flip the carousel even when nothing has focus.
 func _unhandled_input(event: InputEvent) -> void:
-	if pilot_select.visible:
+	if pilot_select.visible or shop.visible:
 		return
 	if get_viewport().gui_get_focus_owner() == null and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 		carousel.grab_focus()

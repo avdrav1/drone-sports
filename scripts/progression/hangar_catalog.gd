@@ -19,3 +19,6 @@ extends Resource
 ## One per item that is not a default: every decal, every part and swatch but
 ## the defaults, and lit lights (Story 27.3).
 @export var unlocks: Array[Unlock] = []
+## The names a pad picks a drone's name from, having no keys to type one on
+## (Story 27.5).
+@export var drone_names: Array[String] = []

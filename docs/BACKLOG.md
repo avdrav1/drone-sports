@@ -1405,7 +1405,7 @@ Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
   - Acceptance: Every non-default part makes at least one stat better and at least one worse. No part adds or removes an assist (a test compares the assist stack with and without each part). The default parts leave every stat as it is today. Every job can still be finished with every frame (the existing scripted runs pass with each frame fitted). Parts apply to the slot's drone only.
   - Out of scope: Parts beyond these three kinds, tuning the jobs for parts.
 
-- [ ] **27.5 The hangar**
+- [x] **27.5 The hangar**
   - Goal: The board's Garage opens the hangar: the drone on a turntable, with Paint, Lights, Decals, Parts and Upgrades, and every change shown live before it is applied.
   - Context: Replaces `ShopDialog` (the upgrades become the hangar's Upgrades tab, prices and rules unchanged). A SubViewport turntable of the drone with the slot's livery and parts; the player turns it with the right stick, the mouse or the arrow keys. Colours pick from a palette (no free colour wheel). Parts and upgrades show stat bars with the change highlighted before buying. The name is typed on keys, or picked from a list of names on a pad. Locked items show their price or their achievement (27.3). Works by pad alone, as Epic 23 requires, and at 960x720 and 1920x1080.
   - Acceptance: Changing a colour, light, decal or part updates the turntable at once; leaving without applying keeps the old livery. Applying writes the slot (27.1). Stat bars show the change of a part before it is fitted. Every control is reachable by pad, keys and mouse, and B or Esc backs out. Nothing overlaps at either size. The old shop's tests pass against the Upgrades tab.
