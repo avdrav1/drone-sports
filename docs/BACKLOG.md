@@ -1357,8 +1357,9 @@ Assumption to confirm: Nala and Sushena are vanaras in the Ramayana, so they are
   - Acceptance: After three lines, all three show, newest at the bottom, each with its speaker's name. A fifth line scrolls the first one off. Lines older than 20 s fade out. The chat never covers the middle third of the screen at 960×720 or 1920×1080. Pausing holds the chat as it is.
   - Out of scope: Replying, a full radio history page.
 
-- [ ] **26.6 The docs show the faces**
+- [x] **26.6 The docs show the faces**
   - Goal: `docs/CHARACTERS.md` describes each character's look as their namesake.
   - Context: The cast table gains a "Drawn as" column from the table above. The respect line covers the faces too.
   - Acceptance: Every character's row has a "Drawn as" entry matching their look. The respect line names the faces. 25.4's docs tests still pass.
   - Out of scope: Backlog history.
+  - Note: The cast table gains a "Drawn as" column and a row for each pilot avatar (Abhimanyu, Jatayu, Hanuman), so every character with a portrait has one; `tests/test_docs_faces.gd` reads each entry against the character's `CrewLook` (a vanara or bird head, and every headwear, hair, beard, held object and mark it names). The respect line covers the faces and Hanuman's dignified face. Rule 5 (round, big-eyed, placeholder shapes) now describes the painted faces, the intro line drops "small, round", and the species question is ticked: humans, vanaras and a great bird.
