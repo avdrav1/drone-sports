@@ -5,6 +5,8 @@ extends RefCounted
 # something shown and enabled. B backs out of every page and dialog as Esc
 # does, sliders move on the d-pad, the quality list opens, changes and closes
 # by pad, and a held stick moves one item per tilt, then repeats.
+# Story 28.4: the walk also visits every OPTIONS > CONTROLLER control, changes
+# one, and opens PAD CHECK with A and leaves it with B.
 
 const Sim = preload("res://tests/sim.gd")
 const TITLE := "res://scenes/ui/title.tscn"
@@ -181,9 +183,57 @@ func test_pad_walk_from_the_title_to_a_job_and_back() -> bool:
 		_expect("quality changed", not quality.get_popup().visible and GameSettings.quality != was)
 		_expect("focus back on Quality after a choice", _focused("options") == quality)
 		b.set_quality(was)
+	# CONTROLLER (Story 28.4): down to the layout, along every control, one
+	# setting changed, and PAD CHECK opened with A and left with B.
+	var pad: ControllerOptions = b.find_child("Controller", true, false)
+	for i in 6:
+		if _focused("options, down to CONTROLLER") == pad.layout:
+			break
+		await _pad(JOY_BUTTON_DPAD_DOWN)
+	_expect("on the layout", _focused("controller, layout") == pad.layout)
+	await _pad(JOY_BUTTON_DPAD_DOWN)
+	_expect("on invert", _focused("controller, invert") == pad.invert)
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	_expect("on rumble", _focused("controller, rumble") == pad.rumble)
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	_expect("on pad check", _focused("controller, pad check") == pad.pad_check)
+	await _pad(JOY_BUTTON_DPAD_DOWN)
+	_expect("on stick feel", _focused("controller, stick feel") == pad.feel)
+	var expo := GameSettings.stick_expo
+	await _pad(JOY_BUTTON_DPAD_RIGHT if expo < pad.feel.max_value else JOY_BUTTON_DPAD_LEFT)
+	var changed := GameSettings.stick_expo
+	_expect("stick feel changed", not is_equal_approx(changed, expo) and is_equal_approx(pad.feel.value, changed))
+	_expect("stick feel keeps focus", _focused("controller, stick feel moved") == pad.feel)
+	await _pad(JOY_BUTTON_DPAD_DOWN)
+	_expect("on deadzone", _focused("controller, deadzone") == pad.deadzone)
+	await _pad(JOY_BUTTON_DPAD_UP)
+	await _pad(JOY_BUTTON_DPAD_UP)
+	_expect("up to invert", _focused("controller, back up") == pad.invert)
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	await _pad(JOY_BUTTON_DPAD_RIGHT)
+	_expect("back on pad check", _focused("controller, pad check again") == pad.pad_check)
+	await _pad(JOY_BUTTON_A)
+	var check: PadCheck = b.pages[&"pad_check"]
+	_expect("pad check open", b.page == &"pad_check" and check.is_visible_in_tree())
+	_expect("pad check focused", _focused("pad check") == check)
+	await _pad(JOY_BUTTON_DPAD_DOWN)
+	_expect("pad check only shows the d-pad", b.page == &"pad_check" and _focused("pad check, d-pad") == check)
+	await _pad(JOY_BUTTON_B)
+	_expect("B leaves pad check", b.page == &"options" and not check.visible)
+	_expect("focus back on pad check", _focused("options, after pad check") == pad.pad_check)
 	await _pad(JOY_BUTTON_B)
 	_expect("options closed", b.page == &"jobs")
 	_expect("focus back on OPTIONS", _focused("menu") == b.menu_button(&"Options"))
+	# The change is kept after leaving OPTIONS, and shown on coming back.
+	_expect("stick feel kept", is_equal_approx(GameSettings.stick_expo, changed))
+	await _pad(JOY_BUTTON_A)
+	_expect("options again", b.page == &"options")
+	_focused("options again")
+	_expect("stick feel shown", is_equal_approx(pad.feel.value, changed))
+	await _pad(JOY_BUTTON_B)
+	_expect("options closed again", b.page == &"jobs")
+	_expect("focus on OPTIONS again", _focused("menu") == b.menu_button(&"Options"))
+	pad.set_expo(expo)
 	# Round to FLY, which flies the card showing.
 	await _pad(JOY_BUTTON_DPAD_DOWN)
 	_expect("menu wraps to FLY", _focused("menu") == b.menu_button(&"Fly"))

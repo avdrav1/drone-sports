@@ -1447,7 +1447,7 @@ Do this epic after Epic 27 (owner's call).
   - Acceptance: With an Xbox, PlayStation and Switch pad (family from the joy name, as in 23.2), the footer names that family's leave button and Esc. It never names a button that does not leave. A test checks each family.
   - Out of scope: Rebinding.
 
-- [ ] **28.4 The pad walk covers CONTROLLER**
+- [x] **28.4 The pad walk covers CONTROLLER**
   - Goal: The pad walk (`tests/test_pad_menus.gd::test_pad_walk_from_the_title_to_a_job_and_back`) also steps through OPTIONS > CONTROLLER (layout, stick deadzone and sensitivity, invert, rumble, PAD CHECK) by pad alone.
   - Context: Story 23.3's walk goes title, board, pilot select, a job and back; 23.6's CONTROLLER section and 23.8's PAD CHECK were added after it and are only tested on their own. The walk reaches each control with the d-pad and stick, changes one setting with A or left/right, opens and leaves PAD CHECK with A and B, and comes back to the menu, with focus always on a visible control.
   - Acceptance: The walk visits every CONTROLLER control by pad alone, changes one, leaves PAD CHECK with B, and finds the change kept after leaving OPTIONS. At no step is focus lost or on a hidden control.
