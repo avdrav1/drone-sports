@@ -996,5 +996,69 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "New paint? Ooh. Don't scratch it on the first gate, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "That colour suits the drone. Suits you too.",
+    "face": "happy"
+   },
+   {
+    "text": "Fresh paint! Smells like a new start.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New paint! I'd polish it, if my arm agreed, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Looks sharp. Prettiest thing in the van.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice colours. Brightens up the bench.",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "New part's in. I checked every bolt. Twice, {you}.",
+    "face": "determined"
+   },
+   {
+    "text": "Fresh part. Give it a lap before you push it.",
+    "face": "determined"
+   },
+   {
+    "text": "Swapped and torqued. Tell me how it feels up there.",
+    "face": "happy"
+   },
+   {
+    "text": "Every part gives a bit and takes a bit. Fly it, learn it.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "Fitted it one-handed. Don't tell anyone, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "New part's in. Took me longer, but it's right.",
+    "face": "determined"
+   },
+   {
+    "text": "Swapped it from my stool. Fly it gently first.",
+    "face": "neutral"
+   }
+  ]
  }
 }
