@@ -156,8 +156,22 @@ func _build_radio() -> void:
 	radio.bark = bark
 	radio.at_top = true
 	radio.panel_alpha = 1.0
+	# Story 26.5: the chat's rows step around the board's controls, and the
+	# chat goes once the newest line has had its hold, giving the header back.
+	radio.linger = false
+	radio.keep_clear = radio_clear
 	layer.add_child(radio)
 	radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+## What the radio's chat keeps off: every button and panel (the job cards, a
+## dialog's cards), the menu's hint, and the open page when it is not the jobs.
+func radio_clear() -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for c: Control in find_children("*", "Control", true, false):
+		if c.is_visible_in_tree() and not radio.is_ancestor_of(c) and (c is BaseButton or c is PanelContainer \
+				or c == menu_hint or (c in pages.values() and c != pages[&"jobs"])):
+			out.append(c.get_global_rect())
+	return out
 
 ## True when someone died on the last job flown: the board stays quiet then.
 static func death_on_last_job() -> bool:

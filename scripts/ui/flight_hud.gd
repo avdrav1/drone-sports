@@ -28,6 +28,8 @@ const ASSIST_NAMES := {
 	&"speed_governor": "GOVERNOR", &"battery_wind": "ENV SIM", &"single_drone_view": "SOLO VIEW",
 }
 const TAPE_SPAN := 120.0
+## How far the speed gauge's centre sits above the altitude gauge's.
+const SPD_RISE := 150.0
 ## Ice on the props, 0..1, above which the ICING chip shows.
 const ICING_SHOWN := 0.05
 ## The pilot's face at top right, twice its old 56 px (Story 26.3): it fits
@@ -109,7 +111,9 @@ func _draw() -> void:
 		return
 	var s := size
 	_draw_tape(Vector2(s.x * 0.5, 34.0), minf(s.x * 0.42, 560.0))
-	_draw_gauge(Vector2(64.0, s.y * 0.5), "SPD", "%d" % roundi(speed_kmh()), "KM/H", false)
+	# Story 26.5: speed stacks above altitude on the right, leaving the left
+	# column, between the job panel and the radio's face, to the radio's chat.
+	_draw_gauge(Vector2(s.x - 64.0, s.y * 0.5 - SPD_RISE), "SPD", "%d" % roundi(speed_kmh()), "KM/H", true)
 	_draw_gauge(Vector2(s.x - 64.0, s.y * 0.5), "ALT", "%d" % roundi(altitude()), "M", true)
 	_draw_panel(Vector2(28.0, 26.0))
 	_draw_assists(Vector2(28.0, s.y - 34.0))
@@ -161,6 +165,16 @@ func _draw_gauge(at: Vector2, name: String, value: String, unit: String, right: 
 	_text(Vector2(left, at.y - 26), name, 14, DIM, align, 160)
 	_text(Vector2(left, at.y + 12), value, 34, LINE, align, 160)
 	_text(Vector2(left, at.y + 32), unit, 13, DIM, align, 160)
+
+## What must stay in sight beside the flying: the job panel and the speed and
+## altitude gauges (their ladders and readouts). The radio's chat keeps off
+## them (Story 26.5).
+func readout_rects() -> Array[Rect2]:
+	var s := size
+	var gauge := Vector2(120, 124)
+	var x := s.x - 50.0 - gauge.x
+	return [panel_rect(), Rect2(Vector2(x, s.y * 0.5 - SPD_RISE - 62.0), gauge),
+		Rect2(Vector2(x, s.y * 0.5 - 62.0), gauge)]
 
 ## Screen area the job panel covers at top left, for laying out around it.
 func panel_rect() -> Rect2:
