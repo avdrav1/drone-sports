@@ -10,6 +10,9 @@ extends Resource
 @export var canopy_color := Color(0.055, 0.06, 0.07)
 ## Under-glow and arm strips (Story 27.2); the heading lights stay white and red.
 @export var light_color := Color(0.95, 0.68, 0.12)
+## Lights the under-glow and arm strips (Story 27.2). Off on the stock drone,
+## whose strips are unlit paint in the light colour.
+@export var glow := false
 ## A decal id from the hangar's catalog; empty wears none.
 @export var decal: StringName = &""
 @export var decal_color := Color(0.95, 0.68, 0.12)
@@ -23,7 +26,7 @@ const COLORS: Array[StringName] = [&"body_color", &"arm_color", &"prop_color", &
 
 ## As the save keeps it: colours as hex.
 func to_dict() -> Dictionary:
-	var out := {"decal": String(decal), "race_number": race_number, "name": drone_name}
+	var out := {"decal": String(decal), "race_number": race_number, "name": drone_name, "glow": glow}
 	for key in COLORS:
 		out[String(key)] = (get(key) as Color).to_html()
 	return out
@@ -42,6 +45,8 @@ static func from_dict(saved, fallback: Livery) -> Livery:
 		out.decal = StringName(saved["decal"])
 	if saved.get("race_number") is float or saved.get("race_number") is int:
 		out.race_number = clampi(int(saved["race_number"]), 0, 99)
+	if saved.get("glow") is bool:
+		out.glow = saved["glow"]
 	if saved.get("name") is String:
 		out.drone_name = saved["name"]
 	return out

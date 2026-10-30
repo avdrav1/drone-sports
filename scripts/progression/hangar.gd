@@ -40,6 +40,12 @@ func set_livery(slot: int, l: Livery) -> void:
 	save()
 	changed.emit(slot)
 
+## Puts the slot's livery on the drone (Story 27.2). Looks only.
+func dress(d: Drone, slot := 0) -> void:
+	var look := d.get_node_or_null("Look") as DroneLook if d else null
+	if look:
+		look.wear(livery(slot))
+
 func is_decal(id: StringName) -> bool:
 	return id == &"" or id in catalog.decals
 

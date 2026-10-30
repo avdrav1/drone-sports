@@ -6,7 +6,7 @@ extends Resource
 
 ## Every slot starts on this: the drone as it looked before the hangar.
 @export var default_livery: Livery
-## Decal ids a livery may wear (the art comes with Story 27.2).
+## Decal ids a livery may wear; DecalArt draws each (Story 27.2).
 @export var decals: Array[StringName] = []
 ## Every part, of every kind.
 @export var parts: Array[Part] = []

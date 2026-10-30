@@ -8,6 +8,8 @@ Street clutter models (Story 15.9) are Poly Haven 1K glTF downloads, reworked in
 
 Crew bodies (Story 20.1) are Kenney's Mini Characters (GLB), rigged and animated, with their shared `colormap.png`. `tools/models/crew_bodies.py` rewrites only their texture coordinates, so a crew look can recolour skin, hair and outfit; meshes, rigs and animations are as made.
 
+The drone decals and race numbers (Story 27.2: block print, jharokha jali, chakra, lotus, peacock feather, sun, stripes, the team emblem) are no files at all: `scripts/drone/decal_art.gd` draws them in code when first worn. They are original to this game and ours, so no licence is needed.
+
 `tests/test_material_library.gd` fails if a file is missing from this table or its licence is anything else.
 
 | File | Source | Licence |

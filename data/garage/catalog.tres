@@ -9,5 +9,6 @@
 [resource]
 script = ExtResource("1_cat")
 default_livery = ExtResource("l0")
+decals = Array[StringName]([&"block_print", &"jharokha", &"chakra", &"lotus", &"peacock", &"sun", &"stripes", &"team"])
 parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])
 default_parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])

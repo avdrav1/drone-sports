@@ -55,7 +55,8 @@ func buy(id: StringName) -> bool:
 	return true
 
 ## Set the drone's stats from its scene values plus every level bought and the
-## chosen pilot's edge, and tune its assists to the edge. Once per drone.
+## chosen pilot's edge, and tune its assists to the edge, and dress it in its
+## hangar slot's livery (Story 27.2). Once per drone.
 func apply(drone: Drone) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
@@ -67,6 +68,7 @@ func apply(drone: Drone) -> void:
 	if pilot and pilot.edge:
 		pilot.edge.apply_stats(drone)
 	tune(drone)
+	Hangar.dress(drone)
 
 ## Give the drone's assists that are on the chosen pilot's settings; the ones
 ## that are off keep their own. Call again after switching assists.
