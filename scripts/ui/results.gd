@@ -2,6 +2,7 @@ extends Control
 # Results after a job: every objective and its score, crew strikes, the grade,
 # pay, reputation change, who was hurt or killed, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
 # Story 27.3: and each hangar item the job opened by achievement.
+# Story 27.7: the drone's name heads the rows, when it has one.
 
 signal retry_pressed
 signal continue_pressed
@@ -57,7 +58,14 @@ func show_result(r: JobResult) -> void:
 	title.text = "%s  —  %s" % [r.job.title, "COMPLETE" if r.completed else "FAILED" + (" (%s)" % r.fail_reason if r.fail_reason else "")]
 	grade.text = "Grade %s   (%d%%)" % [r.letter, roundi(r.score * 100.0)]
 	for c in rows.get_children():
+		rows.remove_child(c)
 		c.queue_free()
+	if drone_text() != "":
+		var ride := Label.new()
+		ride.name = "Drone"
+		ride.text = drone_text()
+		ride.add_theme_color_override("font_color", Color(1.0, 0.76, 0.25))
+		rows.add_child(ride)
 	for o in r.objectives:
 		var row := Label.new()
 		row.text = "%-28s %3d%%   x%s" % [o.label, roundi(o.score * 100.0), str(o.weight)]
@@ -104,6 +112,12 @@ func show_result(r: JobResult) -> void:
 	retry_button.disabled = not can_retry(r.job)
 	retry_button.tooltip_text = "" if can_retry(r.job) else "This job is off the board now."
 	show_offers()
+
+## "Drone  Kestrel": the player's drone by its hangar name, or empty when it
+## has none (Story 27.7).
+static func drone_text() -> String:
+	var n := Hangar.drone_name(0)
+	return "Drone  " + n if n else ""
 
 ## A death can take a job off the board (its faction locked, or crew it needs
 ## gone); Retry must not fly it anyway (Story 7.6).

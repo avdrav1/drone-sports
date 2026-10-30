@@ -1417,7 +1417,7 @@ Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
   - Acceptance: In a fleet job, drone N wears slot N's livery and flies with slot N's parts (a test checks materials and stats per drone). The command view's ring for each drone is in its light colour. "Copy to all" copies the livery and parts but leaves names. Slot 0 never changes a fleet drone.
   - Out of scope: Assigning crew pilots to drones by livery.
 
-- [ ] **27.7 The crew notice**
+- [x] **27.7 The crew notice**
   - Goal: The ride is part of the game's people: the crew comment on new paint and parts, and the drone's name shows where the player's name does.
   - Context: New bark events (`new_livery`, `new_part`), said the next time the board opens, by a living crew member, in each character's voice in `data/dialogue/`. Nala, the mechanic, has lines about parts. The drone's name shows on the results screen and in the flight HUD's job panel. Lines are respectful, with no pronouns for characters, as Epics 25 and 26 require.
   - Acceptance: After a livery change, the next board says a `new_livery` line once; after a part change, a `new_part` line, by Nala when Nala is alive. No line plays for the dead. The drone's name shows on results and in the HUD, and a drone with no name shows none. Every new line fits the radio at both sizes (26.4's test).

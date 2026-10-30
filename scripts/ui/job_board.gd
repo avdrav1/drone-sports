@@ -25,6 +25,8 @@ extends Control
 # unlocked, and on Esc to the title a wave goodbye, said over the title screen.
 # Story 27.5: GARAGE opens the hangar (HangarScreen), a layer over the board
 # like the pilot select; its UPGRADES tab is the old shop.
+# Story 27.7: new paint or a new part from the hangar is noticed here instead
+# of the hello, once (say_notices).
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -147,7 +149,7 @@ func _ready() -> void:
 	MusicDirector.title()
 	Career.check_offers()
 	offer_dialog.show_next()
-	if PlayerProfile.has_pilot() and not death_on_last_job():
+	if PlayerProfile.has_pilot() and say_notices().is_empty() and not death_on_last_job():
 		bark.moment(&"hello")
 
 ## The radio's bar hangs over the header, so the header fades out while the
@@ -191,6 +193,18 @@ func radio_clear() -> Array[Rect2]:
 ## True when someone died on the last job flown: the board stays quiet then.
 static func death_on_last_job() -> bool:
 	return Roster.ids().any(func(id): return Roster.status(id) == Roster.Status.DEAD and Roster.jobs_since_death(id) == 0)
+
+## The crew notice the ride (Story 27.7): one line for each notice the Hangar
+## left, which it then forgets. After a death they are dropped unsaid: nobody
+## talks paint then. The hangar may call this as it closes. Returns the lines.
+func say_notices() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var quiet := death_on_last_job()
+	for event in Hangar.take_notices():
+		var line := {} if quiet else bark.say(event)
+		if not line.is_empty():
+			out.append(line)
+	return out
 
 ## Says `unlock` when a job is flyable that was not the last time the board looked.
 ## After a death it only takes note: a lock a death sets can open jobs, and

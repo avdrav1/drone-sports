@@ -534,5 +534,37 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "A new look, {you}. Fly so it gets noticed.",
+    "face": "determined"
+   },
+   {
+    "text": "Good colours. A pilot should be known on sight.",
+    "face": "happy"
+   },
+   {
+    "text": "Sharp. Teams remember a drone like that.",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "New part. Learn what it gives and takes, {you}.",
+    "face": "neutral"
+   },
+   {
+    "text": "Every part is a trade. Find the one that's yours.",
+    "face": "determined"
+   },
+   {
+    "text": "Fly it in practice first. Then let it work for you.",
+    "face": "determined"
+   }
+  ]
  }
 }

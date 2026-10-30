@@ -23,11 +23,15 @@ extends Node
 # most once a MOMENT_COOLDOWN per moment; none is said on a boss job.
 # Story 18.8: babble_for picks the speaker's babble loop for a line (slower and
 # lower on serious lines, none for memorials or the dead); the radio plays it.
+# Story 27.7: the crew notice the ride (NOTICES): new paint or a new part, said
+# once on the board after the hangar changed it. Whoever speaks on the notice
+# (`speaks_on`, e.g. the mechanic on parts) says it while alive; otherwise any
+# living crew member but the pilot you fly as.
 # Holds no character or job names.
 
 const EVENTS: Array[StringName] = [&"briefing", &"gate_passed", &"warning", &"strike", &"complete", &"fail", &"results", &"pitch",
 	&"takeoff", &"near_miss", &"low_pass", &"top_speed", &"battery_low", &"crash", &"reset", &"weather_change", &"long_hover",
-	&"hello", &"streak", &"retry", &"unlock", &"goodbye"]
+	&"hello", &"streak", &"retry", &"unlock", &"goodbye", &"new_livery", &"new_part"]
 ## The face a line makes when its entry names none. Other events look neutral.
 const DEFAULT_FACES := {
 	&"briefing": &"determined",
@@ -41,12 +45,16 @@ const DEFAULT_FACES := {
 	&"retry": &"determined",
 	&"unlock": &"happy",
 	&"goodbye": &"happy",
+	&"new_livery": &"happy",
+	&"new_part": &"happy",
 }
 
 ## The little moments (Story 18.5), and the least seconds before the same
 ## character says the same one again.
 const MOMENTS: Array[StringName] = [&"hello", &"streak", &"retry", &"unlock", &"goodbye"]
 const MOMENT_COOLDOWN := 60.0
+## The crew noticing the ride (Story 27.7), each left by the Hangar.
+const NOTICES: Array[StringName] = [&"new_livery", &"new_part"]
 
 ## The chirp variant for each face (Story 18.6). Sound events in the bank.
 const CHIRPS := {
@@ -217,11 +225,15 @@ func speakers(event: StringName, subject: StringName = &"") -> Array[StringName]
 	if subject != &"":
 		out.append(subject)
 		return out
-	if event in MOMENTS:
+	if event in MOMENTS or event in NOTICES:
 		var me := PlayerProfile.pilot()
 		for id in Roster.ids():
 			if not (me and me.id == id):
 				out.append(id)
+		# A notice is theirs who speak on it, while any of them can.
+		var own := out.filter(func(id): return event in Roster.character(id).speaks_on and not pool(id, event).is_empty())
+		if event in NOTICES and not own.is_empty():
+			out.assign(own)
 		return out
 	if runner and runner.job:
 		for id in runner.crew_in_field():

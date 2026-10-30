@@ -10,6 +10,10 @@ extends Node
 # fleet's slots open once the fleet is first flown, and `copy_to_fleet` sets
 # every fleet slot's looks and parts from one slot, keeping each one's name
 # and race number.
+# Story 27.7: a change of looks or parts leaves a notice for the crew, said
+# the next time the board opens (JobBoard.say_notices) and kept in the save
+# until then. `set_livery` and `fit` leave it themselves; `notice` is the hook
+# for anything else that changes a slot.
 
 signal changed(slot: int)
 ## An item opened, bought or earned.
@@ -26,6 +30,8 @@ var liveries := {}
 var fitted := {}
 ## Item ids unlocked (Story 27.3).
 var unlocked: Array[StringName] = []
+## Crew notices not yet said (Story 27.7): `new_livery`, `new_part`, each once.
+var notices: Array[StringName] = []
 
 func _ready() -> void:
 	catalog = load(CATALOG)
@@ -79,12 +85,15 @@ func livery(slot: int) -> Livery:
 	return l.duplicate()
 
 ## Sets the slot's livery; false, and nothing changes, if it wears a locked item.
+## New looks (anything but the name) leave a `new_livery` notice.
 func set_livery(slot: int, l: Livery) -> bool:
 	if not has_slot(slot) or l == null:
 		return false
 	var clean := _clean(l)
 	if not locked_in(clean).is_empty():
 		return false
+	if _looks(clean) != _looks(livery(slot)):
+		_note(&"new_livery")
 	liveries[slot] = clean
 	save()
 	changed.emit(slot)
@@ -105,6 +114,16 @@ func apply_parts(d: Drone, slot := 0) -> void:
 		var p := part(part_id(slot, kind))
 		if p:
 			p.apply_stats(d)
+
+## The drone's name in the slot; empty when it has none.
+func drone_name(slot := 0) -> String:
+	return livery(slot).drone_name.strip_edges()
+
+## A livery as the save keeps it, less its name: a rename is not new paint.
+static func _looks(l: Livery) -> Dictionary:
+	var d := l.to_dict()
+	d.erase("name")
+	return d
 
 func is_decal(id: StringName) -> bool:
 	return id == &"" or id in catalog.decals
@@ -138,6 +157,8 @@ func fit(slot: int, id: StringName) -> bool:
 	var p := part(id)
 	if p == null or not has_slot(slot) or not is_open(id):
 		return false
+	if part_id(slot, p.kind) != p.id:
+		_note(&"new_part")
 	var row: Dictionary = fitted.get(slot, {})
 	row[p.kind] = p.id
 	fitted[slot] = row
@@ -236,6 +257,26 @@ func _open(id: StringName) -> void:
 	save()
 	opened.emit(id)
 
+## The hook for the crew (Story 27.7): `event` is said by a crew member the next
+## time the board opens. Call it when a slot's looks (`new_livery`) or parts
+## (`new_part`) change by any way other than `set_livery` or `fit`.
+func notice(event: StringName) -> void:
+	if event in Bark.NOTICES:
+		_note(event)
+		save()
+
+## The notices waiting, oldest first, now cleared.
+func take_notices() -> Array[StringName]:
+	var out := notices.duplicate()
+	notices.clear()
+	if not out.is_empty():
+		save()
+	return out
+
+func _note(event: StringName) -> void:
+	if not event in notices:
+		notices.append(event)
+
 ## A copy with an unknown decal put back to the default's.
 func _clean(l: Livery) -> Livery:
 	var out: Livery = l.duplicate()
@@ -254,7 +295,8 @@ func save() -> void:
 			ids[String(kind)] = String(fitted[slot][kind])
 		row["parts"] = ids
 		slots[str(slot)] = row
-	SaveGame.write_section("hangar", {"slots": slots, "unlocked": unlocked.map(func(id): return String(id))})
+	SaveGame.write_section("hangar", {"slots": slots, "unlocked": unlocked.map(func(id): return String(id)),
+		"notices": notices.map(func(e): return String(e))})
 
 ## Reads the section; anything unknown or garbled falls back to the default
 ## instead of failing.
@@ -262,6 +304,7 @@ func load_saved() -> void:
 	liveries.clear()
 	fitted.clear()
 	unlocked.clear()
+	notices.clear()
 	var saved = SaveGame.read_section("hangar", {})
 	if not saved is Dictionary:
 		return
@@ -288,3 +331,8 @@ func load_saved() -> void:
 		for id in ids:
 			if id is String:
 				unlocked.append(StringName(id))
+	var said = saved.get("notices", [])
+	if said is Array:
+		for e in said:
+			if e is String and StringName(e) in Bark.NOTICES:
+				_note(StringName(e))

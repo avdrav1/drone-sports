@@ -4,6 +4,7 @@ extends Control
 # job panel at top left, assists at bottom left, battery at bottom right
 # with an ICING chip beside it while the props carry ice (Story 13.8),
 # GPS fix above the battery, the pilot's portrait at top right (Story 7.2).
+# Story 27.7: the job panel names the drone under the client, when it has one.
 # Reads the drone and an optional JobRunner; draws everything in _draw.
 # Heading: 0 is north (-Z), 90 east (+X), 270 west.
 
@@ -75,15 +76,23 @@ func speed_kmh() -> float:
 func altitude() -> float:
 	return drone.global_position.y
 
-## Title, subtitle, job state, then one {label, done} per objective.
+## Title, subtitle, the drone's name (empty when it has none), job state, then
+## one {label, done} per objective.
 func panel() -> Dictionary:
+	var ride := drone_line()
 	if runner and runner.job:
 		var rows := []
 		for o in runner.objectives():
 			rows.append({"label": o.label if o.label else String(o.name), "done": o.is_done()})
 		var sub := runner.job.client + ("  ·  %d" % runner.job.pay if runner.job.pay else "")
-		return {"title": runner.job.title.to_upper(), "subtitle": sub, "state": _state_line(), "rows": rows}
-	return {"title": title.to_upper(), "subtitle": subtitle, "state": "", "rows": []}
+		return {"title": runner.job.title.to_upper(), "subtitle": sub, "drone": ride, "state": _state_line(), "rows": rows}
+	return {"title": title.to_upper(), "subtitle": subtitle, "drone": ride, "state": "", "rows": []}
+
+## "DRONE  KESTREL": the player's drone by its hangar name (Story 27.7), or
+## empty for a drone with no name.
+static func drone_line() -> String:
+	var n := Hangar.drone_name(0)
+	return ("DRONE  " + n).to_upper() if n else ""
 
 func _state_line() -> String:
 	var name: String = JobRunner.State.keys()[runner.state]
@@ -193,14 +202,17 @@ func drawn_rects() -> Array[Rect2]:
 func panel_rect() -> Rect2:
 	var p := panel()
 	var w := 0.0
-	for t in [[p.title, 17], [p.subtitle, 15], [p.state, 12]] + p.rows.map(func(r): return [r.label, 14]):
+	for t in [[p.title, 17], [p.subtitle, 15], [p.drone, 12], [p.state, 12]] + p.rows.map(func(r): return [r.label, 14]):
 		w = maxf(w, font.get_string_size(t[0], HORIZONTAL_ALIGNMENT_LEFT, -1, t[1]).x)
-	var h: float = 64.0 + (20.0 if p.state else 0.0) + 22.0 * p.rows.size()
+	var h: float = 64.0 + (20.0 if p.drone else 0.0) + (20.0 if p.state else 0.0) + 22.0 * p.rows.size()
 	return Rect2(Vector2(28, 26), Vector2(w + 34.0, h))
 
 func _draw_panel(at: Vector2) -> void:
 	var p := panel()
 	var y := at.y + 64
+	if p.drone:
+		_text(Vector2(at.x + 14, y - 4), p.drone, 12, LINE)
+		y += 20
 	if p.state:
 		_text(Vector2(at.x + 14, y - 4), p.state, 12, DIM)
 		y += 20

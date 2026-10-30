@@ -996,5 +996,65 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "Ooh, new colours! It looks so happy, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely paint. Bright is safe, too.",
+    "face": "happy"
+   },
+   {
+    "text": "That's pretty. You chose well.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New paint! That cheered me right up, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "So bright. Better than any medicine.",
+    "face": "happy"
+   },
+   {
+    "text": "Lovely. Show me up close later.",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "New part? Go gently at first, {you}. Please.",
+    "face": "worried"
+   },
+   {
+    "text": "Something new inside. Take a calm lap first.",
+    "face": "neutral"
+   },
+   {
+    "text": "It looks well fitted. Fly safe, {you}.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New part. Fly it gently, {you}, for me.",
+    "face": "worried"
+   },
+   {
+    "text": "Take a slow lap first. Humour your medic.",
+    "face": "neutral"
+   },
+   {
+    "text": "Something new. Careful, then have fun.",
+    "face": "happy"
+   }
+  ]
  }
 }
