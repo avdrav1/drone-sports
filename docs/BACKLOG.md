@@ -1422,3 +1422,33 @@ Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
   - Context: New bark events (`new_livery`, `new_part`), said the next time the board opens, by a living crew member, in each character's voice in `data/dialogue/`. Nala, the mechanic, has lines about parts. The drone's name shows on the results screen and in the flight HUD's job panel. Lines are respectful, with no pronouns for characters, as Epics 25 and 26 require.
   - Acceptance: After a livery change, the next board says a `new_livery` line once; after a part change, a `new_part` line, by Nala when Nala is alive. No line plays for the dead. The drone's name shows on results and in the HUD, and a drone with no name shows none. Every new line fits the radio at both sizes (26.4's test).
   - Out of scope: Voice audio beyond the existing babble.
+
+## Epic 28: Pad polish
+
+Done when the four loose ends left by Epic 23 are tied off: rumble only for what the player did, rumble that stops with the game, a PAD CHECK page that says plainly how to leave it, and a pad walk that covers the CONTROLLER options.
+
+Do this epic after Epic 27 (owner's call).
+
+- [ ] **28.1 No failure rumble for leaving**
+  - Goal: Leaving a job (Esc, or B/Start then confirm) does not shake the pad as a failure does.
+  - Context: `JobRunner.leave()` ends a job with `fail("left")`, which sets `State.FAILED`, and `JobCues._on_state` plays `Rumble.play(&"failed")` for every FAILED. Leaving is the player's choice, not a failure of the flight. JobCues checks the runner's `fail_reason` (or a flag the runner sets when the player leaves) and skips the rumble for it; the fail sound and results stay as they are.
+  - Acceptance: Leaving a live job logs no `failed` rumble; a real failure (crash out, battery dead, time up, a strike that ends the job) still logs one. A test covers both through the runner.
+  - Out of scope: Changing what leaving does to pay or reputation.
+
+- [ ] **28.2 Rumble stops on pause**
+  - Goal: Pausing stops any rumble at once, and nothing rumbles while the game is paused.
+  - Context: `scripts/audio/rumble.gd` starts vibrations with `Input.start_joy_vibration` for a set time; a long one (a strike, 0.6 s) keeps going after the pause menu opens. Rumble listens for the tree's pause (or the pause menu says so) and calls `Input.stop_joy_vibration` on the pad; `play` asks nothing while the tree is paused.
+  - Acceptance: A rumble playing when the game pauses is stopped (the log shows a stop), and `Rumble.play` while paused asks for nothing and returns false. Unpausing does not restart a stopped rumble.
+  - Out of scope: Rumble in menus.
+
+- [ ] **28.3 PAD CHECK says how to leave**
+  - Goal: The PAD CHECK footer tells the player exactly which button leaves, in the pad's own names, and that every other button is only shown.
+  - Context: `scripts/ui/pad_check.gd` writes `"%s to go back" % InputPrompt.text(&"ui_cancel")`, which follows the device last touched, so it can name a key while the player is testing a pad, or the wrong family's button. The footer names the leave button for the pad on the page (B, Circle on PlayStation, B on Switch as laid out), plus Esc, e.g. "B or Esc: back to OPTIONS. Every other button is only shown here."
+  - Acceptance: With an Xbox, PlayStation and Switch pad (family from the joy name, as in 23.2), the footer names that family's leave button and Esc. It never names a button that does not leave. A test checks each family.
+  - Out of scope: Rebinding.
+
+- [ ] **28.4 The pad walk covers CONTROLLER**
+  - Goal: The pad walk (`tests/test_pad_menus.gd::test_pad_walk_from_the_title_to_a_job_and_back`) also steps through OPTIONS > CONTROLLER (layout, stick deadzone and sensitivity, invert, rumble, PAD CHECK) by pad alone.
+  - Context: Story 23.3's walk goes title, board, pilot select, a job and back; 23.6's CONTROLLER section and 23.8's PAD CHECK were added after it and are only tested on their own. The walk reaches each control with the d-pad and stick, changes one setting with A or left/right, opens and leaves PAD CHECK with A and B, and comes back to the menu, with focus always on a visible control.
+  - Acceptance: The walk visits every CONTROLLER control by pad alone, changes one, leaves PAD CHECK with B, and finds the change kept after leaving OPTIONS. At no step is focus lost or on a hidden control.
+  - Out of scope: New settings.
