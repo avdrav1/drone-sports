@@ -52,8 +52,8 @@ func seen(event: InputEvent) -> void:
 		else:
 			stick.y = event.axis_value
 		_on_stick()
-	elif event is InputEventJoypadButton and DPAD.has(event.button_index):
-		var action: StringName = DPAD[event.button_index]
+	elif event is InputEventJoypadButton and DPAD.has(PadRemap.logical(event.button_index)):
+		var action: StringName = DPAD[PadRemap.logical(event.button_index)]
 		if event.pressed:
 			# The button itself already moved focus once; only the repeats are ours.
 			_hold(action, false)

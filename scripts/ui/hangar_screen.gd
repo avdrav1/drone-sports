@@ -185,9 +185,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		leave()
 	elif event is InputEventJoypadButton and event.pressed and \
-			event.button_index in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER]:
+			PadRemap.logical(event.button_index) in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER]:
 		get_viewport().set_input_as_handled()
-		var step := 1 if event.button_index == JOY_BUTTON_RIGHT_SHOULDER else -1
+		var step := 1 if PadRemap.logical(event.button_index) == JOY_BUTTON_RIGHT_SHOULDER else -1
 		show_tab(TABS[posmod(TABS.find(tab) + step, TABS.size())])
 		tab_buttons[tab].grab_focus()
 

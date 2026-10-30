@@ -8,6 +8,11 @@ extends PanelContainer
 # takes every key and button, so nothing pressed to test moves the menu; Back
 # (B or Esc) leaves. Story 28.3: the footer names the leave buttons in the
 # family of the pad on the page, plus Esc, and says the rest are only shown.
+# Story 28.5: REMAP (hold Start, or R) walks through the face, shoulder and
+# middle buttons and takes whichever physical button is pressed for each, for a
+# pad that reports them in the wrong order; Esc cancels it. RESET (hold Back, or
+# Backspace) shows while the pad has a remap and puts the project's back. The
+# page names buttons as remapped (PadRemap.logical).
 
 ## Back was pressed: the board shows OPTIONS again.
 signal closed
@@ -21,6 +26,8 @@ const BUTTONS: Array[JoyButton] = [JOY_BUTTON_A, JOY_BUTTON_B, JOY_BUTTON_X, JOY
 	JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]
 const LIT := Color(1.0, 0.76, 0.25)
 const DIM := Color(1, 1, 1, 0.55)
+## Seconds Start (REMAP) or Back (RESET) is held to act.
+const HOLD := 1.0
 
 ## The pad the page reads, the last one touched; -1 before any.
 var device := -1
@@ -31,6 +38,15 @@ var held := {}
 ## The last button pressed, and its name on the pad's family ("A", "Cross").
 var last_button := -1
 var last_button_text := ""
+## The REMAP walk: the step it is on (an index into PadRemap.STEPS), -1 when
+## not walking; the physical buttons given so far; the pad walked.
+var walk_step := -1
+var walk_map := {}
+var walk_device := -1
+## The line under the step, e.g. a refused button; "" for none.
+var walk_note := ""
+var remap_button: Button
+var reset_button: Button
 var left_stick: StickView
 var right_stick: StickView
 var left_trigger: TriggerView
@@ -41,6 +57,10 @@ var _last: Label
 var _raw: Label
 var _back: Label
 var _buttons := {}  # JoyButton -> its Label
+var _walk: Label
+var _how: Label
+var _last_raw := -1
+var _held_for := 0.0
 
 func _ready() -> void:
 	focus_mode = FOCUS_ALL
@@ -75,6 +95,21 @@ func _ready() -> void:
 		grid.add_child(l)
 		_buttons[b] = l
 	_last = _label(box, 18)
+	_walk = _label(box, 18)
+	_walk.add_theme_color_override("font_color", LIT)
+	_walk.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var actions := HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 16)
+	box.add_child(actions)
+	remap_button = _action_button(actions, start_remap)
+	reset_button = _action_button(actions, reset_remap)
+	remap_button.text = "REMAP"
+	reset_button.text = "RESET"
+	_how = Label.new()
+	_how.add_theme_font_size_override("font_size", 14)
+	_how.add_theme_color_override("font_color", DIM)
+	_how.size_flags_vertical = SIZE_SHRINK_CENTER
+	actions.add_child(_how)
 	_raw = _label(box, 13)
 	_raw.add_theme_color_override("font_color", DIM)
 	_back = _label(box, 14)
@@ -86,6 +121,14 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree():
 		return
+	if walking():
+		# Every pad button is a step's answer, B and Start too; only Esc leaves.
+		if event is InputEventKey and event.is_action_pressed(&"ui_cancel") and not event.is_echo():
+			cancel_remap()
+		elif event is InputEventJoypadButton and event.pressed:
+			take(event.device, event.button_index)
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed(&"ui_cancel") and not event.is_echo():
 		get_viewport().set_input_as_handled()
 		closed.emit()
@@ -96,18 +139,90 @@ func _input(event: InputEvent) -> void:
 		_show()
 	elif event is InputEventJoypadButton:
 		device = event.device
+		var b := PadRemap.logical(event.button_index)
 		if event.pressed:
-			held[event.button_index] = true
-			last_button = event.button_index
-			last_button_text = _name_on(family_of_device(), event.button_index)
+			held[b] = true
+			last_button = b
+			_last_raw = event.button_index
+			last_button_text = _name_on(family_of_device(), b as JoyButton)
 		else:
-			held.erase(event.button_index)
+			held.erase(b)
+		_held_for = 0.0
 		_show()
+	elif event is InputEventKey and event.pressed and not event.echo:
+		if event.physical_keycode == KEY_R:
+			start_remap()
+		elif event.physical_keycode == KEY_BACKSPACE and has_remap():
+			reset_remap()
 	# Nothing pressed here moves the menu or presses a button behind the page.
 	# PadMenus' stick and d-pad repeats arrive as actions.
 	if event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion \
 			or event is InputEventAction:
 		get_viewport().set_input_as_handled()
+
+func _process(delta: float) -> void:
+	var holding := not walking() and (held.has(JOY_BUTTON_START) or (held.has(JOY_BUTTON_BACK) and has_remap()))
+	_held_for = _held_for + delta if holding else 0.0
+	if _held_for >= HOLD:
+		_held_for = 0.0
+		if held.has(JOY_BUTTON_START):
+			start_remap()
+		else:
+			reset_remap()
+
+func walking() -> bool:
+	return walk_step >= 0
+
+## True when the pad on the page (or, before one is touched, the one in use)
+## has a remap.
+func has_remap() -> bool:
+	return PadRemap.has_remap(joy_name() if device >= 0 else PadRemap.active)
+
+## REMAP: starts the walk at A. The old remap stays on until the walk ends.
+func start_remap() -> void:
+	walk_step = 0
+	walk_map = {}
+	walk_device = device
+	walk_note = ""
+	held.clear()
+	_show()
+
+## The physical button `index` on pad `id` answers the step on now. One given
+## already this walk is refused and the step stays.
+func take(id: int, index: int) -> void:
+	if walk_device < 0:
+		walk_device = id
+		device = id
+	elif id != walk_device:
+		return
+	var f := InputPrompt.family_of(Input.get_joy_name(walk_device))
+	for b in walk_map:
+		if walk_map[b] == index:
+			walk_note = "That button is already %s. Press another." % _name_on(f, b)
+			_show()
+			return
+	walk_map[PadRemap.STEPS[walk_step]] = index
+	walk_note = ""
+	walk_step += 1
+	if walk_step >= PadRemap.STEPS.size():
+		walk_step = -1
+		PadRemap.set_remap(Input.get_joy_name(walk_device), walk_map)
+		last_button = -1
+		last_button_text = ""
+	_show()
+
+## Esc mid-walk: nothing changes.
+func cancel_remap() -> void:
+	walk_step = -1
+	walk_map = {}
+	walk_note = ""
+	_show()
+
+## RESET: the pad's buttons as the project binds them.
+func reset_remap() -> void:
+	PadRemap.reset(joy_name() if device >= 0 else PadRemap.active)
+	held.clear()
+	_show()
 
 ## The pad's name as the browser or OS gives it, "" before any pad was touched.
 func joy_name() -> String:
@@ -118,6 +233,10 @@ func family_of_device() -> InputPrompt.Family:
 
 ## Forgets what the last visit saw.
 func reset() -> void:
+	walk_step = -1
+	walk_map = {}
+	walk_note = ""
+	_held_for = 0.0
 	axes.clear()
 	held.clear()
 	last_button = -1
@@ -145,12 +264,27 @@ func _show() -> void:
 		var l: Label = _buttons[b]
 		l.text = _name_on(f, b)
 		l.add_theme_color_override("font_color", LIT if held.has(b) else DIM)
-	_last.text = "Pressed: %s  (button %d)" % [last_button_text, last_button] if last_button >= 0 else "Pressed: nothing yet"
+	_last.text = "Pressed: %s  (button %d)" % [last_button_text, _last_raw] if last_button >= 0 else "Pressed: nothing yet"
 	var raw: Array[String] = []
 	for a in range(JOY_AXIS_LEFT_X, JOY_AXIS_TRIGGER_RIGHT + 1):
 		raw.append("%d: %+.2f" % [a, axis(a)])
 	_raw.text = "Axes  " + "   ".join(raw)
 	_back.text = back_text(f)
+	_walk.visible = walking()
+	reset_button.visible = has_remap() and not walking()
+	remap_button.visible = not walking()
+	_how.visible = not walking()
+	_how.text = "Hold %s or press R: REMAP." % _name_on(f, JOY_BUTTON_START)
+	if reset_button.visible:
+		_how.text += "\nHold %s or press Backspace: RESET." % _name_on(f, JOY_BUTTON_BACK)
+	if walking():
+		var wf := InputPrompt.family_of(Input.get_joy_name(walk_device)) if walk_device >= 0 else f
+		var b: JoyButton = PadRemap.STEPS[walk_step]
+		_walk.text = "REMAP %d of %d: press %s, %s." % [walk_step + 1, PadRemap.STEPS.size(), _name_on(wf, b), PadRemap.WHERE[b]]
+		if walk_note != "":
+			_walk.text += "\n" + walk_note
+		_back.text = "%s: cancel REMAP, the buttons stay as they were. Every pad button answers the step." \
+			% InputPrompt.key_text(&"ui_cancel")
 
 ## The footer for a pad of family `f`: every button and key that leaves
 ## (ui_cancel), named on that family, e.g. "B or Esc: back to OPTIONS. ...".
@@ -163,7 +297,7 @@ static func leave_names(f: InputPrompt.Family) -> Array[String]:
 	var keys: Array[String] = []
 	for e in InputMap.action_get_events(&"ui_cancel"):
 		if e is InputEventJoypadButton:
-			pads.append(_name_on(f, e.button_index))
+			pads.append(_name_on(f, PadRemap.logical(e.button_index) as JoyButton))
 		elif e is InputEventKey:
 			var code: Key = e.physical_keycode if e.physical_keycode != KEY_NONE else e.keycode
 			var k := OS.get_keycode_string(code)
@@ -175,6 +309,15 @@ static func _name_on(f: InputPrompt.Family, b: JoyButton) -> String:
 	if InputPrompt.DPAD.has(b):
 		return InputPrompt.DPAD[b]
 	return InputPrompt.BUTTONS[f].get(b, "Button %d" % b)
+
+func _action_button(row: Container, press: Callable) -> Button:
+	var b := Button.new()
+	# Focus stays on the page, which takes every button: these are held or keyed.
+	b.focus_mode = FOCUS_NONE
+	b.add_theme_font_size_override("font_size", 15)
+	b.pressed.connect(press)
+	row.add_child(b)
+	return b
 
 func _label(box: Container, size: int) -> Label:
 	var l := Label.new()
