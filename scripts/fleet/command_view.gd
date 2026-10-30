@@ -193,7 +193,25 @@ func portrait(d: Drone) -> CharacterPortrait:
 class _Overlay extends Control:
 	const RING := Color(1, 1, 1, 0.75)
 	const LIT := Color(1.0, 0.76, 0.25)
-	const FACE := 34.0
+	## Each pilot's face by their drone, twice its old 34 px (Story 26.3).
+	const FACE := 68.0
+	## How far above the drone a face's bottom sits, over the name drawn at -18.
+	const NAME_CLEAR := 34.0
+	## The drone names' font size.
+	const NAME_SIZE := 13
+	## Space kept between two faces.
+	const GAP := 4.0
+	## Where a face's centre may sit from its drone, in order of choice: over
+	## the name, then fanned out around the ring, further each time round.
+	var spots: Array[Vector2] = _spots()
+	var _hud_nodes: Array[Control] = []
+
+	static func _spots() -> Array[Vector2]:
+		var out: Array[Vector2] = [Vector2(0, -FACE * 0.5 - NAME_CLEAR)]
+		for reach in [FACE * 0.5 + NAME_CLEAR, FACE * 1.1 + NAME_CLEAR, FACE * 1.7 + NAME_CLEAR, FACE * 2.3 + NAME_CLEAR]:
+			for deg in [-90, -45, -135, 0, 180, 45, 135, 90, -67.5, -112.5, -22.5, -157.5, 22.5, 157.5, 67.5, 112.5]:
+				out.append(Vector2.from_angle(deg_to_rad(deg)) * reach)
+		return out
 	var view: CommandView
 	## Drone -> CharacterPortrait.
 	var portraits := {}
@@ -209,6 +227,7 @@ class _Overlay extends Control:
 
 	func _place_portraits() -> void:
 		var cam := view.camera
+		var shown: Array[Drone] = []
 		for d in view.drones:
 			if not view.pilots.has(d):
 				continue
@@ -225,7 +244,80 @@ class _Overlay extends Control:
 			var p: CharacterPortrait = portraits[d]
 			p.visible = is_instance_valid(d) and cam.is_inside_tree() and not cam.is_position_behind(d.global_position)
 			if p.visible:
-				p.position = cam.unproject_position(d.global_position) + Vector2(16, -FACE - 6)
+				shown.append(d)
+		_lay_out(shown)
+
+	## Every drone's ring and name as drawn, which no face may cover.
+	func marks() -> Array[Rect2]:
+		var out: Array[Rect2] = []
+		var cam := view.camera
+		if not cam.is_inside_tree():
+			return out
+		var font := get_theme_default_font()
+		for d in view.drones:
+			if not is_instance_valid(d) or cam.is_position_behind(d.global_position):
+				continue
+			var at := cam.unproject_position(d.global_position)
+			out.append(Rect2(at - Vector2.ONE * 16.0, Vector2.ONE * 32.0))
+			var w := minf(font.get_string_size(d.name, HORIZONTAL_ALIGNMENT_LEFT, -1, NAME_SIZE).x, 80.0)
+			out.append(Rect2(at.x - w * 0.5, at.y - 18.0 - font.get_ascent(NAME_SIZE), w, font.get_height(NAME_SIZE)))
+		return out
+
+	## The HUD's text and panels over the fleet, which no face may cover either.
+	func _hud() -> Array[Rect2]:
+		var out: Array[Rect2] = []
+		var scene := view.owner if view.owner else view.get_parent()
+		if scene == null:
+			return out
+		if _hud_nodes.is_empty():
+			for c in scene.find_children("*", "Control", true, false):
+				if c is Label or c is RichTextLabel or c is BarkBox or c is PanelContainer:
+					_hud_nodes.append(c)
+		for c in _hud_nodes:
+			if not is_instance_valid(c):
+				continue
+			if c is BarkBox:
+				# Its panel, kept clear even between lines so faces don't jump
+				# when one comes in.
+				var r := BarkBox.panel_rect(c.size)
+				out.append(Rect2(c.get_global_rect().position + r.position, r.size))
+			elif c.is_visible_in_tree():
+				out.append(c.get_global_rect())
+		return out
+
+	## Faces go by their drones, each in the first free spot: over the name
+	## when it is clear, else fanned around the ring, so no face covers another,
+	## a name, a ring or the HUD (Story 26.3). The selected drone's face picks
+	## first.
+	func _lay_out(shown: Array[Drone]) -> void:
+		var cam := view.camera
+		var screen := get_viewport_rect().grow(-4.0).abs()
+		var busy: Array[Rect2] = marks()
+		busy.append_array(_hud())
+		var order := shown.duplicate()
+		if view.selected in order:
+			order.erase(view.selected)
+			order.push_front(view.selected)
+		for d in order:
+			var at := cam.unproject_position(d.global_position)
+			var best := Rect2()
+			var least := INF
+			for spot in spots:
+				var r := Rect2(at + spot - Vector2.ONE * FACE * 0.5, Vector2.ONE * FACE)
+				var cost := 0.0
+				if screen.has_area() and not screen.encloses(r):
+					cost += r.get_area() - screen.intersection(r).get_area() + 1.0
+				for b in busy:
+					var hit := r.intersection(b)
+					if hit.has_area():
+						cost += hit.get_area()
+				if cost < least:
+					least = cost
+					best = r
+				if cost == 0.0:
+					break
+			portraits[d].position = best.position
+			busy.append(best.grow(GAP))
 
 	func _draw() -> void:
 		var cam := view.camera
@@ -247,4 +339,12 @@ class _Overlay extends Control:
 					draw_circle(p, 3.0, LIT if lit else RING)
 					prev = p
 			draw_arc(at, 14.0 if lit else 10.0, 0.0, TAU, 24, LIT if lit else RING, 2.0)
-			draw_string(get_theme_default_font(), at + Vector2(-40, -18), d.name, HORIZONTAL_ALIGNMENT_CENTER, 80, 13, LIT if lit else RING)
+			# A face moved off its drone keeps a thin line back to the ring.
+			var face: CharacterPortrait = portraits.get(d)
+			if face and face.visible:
+				var c := face.position + face.size * 0.5
+				var home := at + spots[0]
+				if c.distance_to(home) > 1.0:
+					var dir := at.direction_to(c)
+					draw_line(at + dir * 16.0, c - dir * FACE * 0.45, LIT if lit else RING, 1.0)
+			draw_string(get_theme_default_font(), at + Vector2(-40, -18), d.name, HORIZONTAL_ALIGNMENT_CENTER, 80, NAME_SIZE, LIT if lit else RING)

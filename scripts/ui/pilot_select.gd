@@ -17,6 +17,10 @@ const BAR_BACK := Color(1, 1, 1, 0.1)
 const CARD_MIN := 206.0
 const CARD_MAX := 300.0
 const CARD_GAP := 12
+## Portrait sizes (Story 26.3); FACE_BIG on screens at least FACE_BIG_FROM tall.
+const FACE := 128.0
+const FACE_BIG := 160.0
+const FACE_BIG_FROM := 900.0
 
 ## Character id -> its card.
 var cards := {}
@@ -74,6 +78,10 @@ func _card_width() -> float:
 	var n := maxi(PlayerProfile.pilots().size(), 1)
 	return clampf((size.x - 48.0 - CARD_GAP * (n - 1)) / n, CARD_MIN, CARD_MAX)
 
+## The portrait's size: twice the old 64 px, bigger on a screen tall enough.
+func face_size() -> float:
+	return FACE_BIG if size.y >= FACE_BIG_FROM else FACE
+
 ## Wider cards get bigger small print, up to a quarter bigger.
 func _text_size(base: int) -> int:
 	return roundi(base * clampf(_card_width() / CARD_MIN, 1.0, 1.25))
@@ -88,9 +96,13 @@ func _button_size(text: String) -> int:
 		s -= 1
 	return s
 
-## On a resize, rebuild the cards at the new width, keeping focus where it was.
+## On a resize, rebuild the cards at the new width and face size, keeping
+## focus where it was.
 func _fit_cards() -> void:
-	if cards.is_empty() or is_equal_approx(cards.values()[0].custom_minimum_size.x, _card_width()):
+	if cards.is_empty():
+		return
+	var face: Control = cards.values()[0].find_child("Face", true, false)
+	if is_equal_approx(cards.values()[0].custom_minimum_size.x, _card_width()) and is_equal_approx(face.custom_minimum_size.x, face_size()):
 		return
 	var focused := get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	var had := focused != null and is_ancestor_of(focused)
@@ -125,6 +137,11 @@ func refresh() -> void:
 		cards[c.id] = card
 		_cards_box.add_child(card)
 	_back.visible = PlayerProfile.has_pilot()
+	# Up from any pilot is Back in its corner; down from Back, the pilot flying.
+	for id in cards:
+		var b := choose_button(id)
+		b.focus_neighbor_top = b.get_path_to(_back)
+	_back.focus_neighbor_bottom = _back.get_path_to(choose_button(current.id)) if cards.has(current.id) else NodePath()
 
 func _card(c: Character, current: bool) -> PanelContainer:
 	var card := PanelContainer.new()
@@ -135,41 +152,39 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	style.border_color = ACCENT if current else Color(1, 1, 1, 0.2)
 	style.set_border_width_all(2)
 	style.set_content_margin_all(14)
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
 	card.add_theme_stylebox_override("panel", style)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 4)
 	card.add_child(box)
-	# Portrait beside name and role, to leave the card's height to the edge.
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 10)
+	# The portrait big over name and role (Story 26.3).
+	var head := VBoxContainer.new()
+	head.name = "Head"
+	head.add_theme_constant_override("separation", 2)
 	box.add_child(head)
 	var face := CharacterPortrait.new()
 	face.name = "Face"
 	face.character = c
-	face.custom_minimum_size = Vector2(64, 64)
+	face.custom_minimum_size = Vector2.ONE * face_size()
+	face.size_flags_horizontal = SIZE_SHRINK_CENTER
 	face.follow_mouse = true
 	head.add_child(face)
 	# Pointing at or focusing a pilot is picking them: they hop.
 	card.mouse_entered.connect(face.hop)
-	var who := VBoxContainer.new()
-	who.alignment = BoxContainer.ALIGNMENT_CENTER
-	who.size_flags_horizontal = SIZE_EXPAND_FILL
-	head.add_child(who)
 	var name_label := Label.new()
 	name_label.text = c.name.to_upper()
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 20)
-	who.add_child(name_label)
+	head.add_child(name_label)
 	var role := Label.new()
 	role.text = c.role
-	role.add_theme_color_override("font_color", DIM)
-	role.add_theme_font_size_override("font_size", _text_size(13))
-	who.add_child(role)
 	if current:
-		var tag := Label.new()
-		tag.text = "FLYING" if PlayerProfile.has_pilot() else "DEFAULT"
-		tag.add_theme_color_override("font_color", ACCENT)
-		tag.add_theme_font_size_override("font_size", _text_size(11))
-		who.add_child(tag)
+		role.text += "  ·  " + ("FLYING" if PlayerProfile.has_pilot() else "DEFAULT")
+	role.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	role.add_theme_color_override("font_color", ACCENT if current else DIM)
+	role.add_theme_font_size_override("font_size", _text_size(13))
+	head.add_child(role)
 	# Their namesake (Story 25.1), under the head, for a pilot with no CREW
 	# row to carry it (the rookie's is on the CREW page).
 	if c.named_for and Roster.character(c.id) == null:
@@ -186,6 +201,7 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	best.autowrap_mode = TextServer.AUTOWRAP_WORD
 	best.add_theme_color_override("font_color", ACCENT)
 	best.add_theme_font_size_override("font_size", _text_size(14))
+	best.add_theme_constant_override("line_spacing", 0)
 	box.add_child(best)
 	var bars := GridContainer.new()
 	bars.name = "Bars"
@@ -214,6 +230,7 @@ func _card(c: Character, current: bool) -> PanelContainer:
 	edge.autowrap_mode = TextServer.AUTOWRAP_WORD
 	edge.add_theme_color_override("font_color", DIM)
 	edge.add_theme_font_size_override("font_size", _text_size(11))
+	edge.add_theme_constant_override("line_spacing", 0)
 	edge.size_flags_vertical = SIZE_EXPAND_FILL
 	box.add_child(edge)
 	var b := Button.new()
@@ -234,7 +251,7 @@ func _build() -> void:
 	center.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	add_child(center)
 	var page := VBoxContainer.new()
-	page.add_theme_constant_override("separation", 12)
+	page.add_theme_constant_override("separation", 8)
 	center.add_child(page)
 	var title := Label.new()
 	title.text = "CHOOSE YOUR PILOT"
@@ -249,9 +266,11 @@ func _build() -> void:
 	_cards_box = HBoxContainer.new()
 	_cards_box.add_theme_constant_override("separation", CARD_GAP)
 	page.add_child(_cards_box)
+	# Back sits in the top left corner, out of the page's height, which the
+	# cards' big faces need (Story 26.3).
 	_back = Button.new()
 	_back.name = "Back"
 	_back.text = "Back"
-	_back.size_flags_horizontal = SIZE_SHRINK_CENTER
 	_back.pressed.connect(hide)
-	page.add_child(_back)
+	add_child(_back)
+	_back.set_anchors_and_offsets_preset(PRESET_TOP_LEFT, PRESET_MODE_MINSIZE, 8)

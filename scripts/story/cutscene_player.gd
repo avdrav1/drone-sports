@@ -10,6 +10,9 @@ extends Node3D
 
 signal finished
 
+## The portrait's size on a card beat.
+const PORTRAIT := 320.0
+
 ## Set before opening the scene to play a cutscene that was already seen.
 static var replay := false
 
@@ -278,15 +281,17 @@ func _build_overlay() -> void:
 	card.anchor_right = 0.5
 	card.anchor_top = 0.5
 	card.anchor_bottom = 0.5
-	card.offset_left = -100.0
-	card.offset_right = 100.0
-	card.offset_top = -190.0
-	card.offset_bottom = 30.0
+	# Sized for a portrait twice the old 160 px (Story 26.3), between the
+	# letterbox's top and the caption at 960x720.
+	card.offset_left = -PORTRAIT * 0.5 - 16.0
+	card.offset_right = PORTRAIT * 0.5 + 16.0
+	card.offset_top = -240.0
+	card.offset_bottom = 130.0
 	root.add_child(card)
 	var stack := VBoxContainer.new()
 	card.add_child(stack)
 	portrait = CharacterPortrait.new()
-	portrait.custom_minimum_size = Vector2(160, 160)
+	portrait.custom_minimum_size = Vector2.ONE * PORTRAIT
 	stack.add_child(portrait)
 	card_name = Label.new()
 	card_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

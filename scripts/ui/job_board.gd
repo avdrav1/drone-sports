@@ -32,6 +32,10 @@ const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
 ## A fit crew member's perk on the CREW page (Story 19.7).
 const GOOD := Color(0.55, 0.9, 0.55)
+## Face sizes, twice what they were (Story 26.3): the crew member on comms on
+## a job card, and a row on the CREW page.
+const COMMS_FACE := 128
+const CREW_FACE := 176
 const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get teams to notice you."
 ## What each menu item does, shown under the menu while it has focus.
 const MENU_HINTS := {
@@ -216,7 +220,12 @@ func hop_comms() -> void:
 
 func fly_button(job_id: StringName) -> Button:
 	var row: Node = job_rows.get(job_id)
-	return row.get_node_or_null("Fly") if row else null
+	return row.find_child("Fly", true, false) if row else null
+
+## A locked job's reason on its card, or null when it flies.
+func lock_label(job_id: StringName) -> Label:
+	var row: Node = job_rows.get(job_id)
+	return row.find_child("Locked", true, false) if row else null
 
 func fly(job: Job) -> void:
 	if Career.can_fly(job) and job.scene:
@@ -359,7 +368,9 @@ func start_here() -> StringName:
 	return &""
 
 ## A job's card: a panel holding a box named for the job, whose first child is
-## the info (StartHere, Details, Grade, Comms) and whose last is Fly or Locked.
+## the info (StartHere, Details, Grade, Comms), then Fly or Locked. With someone
+## on comms, Fly or Locked sits under their line, beside their big face (Story
+## 26.3), so the card keeps its height.
 func _card(job: Job, boss: bool) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = "Card_" + String(job.id)
@@ -438,8 +449,11 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	info.add_child(grade)
 	# The Lattice gets no cheerful pitch; its row keeps its own say (Story 8.1).
 	var who := comms_for(job) if not boss else &""
+	var foot: Container = box
 	if who != &"":
-		info.add_child(_comms(job, who))
+		var comms := _comms(job, who)
+		info.add_child(comms)
+		foot = comms.get_node("Text")
 	if flies:
 		var b := Button.new()
 		b.name = "Fly"
@@ -452,7 +466,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 			b.pressed.connect(func(): BossGate.open(get_tree()))
 		else:
 			b.pressed.connect(fly.bind(job))
-		box.add_child(b)
+		foot.add_child(b)
 	else:
 		var lock := Label.new()
 		lock.name = "Locked"
@@ -469,11 +483,11 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lock.add_theme_color_override("font_color", DIM)
 		lock.add_theme_font_size_override("font_size", 19)
-		box.add_child(lock)
+		foot.add_child(lock)
 	return panel
 
 ## The crew member on comms for a job: their face making the pitch's
-## expression, name and role, and the line.
+## expression, and beside it (in Text) name and role, and the line.
 func _comms(job: Job, who: StringName) -> HBoxContainer:
 	var c: Character = Roster.character(who)
 	var line := Bark.pitch(who, job.id)
@@ -484,10 +498,11 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.expression = line.get("face", &"neutral")
-	face.custom_minimum_size = Vector2(64, 64)
+	face.custom_minimum_size = Vector2.ONE * COMMS_FACE
 	face.follow_mouse = true
 	row.add_child(face)
 	var text := VBoxContainer.new()
+	text.name = "Text"
 	text.size_flags_horizontal = SIZE_EXPAND_FILL
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(text)
@@ -516,7 +531,7 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.greyed = not Roster.is_alive(id)
-	face.custom_minimum_size = Vector2(88, 88)
+	face.custom_minimum_size = Vector2.ONE * CREW_FACE
 	face.follow_mouse = true
 	# Clicking someone on the crew page makes them hop.
 	face.mouse_filter = MOUSE_FILTER_PASS

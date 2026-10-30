@@ -30,6 +30,9 @@ const ASSIST_NAMES := {
 const TAPE_SPAN := 120.0
 ## Ice on the props, 0..1, above which the ICING chip shows.
 const ICING_SHOWN := 0.05
+## The pilot's face at top right, twice its old 56 px (Story 26.3): it fits
+## between the compass tape and the ALT gauge at 960x720.
+const PILOT_FACE := 112.0
 
 var font: Font
 ## The chosen pilot avatar's face.
@@ -44,7 +47,7 @@ func _ready() -> void:
 	pilot_face = CharacterPortrait.new()
 	pilot_face.name = "Pilot"
 	pilot_face.character = PlayerProfile.pilot()
-	pilot_face.size = Vector2(56, 56)
+	pilot_face.size = Vector2.ONE * PILOT_FACE
 	pilot_face.mouse_filter = MOUSE_FILTER_IGNORE
 	pilot_face.visible = show_pilot
 	add_child(pilot_face)
@@ -117,8 +120,8 @@ func _draw() -> void:
 		_draw_gps(Vector2(s.x - 28.0, s.y - 76.0))
 	if pilot_face.visible:
 		pilot_face.position = Vector2(s.x - 28.0 - pilot_face.size.x, 22.0)
-		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 46.0), "PILOT", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 190)
-		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 66.0), pilot_face.character.name.to_upper(), 17, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 190)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 66.0), "PILOT", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 190)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 88.0), pilot_face.character.name.to_upper(), 17, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 190)
 
 func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)

@@ -20,6 +20,15 @@ const ACCENT := Color(1.0, 0.76, 0.25)
 const AHEAD := Color(0.35, 0.95, 0.45)
 const BEHIND := Color(1.0, 0.32, 0.25)
 const SHADOW := Color(0, 0, 0, 0.35)
+## The pilot's face in the top right corner, twice its old 64 px (Story
+## 26.3), with the name, position and lap under it, all clear of the compass
+## tape, the briefing line, the Act 1 leaderboard and the ALT gauge at 960x720.
+const PILOT_FACE := 128.0
+const TOP := 22.0
+## Width of the readouts under the face, right-aligned to it, and of what
+## they take up (a nine-letter name, POSITION, 10/10).
+const READOUTS := 200.0
+const READOUT_WIDTH := 90.0
 
 ## Seconds against the best lap at the last gate; negative is ahead. NAN when none.
 var split_delta := NAN
@@ -36,7 +45,7 @@ func _ready() -> void:
 	pilot_face = CharacterPortrait.new()
 	pilot_face.name = "Pilot"
 	pilot_face.character = PlayerProfile.pilot()
-	pilot_face.size = Vector2(64, 64)
+	pilot_face.size = Vector2.ONE * PILOT_FACE
 	pilot_face.mouse_filter = MOUSE_FILTER_IGNORE
 	add_child(pilot_face)
 	if course:
@@ -112,21 +121,28 @@ func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONT
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)
 	draw_string(font, at, t, align, width, size_px, color)
 
-## Screen area the position, lap and pilot block covers at top right.
+## Screen area the pilot, position and lap block covers at top right.
 func panel_rect() -> Rect2:
-	return Rect2(Vector2(size.x - 250.0, 20.0), Vector2(222.0, 116.0))
+	return Rect2(Vector2(size.x - 28.0 - PILOT_FACE, TOP - 2.0), Vector2(PILOT_FACE, readouts_rect().end.y - TOP + 2.0))
+
+## Screen area of the readouts under the face: the pilot's name, position and
+## lap, right-aligned in a column READOUT_WIDTH wide.
+func readouts_rect() -> Rect2:
+	return Rect2(Vector2(size.x - 28.0 - READOUT_WIDTH, TOP + PILOT_FACE + 4.0), Vector2(READOUT_WIDTH, 106.0))
 
 func _draw() -> void:
 	if course == null or racer == null or course.progress(racer) == null:
 		return
 	var s := size
 	var right := s.x - 28.0
-	pilot_face.position = Vector2(right - 190.0, 34.0)
-	_text(Vector2(right - 222.0, 116), pilot_face.character.name.to_upper(), 13, LINE, HORIZONTAL_ALIGNMENT_CENTER, 128)
-	_text(Vector2(right - 200, 40), "POSITION", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
-	_text(Vector2(right - 200, 74), position_text(), 32, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)
-	_text(Vector2(right - 200, 100), lap_label(), 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 200)
-	_text(Vector2(right - 200, 128), lap_text(), 24, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 200)
+	var col := right - READOUTS
+	var y := TOP + PILOT_FACE
+	pilot_face.position = Vector2(right - PILOT_FACE, TOP)
+	_text(Vector2(col, y + 18), pilot_face.character.name.to_upper(), 13, LINE, HORIZONTAL_ALIGNMENT_RIGHT, READOUTS)
+	_text(Vector2(col, y + 38), "POSITION", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, READOUTS)
+	_text(Vector2(col, y + 70), position_text(), 32, LINE, HORIZONTAL_ALIGNMENT_RIGHT, READOUTS)
+	_text(Vector2(col, y + 88), lap_label(), 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, READOUTS)
+	_text(Vector2(col, y + 110), lap_text(), 24, LINE, HORIZONTAL_ALIGNMENT_RIGHT, READOUTS)
 	if split_visible():
 		_text(Vector2(s.x * 0.5 - 100, 190), "%+.2f" % split_delta, 26, split_color(), HORIZONTAL_ALIGNMENT_CENTER, 200)
 	var m := marker()
