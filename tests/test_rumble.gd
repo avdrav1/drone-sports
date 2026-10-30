@@ -229,6 +229,48 @@ func test_leaving_does_not_shake_but_failing_does() -> bool:
 	_done()
 	return ok
 
+## Story 28.2: pausing stops a rumble at once, nothing shakes while paused,
+## and unpausing restarts nothing.
+func test_pausing_stops_the_rumble() -> bool:
+	_pad()
+	var tree := Sim.tree()
+	var ok := Rumble.play(&"strike")
+	tree.paused = true
+	# Stopped at once, before any frame passes.
+	var stopped: bool = Rumble.last().get("id") == Rumble.STOP and Rumble.last().device == 0 \
+		and Rumble.count(Rumble.STOP) == 1
+	var size := Rumble.log.size()
+	var quiet: bool = not Rumble.play(&"strike") and not Rumble.hit(20.0) and not Rumble.play(&"gate") \
+		and Rumble.log.size() == size
+	await Sim.process_frames(3)
+	tree.paused = false
+	await Sim.process_frames(3)
+	var not_restarted: bool = Rumble.log.size() == size and Rumble.count(&"strike") == 1
+	# Nothing going: a pause has nothing to stop.
+	await Sim.process_frames(1)
+	Rumble.clear_log()
+	tree.paused = true
+	var idle: bool = Rumble.log.is_empty()
+	tree.paused = false
+	# Through the game's own pause: Start in a live job opens the leave dialog.
+	var s := _setup(Job.new())
+	var runner: JobRunner = s[1]
+	runner.back_scene = ""
+	await Sim.go_live(s[0])
+	Rumble.clear_log()
+	Rumble.play(&"strike")
+	runner.request_leave()
+	var in_game: bool = tree.paused and Rumble.count(Rumble.STOP) == 1 and not Rumble.play(&"gate")
+	runner.leave_dialog.hide()
+	tree.paused = false
+	ok = ok and stopped and quiet and not_restarted and idle and in_game
+	if not ok:
+		print("        stopped %s quiet %s not_restarted %s idle %s in_game %s " % [stopped, quiet, not_restarted, idle, in_game],
+			Rumble.log.map(func(l): return l.id))
+	s[0].free()
+	_done()
+	return ok
+
 func test_play_is_the_same_without_rumble() -> bool:
 	var runs := []
 	for on in [true, false]:

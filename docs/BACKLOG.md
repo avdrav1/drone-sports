@@ -1435,7 +1435,7 @@ Do this epic after Epic 27 (owner's call).
   - Acceptance: Leaving a live job logs no `failed` rumble; a real failure (crash out, battery dead, time up, a strike that ends the job) still logs one. A test covers both through the runner.
   - Out of scope: Changing what leaving does to pay or reputation.
 
-- [ ] **28.2 Rumble stops on pause**
+- [x] **28.2 Rumble stops on pause**
   - Goal: Pausing stops any rumble at once, and nothing rumbles while the game is paused.
   - Context: `scripts/audio/rumble.gd` starts vibrations with `Input.start_joy_vibration` for a set time; a long one (a strike, 0.6 s) keeps going after the pause menu opens. Rumble listens for the tree's pause (or the pause menu says so) and calls `Input.stop_joy_vibration` on the pad; `play` asks nothing while the tree is paused.
   - Acceptance: A rumble playing when the game pauses is stopped (the log shows a stop), and `Rumble.play` while paused asks for nothing and returns false. Unpausing does not restart a stopped rumble.
