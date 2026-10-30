@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HangarCatalog" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/hangar_catalog.gd" id="1_cat"]
+[ext_resource type="Resource" path="res://data/garage/default_livery.tres" id="l0"]
+[ext_resource type="Resource" path="res://data/garage/parts/stock_frame.tres" id="p0"]
+[ext_resource type="Resource" path="res://data/garage/parts/stock_props.tres" id="p1"]
+[ext_resource type="Resource" path="res://data/garage/parts/stock_battery.tres" id="p2"]
+
+[resource]
+script = ExtResource("1_cat")
+default_livery = ExtResource("l0")
+parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])
+default_parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])

@@ -1381,7 +1381,7 @@ Rules this epic keeps: one flight model (rule 1), so parts only change the drone
 
 Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
 
-- [ ] **27.1 A livery in the save**
+- [x] **27.1 A livery in the save**
   - Goal: Each drone slot has a livery (its looks and its name) and a set of parts, kept in the save. Slot 0 is the player's drone; slots 1 and up are the fleet's, as many as the largest fleet.
   - Context: A `Livery` resource: body, arm, prop and canopy colours, light colour, decal id and its colour, a race number, and a name. Parts are ids per kind (frame, props, battery; 27.4). The save gets a "hangar" section (slot -> livery and parts, plus what is unlocked), read and written like `Garage`'s "upgrades". A new or old save starts every slot on the default livery, which is today's look exactly, and the default parts, which change nothing.
   - Acceptance: A save with no hangar section loads with every slot on the default livery and parts, and a drone looks and flies exactly as before (stats unchanged). Changing slot 2's livery and parts and reloading keeps them, and slot 0 is untouched. An unknown decal or part id in a save falls back to the default instead of failing.
