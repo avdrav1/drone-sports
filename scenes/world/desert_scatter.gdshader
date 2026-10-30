@@ -4,7 +4,8 @@ render_mode cull_disabled;
 // base_color and alt_color and per instance by INSTANCE_CUSTOM.r, darker low down,
 // with the 15.2 rock set mapped triplanar in world space where texture_amount > 0.
 // Where leafy > 0, edges seen side-on break into holes so scrub reads as foliage,
-// not stone. Wets and snows like the ground.
+// not stone. Wets and snows like the ground. A mesh with vertex colours marks
+// its wood in black: that part is trunk_color, and is never cut into leaves.
 
 uniform sampler2D albedo_map : source_color, repeat_enable, filter_linear_mipmap;
 uniform sampler2D nr_map : repeat_enable, filter_linear_mipmap;
@@ -23,6 +24,7 @@ uniform float tint_range = 0.25;
 // Fraction of a silhouette's cells cut away, 0 for solid.
 uniform float leafy = 0.0;
 uniform float leaf_size = 0.09;
+uniform vec3 trunk_color : source_color = vec3(0.3, 0.22, 0.16);
 global uniform float wetness;
 global uniform float snow_cover;
 
@@ -30,12 +32,14 @@ varying vec3 world_pos;
 varying vec3 world_normal;
 varying float tint;
 varying float local_y;
+varying float leaf;
 
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	tint = INSTANCE_CUSTOM.r;
 	local_y = VERTEX.y;
+	leaf = COLOR.r;
 }
 
 float hash(vec3 p) {
@@ -43,13 +47,14 @@ float hash(vec3 p) {
 }
 
 void fragment() {
-	if (leafy > 0.0) {
+	if (leafy > 0.0 && leaf > 0.5) {
 		float edge = 1.0 - abs(dot(NORMAL, VIEW));
 		if (hash(floor(world_pos / leaf_size)) < leafy * (0.25 + edge)) {
 			discard;
 		}
 	}
 	vec3 base = mix(base_color, alt_color, hash(floor(world_pos / patch_size) + 0.5));
+	base = mix(trunk_color, base, step(0.5, leaf));
 	base *= (1.0 + (tint - 0.5) * 2.0 * tint_range) * (1.0 - foot_dark * (1.0 - smoothstep(0.0, 0.6, local_y)));
 	float rough = roughness;
 	vec3 n = FRONT_FACING ? world_normal : -world_normal;

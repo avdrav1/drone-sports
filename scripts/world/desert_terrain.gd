@@ -4,7 +4,7 @@ extends StaticBody3D
 # Inside flat_radius the ground is exactly y = 0, so jobs keep their geometry.
 # Built meshes and shapes are cached per parameter set: scenes reload cheaply.
 # The ground is textured from the 15.2 sand and rock sets; a Scatter child
-# (DesertScatter) strews rocks, scrub, and cacti from the same seed (Story 15.8).
+# (DesertScatter) strews rocks, scrub, and khejri trees from the same seed (Story 15.8).
 
 @export var noise_seed := 1
 ## Side of the square terrain, m.
