@@ -8,7 +8,8 @@ extends Node
 # runner, its objectives, and the scene's Courses and HazardZones, and holds no
 # job-specific code. The results screen plays the payout count itself.
 # Story 23.7: the gate, the hazard warning and strike, and the job's end also
-# shake the pad (Rumble).
+# shake the pad (Rumble). Story 28.1: leaving a job is not a failure of the
+# flight, so it plays the fail sound but does not shake.
 
 ## Sound per state the runner enters. The countdown's first beep is its own.
 const STATE_CUES := {
@@ -51,8 +52,8 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 		Sfx.play(STATE_CUES[s])
 	if s == JobRunner.State.COMPLETE:
 		Rumble.play(&"complete")
-	elif s == JobRunner.State.FAILED:
-		Rumble.play(&"failed")
+	elif s == JobRunner.State.FAILED and not runner.was_left():
+		Rumble.play(&"failed")  # leaving is the player's choice (28.1)
 
 ## Hooks the scene's hazard zones and courses, once each.
 func _listen() -> void:

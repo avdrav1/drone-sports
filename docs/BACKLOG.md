@@ -1429,7 +1429,7 @@ Done when the four loose ends left by Epic 23 are tied off: rumble only for what
 
 Do this epic after Epic 27 (owner's call).
 
-- [ ] **28.1 No failure rumble for leaving**
+- [x] **28.1 No failure rumble for leaving**
   - Goal: Leaving a job (Esc, or B/Start then confirm) does not shake the pad as a failure does.
   - Context: `JobRunner.leave()` ends a job with `fail("left")`, which sets `State.FAILED`, and `JobCues._on_state` plays `Rumble.play(&"failed")` for every FAILED. Leaving is the player's choice, not a failure of the flight. JobCues checks the runner's `fail_reason` (or a flag the runner sets when the player leaves) and skips the rumble for it; the fail sound and results stay as they are.
   - Acceptance: Leaving a live job logs no `failed` rumble; a real failure (crash out, battery dead, time up, a strike that ends the job) still logs one. A test covers both through the runner.

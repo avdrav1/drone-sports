@@ -8,6 +8,8 @@ enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 
 ## The leave dialog's warning, under any reason it was opened for.
 const LEAVE_TEXT := "Leaving now counts as a failed job: no pay."
+## The fail reason when the player leaves a job in flight (Story 28.1).
+const LEFT := "left"
 
 signal state_changed(state: State, previous: State)
 ## After Complete or Failed, once graded and paid.
@@ -189,7 +191,7 @@ func request_leave(why := "") -> void:
 func leave() -> void:
 	if state in [State.COUNTDOWN, State.LIVE]:
 		results_scene = null
-		fail("left")
+		fail(LEFT)
 	elif state != State.BRIEFING:
 		return
 	job_left.emit()
@@ -210,6 +212,10 @@ func fail(reason := "") -> void:
 		fail_reason = reason
 		_set_state(State.FAILED)
 		_finish()
+
+## True when the job ended because the player left it, not by failing it.
+func was_left() -> bool:
+	return state == State.FAILED and fail_reason == LEFT
 
 func is_over() -> bool:
 	return state == State.COMPLETE or state == State.FAILED
