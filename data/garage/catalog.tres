@@ -1,14 +1,22 @@
-[gd_resource type="Resource" script_class="HangarCatalog" load_steps=6 format=3]
+[gd_resource type="Resource" script_class="HangarCatalog" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/progression/hangar_catalog.gd" id="1_cat"]
 [ext_resource type="Resource" path="res://data/garage/default_livery.tres" id="l0"]
 [ext_resource type="Resource" path="res://data/garage/parts/stock_frame.tres" id="p0"]
 [ext_resource type="Resource" path="res://data/garage/parts/stock_props.tres" id="p1"]
 [ext_resource type="Resource" path="res://data/garage/parts/stock_battery.tres" id="p2"]
+[ext_resource type="Resource" path="res://data/garage/parts/light_racer.tres" id="p3"]
+[ext_resource type="Resource" path="res://data/garage/parts/heavy_hauler.tres" id="p4"]
+[ext_resource type="Resource" path="res://data/garage/parts/freestyle.tres" id="p5"]
+[ext_resource type="Resource" path="res://data/garage/parts/grip_props.tres" id="p6"]
+[ext_resource type="Resource" path="res://data/garage/parts/speed_props.tres" id="p7"]
+[ext_resource type="Resource" path="res://data/garage/parts/quiet_props.tres" id="p8"]
+[ext_resource type="Resource" path="res://data/garage/parts/long_battery.tres" id="p9"]
+[ext_resource type="Resource" path="res://data/garage/parts/light_battery.tres" id="p10"]
 
 [resource]
 script = ExtResource("1_cat")
 default_livery = ExtResource("l0")
 decals = Array[StringName]([&"block_print", &"jharokha", &"chakra", &"lotus", &"peacock", &"sun", &"stripes", &"team"])
-parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])
+parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2"), ExtResource("p3"), ExtResource("p4"), ExtResource("p5"), ExtResource("p6"), ExtResource("p7"), ExtResource("p8"), ExtResource("p9"), ExtResource("p10")])
 default_parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])

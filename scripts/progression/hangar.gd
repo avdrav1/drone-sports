@@ -40,11 +40,21 @@ func set_livery(slot: int, l: Livery) -> void:
 	save()
 	changed.emit(slot)
 
-## Puts the slot's livery on the drone (Story 27.2). Looks only.
+## Puts the slot's livery on the drone (Story 27.2), on its frame's hull, with
+## the arms at the drone's arm length (Story 27.4). Looks only.
 func dress(d: Drone, slot := 0) -> void:
 	var look := d.get_node_or_null("Look") as DroneLook if d else null
+	var frame := part(part_id(slot, &"frame"))
 	if look:
-		look.wear(livery(slot))
+		look.wear(livery(slot), frame.hull if frame else Vector3.ONE)
+
+## Adds the slot's parts' stat steps to the drone (Story 27.4). Garage.apply
+## calls it, once per drone, with the upgrades and the pilot's edge.
+func apply_parts(d: Drone, slot := 0) -> void:
+	for kind in Part.KINDS:
+		var p := part(part_id(slot, kind))
+		if p:
+			p.apply_stats(d)
 
 func is_decal(id: StringName) -> bool:
 	return id == &"" or id in catalog.decals

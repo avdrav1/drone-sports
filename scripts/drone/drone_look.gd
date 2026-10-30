@@ -39,6 +39,9 @@ var drone: Drone
 ## What the drone wears; null wears the default, the drone as it was. Set it
 ## with `wear`.
 var livery: Livery
+## The hull's size against stock, from the fitted frame (Story 27.4): x wide,
+## y tall, z long. Set it with `wear`.
+var hull := Vector3.ONE
 ## Signed prop speed per motor, rad/s.
 var spin_rates := PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
 ## Motor ring emission per motor.
@@ -72,9 +75,11 @@ func update_look(delta: float) -> void:
 		_blades[i].albedo_color.a = 1.0 - blur * 0.85
 		_discs[i].albedo_color.a = blur * 0.35
 
-## Puts on `l` (null for the default) and builds the body again in it.
-func wear(l: Livery) -> void:
+## Puts on `l` (null for the default) on a hull of `shape`, and builds the
+## body again in them.
+func wear(l: Livery, shape := Vector3.ONE) -> void:
 	livery = l
+	hull = shape
 	rebuild()
 
 ## The livery being worn: `livery`, or the default.
@@ -106,12 +111,13 @@ func _build() -> void:
 	var battery: StandardMaterial3D = _shared("battery", func(): return _mat(Color(0.1, 0.1, 0.12), 0.1, 0.6))
 	var arm := drone.arm_length if drone else 0.15
 	# Body: a flat hull with a raised canopy and a battery pack on the back.
-	_box(Vector3(0.11, 0.035, 0.22), Vector3(0, 0, 0), body)
-	_box(Vector3(0.07, 0.035, 0.1), Vector3(0, 0.03, -0.03), canopy)
-	_box(Vector3(0.075, 0.03, 0.09), Vector3(0, 0.03, 0.065), battery)
-	_box(Vector3(0.11, 0.006, 0.02), Vector3(0, 0.02, 0.0), accent)
+	var h := hull
+	_box(Vector3(0.11, 0.035, 0.22) * h, Vector3(0, 0, 0), body)
+	_box(Vector3(0.07, 0.035, 0.1) * h, Vector3(0, 0.03, -0.03) * h, canopy)
+	_box(Vector3(0.075, 0.03, 0.09) * h, Vector3(0, 0.03, 0.065) * h, battery)
+	_box(Vector3(0.11, 0.006, 0.02) * h, Vector3(0, 0.02, 0.0) * h, accent)
 	# Camera pod at the nose.
-	_box(Vector3(0.04, 0.035, 0.03), Vector3(0, 0.005, -0.12), metal)
+	_box(Vector3(0.04, 0.035, 0.03) * h, Vector3(0, 0.005, -0.12) * h, metal)
 	for i in Drone.MOTOR_COUNT:
 		var at := Drone.motor_offset(i, arm)
 		# Arm from body to motor.
@@ -146,8 +152,8 @@ func _build() -> void:
 	var front: StandardMaterial3D = _shared("front", func(): return _light(FRONT_LIGHT))
 	var back: StandardMaterial3D = _shared("back", func(): return _light(BACK_LIGHT))
 	for side in [-1.0, 1.0]:
-		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, -0.112), front)
-		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, 0.112), back)
+		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, -0.112) * h, front)
+		_box(Vector3(0.012, 0.01, 0.01), Vector3(side * 0.045, 0.0, 0.112) * h, back)
 	if l.glow:
 		_build_glow(l, arm)
 	if l.decal != &"":
@@ -162,7 +168,7 @@ func _build_glow(l: Livery, arm: float) -> void:
 		var m := _light(l.light_color)
 		m.emission_energy_multiplier = STRIP_GLOW
 		return m)
-	_box(Vector3(0.08, 0.004, 0.18), Vector3(0, -0.0195, 0), lit)
+	_box(Vector3(0.08, 0.004, 0.18) * Vector3(hull.x, 1.0, hull.z), Vector3(0, -0.002 - 0.0175 * hull.y, 0), lit)
 	for i in Drone.MOTOR_COUNT:
 		var at := Drone.motor_offset(i, arm)
 		var strip := _box(Vector3(0.006, 0.003, at.length() * 0.6), at * 0.55 + Vector3(0, 0.0075, 0), lit)
@@ -175,7 +181,7 @@ func _build_decal(l: Livery) -> void:
 	# The team emblem keeps its own colours; every other decal takes the livery's.
 	var tint := Color.WHITE if l.decal == &"team" else l.decal_color
 	var key := "decal:%d:%s" % [tex.get_instance_id(), tint.to_html()]
-	_flat(Vector2(DECAL_SIZE, DECAL_SIZE), DECAL_AT, _shared(key, func(): return _sticker(tex, tint)))
+	_flat(Vector2.ONE * DECAL_SIZE * minf(hull.x, hull.z), DECAL_AT * hull, _shared(key, func(): return _sticker(tex, tint)))
 
 ## The pilot's team's colours, for the team emblem; the home game's with no team.
 static func team_colors() -> Array[Color]:
@@ -187,7 +193,7 @@ static func team_colors() -> Array[Color]:
 func _build_number(l: Livery) -> void:
 	var tex := DecalArt.number_texture(l.race_number)
 	var key := "number:%d:%s" % [l.race_number, l.decal_color.to_html()]
-	_flat(NUMBER_SIZE, NUMBER_AT, _shared(key, func(): return _sticker(tex, l.decal_color)))
+	_flat(NUMBER_SIZE * minf(hull.x, hull.z), NUMBER_AT * hull, _shared(key, func(): return _sticker(tex, l.decal_color)))
 
 ## The body without props as one mesh, for drawing many still drones at once
 ## (the Lattice's shell, Story 8.2). Built from the same parts as a live drone.

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Part" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/part.gd" id="1_part"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("2_step")
+stat = &"mass"
+step = -0.15
+unit = "kg"
+
+[sub_resource type="Resource" id="step_2"]
+script = ExtResource("2_step")
+stat = &"arm_length"
+step = -0.01
+unit = "m arms"
+
+[sub_resource type="Resource" id="step_3"]
+script = ExtResource("2_step")
+stat = &"battery_flight_time"
+step = -45.0
+unit = "s flight time"
+
+[resource]
+script = ExtResource("1_part")
+id = &"light_racer"
+kind = &"frame"
+name = "Light racer"
+blurb = "Fast and twitchy, short on battery."
+stats = Array[ExtResource("2_step")]([SubResource("step_0"), SubResource("step_2"), SubResource("step_3")])
+hull = Vector3(0.85, 0.9, 1.0)

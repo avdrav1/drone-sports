@@ -7,3 +7,4 @@ script = ExtResource("1_part")
 id = &"stock_frame"
 kind = &"frame"
 name = "Stock frame"
+blurb = "The frame it came with: the all-rounder."

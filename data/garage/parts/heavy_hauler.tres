@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="Part" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/part.gd" id="1_part"]
+[ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="step_0"]
+script = ExtResource("2_step")
+stat = &"mass"
+step = 0.3
+unit = "kg"
+
+[sub_resource type="Resource" id="step_1"]
+script = ExtResource("2_step")
+stat = &"max_thrust"
+step = 0.7
+unit = "N max thrust per motor"
+
+[sub_resource type="Resource" id="step_2"]
+script = ExtResource("2_step")
+stat = &"arm_length"
+step = 0.03
+unit = "m arms"
+
+[sub_resource type="Resource" id="step_3"]
+script = ExtResource("2_step")
+stat = &"angular_drag"
+step = 0.04
+unit = "turn drag"
+
+[sub_resource type="Resource" id="step_4"]
+script = ExtResource("2_step")
+stat = &"yaw_torque_per_thrust"
+step = -0.01
+unit = "yaw torque"
+
+[resource]
+script = ExtResource("1_part")
+id = &"heavy_hauler"
+kind = &"frame"
+name = "Heavy hauler"
+blurb = "Steady in the wind, slow to turn."
+stats = Array[ExtResource("2_step")]([SubResource("step_0"), SubResource("step_1"), SubResource("step_2"), SubResource("step_3"), SubResource("step_4")])
+hull = Vector3(1.25, 1.2, 1.1)
