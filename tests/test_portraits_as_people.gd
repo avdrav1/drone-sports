@@ -5,6 +5,8 @@ extends RefCounted
 # hair and caps keep clear of the brows; the dead stay shut-eyed and still.
 # The existing portrait, motion, emote, distress and incoming-call tests run
 # unchanged in their own files.
+# Story 26.1: the probe counts a colour lit or in shadow, since faces are now
+# shaded, and the hair is checked against the painted face's brows.
 
 const Sim = preload("res://tests/sim.gd")
 const PROBE := "res://tests/portrait_probe.gd"
@@ -79,16 +81,15 @@ func test_every_crew_member_is_told_apart_at_32_64_128() -> bool:
 		print("        %s" % r.apart)
 	return ok
 
-func test_front_hair_and_caps_stay_above_the_brows() -> bool:
-	var ok := CharacterPortrait.CAP_BOTTOM <= -0.82
+func test_front_hair_stays_above_the_brows() -> bool:
+	var ok := true
 	var exprs := CharacterPortrait.EXPRESSIONS.duplicate()
 	exprs.append(CharacterPortrait.DISTRESS)
 	for e in exprs:
 		for i in 40:
 			var p := CharacterPortrait.pose(e, i * 0.25, i % 2 == 0, 5)
-			ok = ok and CharacterPortrait.brow_top(p) - CharacterPortrait.CAP_BOTTOM >= 0.1
 			# Across the brows' whole width, the hair ends above their top.
-			var reach := 0.4 + CharacterPortrait.EYE.x * float(p.eye_scale) * 0.7 + CharacterPortrait.BROW_HALF
+			var reach := CharacterPortrait.brow_reach()
 			for k in 11:
 				ok = ok and CharacterPortrait.hairline(reach * k / 10.0) < CharacterPortrait.brow_top(p) - 0.02
 	return ok

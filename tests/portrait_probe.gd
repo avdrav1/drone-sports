@@ -4,11 +4,19 @@ extends SceneTree
 # Draws every crew portrait at 32, 64 and 128 px and writes, to the file named
 # by the first user argument, how many pixels of each show the look's skin, hair
 # and top colours, how different each pair of faces is, and any engine errors.
+# Story 26.1: the faces are shaded, so a pixel shows a colour when it is that
+# colour lit or in shadow (the same mix, brighter or darker); and four faces are
+# also drawn at 256 px, where `spread` counts their distinct colours.
 
 const IDS := ["arjuna", "sanjaya", "nala", "bhima", "sushena", "drona", "hanuman", "abhimanyu", "jatayu"]
 const SIZES := [32, 64, 128]
-## A pixel shows a colour when its r, g and b differ from it by this much in all.
-const MATCH := 0.03
+## A pixel shows a colour when, scaled to the same brightness, its r, g and b
+## differ from it by less than this in all, at LIT.x to LIT.y of its brightness.
+const MATCH := 0.06
+const LIT := Vector2(0.55, 1.4)
+## The big size, drawn in a row of its own, and how many faces get one.
+const BIG := 256
+const BIG_FACES := 4
 ## Two pixels differ when their r, g and b differ by more than this in all.
 const DIFFER := 0.2
 
@@ -25,7 +33,8 @@ func _initialize() -> void:
 		logger.sink = _errors
 		OS.call("add_logger", logger)
 	var vp := SubViewport.new()
-	vp.size = Vector2i(16 + 136 * IDS.size(), 16 + 136 * SIZES.size())
+	vp.size = Vector2i(16 + 136 * IDS.size(), 16 + 136 * SIZES.size() + BIG + 8)
+	var big_y := 8 + 136 * SIZES.size()
 	vp.transparent_bg = false
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(vp)
@@ -42,6 +51,12 @@ func _initialize() -> void:
 			p.size = Vector2.ONE * SIZES[j]
 			p.position = Vector2(8 + 136 * i, 8 + 136 * j)
 			vp.add_child(p)
+	for i in BIG_FACES:
+		var p: Control = CP.new()
+		p.character = load("res://data/characters/%s.tres" % IDS[i])
+		p.size = Vector2.ONE * BIG
+		p.position = Vector2(8 + (BIG + 8) * i, big_y)
+		vp.add_child(p)
 	for i in 8:
 		await process_frame
 	var img := vp.get_texture().get_image()
@@ -60,7 +75,7 @@ func _initialize() -> void:
 					var c := crop.get_pixel(x, y)
 					for role in n:
 						var want: Color = look.get(role)
-						if absf(c.r - want.r) + absf(c.g - want.g) + absf(c.b - want.b) < MATCH:
+						if shows(c, want):
 							n[role] += 1
 			counts["%s_%d" % [IDS[i], px]] = n
 		# The share of pixels that differ, for the closest pair of faces at this size.
@@ -76,7 +91,26 @@ func _initialize() -> void:
 							differ += 1
 				closest = minf(closest, float(differ) / (px * px))
 		apart[str(px)] = closest
+	# Distinct colours (5 bits a channel) in each big face: a flat cartoon has a
+	# few dozen, a painted face hundreds.
+	var spread := {}
+	for i in BIG_FACES:
+		var crop := img.get_region(Rect2i(8 + (BIG + 8) * i, big_y, BIG, BIG))
+		var seen := {}
+		for y in BIG:
+			for x in BIG:
+				var c := crop.get_pixel(x, y)
+				seen[(int(c.r * 31.0) << 10) | (int(c.g * 31.0) << 5) | int(c.b * 31.0)] = true
+		spread[IDS[i]] = seen.size()
 	var f := FileAccess.open(out_path, FileAccess.WRITE)
-	f.store_string(JSON.stringify({"counts": counts, "apart": apart, "errors": _errors}))
+	f.store_string(JSON.stringify({"counts": counts, "apart": apart, "spread": spread, "errors": _errors}))
 	f.close()
 	quit()
+
+## True when pixel `c` is colour `want`, lit or in shadow.
+static func shows(c: Color, want: Color) -> bool:
+	var a := c.r + c.g + c.b
+	var b := want.r + want.g + want.b
+	if a <= 0.0 or b <= 0.0 or a < b * LIT.x or a > b * LIT.y:
+		return false
+	return absf(c.r / a - want.r / b) + absf(c.g / a - want.g / b) + absf(c.b / a - want.b / b) < MATCH

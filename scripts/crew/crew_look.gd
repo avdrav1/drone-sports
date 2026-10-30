@@ -19,6 +19,9 @@ const ROLES: Array[StringName] = [&"skin", &"hair", &"top", &"bottom", &"shoes"]
 @export var accessory_color := Color(1, 0.8, 0.3)
 ## Its second colour: lenses, band, ball, fin.
 @export var accessory_detail := Color(1, 1, 1)
+## The kind of head their portrait paints (Story 26.1), one of
+## CharacterPortrait.HEADS: human, vanara or bird.
+@export var head: StringName = &"human"
 
 ## The colour of one of ROLES.
 func color(role: StringName) -> Color:
@@ -37,4 +40,6 @@ func validate() -> Array[String]:
 		out.append_array(body.validate())
 	if not accessory in Character.SHAPES:
 		out.append("unknown accessory %s" % accessory)
+	if not head in CharacterPortrait.HEADS:
+		out.append("unknown head %s" % head)
 	return out

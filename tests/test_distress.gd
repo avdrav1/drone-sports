@@ -78,7 +78,8 @@ func test_flight_trouble_shows_a_sweat_drop_and_a_shake() -> bool:
 	# A wince: squeezed eyes, brows lifted at the inner ends, a grimace.
 	var p := CharacterPortrait.pose(CharacterPortrait.DISTRESS, 0.5)
 	ok = ok and float(p.squint) > 0.0 and float(p.brow_angle) < 0.0 and float(p.mouth_curve) < 0.0 and float(p.mouth_open) > 0.0
-	ok = ok and CharacterPortrait.eye_height(p) >= 0.22
+	# Squeezed, not shut (Story 26.1: measured against the open neutral eye).
+	ok = ok and CharacterPortrait.eye_height(p) >= 0.6 * CharacterPortrait.eye_height(CharacterPortrait.pose(&"neutral", 0.5))
 	for e in CharacterPortrait.EXPRESSIONS:
 		ok = ok and CharacterPortrait.pose(e, 0.5) != p
 	cd.advance(CrewDistress.TROUBLE[&"near_miss"])
