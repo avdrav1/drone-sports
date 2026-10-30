@@ -45,6 +45,12 @@ func _non_default() -> Array[Part]:
 			out.append(p)
 	return out
 
+## Every hangar item unlocked (Story 27.3), so any part can be fitted.
+func _open_all() -> void:
+	for u in Hangar.catalog.unlocks:
+		if not Hangar.is_unlocked(u.item):
+			Hangar.unlocked.append(u.item)
+
 func _frames() -> Array[Part]:
 	return _non_default().filter(func(p): return p.kind == &"frame")
 
@@ -89,6 +95,7 @@ func test_default_parts_leave_every_stat_as_it_is() -> bool:
 	return ok
 
 func test_each_part_steps_its_stats_and_the_frame_its_look() -> bool:
+	_open_all()
 	var stock := _stock()
 	var ok := true
 	for p in _non_default():
@@ -121,6 +128,7 @@ func _assists(d: Drone) -> Array:
 	return out
 
 func test_no_part_adds_or_removes_an_assist() -> bool:
+	_open_all()
 	var plain: Drone = Sim.drone(Sim.intent(), Vector3(0, 20, 0), ACT1)
 	Garage.apply(plain)
 	var want := _assists(plain)
@@ -136,6 +144,7 @@ func test_no_part_adds_or_removes_an_assist() -> bool:
 	return ok
 
 func test_parts_apply_to_their_slot_only() -> bool:
+	_open_all()
 	var stock := _stats(0)
 	Hangar.fit(2, &"heavy_hauler")
 	Hangar.fit(2, &"long_battery")
@@ -186,6 +195,7 @@ func _fresh() -> void:
 			node.load_saved()
 
 func test_every_job_finishes_with_every_frame() -> bool:
+	_open_all()
 	var ok := true
 	for frame in _frames():
 		_fresh()

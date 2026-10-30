@@ -7,6 +7,9 @@ var completed := false
 var fail_reason := ""
 var score := 0.0
 var letter := "F"
+## Seconds flown live, and crashes in them (Story 27.3's achievements).
+var time := 0.0
+var crashes := 0
 ## True when a completed job beat the best grade flown on it before (Story 18.3).
 var new_best := false
 ## One entry per objective: {label, score, weight}.
@@ -22,6 +25,8 @@ var strikes := {}
 var casualties := {}
 ## Character id -> the line shown beside their casualty on the results screen.
 var casualty_lines := {}
+## Hangar items this job opened by achievement (Story 27.3), in catalog order.
+var unlocks: Array[Unlock] = []
 ## The closing line for the results screen: {id, text}. Empty when nobody speaks.
 var bark := {}
 ## The final crew pass after the Lattice (Story 8.6): {id, text, alive} for

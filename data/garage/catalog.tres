@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HangarCatalog" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="HangarCatalog" load_steps=81 format=3]
 
 [ext_resource type="Script" path="res://scripts/progression/hangar_catalog.gd" id="1_cat"]
 [ext_resource type="Resource" path="res://data/garage/default_livery.tres" id="l0"]
@@ -13,6 +13,396 @@
 [ext_resource type="Resource" path="res://data/garage/parts/quiet_props.tres" id="p8"]
 [ext_resource type="Resource" path="res://data/garage/parts/long_battery.tres" id="p9"]
 [ext_resource type="Resource" path="res://data/garage/parts/light_battery.tres" id="p10"]
+[ext_resource type="Script" path="res://scripts/progression/swatch.gd" id="s_swatch"]
+[ext_resource type="Script" path="res://scripts/progression/unlock.gd" id="s_unlock"]
+[ext_resource type="Script" path="res://scripts/progression/achievement.gd" id="s_ach"]
+
+[sub_resource type="Resource" id="swatch_carbon"]
+script = ExtResource("s_swatch")
+id = &"carbon"
+name = "Carbon"
+color = Color(0.055, 0.06, 0.07, 1)
+
+[sub_resource type="Resource" id="swatch_graphite"]
+script = ExtResource("s_swatch")
+id = &"graphite"
+name = "Graphite"
+color = Color(0.08, 0.08, 0.09, 1)
+
+[sub_resource type="Resource" id="swatch_amber"]
+script = ExtResource("s_swatch")
+id = &"amber"
+name = "Amber"
+color = Color(0.95, 0.68, 0.12, 1)
+
+[sub_resource type="Resource" id="swatch_ivory"]
+script = ExtResource("s_swatch")
+id = &"ivory"
+name = "Ivory"
+color = Color(0.93, 0.9, 0.82, 1)
+
+[sub_resource type="Resource" id="swatch_sandstone"]
+script = ExtResource("s_swatch")
+id = &"sandstone"
+name = "Sandstone"
+color = Color(0.85, 0.68, 0.42, 1)
+
+[sub_resource type="Resource" id="swatch_indigo"]
+script = ExtResource("s_swatch")
+id = &"indigo"
+name = "Indigo"
+color = Color(0.16, 0.2, 0.48, 1)
+
+[sub_resource type="Resource" id="swatch_madder"]
+script = ExtResource("s_swatch")
+id = &"madder"
+name = "Madder red"
+color = Color(0.66, 0.13, 0.12, 1)
+
+[sub_resource type="Resource" id="swatch_saffron"]
+script = ExtResource("s_swatch")
+id = &"saffron"
+name = "Saffron"
+color = Color(0.98, 0.55, 0.12, 1)
+
+[sub_resource type="Resource" id="swatch_marigold"]
+script = ExtResource("s_swatch")
+id = &"marigold"
+name = "Marigold"
+color = Color(1, 0.78, 0.1, 1)
+
+[sub_resource type="Resource" id="swatch_peacock_teal"]
+script = ExtResource("s_swatch")
+id = &"peacock_teal"
+name = "Peacock teal"
+color = Color(0, 0.5, 0.55, 1)
+
+[sub_resource type="Resource" id="swatch_rose"]
+script = ExtResource("s_swatch")
+id = &"rose"
+name = "Rose"
+color = Color(0.88, 0.45, 0.55, 1)
+
+[sub_resource type="Resource" id="swatch_emerald"]
+script = ExtResource("s_swatch")
+id = &"emerald"
+name = "Emerald"
+color = Color(0.1, 0.55, 0.3, 1)
+
+[sub_resource type="Resource" id="swatch_lapis"]
+script = ExtResource("s_swatch")
+id = &"lapis"
+name = "Lapis"
+color = Color(0.15, 0.38, 0.78, 1)
+
+[sub_resource type="Resource" id="swatch_copper"]
+script = ExtResource("s_swatch")
+id = &"copper"
+name = "Copper"
+color = Color(0.72, 0.42, 0.22, 1)
+
+[sub_resource type="Resource" id="unlock_ivory"]
+script = ExtResource("s_unlock")
+item = &"ivory"
+name = "Ivory paint"
+price = 150
+
+[sub_resource type="Resource" id="ach_sandstone"]
+script = ExtResource("s_ach")
+job = &"test_race"
+
+[sub_resource type="Resource" id="unlock_sandstone"]
+script = ExtResource("s_unlock")
+item = &"sandstone"
+name = "Sandstone paint"
+price = 150
+achievement = SubResource("ach_sandstone")
+
+[sub_resource type="Resource" id="unlock_indigo"]
+script = ExtResource("s_unlock")
+item = &"indigo"
+name = "Indigo paint"
+price = 200
+
+[sub_resource type="Resource" id="unlock_madder"]
+script = ExtResource("s_unlock")
+item = &"madder"
+name = "Madder red paint"
+price = 200
+
+[sub_resource type="Resource" id="ach_saffron"]
+script = ExtResource("s_ach")
+kind = 4
+amount = 10
+faction = &"league"
+
+[sub_resource type="Resource" id="unlock_saffron"]
+script = ExtResource("s_unlock")
+item = &"saffron"
+name = "Saffron paint"
+price = 250
+achievement = SubResource("ach_saffron")
+
+[sub_resource type="Resource" id="unlock_marigold"]
+script = ExtResource("s_unlock")
+item = &"marigold"
+name = "Marigold paint"
+price = 250
+
+[sub_resource type="Resource" id="ach_peacock_teal"]
+script = ExtResource("s_ach")
+kind = 4
+amount = 25
+faction = &"city"
+
+[sub_resource type="Resource" id="unlock_peacock_teal"]
+script = ExtResource("s_unlock")
+item = &"peacock_teal"
+name = "Peacock teal paint"
+price = 300
+achievement = SubResource("ach_peacock_teal")
+
+[sub_resource type="Resource" id="unlock_rose"]
+script = ExtResource("s_unlock")
+item = &"rose"
+name = "Rose paint"
+price = 300
+
+[sub_resource type="Resource" id="unlock_emerald"]
+script = ExtResource("s_unlock")
+item = &"emerald"
+name = "Emerald paint"
+price = 350
+
+[sub_resource type="Resource" id="ach_lapis"]
+script = ExtResource("s_ach")
+kind = 4
+amount = 25
+faction = &"salvage"
+
+[sub_resource type="Resource" id="unlock_lapis"]
+script = ExtResource("s_unlock")
+item = &"lapis"
+name = "Lapis paint"
+price = 350
+achievement = SubResource("ach_lapis")
+
+[sub_resource type="Resource" id="ach_copper"]
+script = ExtResource("s_ach")
+kind = 3
+amount = 1000
+
+[sub_resource type="Resource" id="unlock_copper"]
+script = ExtResource("s_unlock")
+item = &"copper"
+name = "Copper paint"
+price = 400
+achievement = SubResource("ach_copper")
+
+[sub_resource type="Resource" id="ach_glow"]
+script = ExtResource("s_ach")
+kind = 1
+job = &"test_race"
+seconds = 90.0
+
+[sub_resource type="Resource" id="unlock_glow"]
+script = ExtResource("s_unlock")
+item = &"glow"
+name = "Lit lights"
+price = 400
+achievement = SubResource("ach_glow")
+
+[sub_resource type="Resource" id="ach_stripes"]
+script = ExtResource("s_ach")
+job = &"sample_delivery"
+
+[sub_resource type="Resource" id="unlock_stripes"]
+script = ExtResource("s_unlock")
+item = &"stripes"
+name = "Stripes decal"
+price = 300
+achievement = SubResource("ach_stripes")
+
+[sub_resource type="Resource" id="ach_block_print"]
+script = ExtResource("s_ach")
+kind = 2
+job = &"sample_delivery"
+
+[sub_resource type="Resource" id="unlock_block_print"]
+script = ExtResource("s_unlock")
+item = &"block_print"
+name = "Block print decal"
+price = 400
+achievement = SubResource("ach_block_print")
+
+[sub_resource type="Resource" id="ach_lotus"]
+script = ExtResource("s_ach")
+kind = 2
+job = &"rescue"
+
+[sub_resource type="Resource" id="unlock_lotus"]
+script = ExtResource("s_unlock")
+item = &"lotus"
+name = "Lotus decal"
+price = 500
+achievement = SubResource("ach_lotus")
+
+[sub_resource type="Resource" id="ach_sun"]
+script = ExtResource("s_ach")
+kind = 3
+amount = 1200
+
+[sub_resource type="Resource" id="unlock_sun"]
+script = ExtResource("s_unlock")
+item = &"sun"
+name = "Sun decal"
+price = 600
+achievement = SubResource("ach_sun")
+
+[sub_resource type="Resource" id="ach_jharokha"]
+script = ExtResource("s_ach")
+kind = 1
+job = &"inspection"
+seconds = 90.0
+
+[sub_resource type="Resource" id="unlock_jharokha"]
+script = ExtResource("s_unlock")
+item = &"jharokha"
+name = "Jharokha decal"
+price = 700
+achievement = SubResource("ach_jharokha")
+
+[sub_resource type="Resource" id="ach_peacock"]
+script = ExtResource("s_ach")
+kind = 4
+amount = 35
+faction = &"city"
+
+[sub_resource type="Resource" id="unlock_peacock"]
+script = ExtResource("s_unlock")
+item = &"peacock"
+name = "Peacock decal"
+price = 800
+achievement = SubResource("ach_peacock")
+
+[sub_resource type="Resource" id="ach_chakra"]
+script = ExtResource("s_ach")
+kind = 4
+amount = 60
+faction = &"league"
+
+[sub_resource type="Resource" id="unlock_chakra"]
+script = ExtResource("s_unlock")
+item = &"chakra"
+name = "Chakra decal"
+price = 1500
+achievement = SubResource("ach_chakra")
+
+[sub_resource type="Resource" id="ach_team"]
+script = ExtResource("s_ach")
+kind = 5
+flag = &"scouted"
+label = "get scouted by a team"
+
+[sub_resource type="Resource" id="unlock_team"]
+script = ExtResource("s_unlock")
+item = &"team"
+name = "Team emblem decal"
+achievement = SubResource("ach_team")
+
+[sub_resource type="Resource" id="ach_light_racer"]
+script = ExtResource("s_ach")
+kind = 1
+job = &"test_race"
+seconds = 75.0
+
+[sub_resource type="Resource" id="unlock_light_racer"]
+script = ExtResource("s_unlock")
+item = &"light_racer"
+name = "Light racer frame"
+price = 1200
+achievement = SubResource("ach_light_racer")
+
+[sub_resource type="Resource" id="ach_heavy_hauler"]
+script = ExtResource("s_ach")
+job = &"demolition"
+
+[sub_resource type="Resource" id="unlock_heavy_hauler"]
+script = ExtResource("s_unlock")
+item = &"heavy_hauler"
+name = "Heavy hauler frame"
+price = 1200
+achievement = SubResource("ach_heavy_hauler")
+
+[sub_resource type="Resource" id="ach_freestyle"]
+script = ExtResource("s_ach")
+kind = 6
+
+[sub_resource type="Resource" id="unlock_freestyle"]
+script = ExtResource("s_unlock")
+item = &"freestyle"
+name = "Freestyle frame"
+price = 1500
+achievement = SubResource("ach_freestyle")
+
+[sub_resource type="Resource" id="ach_grip_props"]
+script = ExtResource("s_ach")
+job = &"spotter_drill"
+
+[sub_resource type="Resource" id="unlock_grip_props"]
+script = ExtResource("s_unlock")
+item = &"grip_props"
+name = "Grip props"
+price = 600
+achievement = SubResource("ach_grip_props")
+
+[sub_resource type="Resource" id="ach_speed_props"]
+script = ExtResource("s_ach")
+kind = 1
+job = &"sample_delivery"
+seconds = 40.0
+
+[sub_resource type="Resource" id="unlock_speed_props"]
+script = ExtResource("s_unlock")
+item = &"speed_props"
+name = "Speed props"
+price = 800
+achievement = SubResource("ach_speed_props")
+
+[sub_resource type="Resource" id="ach_quiet_props"]
+script = ExtResource("s_ach")
+kind = 2
+job = &"inspection"
+
+[sub_resource type="Resource" id="unlock_quiet_props"]
+script = ExtResource("s_unlock")
+item = &"quiet_props"
+name = "Quiet props"
+price = 700
+achievement = SubResource("ach_quiet_props")
+
+[sub_resource type="Resource" id="ach_long_battery"]
+script = ExtResource("s_ach")
+job = &"fleet_inspection"
+
+[sub_resource type="Resource" id="unlock_long_battery"]
+script = ExtResource("s_unlock")
+item = &"long_battery"
+name = "Long-range battery"
+price = 900
+achievement = SubResource("ach_long_battery")
+
+[sub_resource type="Resource" id="ach_light_battery"]
+script = ExtResource("s_ach")
+kind = 3
+amount = 1500
+
+[sub_resource type="Resource" id="unlock_light_battery"]
+script = ExtResource("s_unlock")
+item = &"light_battery"
+name = "Light battery"
+price = 900
+achievement = SubResource("ach_light_battery")
 
 [resource]
 script = ExtResource("1_cat")
@@ -20,3 +410,5 @@ default_livery = ExtResource("l0")
 decals = Array[StringName]([&"block_print", &"jharokha", &"chakra", &"lotus", &"peacock", &"sun", &"stripes", &"team"])
 parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2"), ExtResource("p3"), ExtResource("p4"), ExtResource("p5"), ExtResource("p6"), ExtResource("p7"), ExtResource("p8"), ExtResource("p9"), ExtResource("p10")])
 default_parts = Array[Resource]([ExtResource("p0"), ExtResource("p1"), ExtResource("p2")])
+palette = Array[ExtResource("s_swatch")]([SubResource("swatch_carbon"), SubResource("swatch_graphite"), SubResource("swatch_amber"), SubResource("swatch_ivory"), SubResource("swatch_sandstone"), SubResource("swatch_indigo"), SubResource("swatch_madder"), SubResource("swatch_saffron"), SubResource("swatch_marigold"), SubResource("swatch_peacock_teal"), SubResource("swatch_rose"), SubResource("swatch_emerald"), SubResource("swatch_lapis"), SubResource("swatch_copper")])
+unlocks = Array[ExtResource("s_unlock")]([SubResource("unlock_ivory"), SubResource("unlock_sandstone"), SubResource("unlock_indigo"), SubResource("unlock_madder"), SubResource("unlock_saffron"), SubResource("unlock_marigold"), SubResource("unlock_peacock_teal"), SubResource("unlock_rose"), SubResource("unlock_emerald"), SubResource("unlock_lapis"), SubResource("unlock_copper"), SubResource("unlock_glow"), SubResource("unlock_stripes"), SubResource("unlock_block_print"), SubResource("unlock_lotus"), SubResource("unlock_sun"), SubResource("unlock_jharokha"), SubResource("unlock_peacock"), SubResource("unlock_chakra"), SubResource("unlock_team"), SubResource("unlock_light_racer"), SubResource("unlock_heavy_hauler"), SubResource("unlock_freestyle"), SubResource("unlock_grip_props"), SubResource("unlock_speed_props"), SubResource("unlock_quiet_props"), SubResource("unlock_long_battery"), SubResource("unlock_light_battery")])

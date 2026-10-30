@@ -1,6 +1,7 @@
 extends Control
 # Results after a job: every objective and its score, crew strikes, the grade,
 # pay, reputation change, who was hurt or killed, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
+# Story 27.3: and each hangar item the job opened by achievement.
 
 signal retry_pressed
 signal continue_pressed
@@ -77,6 +78,13 @@ func show_result(r: JobResult) -> void:
 		rows.add_child(casualty_row(r, id))
 		if r.casualties[id] != Roster.Status.DEAD and r.casualty_lines.get(id, "") != "":
 			Bark.chirp(id, &"neutral", &"hurt")
+	var opened := unlock_lines(r)
+	for i in opened.size():
+		var row := Label.new()
+		row.name = "Unlock%d" % i
+		row.text = opened[i]
+		row.add_theme_color_override("font_color", Color(0.95, 0.78, 0.3))
+		rows.add_child(row)
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark, r))
 		Bark.chirp(r.bark.id, r.bark.get("face", &"neutral"), r.bark.get("event", &"results"))
@@ -116,6 +124,14 @@ static func bonus_lines(r: JobResult) -> Array[String]:
 	var out: Array[String] = []
 	for b in r.bonuses:
 		out.append("%s %+d%s" % [b.text, b.amount, b.unit])
+	return out
+
+## One line per hangar item the job opened (Story 27.3), e.g. "Unlocked: Lotus
+## decal (finish Search and rescue with no crashes)".
+static func unlock_lines(r: JobResult) -> Array[String]:
+	var out: Array[String] = []
+	for u in r.unlocks:
+		out.append("Unlocked: %s (%s)" % [u.name, u.achievement.describe() if u.achievement else ""])
 	return out
 
 ## One line per struck character, e.g. "Sanjaya struck 1x".

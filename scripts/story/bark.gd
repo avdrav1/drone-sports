@@ -300,6 +300,10 @@ func _on_state(s: JobRunner.State, _previous: JobRunner.State) -> void:
 			say(&"fail")
 
 func _on_finished(result: JobResult) -> void:
+	# Story 27.3: a hangar item earned gets a cheer on the radio, unless
+	# someone died on the job.
+	if not result.unlocks.is_empty() and not Roster.Status.DEAD in result.casualties.values():
+		moment(&"unlock")
 	# Shown on the results screen, not the HUD, so the fail or complete line stays up.
 	result.bark = say(&"results", &"", false)
 	# The injured say how they are; the dead get their memorial line.

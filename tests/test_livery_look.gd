@@ -226,6 +226,8 @@ func test_ten_liveries_add_no_more_than_ten_sets() -> bool:
 
 func test_the_players_drone_wears_slot_zero() -> bool:
 	var l := _livery(5, &"chakra")
+	# Unlocked first (Story 27.3): a locked decal or lit lights cannot be applied.
+	Hangar.unlocked.append_array([&"chakra", Hangar.GLOW])
 	Hangar.set_livery(0, l)
 	var d: Drone = Sim.drone(Sim.intent())
 	var look: DroneLook = d.get_node("Look")
