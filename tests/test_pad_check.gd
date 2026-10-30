@@ -111,6 +111,49 @@ func test_shows_sticks_triggers_and_button_names() -> bool:
 	InputPrompt.use_keys()
 	return ok
 
+## Story 28.3: the footer names the leave button in the family of the pad on
+## the page (from its joy name), plus Esc, and no button that does not leave.
+func test_footer_says_how_to_leave() -> bool:
+	var ok := true
+	var want := {"Xbox Wireless Controller": "B", "DualSense Wireless Controller": "Circle",
+		"Nintendo Switch Pro Controller": PadCheck._name_on(InputPrompt.Family.NINTENDO, JOY_BUTTON_B)}
+	for joy in want:
+		var f := InputPrompt.family_of(joy)
+		var names := PadCheck.leave_names(f)
+		var text := PadCheck.back_text(f)
+		var named := names == [want[joy], "Esc"] \
+			and text == "%s or Esc: back to OPTIONS. Every other button is only shown here." % want[joy]
+		# Each pad button named leaves the page; no other button is named.
+		for b in InputPrompt.BUTTONS[f]:
+			var ev := InputEventJoypadButton.new()
+			ev.button_index = b
+			var leaves := ev.is_action(&"ui_cancel")
+			named = named and names.has(InputPrompt.BUTTONS[f][b]) == leaves
+		for b in InputPrompt.DPAD:
+			named = named and not names.has(InputPrompt.DPAD[b])
+		if not named:
+			print("        %s: %s" % [joy, text])
+		ok = ok and named
+	ok = ok and PadCheck.leave_names(InputPrompt.Family.PLAYSTATION)[0] == "Circle" \
+		and InputPrompt.family_of("DualSense Wireless Controller") == InputPrompt.Family.PLAYSTATION \
+		and InputPrompt.family_of("Nintendo Switch Pro Controller") == InputPrompt.Family.NINTENDO
+	# On the page: the footer follows the pad on the page, even after a key.
+	PlayerProfile.choose_pilot(&"arjuna")
+	var b: JobBoard = load(BOARD).instantiate()
+	Sim.add(b)
+	await Sim.process_frames(1)
+	b.open_options()
+	b.open_pad_check()
+	var page: PadCheck = b.pages[&"pad_check"]
+	await _press(JOY_BUTTON_X)
+	var shown := PadCheck.back_text(page.family_of_device())
+	ok = ok and _text(page).contains(shown)
+	InputPrompt.use_keys()
+	await Sim.process_frames(1)
+	ok = ok and _text(page).contains(shown)
+	b.free()
+	return ok
+
 func _text(node: Node) -> String:
 	var out := ""
 	for l in node.find_children("*", "Label", true, false):

@@ -6,7 +6,8 @@ extends PanelContainer
 # from Godot (the right stick not on axes 2 and 3, say) shows it here: the wrong
 # dot moves, and the raw axis and button numbers say which. While it shows it
 # takes every key and button, so nothing pressed to test moves the menu; Back
-# (B or Esc) leaves.
+# (B or Esc) leaves. Story 28.3: the footer names the leave buttons in the
+# family of the pad on the page, plus Esc, and says the rest are only shown.
 
 ## Back was pressed: the board shows OPTIONS again.
 signal closed
@@ -149,7 +150,25 @@ func _show() -> void:
 	for a in range(JOY_AXIS_LEFT_X, JOY_AXIS_TRIGGER_RIGHT + 1):
 		raw.append("%d: %+.2f" % [a, axis(a)])
 	_raw.text = "Axes  " + "   ".join(raw)
-	_back.text = "%s to go back" % InputPrompt.text(&"ui_cancel")
+	_back.text = back_text(f)
+
+## The footer for a pad of family `f`: every button and key that leaves
+## (ui_cancel), named on that family, e.g. "B or Esc: back to OPTIONS. ...".
+static func back_text(f: InputPrompt.Family) -> String:
+	return "%s: back to OPTIONS. Every other button is only shown here." % " or ".join(leave_names(f))
+
+## The names of what leaves the page on family `f`: its pad buttons, then keys.
+static func leave_names(f: InputPrompt.Family) -> Array[String]:
+	var pads: Array[String] = []
+	var keys: Array[String] = []
+	for e in InputMap.action_get_events(&"ui_cancel"):
+		if e is InputEventJoypadButton:
+			pads.append(_name_on(f, e.button_index))
+		elif e is InputEventKey:
+			var code: Key = e.physical_keycode if e.physical_keycode != KEY_NONE else e.keycode
+			var k := OS.get_keycode_string(code)
+			keys.append(InputPrompt.KEY_NAMES.get(k, k))
+	return pads + keys
 
 ## A button's name on family `f`, whatever family the prompts use.
 static func _name_on(f: InputPrompt.Family, b: JoyButton) -> String:

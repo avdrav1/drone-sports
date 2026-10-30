@@ -1441,7 +1441,7 @@ Do this epic after Epic 27 (owner's call).
   - Acceptance: A rumble playing when the game pauses is stopped (the log shows a stop), and `Rumble.play` while paused asks for nothing and returns false. Unpausing does not restart a stopped rumble.
   - Out of scope: Rumble in menus.
 
-- [ ] **28.3 PAD CHECK says how to leave**
+- [x] **28.3 PAD CHECK says how to leave**
   - Goal: The PAD CHECK footer tells the player exactly which button leaves, in the pad's own names, and that every other button is only shown.
   - Context: `scripts/ui/pad_check.gd` writes `"%s to go back" % InputPrompt.text(&"ui_cancel")`, which follows the device last touched, so it can name a key while the player is testing a pad, or the wrong family's button. The footer names the leave button for the pad on the page (B, Circle on PlayStation, B on Switch as laid out), plus Esc, e.g. "B or Esc: back to OPTIONS. Every other button is only shown here."
   - Acceptance: With an Xbox, PlayStation and Switch pad (family from the joy name, as in 23.2), the footer names that family's leave button and Esc. It never names a button that does not leave. A test checks each family.
