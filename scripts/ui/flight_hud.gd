@@ -176,6 +176,19 @@ func readout_rects() -> Array[Rect2]:
 	return [panel_rect(), Rect2(Vector2(x, s.y * 0.5 - SPD_RISE - 62.0), gauge),
 		Rect2(Vector2(x, s.y * 0.5 - 62.0), gauge)]
 
+## Everything drawn that a panel laid over the flying keeps off: the readouts,
+## the compass tape, the pilot's face, and the assists, battery and GPS along
+## the foot.
+func drawn_rects() -> Array[Rect2]:
+	var s := size
+	var tape := minf(s.x * 0.42, 560.0)
+	var out := readout_rects()
+	out.append(Rect2(Vector2((s.x - tape) * 0.5, 0), Vector2(tape, 90)))
+	if pilot_face.visible:
+		out.append(Rect2(Vector2(s.x - 228.0 - pilot_face.size.x, 22), Vector2(200.0 + pilot_face.size.x, pilot_face.size.x)))
+	out.append(Rect2(Vector2(0, s.y - 96.0), Vector2(s.x, 96.0)))
+	return out
+
 ## Screen area the job panel covers at top left, for laying out around it.
 func panel_rect() -> Rect2:
 	var p := panel()

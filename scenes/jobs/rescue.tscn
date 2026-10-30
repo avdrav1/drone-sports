@@ -223,7 +223,6 @@ script = ExtResource("97_hint")
 runner = NodePath("../../JobRunner")
 
 [node name="Help" type="PanelContainer" parent="HUD"]
-visible = false
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5

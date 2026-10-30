@@ -1,7 +1,8 @@
 class_name ControlsHint
 extends Label
 # One line of keys at the foot of the screen while a job is in its briefing,
-# named for the device last touched. Gone once the drone launches.
+# named for the device last touched. Gone once the drone launches, and while the
+# controls panel is up: it says the same.
 
 @export var runner: JobRunner
 
@@ -15,7 +16,8 @@ func _ready() -> void:
 	InputPrompt.device_changed.connect(_on_device_changed)
 
 func _process(_delta: float) -> void:
-	visible = runner != null and runner.state == JobRunner.State.BRIEFING
+	var help := get_parent().get_node_or_null("Help") as ControlsHelp
+	visible = runner != null and runner.state == JobRunner.State.BRIEFING and not (help and help.visible)
 
 func _on_device_changed(_pad: bool) -> void:
 	_set_line()

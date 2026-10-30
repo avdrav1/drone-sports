@@ -70,9 +70,15 @@ func _draw() -> void:
 	draw_string(font, Vector2(s.x - b - 308, s.y - 4), framing.footer, HORIZONTAL_ALIGNMENT_RIGHT, 300, 11, DIM)
 	draw_string(font, Vector2(b + 8, s.y - 4), "PLAYER  " + PlayerProfile.handle(), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, DIM)
 	if leaderboard_visible():
-		_draw_leaderboard(Vector2(s.x - b - 400, 150))
+		_draw_leaderboard(leaderboard_rect().position)
 	if scout_shown:
 		_draw_scout(s)
+
+## Screen area the leaderboard covers while it shows, else none.
+func leaderboard_rect() -> Rect2:
+	if not leaderboard_visible():
+		return Rect2()
+	return Rect2(Vector2(size.x - border - 400, 150), Vector2(240, 34 + leaderboard().size() * 22))
 
 func _draw_leaderboard(at: Vector2) -> void:
 	var rows := leaderboard()
