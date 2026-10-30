@@ -7,6 +7,9 @@ signal bought(upgrade: Upgrade, level: int)
 
 const UPGRADES := "res://data/upgrades/upgrades.tres"
 const APPLIED := &"garage_applied"
+## A drone's hangar slot, set by FleetCrew on a fleet drone (Story 27.6); a
+## drone without one is the player's, slot 0.
+const SLOT := &"hangar_slot"
 
 var upgrades: UpgradeList
 ## Upgrade id -> level bought.
@@ -62,28 +65,39 @@ func buy(id: StringName) -> bool:
 ## Set the drone's stats from its scene values plus every level bought, the
 ## parts fitted in its hangar slot (Story 27.4) and the chosen pilot's edge, and
 ## tune its assists to the edge, and dress it in the slot's livery (Story 27.2).
-## Slot 0 is the player's drone. Once per drone.
-func apply(drone: Drone, slot := 0) -> void:
+## Slot 0 is the player's drone; with no slot given, the drone's own (SLOT),
+## so a fleet drone handed to a runner keeps its slot. Upgrades and the edge
+## are the player's own: a fleet slot's drone (Story 27.6) takes only its
+## slot's parts and livery, so the player's drone never changes a fleet drone.
+## Once per drone.
+func apply(drone: Drone, slot := -1) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
+	if slot < 0:
+		slot = drone.get_meta(SLOT, 0)
 	drone.set_meta(APPLIED, true)
-	_add_levels(drone, levels)
+	if slot == 0:
+		_add_levels(drone, levels)
 	Hangar.apply_parts(drone, slot)
-	_add_edge(drone)
-	tune(drone)
+	if slot == 0:
+		_add_edge(drone)
+		tune(drone)
 	Hangar.dress(drone, slot)
 
 ## What `apply` would set the stats to with these parts (kind -> part id) and
 ## upgrade levels (id -> level; null is the levels bought): Part.STATS by name.
-## The hangar's stat bars (Story 27.5); no drone in the game is touched.
-func stats_with(parts: Dictionary, at_levels = null) -> Dictionary:
+## The hangar's stat bars (Story 27.5); no drone in the game is touched. For
+## a fleet slot (above 0), parts only, as `apply` gives it.
+func stats_with(parts: Dictionary, at_levels = null, slot := 0) -> Dictionary:
 	var d := Drone.new()
-	_add_levels(d, levels if at_levels == null else at_levels)
+	if slot == 0:
+		_add_levels(d, levels if at_levels == null else at_levels)
 	for kind in parts:
 		var p := Hangar.part(parts[kind])
 		if p:
 			p.apply_stats(d)
-	_add_edge(d)
+	if slot == 0:
+		_add_edge(d)
 	var out := {}
 	for stat in Part.STATS:
 		out[stat] = d.get(stat)

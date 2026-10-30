@@ -9,6 +9,11 @@ extends Node3D
 # Story 18.11: each drone flies in its pilot's FlightStyle, and a pilot whose
 # style gives advice radios the fleet some (event "advice") when a relay leg
 # ends or goes wrong, or a drone reaches its last waypoint; never on a boss job.
+# Story 27.6: drone N (from 1) is built from hangar slot N, its livery and
+# parts only, by Garage.apply; the runner applies its own lead drone at the
+# briefing, as ever, from the slot the drone carries. Slot 0, the player's
+# drone (its parts, livery, upgrades and pilot's edge), never reaches a fleet
+# drone.
 
 const DRONE := preload("res://scenes/drone/drone.tscn")
 const TAG := &"can_fly"
@@ -65,6 +70,9 @@ func _ready() -> void:
 		d.global_transform = slots[i].global_transform
 		drones.append(d)
 		pilots[d] = ids[i]
+		d.set_meta(Garage.SLOT, i + 1)
+		if not (runner and lead_runner and i == 0):
+			Garage.apply(d)
 		DroneFace.wear(d, c)
 	if command:
 		command.drones = drones

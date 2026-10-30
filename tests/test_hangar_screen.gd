@@ -22,15 +22,21 @@ func _in_viewport(size: Vector2i) -> SubViewport:
 	Sim.add(sv)
 	return sv
 
-## A board in a viewport of `size` with the hangar open.
-func _open(size := Vector2i(960, 720)) -> HangarScreen:
+## A board in a viewport of `size` with the hangar open; on a fleet slot, with
+## the fleet flown, when `fleet` (so the slot picker and COPY TO ALL are on).
+func _open(size := Vector2i(960, 720), fleet := false) -> HangarScreen:
 	PlayerProfile.choose_pilot(&"arjuna")
+	if fleet:
+		StoryFlags.set_flag(Achievement.FLEET_FLAG)
 	var sv := _in_viewport(size)
 	var b: JobBoard = load(BOARD).instantiate()
 	sv.add_child(b)
 	await Sim.process_frames(2)
 	b.menu_button(&"Garage").pressed.emit()
 	await Sim.process_frames(2)
+	if fleet:
+		b.shop.pick_slot(1)
+		await Sim.process_frames(1)
 	return b.shop
 
 func _close(h: HangarScreen) -> void:
@@ -176,7 +182,8 @@ func _page_of(h: HangarScreen, c: Control) -> StringName:
 
 func test_every_control_is_reached_by_pad_keys_and_mouse() -> bool:
 	Wallet.balance = 600
-	var h := await _open()
+	# A fleet slot: the slot picker and COPY TO ALL (Story 27.6) on too.
+	var h := await _open(Vector2i(960, 720), true)
 	h.paint(&"body_color", INDIGO) # a change, so APPLY is on
 	h.chip(&"lotus").pressed.emit() # a locked one, so BUY shows
 	h.apply_button.disabled = false
@@ -214,9 +221,26 @@ func test_every_control_is_reached_by_pad_keys_and_mouse() -> bool:
 		await Sim.process_frames(1)
 		deaf.append_array(all.filter(func(c): return _page_of(h, c) == t and h.pages[t].is_ancestor_of(c) \
 			and (c.mouse_filter == Control.MOUSE_FILTER_IGNORE or not c.get_global_rect().has_area())))
-	var ok := missed.is_empty() and escaped.is_empty() and deaf.is_empty() and all.size() > 100
+	# COPY TO ALL is off while the draft wears locked items (indigo, lotus); on
+	# the slot as saved it is on, and in the walk: right from the slot picker,
+	# down to the tabs.
+	h.open()
+	await Sim.process_frames(1)
+	var copy_on := not h.copy_button.disabled
+	h.slot_picker.grab_focus()
+	for dir in [&"ui_right", &"ui_down"]:
+		var e := InputEventAction.new()
+		e.action = dir
+		e.pressed = true
+		sv.push_input(e)
+		var up := e.duplicate()
+		up.pressed = false
+		sv.push_input(up)
+		seen.append(sv.gui_get_focus_owner())
+	var ok := missed.is_empty() and escaped.is_empty() and deaf.is_empty() and all.size() > 100 \
+		and h.slot_picker in seen and copy_on and seen[-2] == h.copy_button and seen[-1] == h.tab_button(h.tab)
 	if not ok:
-		print("        missed ", missed.map(func(c): return h.get_path_to(c)), " deaf ", deaf.map(func(c): return h.get_path_to(c)))
+		print("        copy ", copy_on, " ", seen.slice(-2).map(func(c): return h.get_path_to(c)), " missed ", missed.map(func(c): return h.get_path_to(c)), " deaf ", deaf.map(func(c): return h.get_path_to(c)))
 	await _close(h)
 	return ok
 
@@ -269,7 +293,7 @@ func test_nothing_overlaps_at_either_size() -> bool:
 	Wallet.balance = 600
 	var out := []
 	for size in SCREENS:
-		var h := await _open(size)
+		var h := await _open(size, true)
 		# The fullest state: a change pending, and on DECALS and PARTS a locked
 		# item picked (info and BUY). A pick lasts only on its own tab.
 		h.set_drone_name("Aandhi")

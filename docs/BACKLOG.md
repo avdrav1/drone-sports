@@ -1411,7 +1411,7 @@ Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
   - Acceptance: Changing a colour, light, decal or part updates the turntable at once; leaving without applying keeps the old livery. Applying writes the slot (27.1). Stat bars show the change of a part before it is fitted. Every control is reachable by pad, keys and mouse, and B or Esc backs out. Nothing overlaps at either size. The old shop's tests pass against the Upgrades tab.
   - Out of scope: Sharing liveries between players.
 
-- [ ] **27.6 A livery for every fleet drone**
+- [x] **27.6 A livery for every fleet drone**
   - Goal: In fleet jobs each drone flies its own slot's livery and parts, and the hangar sets each one up.
   - Context: The hangar has a slot picker (your drone, then Fleet 1, Fleet 2, …, as many as the largest fleet; slots past the fleet you have reached are shown locked until the fleet is first flown). Fleet jobs build each drone from its slot. The fleet command view (`scripts/fleet/command_view.gd`) marks each drone's ring and name in its light colour, so the player can tell them apart, and a "copy to all" sets every fleet slot from the current one.
   - Acceptance: In a fleet job, drone N wears slot N's livery and flies with slot N's parts (a test checks materials and stats per drone). The command view's ring for each drone is in its light colour. "Copy to all" copies the livery and parts but leaves names. Slot 0 never changes a fleet drone.

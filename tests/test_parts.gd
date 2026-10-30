@@ -146,12 +146,15 @@ func test_no_part_adds_or_removes_an_assist() -> bool:
 func test_parts_apply_to_their_slot_only() -> bool:
 	_open_all()
 	var stock := _stats(0)
+	# A fleet slot's drone takes its parts only, not the player's edge or
+	# upgrades (Story 27.6): its stock is the scene's.
+	var fleet := _stats(1)
 	Hangar.fit(2, &"heavy_hauler")
 	Hangar.fit(2, &"long_battery")
-	var ok := _stats(0) == stock and _stats(1) == stock and _stats(2) != stock \
-		and is_equal_approx(_stats(2)[&"mass"], stock[&"mass"] + 0.45)
+	var ok := _stats(0) == stock and _stats(1) == fleet and _stats(2) != fleet \
+		and is_equal_approx(_stats(2)[&"mass"], fleet[&"mass"] + 0.45)
 	Hangar.fit(0, &"light_racer")
-	ok = ok and _stats(0)[&"mass"] < stock[&"mass"] and _stats(1) == stock
+	ok = ok and _stats(0)[&"mass"] < stock[&"mass"] and _stats(1) == fleet
 	# The look follows the slot's frame too.
 	var d: Drone = Sim.drone(Sim.intent())
 	Garage.apply(d, 2)
