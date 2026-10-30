@@ -1,6 +1,6 @@
 # Art sources and licences
 
-Every texture and model file under `data/materials/` and `data/models/`, and the radio's pixel font under `data/ui/fonts/`, is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG, Poly Haven or Kenney; the source URL is recorded so each can be checked. The one exception is the title's font, Yatra One (Story 24.6): SIL Open Font License 1.1, with its licence beside it as `ui/fonts/YatraOne.OFL.txt`. Downloads are images, glTF, and fonts only.
+Every texture and model file under `data/materials/` and `data/models/`, and the radio's pixel font under `data/ui/fonts/`, is listed here (the `.tres` sets and `.import` settings beside them are ours). All are CC0 (public domain), from ambientCG, Poly Haven or Kenney; the source URL is recorded so each can be checked. The one exception is the title's font, Amita (Story 24.6): SIL Open Font License 1.1, with its licence beside it as `ui/fonts/Amita.OFL.txt`. Downloads are images, glTF, and fonts only.
 
 Material sets are ambientCG 1K-JPG downloads, repacked: `<set>_albedo.jpg` is the colour map; `<set>_nr.jpg` holds the OpenGL normal map's red and green in R and G and the roughness map in B (glass: roughness 0.05 to 0.45 from the smudge mask). Their `.import` files are checked in (VRAM compressed, mipmaps, normal-map detection off so B survives).
 
@@ -70,4 +70,4 @@ The drone decals and race numbers (Story 27.2: block print, jharokha jali, chakr
 | `models/crew/colormap.png` | Kenney Mini Characters: https://kenney.nl/assets/mini-characters | CC0 |
 | `ui/fonts/PixelOperatorMonoHB.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
 | `ui/fonts/PixelOperatorMono-Bold.ttf` | Pixel Operator by Jayvee Enaguas (HarvettFox96): https://www.dafont.com/pixel-operator.font | CC0 |
-| `ui/fonts/YatraOne-Regular.ttf` | Yatra One by The Yatra Project Authors: https://github.com/google/fonts/tree/main/ofl/yatraone | SIL Open Font License 1.1 |
+| `ui/fonts/Amita-Bold.ttf` | Amita by Eduardo Tunni: https://github.com/google/fonts/tree/main/ofl/amita | SIL Open Font License 1.1 |

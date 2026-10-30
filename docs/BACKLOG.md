@@ -1245,11 +1245,12 @@ Owner decisions:
   - Acceptance: `origin` points at `avdrav1/jaisalmer`, `scripts/ship.sh` deploys from it, and the domain still serves the game.
   - Out of scope: Renaming the folder on disk.
 
-- [ ] **24.6 The name, lettered like Hindi**
+- [x] **24.6 The name, lettered like Hindi**
   - Goal: The title "JAISALMER" is written in English letters drawn in the manner of Devanagari: the letters hang from one continuous headline bar (the shirorekha), with thick and thin strokes and a few hooked strokes below the line, so at a glance it reads like Hindi script and on a second look it reads "Jaisalmer".
   - Context: Today the title screen's logo (`title_screen.gd`, `title_label`) and the intro's title card use the cabinet skin's display font, Press Start 2P. The logo becomes its own `TitleMark` control used by both, with the name from `config/name` (24.1). The look comes from an open-licence (OFL) font with a Devanagari-inspired Latin face. Candidates to compare include Yatra One, Rozha One, Teko and Kurale; freeware "Hindi-look" fonts with unclear licences are not used. The bar is drawn by the control across the letters' tops, running a little past the first and last letter, because no candidate draws one across Latin text. Before choosing, a comparison sheet renders "JAISALMER" in each candidate with the bar and goes to the owner, who picks one. The font goes in `data/ui/fonts/` with its licence and a line in `data/LICENSES.md`, like Press Start 2P. Everything else on the title screen (PRESS START, the crawl, the menu) keeps the arcade font.
   - Acceptance: The title screen and the intro card draw the name with the chosen font and an unbroken headline bar touching the top of every letter, wider than the word on both sides. It is crisp and fully on screen at 960×720 and 1920×1080 and in the web build. It reads `config/name`, so a changed name redraws with no other edit. The font's licence file is in the repo and listed. A test checks the bar spans the word and that the control uses the font; the look is the owner's call on a rendered screenshot.
   - Out of scope: A new icon, Devanagari text (the name stays in English letters), the rest of the UI's fonts.
+  - Note: The owner asked for a more Indian look and picked from a sheet of fonts and treatments: Amita (OFL, drawn with a Devanagari pen), with the i-matra's loop (ि) rising from the I over the S, filled saffron to gold with a maroon edge. Yatra One is gone. The loop and colours are TitleMark's (`matra`, `saffron`), so the intro card wears them too.
 
 ## Epic 25: Names from the epics
 
