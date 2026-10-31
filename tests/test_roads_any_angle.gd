@@ -138,7 +138,9 @@ static func rounded(text: String) -> String:
 static func _layouts() -> Dictionary:
 	var out := {"sandbox": SANDBOX}
 	for seed in [41, 1234, 98765]:
+		# Grid cities: seeds pick a pattern since Story 26.6.
 		out["roll%d" % seed] = VARIETY.roll(SANDBOX, seed)
+		out["roll%d" % seed].pattern = CityLayout.Pattern.GRID
 	return out
 
 static func _done() -> void:

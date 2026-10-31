@@ -13,9 +13,10 @@ const DESERT := preload("res://scenes/world/desert.tscn")
 const STREETS := preload("res://scenes/world/streets.tscn")
 
 ## A rolled free-flight layout for seed `s`, with drops and squares turned up so
-## every seed exercises them.
+## every seed exercises them, and kept a grid (seeds pick a pattern since 26.6).
 static func _broken(s: int) -> CityLayout:
 	var l := VARIETY.roll(SANDBOX, s)
+	l.pattern = CityLayout.Pattern.GRID
 	l.drop_chance = maxf(l.drop_chance, 0.3)
 	l.square_chance = maxf(l.square_chance, 0.08)
 	return l

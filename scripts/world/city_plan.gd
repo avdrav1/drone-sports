@@ -11,6 +11,9 @@ extends RefCounted
 # 26.4: the plan also gives the general form beside the rectangles: streets as
 # centrelines with a width and a kind, junctions joining them, and blocks as
 # polygons that the lots are cut from, so later patterns can run at any angle.
+# Story 26.6: the DIAGONAL pattern lays the grid, then one or two avenues across
+# it at a seeded angle, splitting the blocks they cross into wedges along their
+# kerbs; a wedge's lots are trimmed to fit it, or left out.
 
 ## Trim kinds: a low wall round a roof, a slab round a wall at a storey line, a
 ## plant room on the top roof.
@@ -88,12 +91,19 @@ var squares: Array[Rect2] = []
 var lots: Array[Rect2] = []
 ## Lots left empty (Story 26.2): sand, no building, no shape. Never in `lots`.
 var vacant: Array[Rect2] = []
-## The general form (Story 26.4). One path per street, same order as streets.
+## The general form (Story 26.4). One path per street, same order as streets;
+## diagonal avenues (Story 26.6), which have no rect, come after them.
 var paths: Array[Street] = []
+## The diagonal avenues (Story 26.6): their indices in `paths`, and each one's
+## angle in degrees from +x towards +z, same order.
+var diagonals := PackedInt32Array()
+var diagonal_angles := PackedFloat32Array()
 ## Every place two or more paths meet.
 var junctions: Array[Junction] = []
 ## Each block's outline, same order as blocks: a closed polygon (last point
-## joins the first) wound like the rect's corners, position first.
+## joins the first) wound like the rect's corners, position first. A wedge a
+## diagonal avenue cut (Story 26.6) is wound the same way; its entry in
+## `blocks` is its bounds.
 var block_polygons: Array[PackedVector2Array] = []
 ## The block each lot (and each vacant lot) was cut from, indexing blocks.
 var lot_block := PackedInt32Array()
@@ -152,6 +162,10 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	plan.streets = runs[0]
 	plan.street_axis = runs[1]
 	_paths(plan, axis[2])
+	# Diagonal avenues (Story 26.6) and the strips they cut from the blocks.
+	var cutters: Array[PackedVector2Array] = []
+	if layout.pattern == CityLayout.Pattern.DIAGONAL:
+		cutters = _diagonals(layout, plan)
 	var squaring := RandomNumberGenerator.new()
 	squaring.seed = layout.seed + 19
 	var sorted := _sorted(axis[1])
@@ -166,39 +180,328 @@ static func _generate(layout: CityLayout) -> CityPlan:
 			var sx := Vector2(sorted[cells.position.x].x, sorted[cells.end.x - 1].y)
 			var sz := Vector2(sorted[cells.position.y].x, sorted[cells.end.y - 1].y)
 			var block := Rect2(sx.x, sz.x, sx.y - sx.x, sz.y - sz.x)
-			var b := plan.blocks.size()
-			plan.blocks.append(block)
-			var outline := polygon(block)
-			plan.block_polygons.append(outline)
-			if layout.square_chance > 0.0 and inside(block, r) and squaring.randf() < layout.square_chance:
-				plan.squares.append(block)
-				continue
-			# Lots are cut from the block's outline: spans along its bounds, each
-			# kept only if it fits inside. A rectangle's bounds are the rectangle,
-			# so a grid cuts the lots it always did.
-			var bounds := _bounds(outline)
-			sx = Vector2(bounds.position.x, bounds.end.x)
-			sz = Vector2(bounds.position.y, bounds.end.y)
-			for cx in _split(layout, rng, sx):
-				for cz in _split(layout, rng, sz):
-					var lot := Rect2(cx.x, cz.x, cx.y - cx.x, cz.y - cz.x)
-					var jitter := rng.randf_range(0.5, 1.0)
-					if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, outline):
-						continue
-					if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
-						plan.vacant.append(lot)
-						plan.vacant_block.append(b)
-						continue
-					var d := clampf(lot.get_center().length() / r, 0.0, 1.0)
-					var t := pow(1.0 - d, layout.height_falloff) * jitter
-					plan.lots.append(lot)
-					plan.lot_block.append(b)
-					plan.heights.append(lerpf(layout.height_min, layout.height_max, t))
+			var square := layout.square_chance > 0.0 and inside(block, r) and squaring.randf() < layout.square_chance
+			for outline in _wedges(polygon(block), cutters):
+				var b := plan.blocks.size()
+				plan.blocks.append(_bounds(outline))
+				plan.block_polygons.append(outline)
+				if square:
+					plan.squares.append(_bounds(outline))
+					continue
+				_cut_lots(layout, plan, rng, vacancy, b, outline != polygon(block))
 	var shape_rng := RandomNumberGenerator.new()
 	shape_rng.seed = layout.seed + 3
 	for i in plan.lots.size():
 		plan.shapes.append(_shape(layout, shape_rng, plan.lots[i], plan.heights[i]))
 	return plan
+
+## Cuts block `b`'s lots: spans along its bounds, each kept only if it fits
+## inside. A rectangle's bounds are the rectangle, so a grid cuts the lots it
+## always did. In a wedge (Story 26.6) a lot must also keep the sidewalk from
+## the avenue's kerb: one that does not is trimmed to fit, and left out if that
+## leaves it narrower than lot_min either way.
+static func _cut_lots(layout: CityLayout, plan: CityPlan, rng: RandomNumberGenerator, vacancy: RandomNumberGenerator,
+		b: int, wedge: bool) -> void:
+	var r := layout.core_radius
+	var outline := plan.block_polygons[b]
+	var inner := outline
+	if wedge:
+		var grown := Geometry2D.offset_polygon(outline, -layout.sidewalk, Geometry2D.JOIN_MITER)
+		if grown.size() != 1:
+			return
+		inner = grown[0]
+	var bounds := _bounds(outline)
+	var sx := Vector2(bounds.position.x, bounds.end.x)
+	var sz := Vector2(bounds.position.y, bounds.end.y)
+	for cx in _split(layout, rng, sx):
+		for cz in _split(layout, rng, sz):
+			var lot := Rect2(cx.x, cz.x, cx.y - cx.x, cz.y - cz.x)
+			var jitter := rng.randf_range(0.5, 1.0)
+			if wedge:
+				lot = _trimmed(lot, inner, layout.lot_min)
+				if not lot.has_area():
+					continue
+			if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, outline):
+				continue
+			if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
+				plan.vacant.append(lot)
+				plan.vacant_block.append(b)
+				continue
+			var d := clampf(lot.get_center().length() / r, 0.0, 1.0)
+			var t := pow(1.0 - d, layout.height_falloff) * jitter
+			plan.lots.append(lot)
+			plan.lot_block.append(b)
+			plan.heights.append(lerpf(layout.height_min, layout.height_max, t))
+
+## Story 26.6: `outline` less every strip in `cutters`, as the pieces left,
+## each wound like a rect's polygon. Slivers under a square metre are dropped
+## (sand between the kerbs). With no cutters, the outline itself.
+static func _wedges(outline: PackedVector2Array, cutters: Array[PackedVector2Array]) -> Array[PackedVector2Array]:
+	var pieces: Array[PackedVector2Array] = [outline]
+	for cutter in cutters:
+		var next: Array[PackedVector2Array] = []
+		for piece in pieces:
+			if Geometry2D.intersect_polygons(piece, cutter).is_empty():
+				next.append(piece)
+				continue
+			for part in Geometry2D.clip_polygons(piece, cutter):
+				if area(part) < 0.0:
+					part.reverse()
+				if area(part) > 1.0:
+					next.append(part)
+		pieces = next
+	return pieces
+
+## `lot` trimmed on one side, as little as fits it inside `inner`, keeping both
+## sides at least `least`; the trim that keeps the most area wins. An empty
+## rect when none does.
+static func _trimmed(lot: Rect2, inner: PackedVector2Array, least: float) -> Rect2:
+	if lot.size.x < least - 0.001 or lot.size.y < least - 0.001:
+		return Rect2()
+	if fits(lot, inner):
+		return lot
+	var best := Rect2()
+	for side in 4:
+		var ax := side / 2
+		var spare := lot.size[ax] - least
+		if spare <= 0.0 or not fits(_shrunk(lot, side, spare), inner):
+			continue
+		# Shrinking a rect inside a convex outline keeps it inside: search for
+		# the least trim that fits, to a quarter metre.
+		var lo := 0.0
+		var hi := spare
+		while hi - lo > 0.25:
+			var mid := (lo + hi) * 0.5
+			if fits(_shrunk(lot, side, mid), inner):
+				hi = mid
+			else:
+				lo = mid
+		var trimmed := _shrunk(lot, side, hi)
+		if trimmed.get_area() > best.get_area():
+			best = trimmed
+	return best
+
+## `r` with `by` cut off side `side` (-x, +x, -z, +z).
+static func _shrunk(r: Rect2, side: int, by: float) -> Rect2:
+	var out := Rect2(r)
+	var ax := side / 2
+	out.size[ax] -= by
+	if side % 2 == 0:
+		out.position[ax] += by
+	return out
+
+## Story 26.6: lays the diagonal avenues as paths after the grid's, from their
+## own stream (seed + 29): `diagonals` of them, the first at a seeded angle to
+## the grid in either sense, the second the other way so the two cross; each
+## passes within `diagonal_offset` of the centre and runs across the core from
+## edge to edge. Near the edge a grid street's square end can stick partly into
+## an avenue, which no road could cover cleanly; such an end is moved into the
+## avenue, a T-junction, and each avenue runs on past the core's edge, if need
+## be, until it has wholly crossed every grid street it meets, but never more
+## than `diagonal_run_on` (a T that would need more is a dead end short of the
+## avenue instead). The grid's junctions are then found again from the moved
+## streets. Joins each avenue
+## to every street it shares ground with. Returns the strips the avenues cut
+## from the blocks, run on far past the core so no block is left notched.
+static func _diagonals(layout: CityLayout, plan: CityPlan) -> Array[PackedVector2Array]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = layout.seed + 29
+	var r := layout.core_radius
+	var w := layout.avenue_width
+	var grid := plan.paths.size()
+	var count := rng.randi_range(layout.diagonals.x, layout.diagonals.y)
+	var sense := 1.0 if rng.randf() < 0.5 else -1.0
+	var cutters: Array[PackedVector2Array] = []
+	var lines := []
+	for k in count:
+		var deg := clampf(snappedf(rng.randf_range(layout.diagonal_angle.x, layout.diagonal_angle.y), 0.5),
+			layout.diagonal_angle.x, layout.diagonal_angle.y)
+		deg *= sense * (1.0 if k % 2 == 0 else -1.0)
+		var dir := Vector2.from_angle(deg_to_rad(deg))
+		var across := dir.orthogonal()
+		var off := snappedf(rng.randf_range(-layout.diagonal_offset, layout.diagonal_offset), 0.5)
+		var mid := across * off
+		var a := mid - dir * r * 3.0
+		var e := mid + dir * r * 3.0
+		var o := across * w * 0.5
+		cutters.append(PackedVector2Array([a - o, e - o, e + o, a + o]))
+		lines.append([deg, dir, mid, sqrt(r * r - off * off)])
+	var reach := r + layout.diagonal_run_on
+	var before := []
+	for i in grid:
+		before.append(plan.paths[i].points.duplicate())
+	for i in grid:
+		for k in count:
+			_end_in(plan, i, grid, cutters[k], lines[k][1], lines[k][2], w, reach)
+	# A moved end can part two grid streets that met there, or bring two
+	# together: the grid's junctions are found again from the moved streets.
+	for i in grid:
+		if plan.paths[i].points != before[i]:
+			_rejoin(plan, grid)
+			break
+	for k in count:
+		var dir: Vector2 = lines[k][1]
+		var mid: Vector2 = lines[k][2]
+		var lo: float = -lines[k][3]
+		var hi: float = lines[k][3]
+		for i in grid:
+			for part in Geometry2D.intersect_polygons(strip(plan.paths[i]), cutters[k]):
+				for q in part:
+					lo = minf(lo, (q - mid).dot(dir))
+					hi = maxf(hi, (q - mid).dot(dir))
+		var path := Street.new()
+		path.width = w
+		path.kind = Kind.AVENUE
+		path.points = PackedVector2Array([mid + dir * lo, mid + dir * hi])
+		plan.diagonals.append(plan.paths.size())
+		plan.diagonal_angles.append(lines[k][0])
+		plan.paths.append(path)
+	for d in plan.diagonals:
+		for i in plan.paths.size():
+			if i != d and not (plan.diagonals.has(i) and i < d):
+				_join(plan, d, i)
+	_insert_points(plan)
+	return cutters
+
+## Story 26.6: the junctions of the first `grid` paths found again from their
+## ground, as `_paths` finds them from the rects (each grid path is straight and
+## axis-aligned, so its strip is its rect), and each path's points put back to
+## its ends and its junctions.
+static func _rejoin(plan: CityPlan, grid: int) -> void:
+	plan.junctions.clear()
+	var rects: Array[Rect2] = []
+	for i in grid:
+		var path := plan.paths[i]
+		path.points = PackedVector2Array([path.points[0], path.points[-1]])
+		rects.append(_bounds(strip(path)))
+	for i in grid:
+		for j in range(i + 1, grid):
+			if not rects[i].intersects(rects[j]):
+				continue
+			var at := rects[i].intersection(rects[j]).get_center()
+			var junction: Junction = null
+			for k in plan.junctions:
+				if k.at.distance_to(at) < 0.01:
+					junction = k
+			if junction == null:
+				junction = Junction.new()
+				junction.at = at
+				plan.junctions.append(junction)
+			for n in [i, j]:
+				if not junction.streets.has(n):
+					junction.streets.append(n)
+	_insert_points(plan)
+
+## Moves an end of grid path `i` whose square end sticks partly or wholly into
+## the avenue `cutter` (centreline through `mid` along `dir`, `w` wide) to a
+## T-junction inside it: past the near kerb across the street's whole width and
+## short of the far one. Where the avenue would have to run on more than `reach`
+## from `mid` to cross that T whole, the end is pulled back to just short of the
+## near kerb instead (a dead end), so no road leaves the flat ground. An end
+## inside another grid street (a T of the grid's own) is left as it is.
+static func _end_in(plan: CityPlan, i: int, grid: int, cutter: PackedVector2Array, dir: Vector2, mid: Vector2, w: float,
+		reach: float) -> void:
+	var path := plan.paths[i]
+	var across := dir.orthogonal()
+	for last in [false, true]:
+		var e := path.points[-1] if last else path.points[0]
+		var u := (e - (path.points[0] if last else path.points[-1])).normalized()
+		var o := u.orthogonal() * path.width * 0.5
+		var sides := [e - o, e + o]
+		var touched := Geometry2D.is_point_in_polygon(sides[0], cutter) or Geometry2D.is_point_in_polygon(sides[1], cutter)
+		for c in 4:
+			touched = touched or Geometry2D.segment_intersects_segment(sides[0], sides[1], cutter[c], cutter[(c + 1) % 4]) != null
+		if not touched or absf(u.dot(across)) < 1e-6:
+			continue
+		var inside_grid := false
+		for j in grid:
+			if j != i and Geometry2D.is_point_in_polygon(sides[0], strip(plan.paths[j])) \
+					and Geometry2D.is_point_in_polygon(sides[1], strip(plan.paths[j])):
+				inside_grid = true
+		if inside_grid:
+			continue
+		# Along u from the end, where each side of the street meets each kerb.
+		var near := -INF
+		var far := INF
+		for q: Vector2 in sides:
+			var t0 := (w * 0.5 - (q - mid).dot(across)) / u.dot(across)
+			var t1 := (-w * 0.5 - (q - mid).dot(across)) / u.dot(across)
+			near = maxf(near, minf(t0, t1))
+			far = minf(far, maxf(t0, t1))
+		if near >= far:
+			continue
+		var to := e + u * (near + far) * 0.5
+		var start := path.points[-1] if not last else path.points[0]
+		# A T the avenue would have to run on past `reach` to cross whole is
+		# pulled back instead, to a dead end just short of the near kerb.
+		if _reach(PackedVector2Array([start, to]), path.width, cutter, dir, mid) > reach:
+			var enter := INF
+			for q: Vector2 in sides:
+				var t0 := (w * 0.5 - (q - mid).dot(across)) / u.dot(across)
+				var t1 := (-w * 0.5 - (q - mid).dot(across)) / u.dot(across)
+				enter = minf(enter, minf(t0, t1))
+			var back := e + u * (enter - 0.05)
+			if (back - start).dot(u) > path.width:
+				to = back
+		var kept := PackedVector2Array()
+		var length := (to - start).length()
+		for q in path.points:
+			if q != e and (q - start).length() < length - 0.001:
+				kept.append(q)
+		if last:
+			kept.append(to)
+		else:
+			kept.reverse()
+			kept.append(to)
+			kept.reverse()
+		path.points = kept
+
+## How far along `dir` from `mid` the ground a straight centreline `points`,
+## `width` wide, shares with `cutter` reaches, either way; 0 when none.
+static func _reach(points: PackedVector2Array, width: float, cutter: PackedVector2Array, dir: Vector2, mid: Vector2) -> float:
+	var path := Street.new()
+	path.points = points
+	path.width = width
+	var most := 0.0
+	for part in Geometry2D.intersect_polygons(strip(path), cutter):
+		for q in part:
+			most = maxf(most, absf((q - mid).dot(dir)))
+	return most
+
+## The ground a straight path covers: its centreline swept half its width
+## either side, cut square at its ends.
+static func strip(path: Street) -> PackedVector2Array:
+	var a := path.points[0]
+	var e := path.points[path.points.size() - 1]
+	var o := (e - a).normalized().orthogonal() * path.width * 0.5
+	return PackedVector2Array([a - o, e - o, e + o, a + o])
+
+## Adds a junction between paths `x` and `y` if they share ground: where their
+## centrelines cross, or the middle of the ground they share when they do not.
+## A junction already there (within a centimetre) takes them both.
+static func _join(plan: CityPlan, x: int, y: int) -> void:
+	var px := plan.paths[x]
+	var py := plan.paths[y]
+	var big := PackedVector2Array()
+	for part in Geometry2D.intersect_polygons(strip(px), strip(py)):
+		if absf(area(part)) > 0.01 and (big.is_empty() or absf(area(part)) > absf(area(big))):
+			big = part
+	if big.is_empty():
+		return
+	var at = Geometry2D.segment_intersects_segment(px.points[0], px.points[-1], py.points[0], py.points[-1])
+	if at == null:
+		at = _bounds(big).get_center()
+	var junction: Junction = null
+	for k in plan.junctions:
+		if k.at.distance_to(at) < 0.01:
+			junction = k
+	if junction == null:
+		junction = Junction.new()
+		junction.at = at
+		plan.junctions.append(junction)
+	for n in [x, y]:
+		if not junction.streets.has(n):
+			junction.streets.append(n)
 
 ## A rect's outline as a polygon: position, then on round its corners.
 static func polygon(r: Rect2) -> PackedVector2Array:
@@ -261,6 +564,11 @@ static func _paths(plan: CityPlan, avenues: Array) -> void:
 			for n in [i, j]:
 				if not junction.streets.has(n):
 					junction.streets.append(n)
+	_insert_points(plan)
+
+## Puts on each junction's streets the point of their (straight) centreline
+## nearest it, in order along it, unless a point is already there.
+static func _insert_points(plan: CityPlan) -> void:
 	for junction in plan.junctions:
 		for n in junction.streets:
 			var path := plan.paths[n]

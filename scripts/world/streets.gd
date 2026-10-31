@@ -425,7 +425,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 			k += 1
 	var before := {}
 	for patch in patches:
-		var polys := _patch(patch[0], patch[1], patch[2], legs)
+		var polys := _patch(patch[0], patch[1], patch[2], legs, cuts)
 		if polys.is_empty():
 			continue
 		var owner := -1
@@ -496,12 +496,17 @@ static func _same(a: PackedVector2Array, b: PackedVector2Array) -> bool:
 	return true
 
 ## The ground a crossing leaves between the stretches round it: its zones
-## together, less any leg there that runs on uncut (which already covers it).
-static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array) -> Array[PackedVector2Array]:
+## together, less any leg there that runs on uncut (which already covers it),
+## and less what the stretches of a leg cut there cover outside its cuts (a
+## diagonal avenue cut by one street can still run over another's T end,
+## Story 26.6; at a grid crossing they only touch, so nothing changes).
+static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array, cuts := {}) -> Array[PackedVector2Array]:
 	var parts: Array[PackedVector2Array] = []
 	parts.assign(zones)
 	for a in at:
 		if cut.has(a):
+			if cuts.has(a):
+				parts = _less_stretches(parts, legs[a], cuts[a])
 			continue
 		var cover: PackedVector2Array = legs[a].poly
 		var next: Array[PackedVector2Array] = []
@@ -531,6 +536,32 @@ static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array) -
 		if not merged:
 			union.append(z)
 	return union
+
+## `parts` less the ground leg `L`'s stretches cover between its cuts
+## `list`; only parts sharing more than a hundredth of a m² with a stretch
+## are clipped, so ones a stretch only touches keep their corners exactly.
+static func _less_stretches(parts: Array[PackedVector2Array], L: Piece, list: Array) -> Array[PackedVector2Array]:
+	var sorted := list.duplicate()
+	sorted.sort_custom(func(x, y): return x.x < y.x)
+	var from := L.a0
+	for c in sorted + [Vector2(L.a1, L.a1)]:
+		if c.x > from + 0.001:
+			var cover := L.area(Rect2(from, L.c - L.width * 0.5, c.x - from, L.width))
+			var next: Array[PackedVector2Array] = []
+			for z in parts:
+				var shared := 0.0
+				if bounds(z).intersects(bounds(cover)):
+					for q in Geometry2D.intersect_polygons(z, cover):
+						shared += absf(CityPlan.area(q))
+				if shared <= 0.01:
+					next.append(z)
+					continue
+				for rest in Geometry2D.clip_polygons(z, cover):
+					if CityPlan.area(rest) > 0.01:
+						next.append(rest)
+			parts = next
+		from = maxf(from, c.y)
+	return parts
 
 ## True when another piece meets `piece`'s end at `along` (a crossing or a
 ## street it runs into; a joint, where the road runs on, is neither).
@@ -628,6 +659,11 @@ static func inset(poly: PackedVector2Array, by: float) -> PackedVector2Array:
 		var m0 := Vector2(-prev.y, prev.x) * turn
 		var m1 := Vector2(-next.y, next.x) * turn
 		out.append(poly[i] + (m0 + m1) * (by / (1.0 + m0.dot(m1))))
+	# An edge shorter than the inset at a sharp corner (a wedge's tip) folds the
+	# moved corners past each other; let the clipper drop that edge instead.
+	if not convex(out) or CityPlan.area(out) * turn <= 0.0:
+		var grown := Geometry2D.offset_polygon(poly, -by, Geometry2D.JOIN_MITER)
+		return grown[0] if not grown.is_empty() else PackedVector2Array()
 	return out
 
 ## True when `r` lies inside the polygon `poly` (edges included).

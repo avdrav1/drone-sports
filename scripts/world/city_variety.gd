@@ -34,6 +34,10 @@ const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance", &"drop_cha
 @export var square_chance := Vector2(0, 0.1)
 ## Rolled lengths snap to this many metres, chances and falloff to a twentieth.
 @export var step := 0.5
+## How often each street pattern comes up (Story 26.6), indexed by
+## CityLayout.Pattern; picked from its own stream so the fields above roll as
+## before.
+@export var pattern_weights := PackedFloat32Array([1.0, 1.0])
 
 ## A copy of `base` with seed `s` and every field rolled from it.
 func roll(base: CityLayout, s: int) -> CityLayout:
@@ -48,4 +52,11 @@ func roll(base: CityLayout, s: int) -> CityLayout:
 		else:
 			var unit := 0.05 if f in FINE else step
 			out.set(f, clampf(snappedf(rng.randf_range(r.x, r.y), unit), r.x, r.y))
+	out.pattern = pick_pattern(s)
 	return out
+
+## The street pattern seed `s` picks, by `pattern_weights` (Story 26.6).
+func pick_pattern(s: int) -> CityLayout.Pattern:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = s + 23
+	return rng.rand_weighted(pattern_weights) as CityLayout.Pattern

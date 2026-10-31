@@ -4,8 +4,9 @@ extends Resource
 # lots cut from each block, and heights that fall off from downtown to the edge.
 # Distances in metres; the grid is centred on the origin.
 
-## Street patterns a seed can pick (Story 26.3 on). Only the grid for now.
-enum Pattern { GRID }
+## Street patterns a seed can pick (Story 26.3 on): the grid, and the grid
+## crossed by one or two diagonal avenues (Story 26.6).
+enum Pattern { GRID, DIAGONAL }
 
 @export var seed := 1
 ## Lots stand fully inside this radius. Keep it inside the terrain's flat radius.
@@ -42,6 +43,15 @@ enum Pattern { GRID }
 @export_range(0.0, 1.0) var drop_chance := 0.0
 ## Chance a block holds no lots: a paved square. Its own stream too.
 @export_range(0.0, 1.0) var square_chance := 0.0
+## Diagonal avenues (Story 26.6, `pattern` DIAGONAL): how many (least, most),
+## their angle to the grid in degrees (least, most), and how far from the centre
+## each may pass, in metres. Each is avenue_width wide and runs across the core.
+@export var diagonals := Vector2i(1, 2)
+@export var diagonal_angle := Vector2(20, 70)
+@export var diagonal_offset := 12.0
+## How far past the core's edge, in metres, an avenue and the grid street ends
+## that meet it in a T may run, so the road stays on the terrain's flat ground.
+@export var diagonal_run_on := 8.0
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
@@ -49,7 +59,8 @@ enum Pattern { GRID }
 func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
 		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance,
-		pattern, drop_chance, square_chance]
+		pattern, drop_chance, square_chance, diagonals, diagonal_angle, diagonal_offset,
+		diagonal_run_on]
 
 ## Drops every entry of a per-layout cache (keyed by params() and then the
 ## builder's own settings) that this layout did not build, so free flight's
