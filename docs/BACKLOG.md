@@ -1299,3 +1299,86 @@ Owner decisions (all decided):
   - Context: `docs/CHARACTERS.md` (cast table, strike examples and consequences), `docs/BOSS.md`, `docs/VISION.md` mentions, and CLAUDE.md rule 9. That rule says the boss's design is original and imitates no existing franchise. Ravana comes from the epics, not a franchise; the rule is reworded to "The boss (Ravana) is a job like any other…", and keeps "disabled, never destroyed" and "no explosions". The cast's namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs.
   - Acceptance: The docs use the new names and ids throughout (a test greps the .md files outside BACKLOG.md for old names, as in 25.1). Rule 9 names Ravana and keeps the disable-only rule. Older backlog stories keep their text.
   - Out of scope: Rewriting backlog history.
+
+## Epic 26: A city worth exploring
+
+Done when free flight is a different city every time you enter it, not always a grid (broken grids, diagonal avenues, rings and spokes, winding old towns), with things to thread at drone height (ducts and pipes overhead, fences with holes in them) and cars driving the streets.
+
+Owner decisions:
+- Free flight rolls a new city every launch. The seed shows on screen and a key rerolls it. Jobs keep their fixed cities (`data/city/sandbox_city.tres`, seed 7), so their courses, tests and fingerprints do not move.
+- Not every city is a full grid. A seed picks one of four street patterns: grid (as now, gaps allowed), diagonal avenues, ring and spokes, or winding old town. Patterns past the broken grid need streets at any angle, so the plan's streets stop being axis-aligned rectangles first (26.4, 26.5), with seed 7 building exactly as it does now.
+- Cars are solid. A drone that hits one is pushed like it hit a moving wall; the car does not notice and keeps driving.
+
+Rules that hold throughout: nothing here moves a drone (rule 1), cars and obstacles are scene content like walls, never assists (rule 2), and new pieces are parameters on `CityLayout` or the generator scenes (rule 4). Every opening a drone is meant to fly through is wide and tall enough for Act 1's collision guard to let it through: at least the drone's collision box plus the guard's margin on each side, with room to spare (a test checks the numbers against `CollisionGuard.margin` and the drone's shape, not a hard-coded size). Everything is seeded: the same seed builds the same city, obstacles and traffic.
+
+- [ ] **26.1 A new city every launch**
+  - Goal: Entering free flight builds a city from a fresh random seed. The seed shows on the HUD, and a key rebuilds the city from a new one.
+  - Context: `scenes/debug_flight.tscn` instances `City`, `Streets` (with its `StreetClutter`) and `Rooftops`, which all read `sandbox_city.tres`. Free flight duplicates that layout, sets `seed`, and hands the copy to all three before they build, so the shared resource and every job scene keep seed 7. The spawn plaza and jammer clearings come with the copy. Reroll: a new `reroll_city` action on a free key, listed in the controls help and on the pad (Epic 23). It clears and rebuilds the three nodes, puts the drone back on the plaza as `reset_drone` does, and the radar and map follow (they read the plan through `City.layout`). `CityPlan`, `Streets`, `StreetClutter` and `Rooftops` cache per layout; rerolls must not grow those caches without bound (keep the current layout's entries, drop the rest).
+  - Acceptance: Two launches of free flight build different plans; a given seed builds the same plan every time. Job scenes that show the city still build seed 7, and the obstacle fingerprints in `test_obstacle_structures.gd` are unchanged. A reroll changes the plan, the radar's lots, and the HUD seed, and leaves the drone on the plaza. After ten rerolls each cache holds one layout's entries. The seed is on the HUD at 960×720 and 1920×1080.
+  - Out of scope: Typing in a seed, saving favourite seeds, new layout parameters (26.2).
+
+- [ ] **26.2 Cities that differ in proportion, not just lots**
+  - Goal: Each free-flight seed also picks the city's proportions: block size, street and avenue widths, how tall downtown gets, and how many lots stand empty.
+  - Context: A `CityVariety` resource (`data/city/free_flight_variety.tres`) gives a range for each `CityLayout` field that varies. Free flight rolls each one from the seed before building, so one number still names one city. New layout field `vacant_chance`: lots left empty (sand, no building), which gives open yards between towers. Ranges stay inside what the generators already handle: lots inside `core_radius`, the core inside the terrain's flat radius, clearings kept.
+  - Acceptance: Across 50 seeds every rolled field stays in its range and every plan passes the 12.1 checks (no overlaps, inside the core, clearings clear). At least two of block size, street width and height range differ between most pairs of seeds (a test over 20 seeds). With `vacant_chance` 0 a plan matches the plan from before the field existed. The scene loads headless with no errors for 20 seeds.
+  - Out of scope: Street patterns (26.3 on), districts and landmarks, terrain changes.
+
+- [ ] **26.3 Broken grids**
+  - Goal: A grid city can drop street segments, so blocks merge into superblocks, streets end in dead ends and T-junctions, and some blocks open into squares.
+  - Context: `CityPlan` keeps its axis-aligned streets for this story. New `CityLayout` fields: `drop_chance` (a street segment between two junctions is left out and the blocks either side merge), `square_chance` (a block has no lots: a paved square), and `pattern` (an enum, `GRID` for now; later stories add the rest). Dropped segments never cut a clearing off from every street, and the street network stays connected (every street reachable from every other). `CityVariety` rolls the new fields. Streets, sidewalks, lights and clutter already follow the plan's streets and blocks; check they handle merged blocks and dead ends (no sidewalk ends in mid-road, no light in a missing street, no lane arrow pointing into a dead end).
+  - Acceptance: With both chances 0 the plan matches today's, so seed 7 and every job are unchanged. Across 50 seeds with drops on the network stays connected, every clearing touches a street, and the 12.1 checks pass. Merged blocks are cut into lots like any block. No street light, sign or lane arrow stands where a street was dropped. Same seed, same plan.
+  - Out of scope: Streets at angles (26.4 on).
+
+- [ ] **26.4 Streets as paths**
+  - Goal: The plan describes streets as centrelines with a width, and blocks as polygons, so later patterns can put streets at any angle.
+  - Context: `CityPlan.streets` and `blocks` are `Array[Rect2]` today, and `Streets`, `StreetClutter`, `Rooftops`, the radar and the map read them. Add the general form beside them: each street a polyline centreline with a width and a kind (street or avenue), junctions as nodes joining them, and each block a polygon. Lots are cut from block polygons (rectangular lots fitted inside each block, along its street edges, so buildings stay boxes). For a grid the general form describes exactly the same streets, blocks and lots as the rectangles, and the rectangles stay available until 26.5 moves every reader over. This story changes the plan only.
+  - Acceptance: For seed 7 and 20 more grid seeds, the general form's streets and blocks cover the same ground as the rectangles and the lots are identical. Every block polygon is closed, non-self-intersecting, and bounded by streets or the core's edge. Every lot lies inside its block and passes the 12.1 checks. Every job scene's obstacle fingerprint is unchanged.
+  - Out of scope: New patterns, any change to meshes or clutter.
+
+- [ ] **26.5 Roads at any angle**
+  - Goal: Road meshes, lane markings, sidewalks, street lights, parked cars and street clutter all follow the general street form, at any angle.
+  - Context: Move `Streets`, `StreetClutter`, `Rooftops`, the radar and the map onto 26.4's streets, junctions and block polygons, then drop the rectangle form. Roads are built per centreline segment, with junction patches where streets meet so no road overlaps itself or leaves a hole; the road shader draws markings along each segment's own direction. Sidewalks follow block outlines. Clutter placement walks block edges instead of rectangle sides. Test it with a hand-made layout that has a street at 30° (a test fixture, not a pattern yet).
+  - Acceptance: For seed 7 and every job scene, the streets, clutter and obstacle fingerprints are unchanged, or any difference is listed in this story's Note with the reason. On the 30° fixture every street is covered by road, no road lies under a lot, every light and piece of clutter stands on a sidewalk outside lanes and clearings, and lane markings run along their street. The scene loads headless with no errors.
+  - Out of scope: New patterns (26.6 on).
+
+- [ ] **26.6 Diagonal avenues**
+  - Goal: A city pattern with a grid crossed by one or two wide avenues at an angle, cutting wedge-shaped blocks.
+  - Context: `pattern = DIAGONAL`. The plan lays the grid, then one or two avenues across it at a seeded angle (between 20° and 70° to the grid), through or near the centre. Where an avenue crosses a block, the block is split into two polygons along the avenue's kerbs. Wedge blocks too thin for a lot stay as squares or planted islands. Downtown heights still fall off from the centre. `CityVariety` gives each pattern a weight, so a seed picks one.
+  - Acceptance: Across 30 diagonal seeds the network is connected, every clearing touches a street, every lot sits inside its block and passes the 12.1 checks, and no wedge holds a lot narrower than `lot_min`. Each avenue runs at its seeded angle across the whole core. Same seed, same city.
+  - Out of scope: Curved streets (26.7).
+
+- [ ] **26.7 Ring and spokes**
+  - Goal: A city pattern with streets radiating from a central plaza and ring roads around it.
+  - Context: `pattern = RADIAL`. Spokes run out from the plaza at seeded angles; rings are concentric, drawn as many short straight segments so the 26.5 road builder handles them. Blocks are the ring-sector polygons between them, cut into rectangular lots along their street edges, which leaves the odd corners as courtyards. Spoke and ring counts and spacing are ranges in `CityVariety`. The spawn plaza is the hub; the jammer clearing must still touch a street.
+  - Acceptance: Across 30 radial seeds the network is connected, every lot sits inside its block and passes the 12.1 checks, ring segments join with no gaps or overlaps in the road mesh, and lane markings follow the curve. The plaza is the meeting point of every spoke. Same seed, same city.
+  - Out of scope: Roundabout traffic rules (26.11 treats a ring as ordinary lanes).
+
+- [ ] **26.8 Winding old town**
+  - Goal: A city pattern of narrow irregular lanes and odd-shaped blocks, like an old quarter.
+  - Context: `pattern = OLD_TOWN`. A street generator of its own: lanes grow outward from the plaza by seeded random walks with bends and branches, merge where they meet, and stay inside the core. Lanes are narrower than grid streets (a `CityLayout` width range); a few wider streets run through. Blocks are whatever polygons the lanes enclose; lots are fitted inside them, so buildings stay boxes and some blocks leave yards. Buildings stay lower here (a height range for the pattern). Narrow lanes are tight flying; they must still meet the epic's collision-guard rule at every point.
+  - Acceptance: Across 30 old-town seeds the network is connected, no two lanes cross without a junction, every lane is at least the minimum width along its whole length, every lot sits inside its block and passes the 12.1 checks, and a sphere the drone's guard size swept down every lane hits nothing. Same seed, same city.
+  - Out of scope: Mixing patterns in one city (districts).
+
+- [ ] **26.9 Ducts and pipes overhead**
+  - Goal: Ducts and pipe runs cross streets between facing buildings, at heights you can fly under, over, or between.
+  - Context: A new seeded generator beside `StreetClutter` (same MultiMesh-per-model pattern, one collision box per span), reading the plan's streets and lots. A span runs wall to wall across a street, at any angle the street runs, between two lots that both stand taller than it; the old town's narrow lanes get the most. Each has a clear height under it from a range on the layout (low enough to be a dare, never below the tallest street clutter or a street light's head) and stands at least one gap's height off any other span. Some spans are single ducts, some are pipe racks of two or three pipes with gaps between that fit a drone. Counts, chances and height ranges are layout fields.
+  - Acceptance: Every span starts and ends on a wall and never passes through a building, a rooftop piece or another span. Every under-span gap and every gap in a rack meets the epic's collision-guard rule. Every span has collision, and a ray cast up from the street under a span hits it at its stated clear height. Same seed, same spans. The sandbox at seed 7 has at least 15 spans.
+  - Out of scope: Spans over avenues wider than a range on the layout, moving parts, steam.
+
+- [ ] **26.10 Fences with holes**
+  - Goal: Chain-link fences round some vacant lots and yards, with holes torn in them and gaps under them to fly through.
+  - Context: Fences go round vacant lots from 26.2, yards left in odd-shaped blocks, and some block edges, from the layout's seed. Panels are see-through (a chain-link shader that works under GL Compatibility) on posts. Each run has holes: a panel missing, a torn opening at drone height, or a lifted bottom edge. Collision is per panel, so a hole is a real gap in the collision, not just in the texture. Fences keep out of street lanes, crossings, clearings and pads, like `StreetClutter`.
+  - Acceptance: Every hole and lifted gap meets the epic's collision-guard rule, and a sphere cast the size of the drone passes through each one without a hit. A cast through solid panel does hit. Every fence stands on the ground, outside lanes, crossings and clearings. Same seed, same fences and holes. The sandbox at seed 7 has at least 10 holes.
+  - Out of scope: Gates that open, climbing plants, barbed wire.
+
+- [ ] **26.11 Cars on the streets**
+  - Goal: Cars drive the city's streets in lanes, turn at junctions, keep their distance, and are solid.
+  - Context: A `Traffic` node reads the plan's general street form (26.4) and the `lanes` `StreetClutter` keeps clear, and builds a lane graph: one lane each way on a street, two on an avenue, one-way on old-town lanes too narrow for two, linked at junctions of any angle. Each car is an `AnimatableBody3D` moved along its lane at a seeded speed, so the physics engine pushes a drone that it meets (rule 1: the car moves; the drone's own physics responds). Cars slow for the car ahead and wait at a junction until it is clear, so cars never overlap. Car bodies reuse the parked-car model and tints, drawn through one MultiMesh; each car keeps one box collision. `car_count` and speed range are layout fields. Free flight only to begin with; jobs add traffic when a story asks for it.
+  - Acceptance: Over two minutes of simulated time no two cars overlap, every car stays on a lane, and every car keeps moving (none stuck for more than 10 s). A drone hovering in a lane is pushed by the first car to reach it and the drone records contact, as with a wall. Same seed, same car positions at the same time. Parked cars and street clutter are unchanged. Free flight at seed 7 has at least 20 cars, and the two-minute run passes on one seed of each pattern.
+  - Out of scope: Traffic lights, pedestrians, cars reacting to the drone, horns.
+
+- [ ] **26.12 Traffic you can hear, on the web**
+  - Goal: Cars sound like cars as you pass, and a busy free-flight city holds frame rate in the browser.
+  - Context: Engine and tyre loops from `tools/sfx/generate.py` (fixed seeds, like the other sounds) on a small pool of `AudioStreamPlayer3D`s that follow the cars nearest the drone, so the audio cost stays fixed whatever `car_count` is. Before ticking, export the web build and fly free flight by hand for several seeds and rerolls: it should hold frame rate with traffic, ducts and fences all on.
+  - Acceptance: The voice pool never exceeds its size, whatever `car_count` is. The nearest car within range always has a voice. `tools/sfx/generate.py --check` passes. The hand flight on the web build holds frame rate (recorded in this story's Note with the machine used).
+  - Out of scope: Doppler beyond what Godot does, car radios.
