@@ -10,13 +10,15 @@ const NAMES = preload("res://tests/test_new_names.gd")
 const SKIPPED := ["res://docs/BACKLOG.md"]
 ## Folders that are not the repo's own docs.
 const NOT_REPO := [".godot", ".git", ".worktrees", "build"]
+## Checkouts that agents make inside the repo.
+const OTHER_CHECKOUTS := ["res://.claude/worktrees"]
 const CAST_DOCS := ["res://docs/CHARACTERS.md", "res://docs/BOSS.md", "res://docs/VISION.md"]
 
 func _docs(dir: String, out: Array[String]) -> Array[String]:
 	var d := DirAccess.open(dir)
 	d.include_hidden = true
 	for sub in d.get_directories():
-		if sub not in NOT_REPO:
+		if sub not in NOT_REPO and dir.path_join(sub) not in OTHER_CHECKOUTS:
 			_docs(dir.path_join(sub), out)
 	for file in d.get_files():
 		var path := dir.path_join(file)

@@ -69,6 +69,18 @@ func build() -> void:
 		marker.label = "Pad"
 		pad.add_child(marker)
 
+## Frees what build() made, keeping the scene's own children, so the node can
+## build again from a new layout (Story 26.1).
+func clear() -> void:
+	for c in get_children():
+		if c.owner == null:
+			remove_child(c)
+			c.queue_free()
+
+## Drops cached builds of every layout but `keep`.
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 static func _side(r: Rect2) -> float:
 	return minf(r.size.x, r.size.y)
 
@@ -90,6 +102,13 @@ func _generate() -> Array:
 		var sa := _side(plan.shapes[a].roof_clear)
 		var sb := _side(plan.shapes[b].roof_clear)
 		return sa > sb if not is_equal_approx(sa, sb) else a < b)
+	# Too few tall roofs (a low, spread-out free-flight city, Story 26.2): the
+	# tallest broad roofs below the line make up the count.
+	if order.size() < pad_count:
+		var low := range(plan.lots.size()).filter(func(i):
+			return plan.heights[i] < tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
+		low.sort_custom(func(a, b): return plan.heights[a] > plan.heights[b] if plan.heights[a] != plan.heights[b] else a < b)
+		order.append_array(low)
 	var pad_at := PackedVector3Array()
 	for i in order.slice(0, pad_count):
 		var c := plan.shapes[i].roof_clear.get_center()

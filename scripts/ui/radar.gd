@@ -34,6 +34,10 @@ var texture_area: Rect2
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
+	bake()
+
+## Bakes the ground and the city's lots; again after free flight rerolls the city.
+func bake() -> void:
 	if terrain and gps and gps.map:
 		texture_area = gps.map.bounds.grow(range_m)
 		texture = TerrainImage.bake(terrain, texture_area, 128, footprints(city))

@@ -104,6 +104,18 @@ func build() -> void:
 		cs.position = box.get_center()
 		add_child(cs)
 
+## Frees what build() made, keeping the scene's own children, so the node can
+## build again from a new layout (Story 26.1).
+func clear() -> void:
+	for c in get_children():
+		if c.owner == null:
+			remove_child(c)
+			c.queue_free()
+
+## Drops cached builds of every layout but `keep`.
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 ## The height above which a piece collides: a bench's.
 func bench_height() -> float:
 	return _model_mesh(bench_model).get_aabb().size.y

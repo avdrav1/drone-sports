@@ -11,7 +11,7 @@ const FLY: Array[StringName] = [&"pitch_forward", &"pitch_back", &"roll_left", &
 ## Actions live at the same time, per context.
 const CONTEXTS := {
 	"flight": [&"ui_accept", &"ui_cancel", &"pause", &"cycle_camera", &"toggle_map", &"toggle_help",
-		&"reset_drone", &"cycle_preset", &"cycle_weather", &"toggle_readout"],
+		&"reset_drone", &"cycle_preset", &"cycle_weather", &"toggle_readout", &"reroll_city"],
 	"command view": [&"ui_cancel", &"pause", &"cycle_camera", &"toggle_map", &"toggle_help",
 		&"drop_in", &"prev_drone", &"next_drone", &"send_lap", &"tag_unit"],
 	"menus": [&"ui_accept", &"ui_cancel", &"ui_up", &"ui_down", &"ui_left", &"ui_right"],
@@ -25,6 +25,8 @@ const LAYOUT := {
 	&"toggle_help": JOY_BUTTON_DPAD_UP, &"reset_drone": JOY_BUTTON_DPAD_DOWN,
 	&"cycle_preset": JOY_BUTTON_DPAD_LEFT, &"cycle_weather": JOY_BUTTON_DPAD_RIGHT,
 	&"toggle_readout": JOY_BUTTON_LEFT_STICK,
+	# Story 26.1: X builds a new free-flight city (X is the fleet's only in command view).
+	&"reroll_city": JOY_BUTTON_X,
 }
 ## Mode 2, as before Epic 23: [axis, value].
 const AXES := {

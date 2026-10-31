@@ -29,6 +29,7 @@ const GROUPS := [
 		[[&"toggle_readout"], "Debug readout"],
 		[[&"cycle_preset"], "Cycle act assists (free flight)"],
 		[[&"cycle_weather"], "Cycle weather (free flight)"],
+		[[&"reroll_city"], "New city (free flight)"],
 		[[&"toggle_mute"], "Sound on or off"],
 	]],
 	["FLEET (COMMAND VIEW)", [

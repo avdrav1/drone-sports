@@ -27,6 +27,8 @@ const DOCS_SKIPPED := ["res://docs/BACKLOG.md"]
 ## Folders that are not the repo's own docs: the engine's cache, git, other
 ## checkouts and the export.
 const NOT_REPO := [".godot", ".git", ".worktrees", "build"]
+## Checkouts that agents make inside the repo.
+const OTHER_CHECKOUTS := ["res://.claude/worktrees"]
 
 func _close() -> void:
 	Sim.tree().unload_current_scene()
@@ -114,7 +116,7 @@ func _scan_docs(dir: String, found: Dictionary) -> void:
 	var d := DirAccess.open(dir)
 	d.include_hidden = true
 	for sub in d.get_directories():
-		if sub not in NOT_REPO:
+		if sub not in NOT_REPO and dir.path_join(sub) not in OTHER_CHECKOUTS:
 			_scan_docs(dir.path_join(sub), found)
 	for file in d.get_files():
 		if file.get_extension() != "md":

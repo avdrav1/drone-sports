@@ -36,6 +36,10 @@ func _ready() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	visible = false
 	font = get_theme_default_font()
+	bake()
+
+## Bakes the ground and the city's lots; again after free flight rerolls the city.
+func bake() -> void:
 	if terrain and gps and gps.map:
 		texture = TerrainImage.bake(terrain, gps.map.bounds, 256, Radar.footprints(city))
 

@@ -90,6 +90,18 @@ func build() -> void:
 			shape.size = box.size
 			_shape("%s%d" % [boxes[1], i], shape, box.get_center())
 
+## Frees what build() made, keeping the scene's own children, so the node can
+## build again from a new layout (Story 26.1).
+func clear() -> void:
+	for c in get_children():
+		if c.owner == null:
+			remove_child(c)
+			c.queue_free()
+
+## Drops cached builds of every layout but `keep`.
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 func _shape(n: String, s: Shape3D, at: Vector3) -> void:
 	var shape := CollisionShape3D.new()
 	shape.name = n
@@ -179,9 +191,10 @@ func _generate() -> Array:
 	var pavements: Array[AABB] = []
 	for b in plan.blocks:
 		if CityPlan.inside(b, layout.core_radius):
-			var inner := b.grow(-kerb_width)
-			_quad(walk, inner, kerb_height, 0, 0.0, 3)
-			pavements.append(AABB(Vector3(inner.position.x, 0.0, inner.position.y), Vector3(inner.size.x, kerb_height, inner.size.y)))
+			# Vacant lots (Story 26.2) are holes in the pavement: the sand shows.
+			for inner in cut(b.grow(-kerb_width), plan.vacant):
+				_quad(walk, inner, kerb_height, 0, 0.0, 3)
+				pavements.append(AABB(Vector3(inner.position.x, 0.0, inner.position.y), Vector3(inner.size.x, kerb_height, inner.size.y)))
 			kerb_boxes.append_array(_block_kerbs(b))
 			found.append_array(_block_lights(b))
 	var kerb_mm := _multimesh(BoxMesh.new(), kerb_boxes.size())
@@ -365,6 +378,27 @@ func _multimesh(mesh: Mesh, count: int) -> MultiMesh:
 ## A flat quad over `r` at height y. UV: across the street from its centre and
 ## along it, in metres; UV2: width and kind (3 for pavements), for the road
 ## shader; CUSTOM0 to 3: the segment's markings and decals (see _markings).
+## `r` less every rect in `holes`, as rects that do not overlap; just `r` when
+## no hole touches it. Slivers under 5 cm (float error at shared edges) are dropped.
+static func cut(r: Rect2, holes: Array[Rect2]) -> Array[Rect2]:
+	var out: Array[Rect2] = [r]
+	for h in holes:
+		var next: Array[Rect2] = []
+		for p in out:
+			var i := p.intersection(h)
+			if not i.has_area():
+				next.append(p)
+				continue
+			# Strips below and above the hole span the piece; left and right sit between.
+			for piece in [Rect2(p.position.x, p.position.y, p.size.x, i.position.y - p.position.y),
+					Rect2(p.position.x, i.end.y, p.size.x, p.end.y - i.end.y),
+					Rect2(p.position.x, i.position.y, i.position.x - p.position.x, i.size.y),
+					Rect2(i.end.x, i.position.y, p.end.x - i.end.x, i.size.y)]:
+				if piece.size.x > 0.05 and piece.size.y > 0.05:
+					next.append(piece)
+		out = next
+	return out
+
 static func _quad(st: SurfaceTool, r: Rect2, y: float, across: int, width: float, kind: int, data := []) -> void:
 	var centre := r.get_center()
 	var corners := [r.position, Vector2(r.end.x, r.position.y), Vector2(r.position.x, r.end.y), r.end]

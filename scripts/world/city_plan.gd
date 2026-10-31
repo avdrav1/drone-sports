@@ -46,6 +46,8 @@ var streets: Array[Rect2] = []
 var blocks: Array[Rect2] = []
 ## Building footprints in XZ (x, z).
 var lots: Array[Rect2] = []
+## Lots left empty (Story 26.2): sand, no building, no shape. Never in `lots`.
+var vacant: Array[Rect2] = []
 ## Height of each lot (its top box's roof), same order as lots.
 var heights := PackedFloat32Array()
 ## Shape of each lot, same order as lots.
@@ -56,6 +58,10 @@ static func build(layout: CityLayout) -> CityPlan:
 	if not _cache.has(key):
 		_cache[key] = _generate(layout)
 	return _cache[key]
+
+## Drops cached plans of every layout but `keep` (Story 26.1).
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
 
 ## True when a lot rectangle stays clear of every reserved clearing.
 static func clear_of(layout: CityLayout, r: Rect2) -> bool:
@@ -78,6 +84,9 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	rng.seed = layout.seed
 	var axis := _axis(layout)
 	var r := layout.core_radius
+	# Vacancy draws from its own stream, so the lots and heights are as before.
+	var vacancy := RandomNumberGenerator.new()
+	vacancy.seed = layout.seed + 5
 	for s: Vector2 in axis[0]:
 		var edge := maxf(absf(s.x), absf(s.y))
 		if edge >= r:
@@ -93,6 +102,9 @@ static func _generate(layout: CityLayout) -> CityPlan:
 					var lot := Rect2(cx.x, cz.x, cx.y - cx.x, cz.y - cz.x)
 					var jitter := rng.randf_range(0.5, 1.0)
 					if not inside(lot, r) or not clear_of(layout, lot):
+						continue
+					if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
+						plan.vacant.append(lot)
 						continue
 					var d := clampf(lot.get_center().length() / r, 0.0, 1.0)
 					var t := pow(1.0 - d, layout.height_falloff) * jitter

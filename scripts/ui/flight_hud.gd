@@ -17,6 +17,8 @@ extends Control
 @export var title := ""
 ## Panel subtitle when there is no runner, e.g. the assist preset.
 var subtitle := ""
+## Panel state line when there is no runner, e.g. free flight's city seed (Story 26.1).
+var status := ""
 ## Off where another HUD shows the pilot in that corner (the race HUD).
 @export var show_pilot := true
 
@@ -86,7 +88,7 @@ func panel() -> Dictionary:
 			rows.append({"label": o.label if o.label else String(o.name), "done": o.is_done()})
 		var sub := runner.job.client + ("  ·  %d" % runner.job.pay if runner.job.pay else "")
 		return {"title": runner.job.title.to_upper(), "subtitle": sub, "drone": ride, "state": _state_line(), "rows": rows}
-	return {"title": title.to_upper(), "subtitle": subtitle, "drone": ride, "state": "", "rows": []}
+	return {"title": title.to_upper(), "subtitle": subtitle, "drone": ride, "state": status, "rows": []}
 
 ## "DRONE  KESTREL": the player's drone by its hangar name (Story 27.7), or
 ## empty for a drone with no name.

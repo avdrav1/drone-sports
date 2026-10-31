@@ -4,12 +4,17 @@ extends Node3D
 # R (or Start) puts the drone back where it started, J flies the sample job, K the test race, L the tower inspection,
 # H the demolition run, U the search and rescue, Esc goes back to the job board.
 # E cycles the weather: clear, then each of `weathers`, blending over weather_blend_time.
+# B builds a new city: every launch rolls a fresh seed for the city (Story 26.1),
+# shown on the HUD; jobs keep the layout's own seed.
 
 @export var presets: Array[AssistStack] = []
 ## Weather presets E cycles through after clear.
 @export var weathers: Array[Weather] = []
 ## Seconds E takes to blend into the next weather (Story 13.6).
 @export var weather_blend_time := 3.0
+## The proportions each free-flight seed rolls (Story 26.2); none keeps the
+## layout's own.
+@export var city_variety: CityVariety
 @export_file("*.tscn") var sample_job := "res://scenes/jobs/sample_delivery.tscn"
 @export_file("*.tscn") var race_job := "res://scenes/jobs/test_race.tscn"
 @export_file("*.tscn") var inspection_job := "res://scenes/jobs/inspection.tscn"
@@ -22,14 +27,28 @@ var preset_index := 0
 var weather_index := -1
 var _breeze: Wind
 var _spawn: Transform3D
+## The free-flight city's seed: rolled each launch, again by reroll_city.
+var city_seed := 0
+## The scene's layout (the shared sandbox resource), which each roll copies.
+var _base_layout: CityLayout
 
 @onready var readout: Label = $HUD/Readout
 @onready var drone: Drone = $Drone
 @onready var expert_toggle: CheckBox = $HUD/Expert
 @onready var camera_rig: CameraRig = $CameraRig
 @onready var hud: FlightHud = $HUD/Flight
+@onready var city: City = $City
+@onready var streets: Streets = $Streets
+@onready var rooftops: Rooftops = $Rooftops
+
+## Before the children build: the city, streets, and rooftops all get one copy
+## of the layout with a fresh seed, so the shared resource keeps its own.
+func _enter_tree() -> void:
+	if city_seed == 0:
+		use_city_seed(roll_seed())
 
 func _ready() -> void:
+	_prune_city_caches()
 	camera_rig.camera.make_current()
 	_spawn = drone.global_transform
 	_breeze = drone.wind
@@ -50,6 +69,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		cycle_weather()
 	elif event.is_action_pressed("reset_drone"):
 		reset_drone()
+	elif event.is_action_pressed("reroll_city"):
+		reroll_city()
 	elif event.is_action_pressed("start_sample_job"):
 		get_tree().change_scene_to_file(sample_job)
 	elif event.is_action_pressed("start_race_job"):
@@ -65,6 +86,52 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func reset_drone() -> void:
 	drone.reset(_spawn)
+
+## A seed for a new city, never 0 (0 means not rolled yet).
+static func roll_seed() -> int:
+	return randi_range(1, 999999)
+
+## Hands the city, streets, and rooftops a copy of the layout with `s` as its
+## seed and the proportions it rolls; they build from it when they next build.
+func use_city_seed(s: int) -> void:
+	if _base_layout == null:
+		_base_layout = ($City as City).layout
+	var copy: CityLayout
+	if city_variety:
+		copy = city_variety.roll(_base_layout, s)
+	else:
+		copy = _base_layout.duplicate()
+		copy.seed = s
+	city_seed = s
+	for n in [$City, $Streets, $Rooftops]:
+		n.layout = copy
+
+## A new city from a new seed: clears and rebuilds the city, streets, clutter,
+## and rooftops, rebakes the radar and map, and puts the drone back at the start.
+func reroll_city() -> void:
+	var s := roll_seed()
+	while s == city_seed:
+		s = roll_seed()
+	use_city_seed(s)
+	var clutter: StreetClutter = streets.get_node("Clutter")
+	for n in [city, streets, clutter, rooftops]:
+		n.clear()
+	for n in [city, streets, clutter, rooftops]:
+		n.build()
+	_prune_city_caches()
+	($HUD/Radar as Radar).bake()
+	($MapLayer/Map as MapScreen).bake()
+	reset_drone()
+	_show_subtitle()
+
+## The city caches keep only this city's builds, however often it rerolls.
+func _prune_city_caches() -> void:
+	var l := city.layout
+	CityPlan.prune(l)
+	City.prune(l)
+	Streets.prune(l)
+	StreetClutter.prune(l)
+	Rooftops.prune(l)
 
 func cycle_preset() -> void:
 	preset_index = (preset_index + 1) % presets.size()
@@ -83,6 +150,7 @@ func _show_subtitle() -> void:
 	var stack := presets[preset_index]
 	hud.subtitle = stack.label + ("  ·  expert" if GameSettings.expert_all_assists_off else "") \
 		+ ("  ·  " + weather().label if weather() else "") + _jobs_hint()
+	hud.status = "CITY SEED %d  ·  %s NEW CITY" % [city_seed, InputPrompt.text(&"reroll_city").to_upper()]
 
 func _on_device_changed(_pad: bool) -> void:
 	if not presets.is_empty():
