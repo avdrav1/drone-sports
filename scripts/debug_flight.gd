@@ -12,6 +12,9 @@ extends Node3D
 @export var weathers: Array[Weather] = []
 ## Seconds E takes to blend into the next weather (Story 13.6).
 @export var weather_blend_time := 3.0
+## The proportions each free-flight seed rolls (Story 26.2); none keeps the
+## layout's own.
+@export var city_variety: CityVariety
 @export_file("*.tscn") var sample_job := "res://scenes/jobs/sample_delivery.tscn"
 @export_file("*.tscn") var race_job := "res://scenes/jobs/test_race.tscn"
 @export_file("*.tscn") var inspection_job := "res://scenes/jobs/inspection.tscn"
@@ -89,12 +92,16 @@ static func roll_seed() -> int:
 	return randi_range(1, 999999)
 
 ## Hands the city, streets, and rooftops a copy of the layout with `s` as its
-## seed; they build from it when they next build.
+## seed and the proportions it rolls; they build from it when they next build.
 func use_city_seed(s: int) -> void:
 	if _base_layout == null:
 		_base_layout = ($City as City).layout
-	var copy: CityLayout = _base_layout.duplicate()
-	copy.seed = s
+	var copy: CityLayout
+	if city_variety:
+		copy = city_variety.roll(_base_layout, s)
+	else:
+		copy = _base_layout.duplicate()
+		copy.seed = s
 	city_seed = s
 	for n in [$City, $Streets, $Rooftops]:
 		n.layout = copy

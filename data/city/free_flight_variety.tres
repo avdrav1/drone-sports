@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CityVariety" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/city_variety.gd" id="1_variety"]
+
+[resource]
+script = ExtResource("1_variety")
+block_size = Vector2(30, 40)
+street_width = Vector2(7, 10)
+avenue_width = Vector2(12, 18)
+avenue_every = Vector2(2, 4)
+lot_min = Vector2(11, 13)
+lot_max = Vector2(20, 24)
+height_min = Vector2(5, 8)
+height_max = Vector2(55, 110)
+height_falloff = Vector2(0.8, 1.4)
+vacant_chance = Vector2(0, 0.25)

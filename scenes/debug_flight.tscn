@@ -1,6 +1,7 @@
-[gd_scene load_steps=33 format=3]
+[gd_scene load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
+[ext_resource type="Resource" path="res://data/city/free_flight_variety.tres" id="1_variety"]
 [ext_resource type="Script" path="res://scripts/debug/free_camera.gd" id="2_cam"]
 [ext_resource type="Script" path="res://scripts/debug/readout.gd" id="3_readout"]
 [ext_resource type="PackedScene" path="res://scenes/drone/drone.tscn" id="4_drone"]
@@ -38,6 +39,7 @@
 
 [node name="DebugFlight" type="Node3D"]
 script = ExtResource("1_root")
+city_variety = ExtResource("1_variety")
 presets = Array[Resource]([ExtResource("7_act1"), ExtResource("8_act2"), ExtResource("9_act3"), ExtResource("10_act4"), ExtResource("11_act5")])
 weathers = Array[Resource]([ExtResource("98_fog"), ExtResource("99_whiteout"), ExtResource("100_light_rain"), ExtResource("101_storm"), ExtResource("102_blizzard")])
 

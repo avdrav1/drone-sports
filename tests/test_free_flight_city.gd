@@ -136,11 +136,19 @@ func test_reroll_changes_the_city_and_puts_the_drone_back() -> bool:
 	ok = ok and city.get_node_or_null("Ambience") != null and streets.get_node_or_null("Clutter") == clutter
 	var after := [city.get_child_count(), streets.get_child_count(), clutter.get_child_count(),
 		rooftops.get_child_count()]
-	# Similar cities build similar node counts; a build stacked on the old one doubles them.
-	for i in counts.size():
-		ok = ok and after[i] < counts[i] * 1.6 and after[i] > counts[i] * 0.6
+	# A fresh launch at the new seed builds the same node counts; a build stacked
+	# on the old one would have more. (Seeds roll proportions since Story 26.2,
+	# so counts differ between cities.)
+	var fresh: Node = load(SANDBOX).instantiate()
+	fresh.use_city_seed(s.city_seed)
+	Sim.add(fresh)
+	await Sim.process_frames(2)
+	var want := [fresh.get_node("City").get_child_count(), fresh.get_node("Streets").get_child_count(),
+		fresh.get_node("Streets/Clutter").get_child_count(), fresh.get_node("Rooftops").get_child_count()]
+	fresh.free()
+	ok = ok and after == want
 	if not ok:
-		print("        counts %s -> %s" % [counts, after])
+		print("        counts %s -> %s, fresh %s" % [counts, after, want])
 	s.free()
 	return ok
 

@@ -28,13 +28,16 @@ extends Resource
 ## every storey above it. Keep in step with City.ground_floor and window_cell.y.
 @export var ground_floor := 4.0
 @export var storey := 3.5
+## Chance a lot is left empty: sand and no building, an open yard between
+## towers (Story 26.2). Drawn from its own stream, so 0 builds the plan as before.
+@export_range(0.0, 1.0) var vacant_chance := 0.0
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
 ## Everything that shapes the plan, for caches built from it.
 func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
-		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings]
+		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance]
 
 ## Drops every entry of a per-layout cache (keyed by params() and then the
 ## builder's own settings) that this layout did not build, so free flight's
