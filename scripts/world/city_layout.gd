@@ -97,6 +97,20 @@ enum Pattern { GRID, DIAGONAL, RADIAL, OLD_TOWN }
 @export var span_clear := Vector2(7, 14)
 @export var span_gap := 2.4
 @export_range(0.0, 1.0) var rack_chance := 0.5
+## Fences with holes (Story 26.10, read by Fences, not the plan): chain-link
+## runs `fence_height` tall on posts, panels at least `fence_panel` wide post to
+## post, round a vacant lot by chance `fence_vacant_chance` and along a clear
+## stretch of block edge by chance `fence_edge_chance`. Each panel is a hole by
+## chance `fence_hole_chance` (each run has at least one): missing, torn open
+## at drone height, or lifted off the ground. `fence_hole` is the least width
+## and height of a hole; keep it wide enough for the collision guard to let a
+## drone through.
+@export_range(0.0, 1.0) var fence_vacant_chance := 0.7
+@export_range(0.0, 1.0) var fence_edge_chance := 0.5
+@export var fence_height := 4.0
+@export var fence_panel := 3.2
+@export var fence_hole := Vector2(2.4, 2.4)
+@export_range(0.0, 1.0) var fence_hole_chance := 0.3
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 

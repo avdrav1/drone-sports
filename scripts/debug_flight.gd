@@ -107,7 +107,7 @@ func use_city_seed(s: int) -> void:
 		n.layout = copy
 
 ## A new city from a new seed: clears and rebuilds the city, streets, clutter,
-## overhead spans (Story 26.9), and rooftops, rebakes the radar and map, and puts the drone back at the start.
+## overhead spans (Story 26.9), fences (Story 26.10), and rooftops, rebakes the radar and map, and puts the drone back at the start.
 func reroll_city() -> void:
 	var s := roll_seed()
 	while s == city_seed:
@@ -115,9 +115,10 @@ func reroll_city() -> void:
 	use_city_seed(s)
 	var clutter: StreetClutter = streets.get_node("Clutter")
 	var spans: OverheadSpans = streets.get_node("Spans")
-	for n in [city, streets, clutter, spans, rooftops]:
+	var fences: Fences = streets.get_node("Fences")
+	for n in [city, streets, clutter, spans, fences, rooftops]:
 		n.clear()
-	for n in [city, streets, clutter, spans, rooftops]:
+	for n in [city, streets, clutter, spans, fences, rooftops]:
 		n.build()
 	_prune_city_caches()
 	($HUD/Radar as Radar).bake()
@@ -133,6 +134,7 @@ func _prune_city_caches() -> void:
 	Streets.prune(l)
 	StreetClutter.prune(l)
 	OverheadSpans.prune(l)
+	Fences.prune(l)
 	Rooftops.prune(l)
 
 func cycle_preset() -> void:
