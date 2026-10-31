@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/story/stat_step.gd" id="3_step"]
 [ext_resource type="Script" path="res://scripts/story/assist_setting.gd" id="4_setting"]
 [ext_resource type="Resource" path="res://data/crew/looks/jatayu.tres" id="9_look"]
+[ext_resource type="Resource" path="res://data/garage/kits/vulture.tres" id="10_kit"]
 
 [sub_resource type="Resource" id="step_0"]
 script = ExtResource("3_step")
@@ -55,3 +56,4 @@ death_consequence = &""
 can_be_harmed = false
 tags = Array[StringName]([&"pilot"])
 edge = SubResource("edge")
+body_kit = ExtResource("10_kit")

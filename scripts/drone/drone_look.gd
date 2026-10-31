@@ -9,6 +9,10 @@ extends Node3D
 # heading lights never change. Materials that only follow the livery are
 # shared by every drone wearing the same colours (a fleet draws many); the
 # ones that follow each motor's thrust stay the drone's own.
+# Story 29.1: it can wear a BodyKit too, the pilot's animal: AnimalShell adds
+# its head, mane, wings or tail under a "Kit" node, and any livery colour
+# still at stock wears the kit's own paint. Meshes only, inside the collision
+# box; props, motors and heading lights stay in sight.
 
 ## Prop speed at full thrust, rad/s. Visual only.
 @export var max_spin := 70.0
@@ -42,6 +46,8 @@ var livery: Livery
 ## The hull's size against stock, from the fitted frame (Story 27.4): x wide,
 ## y tall, z long. Set it with `wear`.
 var hull := Vector3.ONE
+## The body kit worn (Story 29.1); null wears none. Set it with `wear`.
+var kit: BodyKit
 ## Signed prop speed per motor, rad/s.
 var spin_rates := PackedFloat32Array([0.0, 0.0, 0.0, 0.0])
 ## Motor ring emission per motor.
@@ -75,16 +81,22 @@ func update_look(delta: float) -> void:
 		_blades[i].albedo_color.a = 1.0 - blur * 0.85
 		_discs[i].albedo_color.a = blur * 0.35
 
-## Puts on `l` (null for the default) on a hull of `shape`, and builds the
-## body again in them.
-func wear(l: Livery, shape := Vector3.ONE) -> void:
+## Puts on `l` (null for the default) on a hull of `shape`, in body kit `k`
+## (null for none), and builds the body again in them.
+func wear(l: Livery, shape := Vector3.ONE, k: BodyKit = null) -> void:
 	livery = l
 	hull = shape
+	kit = k
 	rebuild()
 
 ## The livery being worn: `livery`, or the default.
 func worn() -> Livery:
 	return livery if livery else DEFAULT_LIVERY
+
+## The colours the body is built in: the worn livery, with the kit's paint on
+## any colour still at stock.
+func painted() -> Livery:
+	return kit.painted(worn()) if kit else worn()
 
 ## Builds the body again, after a livery or the drone's arm length changes.
 ## Anything else under the look (a crew face) stays.
@@ -102,13 +114,15 @@ func rebuild() -> void:
 	_build()
 
 func _build() -> void:
-	var l := worn()
+	var l := painted()
 	var body := _paint(l.body_color)
 	var arms := _paint(l.arm_color)
 	var canopy := _paint(l.canopy_color)
 	var accent: StandardMaterial3D = _shared("accent:" + l.light_color.to_html(), func(): return _mat(l.light_color, 0.2, 0.5))
 	var metal: StandardMaterial3D = _shared("metal", func(): return _mat(Color(0.18, 0.18, 0.2), 0.85, 0.3))
 	var battery: StandardMaterial3D = _shared("battery", func(): return _mat(Color(0.1, 0.1, 0.12), 0.1, 0.6))
+	if kit: # the battery in the animal's colours, so its back is not a dark gap
+		battery = _shared("battery:" + kit.battery.to_html(), func(): return _mat(kit.battery, 0.1, 0.6))
 	var arm := drone.arm_length if drone else 0.15
 	# Body: a flat hull with a raised canopy and a battery pack on the back.
 	var h := hull
@@ -160,6 +174,10 @@ func _build() -> void:
 		_build_decal(l)
 	if l.race_number > 0:
 		_build_number(l)
+	if kit:
+		var shell := AnimalShell.build(kit, l, h)
+		add_child(shell)
+		_built.append(shell)
 
 # Lit livery: a strip along the top of each arm and an under-glow panel below
 # the hull, in the light colour. Both sit inside the hull's outline.

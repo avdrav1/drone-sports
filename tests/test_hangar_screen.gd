@@ -80,9 +80,11 @@ func test_changes_show_at_once_and_leaving_keeps_the_old() -> bool:
 	ok = ok and h.changed() and not h.apply_button.disabled
 	h.leave()
 	ok = ok and not h.visible and Hangar.livery(0).to_dict() == before and Hangar.part_id(0, &"frame") == &"stock_frame"
-	# Open again: the draft is the slot as saved.
+	# Open again: the draft is the slot as saved, worn in the pilot's body kit
+	# (Story 29.1), whose paint stands in for a colour still at stock.
 	h.open()
-	ok = ok and h.draft.to_dict() == before and _body(h).is_equal_approx(Hangar.livery(0).body_color)
+	ok = ok and h.draft.to_dict() == before and h.turntable.look().kit == Hangar.kit(0) \
+		and _body(h).is_equal_approx(Hangar.kit(0).painted(Hangar.livery(0)).body_color)
 	await _close(h)
 	return ok
 

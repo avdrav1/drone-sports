@@ -422,7 +422,7 @@ func _sync() -> void:
 	_number_label.text = "NUMBER  %s" % (str(draft.race_number) if draft.race_number > 0 else "none")
 	if name_edit.text != draft.drone_name:
 		name_edit.text = draft.drone_name
-	turntable.show_drone(draft, draft_parts)
+	turntable.show_drone(draft, draft_parts, Hangar.kit(slot))
 	_show_parts()
 	_show_upgrade(null)
 	# The info line: the item picked, and how it opens while it is locked.

@@ -62,6 +62,9 @@ const SHAPES: Array[StringName] = [&"round", &"antenna", &"square", &"hardhat", 
 ## A pilot avatar's edge (Story 19.1): stat steps and assist settings, applied
 ## to the player's drone by Garage.apply. None for the crew.
 @export var edge: PilotEdge
+## A pilot avatar's drone shape (Story 29.1): the animal of their epic the
+## player's drone is shaped like. Looks only. None for the crew.
+@export var body_kit: BodyKit
 ## How they fly a fleet drone under autopilot (Story 18.11). Only for crew
 ## tagged can_fly; null flies the plain route.
 @export var flight_style: FlightStyle
@@ -108,5 +111,8 @@ func validate() -> Array[String]:
 		out.append("%s: only crew have a motif" % id)
 	if edge:
 		for e in edge.validate():
+			out.append("%s: %s" % [id, e])
+	if body_kit:
+		for e in body_kit.validate():
 			out.append("%s: %s" % [id, e])
 	return out

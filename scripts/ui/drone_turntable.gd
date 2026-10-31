@@ -99,9 +99,10 @@ func _build_stand() -> void:
 	ring.material_override = lit
 	_view.add_child(ring)
 
-## Dresses the display drone in `l` with `parts` (kind -> part id) fitted.
-## The parts only rebuild it when they change; a livery alone re-dresses it.
-func show_drone(l: Livery, parts: Dictionary) -> void:
+## Dresses the display drone in `l` with `parts` (kind -> part id) fitted,
+## in body kit `kit` (Story 29.1; null for none). The parts only rebuild it
+## when they change; a livery or kit alone re-dresses it.
+func show_drone(l: Livery, parts: Dictionary, kit: BodyKit = null) -> void:
 	if drone == null or parts != _parts:
 		_parts = parts.duplicate()
 		if drone:
@@ -120,7 +121,7 @@ func show_drone(l: Livery, parts: Dictionary) -> void:
 		drone.add_child(look)
 		_pivot.add_child(drone)
 	var frame := Hangar.part(parts.get(&"frame", &""))
-	look().wear(l, frame.hull if frame else Vector3.ONE)
+	look().wear(l, frame.hull if frame else Vector3.ONE, kit)
 
 func look() -> DroneLook:
 	return drone.get_node("Look") as DroneLook if drone else null
