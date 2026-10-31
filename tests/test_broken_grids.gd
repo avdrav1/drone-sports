@@ -146,34 +146,34 @@ func test_nothing_of_the_street_where_it_was_dropped() -> bool:
 					ok = false
 		for d in p.dropped:
 			for piece in pieces:
-				if (piece[0] as Rect2).intersects(d):
-					print("        seed %d: road %s over dropped %s" % [s, piece[0], d])
+				if piece.bounds().intersects(d):
+					print("        seed %d: road %s over dropped %s" % [s, piece.bounds(), d])
 					ok = false
 			for c in streets.crosswalks:
-				ok = ok and not c.intersects(d)
+				ok = ok and not Streets.bounds(c).intersects(d)
 			for dec in streets.decals:
-				ok = ok and not (dec[1] as Rect2).intersects(d)
+				ok = ok and not Streets.bounds(dec[1]).intersects(d)
 		# Kerbs stay off the road: no pavement ends in mid-road.
-		for kerb in streets.kerbs:
+		for xf in streets.kerbs:
+			var kerb := Streets.box_of(xf)
 			var flat := Rect2(kerb.position.x, kerb.position.z, kerb.size.x, kerb.size.z).grow(-0.01)
 			for piece in pieces:
-				if flat.intersects(piece[0]):
-					print("        seed %d: kerb %s in road %s" % [s, flat, piece[0]])
+				if flat.intersects(piece.bounds()):
+					print("        seed %d: kerb %s in road %s" % [s, flat, piece.bounds()])
 					ok = false
 		# Every lane arrow points at a junction: the end of its segment it is
 		# nearer meets another piece of road.
 		for dec in streets.decals:
 			if dec[0] != Streets.Mark.ARROW:
 				continue
-			var box: Rect2 = dec[1]
-			var mine := pieces.filter(func(pc): return pc[3] != 2 and (pc[0] as Rect2).encloses(box))
+			var box := Streets.bounds(dec[1])
+			var mine := pieces.filter(func(pc): return pc.kind != 2 and pc.bounds().grow(0.001).encloses(box))
 			if mine.size() != 1:
 				ok = false
 				continue
-			var r: Rect2 = mine[0][0]
-			var al := 1 - int(mine[0][1])
-			var c := box.get_center()[al]
-			var end := r.position[al] if c - r.position[al] < r.end[al] - c else r.end[al]
+			var r: Rect2 = mine[0].span()
+			var c: float = mine[0].local(box.get_center()).x
+			var end := r.position.x if c - r.position.x < r.end.x - c else r.end.x
 			if not Streets.meets(pieces, mine[0], end):
 				print("        seed %d: arrow %s points into a dead end" % [s, box])
 				ok = false

@@ -4,7 +4,8 @@ shader_type spatial;
 // adds lane markings and its decals (Story 15.7). Road UV: x across the street
 // from its centre line and y along it, in metres. UV2: x the street's width, y
 // its kind (0 street, 1 avenue, 2 crossing, 3 pavement). Crossings are bare
-// asphalt. Segment chunks carry, as written by Streets._markings:
+// asphalt. UV is in each stretch's own frame (Story 26.5), so markings run along
+// a street at any angle. Segment chunks carry, as written by Streets._markings:
 //   CUSTOM0 the segment's along range, crosswalk ends (1 start, 2 end, 3 both),
 //           and the across sign of the lane heading +along;
 //   CUSTOM1 a manhole: along, across, radius, present;
@@ -46,8 +47,9 @@ varying flat vec4 seg;
 varying flat vec4 manhole;
 varying flat vec4 patch;
 varying flat vec4 marks;
-// Kerbs: true when the instance runs along x.
-varying flat float along_x;
+// Kerbs: the instance's long axis in the world, so stone joints run along a
+// kerb at any angle (Story 26.5).
+varying flat vec3 kerb_along;
 
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -56,7 +58,7 @@ void vertex() {
 	manhole = CUSTOM1;
 	patch = CUSTOM2;
 	marks = CUSTOM3;
-	along_x = length(MODEL_MATRIX[0].xyz) > length(MODEL_MATRIX[2].xyz) ? 1.0 : 0.0;
+	kerb_along = normalize(length(MODEL_MATRIX[0].xyz) > length(MODEL_MATRIX[2].xyz) ? MODEL_MATRIX[0].xyz : MODEL_MATRIX[2].xyz);
 	// Tangent frame matching the world-space UVs in fragment(), as city.gdshader.
 	if (abs(NORMAL.y) > 0.5) {
 		TANGENT = vec3(1.0, 0.0, 0.0);
@@ -117,7 +119,7 @@ void fragment() {
 	} else if (layer == 2) {
 		albedo *= kerb_shade;
 		// A joint between kerb stones every metre, and the top's worn arris.
-		float along = along_x > 0.5 ? world_pos.x : world_pos.z;
+		float along = dot(world_pos, kerb_along);
 		albedo *= mix(0.55, 1.0, smoothstep(0.0, 0.015, abs(fract(along) - 0.5) - 0.48));
 		hollow = 0.0;
 	} else {

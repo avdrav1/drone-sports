@@ -23,15 +23,15 @@ func _initialize() -> void:
 	root.add_child(streets)
 	var road := Vector2.ZERO
 	for piece in Streets.road_pieces(streets.plan, streets.layout):
-		if piece[3] == 0:
-			road = (piece[0] as Rect2).get_center()
+		if piece.kind == 0:
+			road = piece.bounds().get_center()
 			break
-	var block: Rect2 = streets.plan.blocks[0]
-	for b in streets.plan.blocks:
-		if CityPlan.inside(b, streets.layout.core_radius):
-			block = b
+	var block := Streets.bounds(streets.plan.block_polygons[0])
+	for b in streets.plan.block_polygons:
+		if Streets.within(b, streets.layout.core_radius):
+			block = Streets.bounds(b)
 			break
-	var kerb := streets.kerbs[0].get_center()
+	var kerb := streets.kerbs[0].origin
 	var cam := Camera3D.new()
 	cam.fov = 20.0
 	root.add_child(cam)
