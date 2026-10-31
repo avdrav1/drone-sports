@@ -1563,3 +1563,84 @@ Rules that hold throughout: nothing here moves a drone (rule 1), cars and obstac
   - Context: Engine and tyre loops from `tools/sfx/generate.py` (fixed seeds, like the other sounds) on a small pool of `AudioStreamPlayer3D`s that follow the cars nearest the drone, so the audio cost stays fixed whatever `car_count` is. Before ticking, export the web build and fly free flight by hand for several seeds and rerolls: it should hold frame rate with traffic, ducts and fences all on.
   - Acceptance: The voice pool never exceeds its size, whatever `car_count` is. The nearest car within range always has a voice. `tools/sfx/generate.py --check` passes. The hand flight on the web build holds frame rate (recorded in this story's Note with the machine used).
   - Out of scope: Doppler beyond what Godot does, car radios.
+
+## Epic 30: The Four
+
+Done when Brahma, Vishnu, Shiva and Krishna frame the career (act-gate scenes, Brahma's boon behind the final fight, Krishna's counsel before it) and the play (four optional vows, kept or not, lighting four shrines in the city), all as data, all reviewed for respect. The design is `docs/DEITIES.md`; read it before any story here.
+
+Do not start this epic until the owner says go.
+
+Rules that hold throughout (from `docs/DEITIES.md`, "Respect"):
+- No god is ever at risk, playable, crew, a perk, a shop item, an unlock, a currency or part of Ravana. Gods have no status in the save; only vows kept are saved.
+- No jokes, emotes, babble, barks or cartoon faces for any god. Symbols, colour, place and music only; Krishna's counsel is text in Sanjaya's voice.
+- Lines are original or Sanjaya's paraphrase; nothing is presented as a quotation unless it is one.
+- Vows never change pay, reputation, grade, unlocks or physics. A broken vow has no penalty and no scolding line.
+- Nothing here moves a drone (rule 1), adds an assist (rules 2, 5) or touches the strike rules (rule 7). With `lattice.tres` `enabled = false`, nothing about Ravana appears (rule 9).
+
+Owner decisions still open (from `docs/DEITIES.md`): who reviews, and when (30.11 waits on it); whether the shrines can be visited in free flight; whether Act 1 names Brahma or shows only his symbol.
+
+- [ ] **30.1 The Four as data**
+  - Goal: Each god is a resource in `data/deities/`, and a guard test keeps them out of every system that could put them at risk or on sale.
+  - Context: New `Deity` resource (`scripts/story/deity.gd`): `id`, `name`, `principle` (one line), `symbols` (names), `colour`, `motif` (a music stem id, filled in 30.2), `thread_act` (the act whose thread they lead; Krishna's is 5). A `DeityList` (`data/deities/deities.tres`) lists all four, as `TeamList` does, so exported builds find them. Unlike `Character`, a deity has no status, portrait, look, babble, edge or perk.
+  - Acceptance: The four load from the list. A guard test fails if any deity id appears in `Roster`/`Cast`, `data/characters/`, a job's `crew_in_field` or `requires_living`, a `HazardZone`, the pilot list, the emote or bark tables, `Perks`, the upgrade list or the boss data. `SaveGame` holds no deity status.
+  - Out of scope: Art, music, any scene.
+
+- [ ] **30.2 Symbols and motifs**
+  - Goal: Each god has an original symbol drawing and a short music motif, used everywhere they appear.
+  - Context: A `DeitySymbol` control draws each symbol from shapes (lotus and four Vedas; conch and chakra; trident, crescent and damaru; flute and peacock feather) in the god's colour, readable at 32, 64 and 128 px. Drawn in code or as original SVGs in `data/deities/`; no traced or copied temple, poster or game art. Motifs come from `tools/music/generate.py` in the song's key (F, from `song_profile.json`) as stems in `data/music/`, registered like the other stems; `--check` must pass and `data/music/` stays under its 10 MB cap.
+  - Acceptance: Each symbol renders without errors at all three sizes (screenshots checked by hand, noted in the story's Note). Each deity's `motif` resolves to a stem. `generate.py --check` passes and the music budget holds.
+  - Out of scope: Scenes that use them (30.3 on).
+
+- [ ] **30.3 Act gates**
+  - Goal: A short scene opens each thread: Brahma at the start of Act 1, Vishnu on joining the first team, Shiva at the first Act 4 promotion, Krishna at Act 5.
+  - Context: Four `Cutscene`s in `data/story/` (as `intro.tres`), each beat with a symbol card (`DeitySymbol`) and the god's motif, played once per save by `Career` on the matching act change and recorded in `StoryFlags`. Lines are original, two to four beats each, sincere, and name what the act asks of the pilot. The Act 1 scene follows the owner's decision on naming Brahma. Every scene is skippable like the intro.
+  - Acceptance: Each act change plays its scene once per save and never again. Skipping works. No scene has a portrait, emote, babble or bark. The existing intro and recruitment tests pass unchanged.
+  - Out of scope: Assist-removal scenes (30.4), vows.
+
+- [ ] **30.4 The shedding**
+  - Goal: Each promotion that removes an assist shows a short Shiva-thread beat naming what is let go and what it unlocks.
+  - Context: The assist table in CLAUDE.md gives each assist's "removing it unlocks" text; put it on the assist data (not in code) and read it here. Shown on the promotion offer (`OfferDialog`) or right after it, with Shiva's symbol and motif. Does not change which assists come off or when.
+  - Acceptance: Every promotion that removes assists names each of them and its unlock, from data. A promotion that removes none shows nothing extra. Assist presets per act are unchanged (existing tests pass).
+  - Out of scope: Vows.
+
+- [ ] **30.5 Vows**
+  - Goal: The launch dialog offers an optional vow on jobs whose data lists one, and the results screen says whether it was kept.
+  - Context: New `Vow` resource (`deity`, `kind`, `text`) and `Job.vows: Array[Vow]`. `LaunchDialog` shows the job's vows (none chosen by default; at most one). `JobRunner` tracks the chosen vow and decides kept or not at completion through a small checker per kind; this story adds the Vishnu kind, "no one is struck", kept when the job completes with no strike. The save records vows kept per deity. `Results` shows "Vow kept" or "Vow not kept" in one quiet line with the symbol.
+  - Acceptance: A job with no vows shows no vow choice. Choosing the Vishnu vow and finishing with no strike records it kept; one strike records it not kept; failing the job records nothing. Pay, reputation, grade and unlocks are identical with and without a vow (a test compares results). No line scolds a broken vow.
+  - Out of scope: The other three kinds (30.6, 30.7), shrines (30.8).
+
+- [ ] **30.6 Letting go, and guiding**
+  - Goal: Shiva's and Krishna's vows: fly with the next act's assist already off, and finish a fleet job without dropping into a drone.
+  - Context: Shiva: choosing the vow switches off, for this job only, the assist the next act removes, through the existing assist settings (the sim-player path); never on Act 5 jobs, never adding an assist. Kept when the job completes. Krishna: kept when a fleet job completes with no `drop_in`. Offered per job through `Job.vows` data.
+  - Acceptance: With the Shiva vow on an Act 2 job, collision guard is off for that job and back on after it; the flight model and other assists are untouched. The Krishna vow is kept on a fleet job finished from the command layer and not kept after any drop-in. Results and pay are as in 30.5.
+  - Out of scope: Brahma's vow (30.7).
+
+- [ ] **30.7 Making the path**
+  - Goal: Brahma's vow: before launch, place route points on the map; kept when the drone passes them in order.
+  - Context: The map screen (`MapScreen`) gains a planning mode on jobs offering the vow (Act 4 on): place, move and remove up to eight points, shown as a line. The route shows on the radar in flight. Points are passed within a radius from data. Keys and pad both work (Epic 23).
+  - Acceptance: A planned route of three points passed in order keeps the vow; out of order or a missed point does not. Planning is unavailable on jobs without the vow. The planned line shows on map and radar. Guidance and grading are unchanged.
+  - Out of scope: Saving routes between attempts.
+
+- [ ] **30.8 The shrines**
+  - Goal: Four rooftop shrines in the city, one per god, whose lamps light as that thread's vows are kept.
+  - Context: A `Shrine` scene (symbol, base, lamps) placed by the city plan on plazas clear of every course, gate, hazard and spawn, in job cities (seed 7) and free-flight cities alike. Lamp count from the save's vows kept, capped. On the map and radar as the symbol. Drones never collide with or damage a shrine (no collision with the drone's layer; nothing destructible), and no job uses one as a gate or target. Follows the owner's decision on visiting in free flight.
+  - Acceptance: Every city seed tested (20) places four shrines clear of courses, gates, hazards and the spawn. Lamps match the saved vows. No shrine shares a collision layer with a drone, and none is a node any job objective references. Obstacle fingerprints for seed 7 jobs are unchanged.
+  - Out of scope: New city patterns.
+
+- [ ] **30.9 Brahma's boon**
+  - Goal: The final job's briefing tells why Ravana can be stopped only by a human hand: the boon that left humans out.
+  - Context: `data/boss/lattice_job.tres` briefing, and the BOSS.md "Does Ravana have a reason?" question (answered: its makers built it so no machine could stop it, named for the king whose boon scorned humans). The fight does not change: it is already flown with every assist off. Respect for Brahma and for Ravana as a formidable king (rule 9). With `enabled = false`, none of this loads.
+  - Acceptance: The briefing names the boon in one or two original lines. The boss-disabled tests still prove nothing about Ravana loads. BOSS.md's open question is ticked with the answer.
+  - Out of scope: Fight changes.
+
+- [ ] **30.10 Krishna's counsel**
+  - Goal: Before the final job launches, Arjuna hesitates and Krishna's counsel, relayed by Sanjaya, is the launch confirmation.
+  - Context: The launch confirmation for a lethal job with crew in the field (`LaunchDialog`) becomes, for the final job only, a short counsel scene: original lines on duty, acting without clinging to the outcome, and the crew who stand with you, in Sanjaya's voice with Krishna's symbol and motif. Lines vary with vows kept per thread and crew lost (from the save). The player still chooses to launch or not. With the boss disabled, the counsel plays before the 6.4 fleet final instead, with no mention of Ravana. If Sanjaya is dead, the counsel is shown as text only, with no speaker.
+  - Acceptance: The final job's launch shows the counsel and still requires the player's choice; declining returns to the board. Different saves (no vows, vows on every thread, a crew death) show different lines. With `enabled = false` the counsel shows on the fleet final and names no boss. A dead Sanjaya never speaks (rule 7).
+  - Out of scope: Changing the job's lethality or requirements.
+
+- [ ] **30.11 Docs, rule and review**
+  - Goal: The docs carry the Four, and the lines, symbols and scenes have been reviewed by someone who practises the tradition.
+  - Context: Link `docs/DEITIES.md` from VISION.md, CHARACTERS.md and BOSS.md; answer its open questions with the owner's decisions. Propose CLAUDE.md rule 10 (text in DEITIES.md) to the owner, who edits CLAUDE.md. Collect every deity line into one review sheet. Waits on the owner arranging the review.
+  - Acceptance: The docs link and agree (a test greps them for the four names and the link). The review's changes are applied and noted in this story's Note with the reviewer's role (no name unless they agree). Every test passes.
+  - Out of scope: Story or mechanic changes beyond the review's.
