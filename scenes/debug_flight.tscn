@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3]
+[gd_scene load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://scripts/debug_flight.gd" id="1_root"]
 [ext_resource type="Resource" path="res://data/city/free_flight_variety.tres" id="1_variety"]
@@ -27,6 +27,7 @@
 [ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="93_roofs"]
 [ext_resource type="PackedScene" path="res://scenes/world/overhead_spans.tscn" id="94_spans"]
 [ext_resource type="PackedScene" path="res://scenes/world/fences.tscn" id="95_fences"]
+[ext_resource type="PackedScene" path="res://scenes/world/traffic.tscn" id="95_traffic"]
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="96_help"]
 [ext_resource type="Theme" path="res://scenes/ui/theme.tres" id="97_theme"]
 [ext_resource type="Resource" path="res://data/weather/fog_bank.tres" id="98_fog"]
@@ -56,6 +57,8 @@ weathers = Array[Resource]([ExtResource("98_fog"), ExtResource("99_whiteout"), E
 [node name="Spans" parent="Streets" instance=ExtResource("94_spans")]
 
 [node name="Fences" parent="Streets" instance=ExtResource("95_fences")]
+
+[node name="Traffic" parent="Streets" instance=ExtResource("95_traffic")]
 
 [node name="Rooftops" parent="." instance=ExtResource("93_roofs")]
 

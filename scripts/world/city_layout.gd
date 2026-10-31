@@ -111,6 +111,11 @@ enum Pattern { GRID, DIAGONAL, RADIAL, OLD_TOWN }
 @export var fence_panel := 3.2
 @export var fence_hole := Vector2(2.4, 2.4)
 @export_range(0.0, 1.0) var fence_hole_chance := 0.3
+## Cars on the streets (Story 26.11, read by Traffic, not the plan): how many
+## drive the city's lanes, fewer where the lanes have no room for them, and
+## the range of cruising speeds each is given, in m/s.
+@export var car_count := 26
+@export var car_speed := Vector2(8, 13)
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
