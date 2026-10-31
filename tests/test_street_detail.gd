@@ -18,9 +18,9 @@ func _streets(layout: CityLayout = null) -> Streets:
 
 func _drawn_blocks(s: Streets) -> Array[Rect2]:
 	var out: Array[Rect2] = []
-	for b in s.plan.blocks:
-		if CityPlan.inside(b, s.layout.core_radius):
-			out.append(b)
+	for b in s.plan.block_polygons:
+		if Streets.within(b, s.layout.core_radius):
+			out.append(Streets.bounds(b))
 	return out
 
 func _solid(s: Streets, p: Vector3) -> bool:
@@ -47,7 +47,8 @@ func test_every_block_has_a_kerb_on_each_side() -> bool:
 		for side in sides:
 			var inward: Vector2 = side[2] * s.kerb_width * 0.5
 			var found := false
-			for k in s.kerbs:
+			for kerb in s.kerbs:
+				var k := Streets.box_of(kerb)
 				var foot := Rect2(k.position.x, k.position.z, k.size.x, k.size.z)
 				if foot.grow(0.001).has_point(side[0] + inward + (side[1] - side[0]).normalized() * 0.4) \
 						and is_equal_approx(k.position.y, 0.0) and is_equal_approx(k.size.y, h) and b.grow(0.001).encloses(foot):
@@ -61,7 +62,7 @@ func test_every_block_has_a_kerb_on_each_side() -> bool:
 		ok = ok and _solid(s, Vector3(b.position.x + 1.0, h * 0.5, c.y)) and not _solid(s, Vector3(c.x, h + 0.05, c.y))
 	# The road between blocks stays clear.
 	for piece in Streets.road_pieces(s.plan, s.layout):
-		var rc: Vector2 = (piece[0] as Rect2).get_center()
+		var rc: Vector2 = piece.bounds().get_center()
 		ok = ok and not _solid(s, Vector3(rc.x, 0.05, rc.y))
 	s.free()
 	return ok
@@ -72,21 +73,22 @@ func test_every_crossing_has_crosswalks() -> bool:
 	var crossings := 0
 	var ok := s.crosswalks.size() > 0
 	for c in pieces:
-		if c[3] != 2:
+		if c.kind != 2:
 			continue
 		crossings += 1
-		var square: Rect2 = c[0]
+		var square: Rect2 = c.bounds()
 		var approaches := 0
 		for piece in pieces:
-			var r: Rect2 = piece[0]
-			if piece[3] == 2 or not r.grow(0.01).intersects(square) or r.intersection(square.grow(0.01)).get_area() > 0.5:
+			var r: Rect2 = piece.bounds()
+			if piece.kind == 2 or not r.grow(0.01).intersects(square) or r.intersection(square.grow(0.01)).get_area() > 0.5:
 				continue
 			# A segment meeting this crossing: a crosswalk on it, across its whole
 			# width, starting CROSSWALK_GAP from the crossing.
 			approaches += 1
-			var al := 1 - int(piece[1])
+			var al := 0 if absf(piece.d.x) > 0.5 else 1
 			var has := false
-			for cw in s.crosswalks:
+			for walk in s.crosswalks:
+				var cw := Streets.bounds(walk)
 				if not r.grow(0.001).encloses(cw) or absf(cw.size[1 - al] - r.size[1 - al]) > 0.01:
 					continue
 				var gap := minf(absf(cw.position[al] - square.end[al]), absf(cw.end[al] - square.position[al]))
@@ -120,11 +122,11 @@ func test_decal_placement_repeats_with_the_seed() -> bool:
 	for d in a.decals:
 		var on := false
 		for piece in pieces:
-			if piece[3] != 2 and (piece[0] as Rect2).grow(0.001).encloses(d[1]):
+			if piece.kind != 2 and piece.bounds().grow(0.001).encloses(Streets.bounds(d[1])):
 				on = true
 		if d[0] != Streets.Mark.PATCH:
 			for cw in a.crosswalks:
-				on = on and not cw.intersects(d[1])
+				on = on and not Streets.bounds(cw).intersects(Streets.bounds(d[1]))
 		placed = placed and on and d[2] >= 0
 	# Each manhole reaches the shader: a road vertex carries it in CUSTOM1.
 	var arrays: Array = (a.get_node("Road") as MeshInstance3D).mesh.surface_get_arrays(0)

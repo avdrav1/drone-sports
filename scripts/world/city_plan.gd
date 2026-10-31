@@ -65,6 +65,10 @@ class Junction extends RefCounted:
 
 static var _cache := {}
 
+## The rect form below (streets, street_axis, blocks, dropped, squares) is the
+## grid generator's own working data: its drops and connectivity are worked out
+## on it. Since Story 26.5 nothing builds from it; Streets, StreetClutter and the
+## rest read the general form (paths, junctions, block_polygons) and the lots.
 ## Street surfaces, kerb to kerb, in XZ (x, z), clipped to the core circle.
 ## Crossings overlap. Each grid line gives its runs along z, then its runs along
 ## x; with no dropped segments that is one of each, so even entries run along z
