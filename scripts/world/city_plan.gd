@@ -7,7 +7,10 @@ extends RefCounted
 # 15.6): stacked boxes and trims, from their own seeded stream so lots and
 # heights are as before. Story 26.3: segments of the grid may be dropped, merging
 # the blocks either side into superblocks, and some blocks left as paved squares,
-# each from its own stream so chances of 0 build the plan as before.
+# each from its own stream so chances of 0 build the plan as before. Story
+# 26.4: the plan also gives the general form beside the rectangles: streets as
+# centrelines with a width and a kind, junctions joining them, and blocks as
+# polygons that the lots are cut from, so later patterns can run at any angle.
 
 ## Trim kinds: a low wall round a roof, a slab round a wall at a storey line, a
 ## plant room on the top roof.
@@ -39,6 +42,27 @@ class Shape extends RefCounted:
 		trims.append(box)
 		trim_kinds.append(kind)
 
+## What a street is: an ordinary street or an avenue.
+enum Kind { STREET, AVENUE }
+
+## A street in the general form (Story 26.4): a polyline centreline, with a
+## point at each end and at each junction along it, and its kerb-to-kerb width.
+## The ground it covers is the centreline swept `width / 2` either side, cut
+## square at its ends.
+class Street extends RefCounted:
+	var points := PackedVector2Array()
+	var width := 0.0
+	var kind: int = Kind.STREET
+
+## Where streets meet (Story 26.4): the middle of the ground they share. Each
+## of their centrelines has a point nearest it among its points; where two
+## streets cross, that point is the junction itself (two edge streets clipped
+## by the core can share only a corner, and there it is not). `streets` index
+## `paths`.
+class Junction extends RefCounted:
+	var at := Vector2.ZERO
+	var streets := PackedInt32Array()
+
 static var _cache := {}
 
 ## Street surfaces, kerb to kerb, in XZ (x, z), clipped to the core circle.
@@ -60,6 +84,16 @@ var squares: Array[Rect2] = []
 var lots: Array[Rect2] = []
 ## Lots left empty (Story 26.2): sand, no building, no shape. Never in `lots`.
 var vacant: Array[Rect2] = []
+## The general form (Story 26.4). One path per street, same order as streets.
+var paths: Array[Street] = []
+## Every place two or more paths meet.
+var junctions: Array[Junction] = []
+## Each block's outline, same order as blocks: a closed polygon (last point
+## joins the first) wound like the rect's corners, position first.
+var block_polygons: Array[PackedVector2Array] = []
+## The block each lot (and each vacant lot) was cut from, indexing blocks.
+var lot_block := PackedInt32Array()
+var vacant_block := PackedInt32Array()
 ## Height of each lot (its top box's roof), same order as lots.
 var heights := PackedFloat32Array()
 ## Shape of each lot, same order as lots.
@@ -113,6 +147,7 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	var runs := _runs(layout, lines, axis[1], grid.of)
 	plan.streets = runs[0]
 	plan.street_axis = runs[1]
+	_paths(plan, axis[2])
 	var squaring := RandomNumberGenerator.new()
 	squaring.seed = layout.seed + 19
 	var sorted := _sorted(axis[1])
@@ -127,28 +162,113 @@ static func _generate(layout: CityLayout) -> CityPlan:
 			var sx := Vector2(sorted[cells.position.x].x, sorted[cells.end.x - 1].y)
 			var sz := Vector2(sorted[cells.position.y].x, sorted[cells.end.y - 1].y)
 			var block := Rect2(sx.x, sz.x, sx.y - sx.x, sz.y - sz.x)
+			var b := plan.blocks.size()
 			plan.blocks.append(block)
+			var outline := polygon(block)
+			plan.block_polygons.append(outline)
 			if layout.square_chance > 0.0 and inside(block, r) and squaring.randf() < layout.square_chance:
 				plan.squares.append(block)
 				continue
+			# Lots are cut from the block's outline: spans along its bounds, each
+			# kept only if it fits inside. A rectangle's bounds are the rectangle,
+			# so a grid cuts the lots it always did.
+			var bounds := _bounds(outline)
+			sx = Vector2(bounds.position.x, bounds.end.x)
+			sz = Vector2(bounds.position.y, bounds.end.y)
 			for cx in _split(layout, rng, sx):
 				for cz in _split(layout, rng, sz):
 					var lot := Rect2(cx.x, cz.x, cx.y - cx.x, cz.y - cz.x)
 					var jitter := rng.randf_range(0.5, 1.0)
-					if not inside(lot, r) or not clear_of(layout, lot):
+					if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, outline):
 						continue
 					if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
 						plan.vacant.append(lot)
+						plan.vacant_block.append(b)
 						continue
 					var d := clampf(lot.get_center().length() / r, 0.0, 1.0)
 					var t := pow(1.0 - d, layout.height_falloff) * jitter
 					plan.lots.append(lot)
+					plan.lot_block.append(b)
 					plan.heights.append(lerpf(layout.height_min, layout.height_max, t))
 	var shape_rng := RandomNumberGenerator.new()
 	shape_rng.seed = layout.seed + 3
 	for i in plan.lots.size():
 		plan.shapes.append(_shape(layout, shape_rng, plan.lots[i], plan.heights[i]))
 	return plan
+
+## A rect's outline as a polygon: position, then on round its corners.
+static func polygon(r: Rect2) -> PackedVector2Array:
+	return PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
+
+## The axis-aligned bounds of a polygon.
+static func _bounds(poly: PackedVector2Array) -> Rect2:
+	var out := Rect2(poly[0], Vector2.ZERO)
+	for p in poly:
+		out = out.expand(p)
+	return out
+
+## True when `lot` lies inside the polygon `poly`: nothing of it is left once
+## the polygon is clipped away.
+static func fits(lot: Rect2, poly: PackedVector2Array) -> bool:
+	for part in Geometry2D.clip_polygons(polygon(lot), poly):
+		if absf(area(part)) > 0.01:
+			return false
+	return true
+
+## A polygon's signed area (shoelace).
+static func area(poly: PackedVector2Array) -> float:
+	var a := 0.0
+	for i in poly.size():
+		a += poly[i].cross(poly[(i + 1) % poly.size()])
+	return a * 0.5
+
+## Story 26.4: the general form of the streets. Each street rect becomes a
+## centreline down its middle, along its axis, with its width and kind (an
+## avenue when its grid line is one of `avenues`). Wherever two street rects
+## share ground a junction sits at the middle of that ground, and the point on
+## each centreline nearest it joins that centreline's points, in order.
+static func _paths(plan: CityPlan, avenues: Array) -> void:
+	for i in plan.streets.size():
+		var s := plan.streets[i]
+		var ax := plan.street_axis[i]
+		var path := Street.new()
+		var c := s.get_center()
+		path.width = s.size.x if ax == 0 else s.size.y
+		var line := Vector2(s.position.x, s.end.x) if ax == 0 else Vector2(s.position.y, s.end.y)
+		for a: Vector2 in avenues:
+			if a.is_equal_approx(line):
+				path.kind = Kind.AVENUE
+		path.points = PackedVector2Array([Vector2(c.x, s.position.y), Vector2(c.x, s.end.y)]) if ax == 0 \
+			else PackedVector2Array([Vector2(s.position.x, c.y), Vector2(s.end.x, c.y)])
+		plan.paths.append(path)
+	for i in plan.streets.size():
+		for j in range(i + 1, plan.streets.size()):
+			if not plan.streets[i].intersects(plan.streets[j]):
+				continue
+			var at := plan.streets[i].intersection(plan.streets[j]).get_center()
+			var junction: Junction = null
+			for k in plan.junctions:
+				if k.at.distance_to(at) < 0.01:
+					junction = k
+			if junction == null:
+				junction = Junction.new()
+				junction.at = at
+				plan.junctions.append(junction)
+			for n in [i, j]:
+				if not junction.streets.has(n):
+					junction.streets.append(n)
+	for junction in plan.junctions:
+		for n in junction.streets:
+			var path := plan.paths[n]
+			var a := path.points[0]
+			var e := path.points[path.points.size() - 1]
+			var p := Geometry2D.get_closest_point_to_segment(junction.at, a, e)
+			var t := (p - a).length()
+			var k := 1
+			while k < path.points.size() - 1 and (path.points[k] - a).length() < t:
+				k += 1
+			if p.distance_to(path.points[k]) > 0.001 and p.distance_to(path.points[k - 1]) > 0.001:
+				path.points.insert(k, p)
 
 ## Superblocks never span more than this many blocks a side.
 const MAX_MERGE := 3
@@ -450,12 +570,13 @@ static func _inset(rng: RandomNumberGenerator, r: Rect2, least: float, most: flo
 		return Rect2()
 	return Rect2(r.position.x + d[0], r.position.y + d[2], r.size.x - d[0] - d[1], r.size.y - d[2] - d[3])
 
-## [streets, blocks] along one axis as (start, end) spans, mirrored about the
-## origin. A block sits on the centre, so the spawn plaza is a square, not a
+## [streets, blocks, avenues] along one axis as (start, end) spans, mirrored
+## about the origin; avenues are the streets that are avenues. A block sits on the centre, so the spawn plaza is a square, not a
 ## crossing; street k counts out from it and every avenue_every-th is an avenue.
 static func _axis(layout: CityLayout) -> Array:
 	var streets: Array[Vector2] = []
 	var blocks: Array[Vector2] = []
+	var avenues: Array[Vector2] = []
 	var at := layout.block_size * 0.5
 	blocks.append(Vector2(-at, at))
 	var k := 1
@@ -463,12 +584,15 @@ static func _axis(layout: CityLayout) -> Array:
 		var w := _width(layout, k)
 		streets.append(Vector2(at, at + w))
 		streets.append(Vector2(-at - w, -at))
+		if layout.avenue_every > 0 and k % layout.avenue_every == 0:
+			avenues.append(streets[-2])
+			avenues.append(streets[-1])
 		at += w
 		blocks.append(Vector2(at, at + layout.block_size))
 		blocks.append(Vector2(-at - layout.block_size, -at))
 		at += layout.block_size
 		k += 1
-	return [streets, blocks]
+	return [streets, blocks, avenues]
 
 static func _width(layout: CityLayout, k: int) -> float:
 	return layout.avenue_width if layout.avenue_every > 0 and k % layout.avenue_every == 0 else layout.street_width
