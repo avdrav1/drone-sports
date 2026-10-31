@@ -10,9 +10,9 @@ extends Resource
 ## The CityLayout fields rolled, in roll order. Each has a range below.
 const FIELDS: Array[StringName] = [&"block_size", &"street_width", &"avenue_width", &"avenue_every",
 	&"lot_min", &"lot_max", &"height_min", &"height_max", &"height_falloff", &"vacant_chance",
-	&"drop_chance", &"square_chance"]
+	&"drop_chance", &"square_chance", &"spokes", &"rings", &"ring_spacing"]
 ## Fields rolled as whole numbers.
-const WHOLE: Array[StringName] = [&"avenue_every"]
+const WHOLE: Array[StringName] = [&"avenue_every", &"spokes", &"rings"]
 ## Fields snapped to a twentieth rather than to `step`.
 const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance", &"drop_chance", &"square_chance"]
 
@@ -32,12 +32,17 @@ const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance", &"drop_cha
 ## Chances a grid street segment is dropped and a block is a square (Story 26.3).
 @export var drop_chance := Vector2(0.05, 0.3)
 @export var square_chance := Vector2(0, 0.1)
+## A radial city's spoke and ring counts and the metres between rings (Story
+## 26.7); rolled last, so every field above rolls as before.
+@export var spokes := Vector2(5, 7)
+@export var rings := Vector2(2, 3)
+@export var ring_spacing := Vector2(38, 46)
 ## Rolled lengths snap to this many metres, chances and falloff to a twentieth.
 @export var step := 0.5
 ## How often each street pattern comes up (Story 26.6), indexed by
 ## CityLayout.Pattern; picked from its own stream so the fields above roll as
 ## before.
-@export var pattern_weights := PackedFloat32Array([1.0, 1.0])
+@export var pattern_weights := PackedFloat32Array([1.0, 1.0, 1.0])
 
 ## A copy of `base` with seed `s` and every field rolled from it.
 func roll(base: CityLayout, s: int) -> CityLayout:

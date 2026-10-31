@@ -62,16 +62,17 @@ func test_variety_weights_pick_a_pattern_per_seed() -> bool:
 	# A weight of 0 never comes up; the pattern is picked from its own stream,
 	# so every other rolled field is what it was.
 	var only_grid: CityVariety = VARIETY.duplicate()
-	only_grid.pattern_weights = PackedFloat32Array([1.0, 0.0])
+	only_grid.pattern_weights = PackedFloat32Array([1.0, 0.0, 0.0])
 	var only_diagonal: CityVariety = VARIETY.duplicate()
-	only_diagonal.pattern_weights = PackedFloat32Array([0.0, 1.0])
+	only_diagonal.pattern_weights = PackedFloat32Array([0.0, 1.0, 0.0])
 	for k in 20:
 		var g := only_grid.roll(SANDBOX, 5 + k)
 		var d := only_diagonal.roll(SANDBOX, 5 + k)
 		ok = ok and g.pattern == CityLayout.Pattern.GRID and d.pattern == CityLayout.Pattern.DIAGONAL
 		for f in CityVariety.FIELDS:
 			ok = ok and g.get(f) == d.get(f)
-	return ok and seen.size() == 2 and SANDBOX.pattern == CityLayout.Pattern.GRID
+	# Every pattern comes up (Story 26.7 added the radial one).
+	return ok and seen.size() == CityLayout.Pattern.size() and SANDBOX.pattern == CityLayout.Pattern.GRID
 
 func test_network_connected_and_clearings_touch_a_street() -> bool:
 	var ok := true

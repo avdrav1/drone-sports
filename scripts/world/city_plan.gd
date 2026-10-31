@@ -13,7 +13,10 @@ extends RefCounted
 # polygons that the lots are cut from, so later patterns can run at any angle.
 # Story 26.6: the DIAGONAL pattern lays the grid, then one or two avenues across
 # it at a seeded angle, splitting the blocks they cross into wedges along their
-# kerbs; a wedge's lots are trimmed to fit it, or left out.
+# kerbs; a wedge's lots are trimmed to fit it, or left out. Story 26.7: the
+# RADIAL pattern rings the spawn plaza with ring roads, drawn as short straight
+# segments, crossed by spokes out from the plaza; blocks are the ring sectors
+# between them, with lots trimmed to fit as in a wedge.
 
 ## Trim kinds: a low wall round a roof, a slab round a wall at a storey line, a
 ## plant room on the top roof.
@@ -98,6 +101,12 @@ var paths: Array[Street] = []
 ## angle in degrees from +x towards +z, same order.
 var diagonals := PackedInt32Array()
 var diagonal_angles := PackedFloat32Array()
+## A radial city (Story 26.7): each spoke's index in `paths`, and each ring's
+## segments in order round it (counterclockwise from +x toward +z), the
+## plaza's ring first. The spokes all point out from the plaza's centre, the
+## origin, and start where they meet the plaza ring.
+var spokes := PackedInt32Array()
+var rings: Array[PackedInt32Array] = []
 ## Every place two or more paths meet.
 var junctions: Array[Junction] = []
 ## Each block's outline, same order as blocks: a closed polygon (last point
@@ -152,6 +161,13 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	# Vacancy draws from its own stream, so the lots and heights are as before.
 	var vacancy := RandomNumberGenerator.new()
 	vacancy.seed = layout.seed + 5
+	if layout.pattern == CityLayout.Pattern.RADIAL:
+		_radial(layout, plan, rng, vacancy)
+		var shaping := RandomNumberGenerator.new()
+		shaping.seed = layout.seed + 3
+		for i in plan.lots.size():
+			plan.shapes.append(_shape(layout, shaping, plan.lots[i], plan.heights[i]))
+		return plan
 	var lines: Array[Vector2] = []
 	for s: Vector2 in axis[0]:
 		if maxf(absf(s.x), absf(s.y)) < r:
@@ -289,6 +305,327 @@ static func _shrunk(r: Rect2, side: int, by: float) -> Rect2:
 	if side % 2 == 0:
 		out.position[ax] += by
 	return out
+
+## Spoke angles stray from even spacing by up to this share of the gap.
+const SPOKE_JITTER := 0.15
+
+## Story 26.7: a ring-and-spoke city. Spokes at seeded angles (their own
+## stream, seed + 31: evenly spaced from a seeded start, each jittered) run from
+## the plaza ring out to the core's edge; rings are concentric round the plaza,
+## each a closed run of straight segments, one centred square across each spoke
+## and the arcs between cut into segments of at most ring_step degrees. If a
+## clearing would touch no street, the spokes turn together until the nearest
+## one points at it. Blocks are the plaza inside the first ring and the sectors
+## between rings and spokes, bounded by their kerbs; the band past the last ring
+## runs on beyond the core, like a grid's edge blocks.
+static func _radial(layout: CityLayout, plan: CityPlan, rng: RandomNumberGenerator, vacancy: RandomNumberGenerator) -> void:
+	var spin := RandomNumberGenerator.new()
+	spin.seed = layout.seed + 31
+	var r := layout.core_radius
+	var n := maxi(3, layout.spokes)
+	var gap := TAU / n
+	var start := spin.randf() * TAU
+	var angles: Array[float] = []
+	for i in n:
+		angles.append(start + gap * (i + spin.randf_range(-SPOKE_JITTER, SPOKE_JITTER)))
+	var radii: Array[float] = []
+	var widths: Array[float] = []
+	for k in maxi(1, layout.rings):
+		var at := layout.hub_radius + layout.ring_spacing * k
+		var w := layout.street_width if k == 0 else _width(layout, k)
+		if k > 0 and at + w * 0.5 + layout.sidewalk * 2.0 > r:
+			break
+		radii.append(at)
+		widths.append(w)
+	var vertices := _radial_streets(layout, plan, angles, radii, widths)
+	for c in layout.clearings:
+		var at := Vector2(c.x, c.y)
+		if at.length() < 0.01 or plan.paths.any(func(p): return _reaches(c, strip(p))):
+			continue
+		var turn := INF
+		for a in angles:
+			var d := angle_difference(a, at.angle())
+			if absf(d) < absf(turn):
+				turn = d
+		for i in n:
+			angles[i] += turn
+		vertices = _radial_streets(layout, plan, angles, radii, widths)
+		break
+	# Each ring's kerbs, mitred at its corners: the inner one, then the outer.
+	var kerbs := []
+	for k in radii.size():
+		kerbs.append([_offset(vertices[k], -widths[k] * 0.5), _offset(vertices[k], widths[k] * 0.5)])
+	var beyond := PackedVector2Array()
+	var steps := ceili(360.0 / layout.ring_step)
+	for j in steps:
+		beyond.append(Vector2.from_angle(TAU * j / steps) * (r + layout.ring_spacing))
+	var outlines: Array[PackedVector2Array] = [kerbs[0][0]]
+	var half := layout.street_width * 0.5
+	for k in radii.size():
+		var inner: PackedVector2Array = kerbs[k][1]
+		var outer: PackedVector2Array = kerbs[k + 1][0] if k + 1 < radii.size() else beyond
+		for i in n:
+			var a := Vector2.from_angle(angles[i])
+			var b := Vector2.from_angle(angles[(i + 1) % n])
+			outlines.append(_sector(inner, outer, a.orthogonal() * -half, a, b.orthogonal() * half, b))
+	var squaring := RandomNumberGenerator.new()
+	squaring.seed = layout.seed + 19
+	for outline in outlines:
+		var b := plan.blocks.size()
+		plan.blocks.append(_bounds(outline))
+		plan.block_polygons.append(outline)
+		var whole := Array(outline).all(func(q): return q.length() <= r)
+		if layout.square_chance > 0.0 and whole and squaring.randf() < layout.square_chance:
+			plan.squares.append(_bounds(outline))
+			continue
+		_cut_sector(layout, plan, rng, vacancy, b)
+
+## Row depth past lot_min in a radial block (Story 26.7).
+const ROW_SPARE := 1.0
+
+## Cuts the lots of block `b`, an outline of any shape (Story 26.7), inside it
+## stood in by the sidewalk: rows lot_min (and a little) deep across it, each
+## cut into lots along the stretches the whole row fits inside. Rows run along
+## z or along x, starting flush with the block's edge or half a row on,
+## whichever of the four keeps the most ground; the odd corners left over are
+## courtyards.
+static func _cut_sector(layout: CityLayout, plan: CityPlan, rng: RandomNumberGenerator, vacancy: RandomNumberGenerator,
+		b: int) -> void:
+	var r := layout.core_radius
+	var outline := plan.block_polygons[b]
+	var grown := Geometry2D.offset_polygon(outline, -layout.sidewalk, Geometry2D.JOIN_MITER)
+	if grown.size() != 1:
+		return
+	var inner: PackedVector2Array = grown[0]
+	var best: Array[Rect2] = []
+	var most := 0.0
+	for flip in [false, true]:
+		for phase in [0.0, 0.5]:
+			var kept: Array[Rect2] = []
+			var ground := 0.0
+			for lot in _fit_lots(layout, rng, inner, flip, phase):
+				if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, inner) or not fits(lot, outline):
+					continue
+				kept.append(lot)
+				ground += lot.get_area()
+			if ground > most + 0.001:
+				best = kept
+				most = ground
+	for lot in best:
+		var jitter := rng.randf_range(0.5, 1.0)
+		if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
+			plan.vacant.append(lot)
+			plan.vacant_block.append(b)
+			continue
+		var d := clampf(lot.get_center().length() / r, 0.0, 1.0)
+		var t := pow(1.0 - d, layout.height_falloff) * jitter
+		plan.lots.append(lot)
+		plan.lot_block.append(b)
+		plan.heights.append(lerpf(layout.height_min, layout.height_max, t))
+
+## Lots across `poly` in rows along z (along x when `flip`), the first `phase`
+## of a row in from its edge; each row is cut along the stretches its whole
+## depth lies inside `poly` into a seeded count of equal lots, lot_min to
+## lot_max wide, with lot_gap between.
+static func _fit_lots(layout: CityLayout, rng: RandomNumberGenerator, poly: PackedVector2Array, flip: bool,
+		phase: float) -> Array[Rect2]:
+	var shape := poly
+	if flip:
+		shape = PackedVector2Array()
+		for q in poly:
+			shape.append(Vector2(q.y, q.x))
+	var box := _bounds(shape)
+	var g := layout.lot_gap
+	var deep := layout.lot_min + ROW_SPARE
+	var out: Array[Rect2] = []
+	var z := box.position.y + (deep + g) * phase
+	while z + deep <= box.end.y:
+		for span in _spans(shape, z, z + deep):
+			var length := span.y - span.x
+			if length < layout.lot_min:
+				continue
+			# Where no count fits lots between lot_min and lot_max, the lots are
+			# lot_max wide and the ground left over is a yard either side.
+			var most := floori((length + g) / (layout.lot_min + g))
+			var n := rng.randi_range(mini(most, ceili((length + g) / (layout.lot_max + g))), most)
+			var wide := minf((length - g * (n - 1)) / n, layout.lot_max)
+			var from := span.x + (length - wide * n - g * (n - 1)) * 0.5
+			for k in n:
+				var lot := Rect2(from + (wide + g) * k, z, wide, deep)
+				out.append(Rect2(lot.position.y, lot.position.x, lot.size.y, lot.size.x) if flip else lot)
+		z += deep + g
+	return out
+
+## The x spans over which the band of `poly` between z0 and z1 lies wholly
+## inside it: the spans inside it at both edges of the band and just either
+## side of each corner within it (between those its edges run straight).
+static func _spans(poly: PackedVector2Array, z0: float, z1: float) -> Array[Vector2]:
+	var heights := [z0 + 1e-4, z1 - 1e-4]
+	for q in poly:
+		if q.y > z0 and q.y < z1:
+			heights.append(q.y - 1e-4)
+			heights.append(q.y + 1e-4)
+	var out: Array[Vector2] = [Vector2(-INF, INF)]
+	for z: float in heights:
+		var xs: Array[float] = []
+		for i in poly.size():
+			var p := poly[i]
+			var q := poly[(i + 1) % poly.size()]
+			if (p.y - z) * (q.y - z) < 0.0:
+				xs.append(p.x + (q.x - p.x) * (z - p.y) / (q.y - p.y))
+		xs.sort()
+		var next: Array[Vector2] = []
+		for o in out:
+			for k in range(0, xs.size() - 1, 2):
+				var lo := maxf(o.x, xs[k])
+				var hi := minf(o.y, xs[k + 1])
+				if hi > lo:
+					next.append(Vector2(lo, hi))
+		out = next
+	return out
+
+## Lays a radial city's streets for spokes at `angles` (radians) and rings at
+## `radii` with `widths`, replacing any already laid: each ring's segments,
+## then the spokes, with a junction wherever two meet. Returns each ring's
+## centreline corners, counterclockwise.
+static func _radial_streets(layout: CityLayout, plan: CityPlan, angles: Array[float], radii: Array[float],
+		widths: Array[float]) -> Array[PackedVector2Array]:
+	plan.paths.clear()
+	plan.junctions.clear()
+	plan.spokes = PackedInt32Array()
+	plan.rings.clear()
+	var n := angles.size()
+	var ws := layout.street_width
+	var step := deg_to_rad(layout.ring_step)
+	var out: Array[PackedVector2Array] = []
+	# Where each spoke crosses each ring: [ring, segment, point].
+	var crossings := []
+	for k in radii.size():
+		var big := radii[k]
+		var wr := widths[k]
+		# The segment across a spoke reaches past its kerbs by the ring's half
+		# width and more, so the corners either side stay clear of the crossing.
+		var half := minf(asin(minf(0.95, (ws * 0.5 + wr * 0.5 + 1.5) / big)), TAU / n * 0.4)
+		var corners: Array[float] = []
+		var across := PackedInt32Array()
+		for i in n:
+			var a := angles[i]
+			var b := angles[(i + 1) % n] + (TAU if i == n - 1 else 0.0)
+			var from := a + minf(half, (b - a) * 0.4)
+			var to := b - minf(half, (b - a) * 0.4)
+			var m := maxi(1, ceili((to - from) / step - 0.001))
+			for j in m:
+				corners.append(from + (to - from) * j / m)
+			# The next corner, `to`, starts the segment across spoke i + 1.
+			corners.append(to)
+			across.append(corners.size() - 1)
+		var points := PackedVector2Array()
+		for t in corners:
+			points.append(Vector2.from_angle(t) * big)
+		out.append(points)
+		var ring := PackedInt32Array()
+		var first := plan.paths.size()
+		for j in points.size():
+			var path := Street.new()
+			path.width = wr
+			path.kind = Kind.AVENUE if wr > ws else Kind.STREET
+			path.points = PackedVector2Array([points[j], points[(j + 1) % points.size()]])
+			ring.append(plan.paths.size())
+			plan.paths.append(path)
+		for j in points.size():
+			var joint := Junction.new()
+			joint.at = points[(j + 1) % points.size()]
+			joint.streets = PackedInt32Array([first + j, first + (j + 1) % points.size()])
+			plan.junctions.append(joint)
+		plan.rings.append(ring)
+		for i in n:
+			var seg := first + across[i]
+			var p := plan.paths[seg]
+			crossings.append([k, (i + 1) % n, seg, (p.points[0] + p.points[1]) * 0.5])
+	for i in n:
+		var dir := Vector2.from_angle(angles[i])
+		var path := Street.new()
+		path.width = ws
+		path.kind = Kind.STREET
+		var hub := Vector2.ZERO
+		for c in crossings:
+			if c[0] == 0 and c[1] == i:
+				hub = c[3]
+		path.points = PackedVector2Array([hub, dir * layout.core_radius])
+		plan.spokes.append(plan.paths.size())
+		plan.paths.append(path)
+		for c in crossings:
+			if c[1] == i:
+				var junction := Junction.new()
+				junction.at = c[3]
+				junction.streets = PackedInt32Array([c[2], plan.paths.size() - 1])
+				plan.junctions.append(junction)
+	_insert_points(plan)
+	return out
+
+## A closed counterclockwise polygon moved out by `by` (in, when negative)
+## along its edges' normals, mitred at each corner.
+static func _offset(poly: PackedVector2Array, by: float) -> PackedVector2Array:
+	var count := poly.size()
+	var out := PackedVector2Array()
+	for i in count:
+		var prev := (poly[i] - poly[(i - 1 + count) % count]).normalized()
+		var next := (poly[(i + 1) % count] - poly[i]).normalized()
+		var m0 := Vector2(prev.y, -prev.x)
+		var m1 := Vector2(next.y, -next.x)
+		out.append(poly[i] + (m0 + m1) * (by / (1.0 + m0.dot(m1))))
+	return out
+
+## The block between two closed convex counterclockwise outlines round the
+## origin, `inner` inside `outer`, and between two kerb lines out from it: one
+## through `a0` along `a`, the other, counterclockwise of it, through `b0` along
+## `b`. Wound like a rect's polygon.
+static func _sector(inner: PackedVector2Array, outer: PackedVector2Array, a0: Vector2, a: Vector2, b0: Vector2,
+		b: Vector2) -> PackedVector2Array:
+	var ia := _exit(inner, a0, a)
+	var ib := _exit(inner, b0, b)
+	var oa := _exit(outer, a0, a)
+	var ob := _exit(outer, b0, b)
+	var poly := PackedVector2Array([ia[0]])
+	var j: int = (ia[1] + 1) % inner.size()
+	while j != (ib[1] + 1) % inner.size():
+		poly.append(inner[j])
+		j = (j + 1) % inner.size()
+	poly.append(ib[0])
+	poly.append(ob[0])
+	j = ob[1]
+	while j != oa[1]:
+		poly.append(outer[j])
+		j = (j - 1 + outer.size()) % outer.size()
+	poly.append(oa[0])
+	var out := PackedVector2Array()
+	for q in poly:
+		if out.is_empty() or out[-1].distance_to(q) > 1e-4:
+			out.append(q)
+	if out[-1].distance_to(out[0]) <= 1e-4:
+		out.remove_at(out.size() - 1)
+	if area(out) < 0.0:
+		out.reverse()
+	return out
+
+## [point, edge] where the ray from `from` (inside `poly`) along `dir` leaves
+## the closed polygon `poly`; edge i runs from corner i to corner i + 1.
+static func _exit(poly: PackedVector2Array, from: Vector2, dir: Vector2) -> Array:
+	for i in poly.size():
+		var hit = Geometry2D.segment_intersects_segment(from, from + dir * 10000.0, poly[i], poly[(i + 1) % poly.size()])
+		if hit != null:
+			return [hit, i]
+	return [from, 0]
+
+## True when the circle `c` (x, z, radius) reaches into the polygon.
+static func _reaches(c: Vector3, poly: PackedVector2Array) -> bool:
+	var at := Vector2(c.x, c.y)
+	if Geometry2D.is_point_in_polygon(at, poly):
+		return true
+	for i in poly.size():
+		if Geometry2D.get_closest_point_to_segment(at, poly[i], poly[(i + 1) % poly.size()]).distance_to(at) < c.z:
+			return true
+	return false
 
 ## Story 26.6: lays the diagonal avenues as paths after the grid's, from their
 ## own stream (seed + 29): `diagonals` of them, the first at a seeded angle to
