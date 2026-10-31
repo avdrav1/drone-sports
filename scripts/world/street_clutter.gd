@@ -5,7 +5,9 @@ extends StaticBody3D
 # units and downpipes on building walls, all placed from the layout's seed and
 # drawn through one MultiMesh per model. Anything taller than a bench collides
 # with one box. Sits under a Streets node and reads its plan, kerbs, and lights;
-# cached per layout, like Streets.
+# cached per layout, like Streets. Story 26.5: pavement items walk the block
+# outlines' edges, and parking follows each stretch of road in its own frame,
+# so both work at any angle.
 #
 # Lanes: each street segment keeps a parking strip `park_width` wide against the
 # kerb (both sides of an avenue, one side of a street), clear of crosswalks and
@@ -63,10 +65,11 @@ var layout: CityLayout
 ## Each piece: {kind, xform (where its mesh is drawn), box (world AABB), lot
 ## (-1 on the street)}, every kind in turn.
 var pieces: Array = []
-## Road outside the parking strips, crossings included, as XZ rects.
-var lanes: Array[Rect2] = []
-## Parking strips along kerbs, as XZ rects.
-var parking: Array[Rect2] = []
+## Road outside the parking strips, crossings included, as XZ polygons (quads
+## along a street, a crossing patch's outline).
+var lanes: Array[PackedVector2Array] = []
+## Parking strips along kerbs, as XZ quads.
+var parking: Array[PackedVector2Array] = []
 
 func _ready() -> void:
 	streets = get_parent() as Streets
@@ -95,13 +98,13 @@ func build() -> void:
 		mm.multimesh = mms[k]
 		add_child(mm)
 	for i in built[4].size():
-		var box: AABB = built[4][i]
+		var box: Array = built[4][i]
 		var shape := BoxShape3D.new()
-		shape.size = box.size
+		shape.size = box[0]
 		var cs := CollisionShape3D.new()
 		cs.name = "Piece%d" % i
 		cs.shape = shape
-		cs.position = box.get_center()
+		cs.transform = box[1]
 		add_child(cs)
 
 ## Frees what build() made, keeping the scene's own children, so the node can
@@ -130,16 +133,16 @@ func _generate() -> Array:
 	var found := []
 	var road := Streets.road_pieces(plan, layout)
 	var shelters: Array[Rect2] = []
-	for b in plan.blocks:
-		if CityPlan.inside(b, layout.core_radius):
-			for side in 4:
-				_edge(rng, b, side, road, found, shelters)
+	for b in plan.block_polygons:
+		if Streets.within(b, layout.core_radius):
+			for e in Streets.edges(b, streets.kerb_width):
+				_edge(rng, b, e, road, found, shelters)
 	var strips := _parking(rng, road, found, shelters)
 	for i in plan.lots.size():
 		_walls(rng, i, found)
 	found = found.filter(func(f): return _clear(f.box))
 	var mms := []
-	var shapes: Array[AABB] = []
+	var shapes := []
 	for k in Kind.size():
 		var mine := found.filter(func(f): return f.kind == k)
 		var mm := MultiMesh.new()
@@ -157,7 +160,7 @@ func _generate() -> Array:
 		ordered.append_array(found.filter(func(f): return f.kind == k))
 	for f in ordered:
 		if collides(f.box):
-			shapes.append(f.box)
+			shapes.append(_collider(f))
 	return [ordered, strips[0], strips[1], mms, shapes]
 
 ## True when a box stays inside the core and clear of every clearing.
@@ -169,19 +172,19 @@ func _clear(box: AABB) -> bool:
 func _piece(kind: int, xform: Transform3D, lot := -1, tint := Color(1, 1, 1)) -> Dictionary:
 	return {"kind": kind, "xform": xform, "box": xform * _mesh(kind).get_aabb(), "lot": lot, "tint": tint}
 
-## Pavement items on one side of a block (0 -z, 1 +z, 2 -x, 3 +x): a bus
-## shelter on an avenue, signs near the corners, trees in pits, and a bench, each
-## keeping off the street lights and the others along the kerb.
-func _edge(rng: RandomNumberGenerator, b: Rect2, side: int, road: Array, found: Array, shelters: Array[Rect2]) -> void:
-	var along := Vector2.RIGHT if side < 2 else Vector2.DOWN
-	var out: Vector2 = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT][side]
-	var start: Vector2 = [b.position, Vector2(b.position.x, b.end.y), b.position, Vector2(b.end.x, b.position.y)][side]
-	var length := b.size.x if side < 2 else b.size.y
+## Pavement items along one edge of a block outline (a Streets.edges() entry):
+## a bus shelter on an avenue, signs near the corners, trees in pits, and a
+## bench, each keeping off the street lights and the others along the kerb.
+func _edge(rng: RandomNumberGenerator, b: PackedVector2Array, edge: Array, road: Array, found: Array, shelters: Array[Rect2]) -> void:
+	var along: Vector2 = edge[1]
+	var out: Vector2 = -(edge[2] as Vector2) + Vector2.ZERO
+	var start: Vector2 = edge[0]
+	var length: float = edge[3]
 	var kind := -1
 	var probe := start + along * length * 0.5 + out * 1.0
-	for piece in road:
-		if (piece[0] as Rect2).has_point(probe):
-			kind = piece[3]
+	for piece: Streets.Piece in road:
+		if piece.has_point(probe):
+			kind = piece.kind
 	if kind < 0:
 		return
 	var yaw := atan2(out.x, out.y)
@@ -237,8 +240,9 @@ func _edge(rng: RandomNumberGenerator, b: Rect2, side: int, road: Array, found: 
 				var tree_xf := Transform3D(tree_turn.scaled_local(Vector3(s, s * rng.randf_range(1.3, 1.6), s)), base)
 				var f := _piece(Kind.TREE, tree_xf)
 				# Keep a crown that cannot fit the pavement off it.
-				var pavement := b.grow(-streets.kerb_width)
-				if pavement.encloses(Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z)):
+				var pavement := Streets.inset(b, streets.kerb_width)
+				var flat := Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z)
+				if Streets.encloses(pavement, flat) if Streets.square(pavement) else Streets.holds(pavement, _corners(f)):
 					found.append(f)
 					found.append(_piece(Kind.PIT, Transform3D(Basis.from_scale(Vector3(PIT_SIZE, 0.02, PIT_SIZE)), base + Vector3.UP * 0.005)))
 				else:
@@ -252,30 +256,36 @@ static func _take(used: Array[Vector2], t: float, half: float) -> bool:
 	return true
 
 ## Parking strips and the cars in them, and the lanes left over. Returns
-## [lanes, strips].
+## [lanes, strips]. Each stretch of road works in its own frame (x along, y
+## across: Streets.Piece.span()), so strips and cars line up with its street.
 func _parking(rng: RandomNumberGenerator, road: Array, found: Array, shelters: Array[Rect2]) -> Array:
-	var out_lanes: Array[Rect2] = []
-	var strips: Array[Rect2] = []
+	var out_lanes: Array[PackedVector2Array] = []
+	var strips: Array[PackedVector2Array] = []
 	var car_aabb := _mesh(Kind.CAR).get_aabb()
 	# Keep clear of the crosswalk at a crossing, and of lane arrows.
 	var end_margin := Streets.CROSSWALK_GAP + Streets.CROSSWALK_DEPTH + 0.5
-	var arrows: Array[Rect2] = []
+	var arrows: Array[PackedVector2Array] = []
 	for d in streets.decals:
 		if d[0] == Streets.Mark.ARROW:
-			arrows.append((d[1] as Rect2).grow(0.3))
-	for piece in road:
-		var r: Rect2 = piece[0]
-		if piece[3] == 2:
-			out_lanes.append(r)
+			arrows.append(d[1])
+	for piece: Streets.Piece in road:
+		if piece.kind == 2:
+			out_lanes.append(piece.poly)
 			continue
-		var ac: int = piece[1]
-		var al := 1 - ac
+		var r := piece.span()
+		var ac := 1
+		var al := 0
 		var a0 := r.position[al] + (end_margin if Streets.meets(road, piece, r.position[al]) else 1.0)
 		var a1 := r.end[al] - (end_margin if Streets.meets(road, piece, r.end[al]) else 1.0)
-		var sides: Array = [-1, 1] if piece[3] == 1 else [-1 if rng.randf() < 0.5 else 1]
+		var sides: Array = [-1, 1] if piece.kind == 1 else [-1 if rng.randf() < 0.5 else 1]
 		var lane := r
 		if a1 - a0 < car_aabb.size.z + 1.0:
 			sides = []
+		# This stretch's arrows, in its frame.
+		var mine: Array[Rect2] = []
+		for arrow in arrows:
+			if Streets.overlaps(arrow, piece.poly):
+				mine.append(_local_bounds(piece, arrow).grow(0.3))
 		for s in sides:
 			var strip := r
 			strip.position[al] = a0
@@ -284,7 +294,7 @@ func _parking(rng: RandomNumberGenerator, road: Array, found: Array, shelters: A
 			if s > 0:
 				strip.position[ac] = r.end[ac] - park_width
 			# An arrow in the strip's lane pushes that end of the strip back.
-			for arrow in arrows:
+			for arrow in mine:
 				if arrow.intersects(strip):
 					var lo := strip.position[al]
 					var hi := strip.end[al]
@@ -296,37 +306,64 @@ func _parking(rng: RandomNumberGenerator, road: Array, found: Array, shelters: A
 					strip.size[al] = maxf(hi - lo, 0.0)
 			if strip.size[al] < car_aabb.size.z + 1.0:
 				continue
-			strips.append(strip)
+			strips.append(piece.area(strip))
 			# The road beside the strip's ends stays lane.
 			for span in [Vector2(r.position[al], strip.position[al]), Vector2(strip.end[al], r.end[al])]:
 				var bit := strip
 				bit.position[al] = span.x
 				bit.size[al] = span.y - span.x
-				out_lanes.append(bit)
+				out_lanes.append(piece.area(bit))
 			if s < 0:
 				lane.position[ac] += park_width
 			lane.size[ac] -= park_width
-			# Right-hand traffic: the lane at across sign -1 heads +along for streets along z.
-			var heading: float = s * (-1.0 if ac == 0 else 1.0)
-			var dir := Vector3.ZERO
-			dir[al * 2] = heading
+			# Right-hand traffic: the lane at across sign `lane()` heads +along.
+			var heading: float = s * piece.lane()
+			var dir := Vector3(piece.d.x, 0.0, piece.d.y) * heading + Vector3.ZERO
 			var basis := Basis.looking_at(-dir, Vector3.UP)
 			var at := strip.position[al] + rng.randf_range(car_gap.x, car_gap.y)
 			while at + car_aabb.size.z <= strip.end[al]:
 				var c := strip.get_center()
 				c[al] = at + car_aabb.size.z * 0.5
-				var f := _piece(Kind.CAR, Transform3D(basis, Vector3(c.x, Streets.ROAD_Y, c.y)), -1,
+				var w := piece.world(c)
+				var f := _piece(Kind.CAR, Transform3D(basis, Vector3(w.x, Streets.ROAD_Y, w.y)), -1,
 					car_tints[rng.randi() % car_tints.size()])
 				var foot := Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z)
-				var free := rng.randf() < car_chance and strip.grow(0.01).encloses(foot)
+				var free := rng.randf() < car_chance and strip.grow(0.01).encloses(_local_bounds(piece, _corners(f)))
 				for sh in shelters:
 					if sh.grow(3.0).intersects(foot):
 						free = false
 				if free:
 					found.append(f)
 				at += car_aabb.size.z + rng.randf_range(car_gap.x, car_gap.y)
-		out_lanes.append(lane)
+		out_lanes.append(piece.area(lane))
 	return [out_lanes, strips]
+
+## The bounds, in `piece`'s frame, of a polygon in XZ.
+static func _local_bounds(piece: Streets.Piece, poly: PackedVector2Array) -> Rect2:
+	var out := Rect2(piece.local(poly[0]), Vector2.ZERO)
+	for p in poly:
+		out = out.expand(piece.local(p))
+	return out
+
+## A piece's footprint in XZ: its mesh's box turned with it, as a quad.
+func _corners(f: Dictionary) -> PackedVector2Array:
+	var a := _mesh(f.kind).get_aabb()
+	var xf: Transform3D = f.xform
+	var out := PackedVector2Array()
+	for q in [Vector2(a.position.x, a.position.z), Vector2(a.end.x, a.position.z), Vector2(a.end.x, a.end.z),
+			Vector2(a.position.x, a.end.z)]:
+		var p := xf * Vector3(q.x, 0.0, q.y)
+		out.append(Vector2(p.x, p.z))
+	return out
+
+## [size, transform] of a piece's collision box: its box when it stands square
+## to the world axes, else its mesh's box turned with it.
+func _collider(f: Dictionary) -> Array:
+	var b: Basis = f.xform.basis
+	if (absf(b.x.z) < 1e-6 and absf(b.z.x) < 1e-6) or (absf(b.x.x) < 1e-6 and absf(b.z.z) < 1e-6):
+		return [f.box.size, Transform3D(Basis(), f.box.get_center())]
+	var a := _mesh(f.kind).get_aabb()
+	return [a.size * b.get_scale(), Transform3D(b.orthonormalized(), f.xform * a.get_center())]
 
 ## AC units and downpipes on lot `i`'s walls, clear of its trims and other parts.
 func _walls(rng: RandomNumberGenerator, i: int, found: Array) -> void:

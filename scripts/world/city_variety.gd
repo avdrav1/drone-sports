@@ -9,11 +9,12 @@ extends Resource
 
 ## The CityLayout fields rolled, in roll order. Each has a range below.
 const FIELDS: Array[StringName] = [&"block_size", &"street_width", &"avenue_width", &"avenue_every",
-	&"lot_min", &"lot_max", &"height_min", &"height_max", &"height_falloff", &"vacant_chance"]
+	&"lot_min", &"lot_max", &"height_min", &"height_max", &"height_falloff", &"vacant_chance",
+	&"drop_chance", &"square_chance"]
 ## Fields rolled as whole numbers.
 const WHOLE: Array[StringName] = [&"avenue_every"]
 ## Fields snapped to a twentieth rather than to `step`.
-const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance"]
+const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance", &"drop_chance", &"square_chance"]
 
 ## (least, most) for each field; metres unless noted.
 @export var block_size := Vector2(30, 40)
@@ -28,6 +29,9 @@ const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance"]
 @export var height_falloff := Vector2(0.8, 1.4)
 ## A chance, 0 to 1.
 @export var vacant_chance := Vector2(0, 0.25)
+## Chances a grid street segment is dropped and a block is a square (Story 26.3).
+@export var drop_chance := Vector2(0.05, 0.3)
+@export var square_chance := Vector2(0, 0.1)
 ## Rolled lengths snap to this many metres, chances and falloff to a twentieth.
 @export var step := 0.5
 

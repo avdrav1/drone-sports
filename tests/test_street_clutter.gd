@@ -22,10 +22,10 @@ func _flat(box: AABB) -> Rect2:
 func _done(c: StreetClutter) -> void:
 	c.streets.free()
 
-func _area(rects: Array) -> float:
+func _area(polys: Array) -> float:
 	var a := 0.0
-	for r: Rect2 in rects:
-		a += r.get_area()
+	for p: PackedVector2Array in polys:
+		a += absf(CityPlan.area(p))
 	return a
 
 func test_every_kind_is_placed() -> bool:
@@ -62,28 +62,29 @@ func test_same_seed_same_placement() -> bool:
 func test_nothing_sits_in_a_lane() -> bool:
 	var c := _clutter()
 	var road := Streets.road_pieces(c.plan, c.layout)
-	var road_rects := road.map(func(p): return p[0])
+	var road_polys := road.map(func(p): return p.poly)
 	# Lanes and parking strips cover the road exactly, and each strip is
 	# park_width deep against one side of a road piece.
 	var ok := not c.lanes.is_empty() and not c.parking.is_empty() \
-		and absf(_area(c.lanes) + _area(c.parking) - _area(road_rects)) < 0.5
-	for strip in c.parking:
+		and absf(_area(c.lanes) + _area(c.parking) - _area(road_polys)) < 0.5
+	for quad in c.parking:
+		var strip := Streets.bounds(quad)
 		var on_side := false
 		for p in road:
-			var r: Rect2 = p[0]
-			var ac: int = p[1]
-			if p[3] != 2 and r.grow(0.001).encloses(strip) and is_equal_approx(strip.size[ac], c.park_width) \
+			var r: Rect2 = p.bounds()
+			var ac: int = 0 if absf(p.n.x) > 0.5 else 1
+			if p.kind != 2 and r.grow(0.001).encloses(strip) and is_equal_approx(strip.size[ac], c.park_width) \
 					and (is_equal_approx(strip.position[ac], r.position[ac]) or is_equal_approx(strip.end[ac], r.end[ac])):
 				on_side = true
 		ok = ok and on_side
 	for f in c.pieces:
 		var flat := _flat(f.box).grow(-0.001)
 		for lane in c.lanes:
-			if lane.intersects(flat):
+			if Streets.bounds(lane).intersects(flat):
 				print("        %s in a lane at %s" % [K.keys()[f.kind], f.box.get_center()])
 				ok = false
 				break
-		if f.kind == K.CAR and not c.parking.any(func(s): return s.grow(0.01).encloses(_flat(f.box))):
+		if f.kind == K.CAR and not c.parking.any(func(s): return Streets.bounds(s).grow(0.01).encloses(_flat(f.box))):
 			ok = false
 	_done(c)
 	return ok
