@@ -6,8 +6,9 @@ extends Resource
 
 ## Street patterns a seed can pick (Story 26.3 on): the grid, the grid
 ## crossed by one or two diagonal avenues (Story 26.6), and ring roads round the
-## plaza crossed by spokes out from it (Story 26.7).
-enum Pattern { GRID, DIAGONAL, RADIAL }
+## plaza crossed by spokes out from it (Story 26.7), and the winding lanes of
+## an old town (Story 26.8).
+enum Pattern { GRID, DIAGONAL, RADIAL, OLD_TOWN }
 
 @export var seed := 1
 ## Lots stand fully inside this radius. Keep it inside the terrain's flat radius.
@@ -64,6 +65,23 @@ enum Pattern { GRID, DIAGONAL, RADIAL }
 @export var rings := 3
 @export var ring_spacing := 38.0
 @export var ring_step := 10.0
+## Winding old town (Story 26.8, `pattern` OLD_TOWN): a loop of streets round
+## the spawn plaza, its centreline at least hub_radius out; `through_streets`
+## wider streets (street_width) winding from it to the core's edge; and lanes
+## grown from both by seeded random walks that bend and branch and end where
+## they meet another lane or the core's edge. Each lane is a width from
+## `lane_width` (least, most) wide, its legs `lane_length` (least, most) long,
+## turning at most `lane_bend` degrees at each bend; each leg starts a branch by
+## chance `lane_branch`. Lanes that do not meet keep `lane_gap` metres apart,
+## kerb to kerb. Buildings stand `old_town_height` (least, most) tall, within
+## height_min to height_max.
+@export var through_streets := 3
+@export var lane_width := Vector2(5, 6.5)
+@export var lane_length := Vector2(16, 30)
+@export var lane_bend := 30.0
+@export_range(0.0, 1.0) var lane_branch := 0.4
+@export var lane_gap := 8.0
+@export var old_town_height := Vector2(5, 24)
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
@@ -72,7 +90,8 @@ func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
 		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance,
 		pattern, drop_chance, square_chance, diagonals, diagonal_angle, diagonal_offset,
-		diagonal_run_on, hub_radius, spokes, rings, ring_spacing, ring_step]
+		diagonal_run_on, hub_radius, spokes, rings, ring_spacing, ring_step, through_streets, lane_width,
+		lane_length, lane_bend, lane_branch, lane_gap, old_town_height]
 
 ## Drops every entry of a per-layout cache (keyed by params() and then the
 ## builder's own settings) that this layout did not build, so free flight's

@@ -16,7 +16,9 @@ extends RefCounted
 # kerbs; a wedge's lots are trimmed to fit it, or left out. Story 26.7: the
 # RADIAL pattern rings the spawn plaza with ring roads, drawn as short straight
 # segments, crossed by spokes out from the plaza; blocks are the ring sectors
-# between them, with lots trimmed to fit as in a wedge.
+# between them, with lots trimmed to fit as in a wedge. Story 26.8: the
+# OLD_TOWN pattern grows narrow winding lanes from a loop round the plaza by
+# seeded random walks; blocks are whatever the lanes enclose.
 
 ## Trim kinds: a low wall round a roof, a slab round a wall at a storey line, a
 ## plant room on the top roof.
@@ -107,6 +109,10 @@ var diagonal_angles := PackedFloat32Array()
 ## origin, and start where they meet the plaza ring.
 var spokes := PackedInt32Array()
 var rings: Array[PackedInt32Array] = []
+## An old town (Story 26.8): each lane's legs in `paths`, in order along it,
+## one straight path a leg: the plaza loop's first (round it, counterclockwise),
+## then the through streets, then the lanes.
+var lanes: Array[PackedInt32Array] = []
 ## Every place two or more paths meet.
 var junctions: Array[Junction] = []
 ## Each block's outline, same order as blocks: a closed polygon (last point
@@ -161,8 +167,11 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	# Vacancy draws from its own stream, so the lots and heights are as before.
 	var vacancy := RandomNumberGenerator.new()
 	vacancy.seed = layout.seed + 5
-	if layout.pattern == CityLayout.Pattern.RADIAL:
-		_radial(layout, plan, rng, vacancy)
+	if layout.pattern == CityLayout.Pattern.RADIAL or layout.pattern == CityLayout.Pattern.OLD_TOWN:
+		if layout.pattern == CityLayout.Pattern.RADIAL:
+			_radial(layout, plan, rng, vacancy)
+		else:
+			_old_town(layout, plan, rng, vacancy)
 		var shaping := RandomNumberGenerator.new()
 		shaping.seed = layout.seed + 3
 		for i in plan.lots.size():
@@ -389,28 +398,35 @@ const ROW_SPARE := 1.0
 ## z or along x, starting flush with the block's edge or half a row on,
 ## whichever of the four keeps the most ground; the odd corners left over are
 ## courtyards.
+## An old town's block (Story 26.8) may stand in to more than one piece where
+## it narrows; each piece is cut on its own, and its lots stand `tall` (least,
+## most) high rather than height_min to height_max.
 static func _cut_sector(layout: CityLayout, plan: CityPlan, rng: RandomNumberGenerator, vacancy: RandomNumberGenerator,
-		b: int) -> void:
+		b: int, tall := Vector2(-1.0, -1.0)) -> void:
 	var r := layout.core_radius
 	var outline := plan.block_polygons[b]
 	var grown := Geometry2D.offset_polygon(outline, -layout.sidewalk, Geometry2D.JOIN_MITER)
-	if grown.size() != 1:
+	if grown.size() != 1 and layout.pattern != CityLayout.Pattern.OLD_TOWN:
 		return
-	var inner: PackedVector2Array = grown[0]
+	var low := layout.height_min if tall.x < 0.0 else tall.x
+	var high := layout.height_max if tall.x < 0.0 else tall.y
 	var best: Array[Rect2] = []
-	var most := 0.0
-	for flip in [false, true]:
-		for phase in [0.0, 0.5]:
-			var kept: Array[Rect2] = []
-			var ground := 0.0
-			for lot in _fit_lots(layout, rng, inner, flip, phase):
-				if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, inner) or not fits(lot, outline):
-					continue
-				kept.append(lot)
-				ground += lot.get_area()
-			if ground > most + 0.001:
-				best = kept
-				most = ground
+	for inner: PackedVector2Array in grown:
+		var mine: Array[Rect2] = []
+		var most := 0.0
+		for flip in [false, true]:
+			for phase in [0.0, 0.5]:
+				var kept: Array[Rect2] = []
+				var ground := 0.0
+				for lot in _fit_lots(layout, rng, inner, flip, phase):
+					if not inside(lot, r) or not clear_of(layout, lot) or not fits(lot, inner) or not fits(lot, outline):
+						continue
+					kept.append(lot)
+					ground += lot.get_area()
+				if ground > most + 0.001:
+					mine = kept
+					most = ground
+		best.append_array(mine)
 	for lot in best:
 		var jitter := rng.randf_range(0.5, 1.0)
 		if layout.vacant_chance > 0.0 and vacancy.randf() < layout.vacant_chance:
@@ -421,7 +437,7 @@ static func _cut_sector(layout: CityLayout, plan: CityPlan, rng: RandomNumberGen
 		var t := pow(1.0 - d, layout.height_falloff) * jitter
 		plan.lots.append(lot)
 		plan.lot_block.append(b)
-		plan.heights.append(lerpf(layout.height_min, layout.height_max, t))
+		plan.heights.append(lerpf(low, high, t))
 
 ## Lots across `poly` in rows along z (along x when `flip`), the first `phase`
 ## of a row in from its edge; each row is cut along the stretches its whole
@@ -626,6 +642,461 @@ static func _reaches(c: Vector3, poly: PackedVector2Array) -> bool:
 		if Geometry2D.get_closest_point_to_segment(at, poly[i], poly[(i + 1) % poly.size()]).distance_to(at) < c.z:
 			return true
 	return false
+
+## Story 26.8: the plaza loop of an old town has this many corners.
+const TOWN_CORNERS := 7
+## An old town's edge blocks run this far past the core's edge.
+const TOWN_BEYOND := 20.0
+## Lanes that do not meet stay at least this far apart, kerb to kerb, even
+## near the corners where they draw together (lane_gap everywhere else).
+const TOWN_CLEAR := 1.5
+## A lane meets another at no less than this many degrees.
+const TOWN_MEET := 50.0
+## A lane leaves the core's edge within this many degrees of straight out; a
+## through street keeps within TOWN_OUT of straight out all along.
+const TOWN_EXIT := 50.0
+const TOWN_OUT := 35.0
+## No old town has more legs than this.
+const TOWN_LEGS := 700
+
+## An old town while it grows (Story 26.8): each leg's ends and width, the legs
+## near each cell of a coarse grid, and where other legs meet each one.
+class _Town extends RefCounted:
+	const CELL := 24.0
+	var a := PackedVector2Array()
+	var b := PackedVector2Array()
+	var w := PackedFloat32Array()
+	var grid := {}
+	## Per leg: [point, width] of each lane that starts or ends on it.
+	var tees := []
+	## [leg, next leg] where a lane bends; [stem, leg, point] where it meets one.
+	var joints := []
+	var stems := []
+
+	func add(p: Vector2, q: Vector2, width: float) -> int:
+		var i := a.size()
+		a.append(p)
+		b.append(q)
+		w.append(width)
+		tees.append([])
+		for c in cells(p, q, width * 0.5):
+			if not grid.has(c):
+				grid[c] = []
+			grid[c].append(i)
+		return i
+
+	## Takes back the last leg added and every meeting it made.
+	func pop() -> void:
+		var i := a.size() - 1
+		for c in cells(a[i], b[i], w[i] * 0.5):
+			grid[c].erase(i)
+		joints = joints.filter(func(j): return j[0] != i and j[1] != i)
+		for s in stems.filter(func(s): return s[0] == i):
+			tees[s[1]] = tees[s[1]].filter(func(t): return t[0] != s[2])
+		stems = stems.filter(func(s): return s[0] != i)
+		a.resize(i)
+		b.resize(i)
+		w.resize(i)
+		tees.resize(i)
+
+	## Leg `stem` starts or ends at `at` on leg `leg`.
+	func tee(stem: int, leg: int, at: Vector2) -> void:
+		stems.append([stem, leg, at])
+		tees[leg].append([at, w[stem]])
+
+	func cells(p: Vector2, q: Vector2, by: float) -> Array[Vector2i]:
+		var lo := p.min(q) - Vector2(by, by)
+		var hi := p.max(q) + Vector2(by, by)
+		var out: Array[Vector2i] = []
+		for x in range(floori(lo.x / CELL), floori(hi.x / CELL) + 1):
+			for z in range(floori(lo.y / CELL), floori(hi.y / CELL) + 1):
+				out.append(Vector2i(x, z))
+		return out
+
+	## Every leg within about `by` of the segment from p to q.
+	func near(p: Vector2, q: Vector2, by: float) -> PackedInt32Array:
+		var seen := {}
+		for c in cells(p, q, by):
+			for i in grid.get(c, []):
+				seen[i] = true
+		var out := PackedInt32Array(seen.keys())
+		out.sort()
+		return out
+
+## Story 26.8: a winding old town. A loop of streets round the spawn plaza
+## (TOWN_CORNERS straight sides, each at least hub_radius out); through
+## streets, street_width wide, winding out from it to the core's edge (the
+## first aimed at a clearing the loop leaves untouched); then lanes, each a
+## seeded random walk from a point on a street or lane already laid: legs of
+## lane_length, bending up to lane_bend, branching by chance, ending in a
+## T where they run into another lane or at the core's edge, or as a dead end
+## where no leg fits. All from their own stream (seed + 37). Each leg is its
+## own straight path; a bend is two legs' ends meeting (a joint) and a lane
+## that meets another ends on its centreline (a T), so every crossing has a
+## junction. Blocks are the ground the roads leave, the edge ones run on
+## TOWN_BEYOND past the core like a grid's; lots are cut as in a radial block.
+static func _old_town(layout: CityLayout, plan: CityPlan, rng: RandomNumberGenerator,
+		vacancy: RandomNumberGenerator) -> void:
+	var grow := RandomNumberGenerator.new()
+	grow.seed = layout.seed + 37
+	var r := layout.core_radius
+	var ws := layout.street_width
+	var t := _Town.new()
+	# The plaza loop: each corner far enough out that the sides beside it pass
+	# hub_radius out.
+	var n := TOWN_CORNERS
+	var spin := grow.randf() * TAU
+	var angles: Array[float] = []
+	for i in n:
+		angles.append(spin + TAU * (i + grow.randf_range(-0.15, 0.15)) / n)
+	var loop := PackedInt32Array()
+	var corners := PackedVector2Array()
+	for i in n:
+		var before := angles[i] - angles[(i - 1 + n) % n] + (TAU if i == 0 else 0.0)
+		var after := angles[(i + 1) % n] + (TAU if i == n - 1 else 0.0) - angles[i]
+		var out := layout.hub_radius / cos(maxf(before, after) * 0.5) * grow.randf_range(1.0, 1.1)
+		corners.append(Vector2.from_angle(angles[i]) * out)
+	for i in n:
+		loop.append(t.add(corners[i], corners[(i + 1) % n], ws))
+	for i in n:
+		t.joints.append([loop[i], loop[(i + 1) % n]])
+	plan.lanes.append(loop)
+	var queue := []
+	# Through streets, evenly round from a seeded start, the first at a clearing
+	# no street touches yet.
+	var aims: Array[float] = []
+	var turn := grow.randf() * TAU
+	var count := maxi(1, layout.through_streets)
+	for k in count:
+		aims.append(turn + TAU * (k + grow.randf_range(-0.2, 0.2)) / count)
+	for c in layout.clearings:
+		var at := Vector2(c.x, c.y)
+		if at.length() > 0.01 and not range(n).any(func(i): return _reaches(c, _leg_strip(t, i))):
+			aims[0] = at.angle()
+			break
+	var bend := deg_to_rad(layout.lane_bend)
+	for aim in aims:
+		# The loop's side the aim crosses first, then the others nearest it: on
+		# each, where the aim crosses it or, failing that, its middle.
+		var sides := range(n)
+		var mids: Array[float] = []
+		for i in n:
+			mids.append(absf(angle_difference(aim, ((t.a[loop[i]] + t.b[loop[i]]) * 0.5).angle())))
+		sides.sort_custom(func(x, y): return mids[x] < mids[y] or (mids[x] == mids[y] and x < y))
+		var laid := false
+		for i: int in sides:
+			var dir := Vector2.from_angle(aim)
+			var hit = Geometry2D.segment_intersects_segment(Vector2.ZERO, dir * r, t.a[loop[i]], t.b[loop[i]])
+			var from = null if hit == null else _tee_at(layout, t, loop[i], hit, ws, dir)
+			if from == null:
+				var mid := (t.a[loop[i]] + t.b[loop[i]]) * 0.5
+				dir = mid.normalized()
+				from = _tee_at(layout, t, loop[i], mid, ws, dir)
+			if from == null:
+				continue
+			for attempt in 4:
+				var lane := _walk(layout, t, grow, from, loop[i], dir, ws, true,
+					maxf(deg_to_rad(2.0), bend * 0.5 * (1.0 - attempt / 3.0)), queue)
+				if not lane.is_empty():
+					plan.lanes.append(lane)
+					laid = true
+					break
+			if laid:
+				break
+	# Lanes: out from each side of the loop, then from every branch queued.
+	for i in n:
+		queue.append([loop[i], -1.0])
+	var head := 0
+	while head < queue.size() and t.a.size() < TOWN_LEGS:
+		var task: Array = queue[head]
+		head += 1
+		var leg: int = task[0]
+		var u := (t.b[leg] - t.a[leg]).normalized()
+		var w := clampf(snappedf(grow.randf_range(layout.lane_width.x, layout.lane_width.y), 0.5), layout.lane_width.x,
+			layout.lane_width.y)
+		for attempt in 6:
+			var dir := u.rotated(task[1] * grow.randf_range(deg_to_rad(65.0), deg_to_rad(115.0)))
+			var at := t.a[leg].lerp(t.b[leg], grow.randf_range(0.2, 0.8))
+			var from = _tee_at(layout, t, leg, at, w, dir)
+			if from == null:
+				continue
+			var lane := _walk(layout, t, grow, from, leg, dir, w, false, bend, queue)
+			if not lane.is_empty():
+				plan.lanes.append(lane)
+				break
+	# The streets, one path a leg, and their junctions.
+	for i in t.a.size():
+		var path := Street.new()
+		path.width = t.w[i]
+		path.kind = Kind.STREET
+		path.points = PackedVector2Array([t.a[i], t.b[i]])
+		plan.paths.append(path)
+	for j in t.joints:
+		var joint := Junction.new()
+		joint.at = t.b[j[0]]
+		joint.streets = PackedInt32Array([j[0], j[1]])
+		plan.junctions.append(joint)
+	for s in t.stems:
+		var junction := Junction.new()
+		junction.at = s[2]
+		junction.streets = PackedInt32Array([s[1], s[0]])
+		plan.junctions.append(junction)
+	_insert_points(plan)
+	for outline in _town_blocks(layout, t):
+		plan.blocks.append(_bounds(outline))
+		plan.block_polygons.append(outline)
+	var squaring := RandomNumberGenerator.new()
+	squaring.seed = layout.seed + 19
+	var low := clampf(layout.old_town_height.x, layout.height_min, layout.height_max)
+	var tall := Vector2(low, clampf(layout.old_town_height.y, low, layout.height_max))
+	for b in plan.block_polygons.size():
+		var outline := plan.block_polygons[b]
+		var whole := Array(outline).all(func(q): return q.length() <= r)
+		if layout.square_chance > 0.0 and whole and squaring.randf() < layout.square_chance:
+			plan.squares.append(plan.blocks[b])
+			continue
+		_cut_sector(layout, plan, rng, vacancy, b, tall)
+
+## The ground leg `i` of a growing old town covers.
+static func _leg_strip(t: _Town, i: int) -> PackedVector2Array:
+	var path := Street.new()
+	path.points = PackedVector2Array([t.a[i], t.b[i]])
+	path.width = t.w[i]
+	return strip(path)
+
+## Where a lane `w` wide heading `dir` may meet leg `leg` near `at`: on its
+## centreline, at no less than TOWN_MEET to it, its square end inside the leg's
+## kerbs, clear of the leg's ends and of every other lane on it. Null if not.
+static func _tee_at(layout: CityLayout, t: _Town, leg: int, at: Vector2, w: float, dir: Vector2) -> Variant:
+	var along := t.b[leg] - t.a[leg]
+	var length := along.length()
+	var u := along / length
+	var s := (at - t.a[leg]).dot(u)
+	var big := t.w[leg]
+	if absf(u.cross(dir)) < sin(deg_to_rad(TOWN_MEET)) or w * 0.5 * absf(u.dot(dir)) > big * 0.5 - 0.5:
+		return null
+	# How far along the leg a lane's end reaches either side of its centreline.
+	var foot := 0.5 / sin(deg_to_rad(TOWN_MEET))
+	var keep := big * 0.5 + w * foot + 1.0
+	if s < keep or s > length - keep:
+		return null
+	var p := t.a[leg] + u * s
+	for other in t.tees[leg]:
+		if (other[0] as Vector2).distance_to(p) < (w + other[1]) * foot + TOWN_CLEAR * 2.0:
+			return null
+	return p
+
+## Walks one lane (a through street when `through`) from `from` on leg
+## `parent` heading `dir`, `w` wide, each leg turning up to `bend` radians,
+## queueing branches as it goes. Returns its legs; empty when it laid none,
+## or for a through street that did not reach the core's edge (whose legs are
+## taken back).
+static func _walk(layout: CityLayout, t: _Town, grow: RandomNumberGenerator, from: Vector2, parent: int, dir: Vector2,
+		w: float, through: bool, bend: float, queue: Array) -> PackedInt32Array:
+	var made := PackedInt32Array()
+	var pos := from
+	var heading := dir
+	var prev := parent
+	var out_of := deg_to_rad(TOWN_OUT)
+	var reached := false
+	for step in 40:
+		var found := {}
+		var d := heading
+		for attempt in 12:
+			d = heading
+			if step > 0 or attempt > 0:
+				# Never straight on: a bend is a joint the road builder mitres.
+				var turn := grow.randf_range(-bend, bend)
+				d = heading.rotated(signf(turn + 1e-9) * maxf(absf(turn), deg_to_rad(1.0)))
+			var away := pos.normalized()
+			if through and absf(away.angle_to(d)) > out_of:
+				d = away.rotated(signf(away.angle_to(d)) * out_of)
+			elif not through and d.dot(away) < -0.3:
+				continue
+			if step == 0 and absf((t.b[parent] - t.a[parent]).normalized().cross(d)) < sin(deg_to_rad(TOWN_MEET)):
+				continue
+			found = _town_leg(layout, t, pos, d, grow.randf_range(layout.lane_length.x, layout.lane_length.y), w,
+				prev, step == 0, through)
+			if not found.is_empty():
+				break
+		if found.is_empty():
+			break
+		var i := t.add(pos, found.end, w)
+		made.append(i)
+		if step == 0:
+			t.tee(i, parent, pos)
+		else:
+			t.joints.append([prev, i])
+		if found.target >= 0:
+			t.tee(i, found.target, found.end)
+		prev = i
+		pos = found.end
+		heading = d
+		if found.exit:
+			reached = true
+		if found.exit or found.target >= 0:
+			break
+		if through:
+			queue.append([i, 1.0])
+			queue.append([i, -1.0])
+		else:
+			for side in [1.0, -1.0]:
+				if grow.randf() < layout.lane_branch:
+					queue.append([i, side])
+	if through and not reached:
+		for k in made.size():
+			t.pop()
+		queue.assign(queue.filter(func(q): return q[0] < t.a.size()))
+		return PackedInt32Array()
+	return made
+
+## The next leg of a lane `w` wide from `pos` along `d`, `length` long: cut
+## short where it leaves the core (only near straight out) or runs into
+## another leg (a T there, unless `through`), and kept only while it stays
+## clear of every leg it does not meet: TOWN_CLEAR apart at least, lane_gap
+## apart away from its ends. `prev` is the leg it carries on from or, when
+## `first`, starts on. {end, exit, target} or empty.
+static func _town_leg(layout: CityLayout, t: _Town, pos: Vector2, d: Vector2, length: float, w: float, prev: int,
+		first: bool, through: bool) -> Dictionary:
+	var r := layout.core_radius
+	var end := pos + d * length
+	var exit := false
+	if end.length() > r:
+		var f := Geometry2D.segment_intersects_circle(pos, end, Vector2.ZERO, r)
+		if f < 0.0:
+
+			return {}
+		end = pos + d * length * f
+		exit = true
+		if d.dot(end.normalized()) < cos(deg_to_rad(TOWN_EXIT)):
+
+			return {}
+	var reach := w * 0.5 + layout.lane_gap + layout.street_width
+	var target := -1
+	var best := INF
+	for e in t.near(pos, end, reach):
+		if e == prev:
+			continue
+		var hit = Geometry2D.segment_intersects_segment(pos, end, t.a[e], t.b[e])
+		if hit != null and pos.distance_to(hit) < best:
+			best = pos.distance_to(hit)
+			target = e
+	if target >= 0:
+		if through:
+
+			return {}
+		var at = _tee_at(layout, t, target, pos + d * best, w, d)
+		if at == null:
+
+			return {}
+		end = at
+		exit = false
+	var long := pos.distance_to(end)
+	var least := w + 2.0 + (t.w[prev] * 0.5 if first else 0.0) + (t.w[target] * 0.5 if target >= 0 else 0.0)
+	if long < maxf(least, layout.lane_length.x * 0.5):
+
+		return {}
+	for e in t.near(pos, end, reach):
+		if e == prev or e == target:
+			continue
+		var room := (w + t.w[e]) * 0.5
+		var pair := Geometry2D.get_closest_points_between_segments(pos, end, t.a[e], t.b[e])
+		var dist := pair[0].distance_to(pair[1])
+		if dist < room + TOWN_CLEAR:
+
+			return {}
+		if dist >= room + layout.lane_gap:
+			continue
+		# The gap may close toward the leg's ends, as at a block's corner.
+		var steps := ceili(long)
+		for k in steps + 1:
+			var s := long * k / steps
+			var p := pos + d * s
+			var need := room + minf(layout.lane_gap, TOWN_CLEAR + 0.6 * minf(s, long - s))
+			if Geometry2D.get_closest_point_to_segment(p, t.a[e], t.b[e]).distance_to(p) < need - 1e-4:
+
+				return {}
+	return {"end": end, "exit": exit, "target": target}
+
+## An old town's blocks: a disc TOWN_BEYOND past the core less every leg's
+## ground, mitred at each bend, with the legs that leave the core run on past
+## the disc. Legs are taken away outward from those, each touching ground
+## already cut, so no cut leaves a hole. Each block wound counterclockwise.
+static func _town_blocks(layout: CityLayout, t: _Town) -> Array[PackedVector2Array]:
+	var r := layout.core_radius
+	var far := r + TOWN_BEYOND
+	var disc := PackedVector2Array()
+	var steps := ceili(360.0 / layout.ring_step)
+	for j in steps:
+		disc.append(Vector2.from_angle(TAU * j / steps) * far)
+	var next := []
+	var bends := []
+	for i in t.a.size():
+		next.append([])
+		bends.append([])
+	for j in t.joints:
+		next[j[0]].append(j[1])
+		next[j[1]].append(j[0])
+		bends[j[0]].append(j)
+		bends[j[1]].append(j)
+	for s in t.stems:
+		next[s[0]].append(s[1])
+		next[s[1]].append(s[0])
+	var cutters: Array[PackedVector2Array] = []
+	var cut := {}
+	var done := {}
+	var todo := []
+	for i in t.a.size():
+		if t.b[i].length() > r - 0.01:
+			todo.append(i)
+			done[i] = true
+	var head := 0
+	while head < todo.size():
+		var i: int = todo[head]
+		head += 1
+		var path := Street.new()
+		path.width = t.w[i]
+		path.points = PackedVector2Array([t.a[i], t.b[i]])
+		if t.b[i].length() > r - 0.01:
+			path.points[1] = t.b[i] + (t.b[i] - t.a[i]).normalized() * (far - r + 10.0) * 2.0
+		cutters.append(strip(path))
+		cut[i] = true
+		# A bend's mitre, once both its legs are cut.
+		for j in bends[i]:
+			if not cut.has(j[1] if j[0] == i else j[0]):
+				continue
+			var q := t.b[j[0]]
+			var line := PackedVector2Array([q - (q - t.a[j[0]]).normalized(), q, q + (t.b[j[1]] - q).normalized()])
+			cutters.append_array(Geometry2D.offset_polyline(line, t.w[i] * 0.5, Geometry2D.JOIN_MITER, Geometry2D.END_BUTT))
+		for o in next[i]:
+			if not done.has(o):
+				done[o] = true
+				todo.append(o)
+	var pieces: Array[PackedVector2Array] = [disc]
+	for cutter in cutters:
+		var box := _bounds(cutter)
+		var kept: Array[PackedVector2Array] = []
+		for piece in pieces:
+			if not _bounds(piece).intersects(box) or Geometry2D.intersect_polygons(piece, cutter).is_empty():
+				kept.append(piece)
+				continue
+			for part in Geometry2D.clip_polygons(piece, cutter):
+				if area(part) < 0.0:
+					part.reverse()
+				if area(part) > 1.0:
+					kept.append(part)
+		pieces = kept
+	# No corner twice (an edge of no length has no direction to kerb along).
+	var out: Array[PackedVector2Array] = []
+	for piece in pieces:
+		var clean := PackedVector2Array()
+		for q in piece:
+			if clean.is_empty() or clean[-1].distance_to(q) > 1e-3:
+				clean.append(q)
+		if clean.size() > 1 and clean[-1].distance_to(clean[0]) <= 1e-3:
+			clean.remove_at(clean.size() - 1)
+		out.append(clean)
+	return out
 
 ## Story 26.6: lays the diagonal avenues as paths after the grid's, from their
 ## own stream (seed + 29): `diagonals` of them, the first at a seeded angle to

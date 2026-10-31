@@ -42,7 +42,7 @@ const FINE: Array[StringName] = [&"height_falloff", &"vacant_chance", &"drop_cha
 ## How often each street pattern comes up (Story 26.6), indexed by
 ## CityLayout.Pattern; picked from its own stream so the fields above roll as
 ## before.
-@export var pattern_weights := PackedFloat32Array([1.0, 1.0, 1.0])
+@export var pattern_weights := PackedFloat32Array([1.0, 1.0, 1.0, 1.0])
 
 ## A copy of `base` with seed `s` and every field rolled from it.
 func roll(base: CityLayout, s: int) -> CityLayout:
