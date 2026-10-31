@@ -5,10 +5,10 @@
 
 [sub_resource type="Resource" id="paint"]
 script = ExtResource("2_livery")
-body_color = Color(0.45, 0.27, 0.12, 1)
+body_color = Color(0.72, 0.4, 0.14, 1)
 arm_color = Color(0.75, 0.52, 0.2, 1)
 prop_color = Color(0.2, 0.13, 0.07, 1)
-canopy_color = Color(0.3, 0.17, 0.08, 1)
+canopy_color = Color(0.68, 0.14, 0.08, 1)
 light_color = Color(1, 0.6, 0.15, 1)
 
 [resource]
@@ -17,7 +17,7 @@ id = &"monkey"
 animal = &"monkey"
 name = "Monkey"
 paint = SubResource("paint")
-mane = Color(0.3, 0.17, 0.07, 1)
+mane = Color(0.42, 0.2, 0.07, 1)
 detail = Color(0.08, 0.05, 0.03, 1)
-battery = Color(0.36, 0.21, 0.1, 1)
-trim = Color(0.95, 0.76, 0.52, 1)
+battery = Color(0.68, 0.14, 0.08, 1)
+trim = Color(0.9, 0.62, 0.44, 1)

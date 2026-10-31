@@ -257,3 +257,93 @@ func test_the_livery_paints_over_the_animal() -> bool:
 			and (stock.get_child(0).material_override as StandardMaterial3D).albedo_color.is_equal_approx(kit.paint.body_color)
 		stock.free()
 	return ok
+
+# Story 29.2: a body and legs, not a box wearing a head.
+
+## The points of one part group of the kit, in the look's space.
+func _part_points(look: DroneLook, part: StringName) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	for v in _points_of(look, look.get_node(AnimalShell.NAME + "/" + String(part))):
+		out.append(v)
+	return out
+
+func _points_of(look: DroneLook, node: Node) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	for mi: MeshInstance3D in node.find_children("*", "MeshInstance3D", true, false):
+		var t := Transform3D.IDENTITY
+		var n: Node = mi
+		while n != look:
+			t = (n as Node3D).transform * t
+			n = n.get_parent()
+		for v in mi.mesh.get_faces():
+			out.append(t * v)
+	return out
+
+func test_each_animal_has_a_rounded_body_round_a_slimmer_hull() -> bool:
+	var ok := true
+	for pilot in ANIMALS:
+		var look := _look(_kit(pilot))
+		var hull: BoxMesh = look.get_child(0).mesh
+		var width := 0.0
+		for v in _part_points(look, &"Body"):
+			width = maxf(width, absf(v.x))
+		# Wider than the hull, which itself no longer shows at its stock width,
+		# and curved: an ellipsoid has far more faces than a box's twelve.
+		ok = ok and width > hull.size.x / 2.0 + 0.01 and hull.size.x < 0.11 \
+			and _part_points(look, &"Body").size() > 36 * 3
+		look.free()
+	# The stock frame is as it was.
+	var stock := DroneLook.new()
+	stock._build()
+	ok = ok and (stock.get_child(0).mesh as BoxMesh).size == Vector3(0.11, 0.035, 0.22)
+	stock.free()
+	return ok
+
+func test_each_animal_has_legs_below_the_hull_and_a_head_ahead_of_it() -> bool:
+	var ok := true
+	for pilot in ANIMALS:
+		var look := _look(_kit(pilot))
+		var low := 0.0
+		for v in _part_points(look, &"Legs"):
+			low = minf(low, v.y)
+		var front := 0.0
+		for v in _part_points(look, &"Head"):
+			front = minf(front, v.z)
+		ok = ok and low < -0.04 and front < -0.13
+		look.free()
+	return ok
+
+func test_hanumans_monkey_carries_the_gada_and_the_crown() -> bool:
+	var look := _look(_kit(&"hanuman"))
+	var gold := false
+	for mi: MeshInstance3D in _meshes(look.get_node(AnimalShell.NAME + "/Head")):
+		gold = gold or (mi.material_override as StandardMaterial3D).albedo_color.is_equal_approx(AnimalShell.GOLD)
+	var ok := gold and not _part_points(look, &"Gada").is_empty()
+	look.free()
+	return ok
+
+func test_the_shell_stays_behind_the_fpv_camera_on_every_frame() -> bool:
+	var rig := CameraRig.new()
+	var camera_z: float = rig.fpv_offset.z
+	rig.free()
+	var hulls := [Vector3.ONE]
+	for p in Hangar.catalog.parts:
+		if p.kind == &"frame":
+			hulls.append(p.hull)
+	var ok := true
+	for pilot in ANIMALS:
+		for hull in hulls:
+			var look := _look(_kit(pilot), null, hull)
+			for v in _points(look):
+				ok = ok and v.z > camera_z
+			look.free()
+	return ok
+
+func test_a_shell_costs_few_draw_calls() -> bool:
+	var ok := true
+	for pilot in ANIMALS:
+		var look := _look(_kit(pilot))
+		var meshes := _meshes(look.get_node(AnimalShell.NAME))
+		ok = ok and meshes.size() <= 24
+		look.free()
+	return ok

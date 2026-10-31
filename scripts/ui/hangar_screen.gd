@@ -495,7 +495,7 @@ func _fit() -> void:
 
 ## The footer of keys for the device in hand.
 static func controls_text() -> String:
-	var turn := "R STICK  TURN" if InputPrompt.pad else "DRAG / %s  TURN" % \
+	var turn := "R STICK  TURN / ZOOM" if InputPrompt.pad else "DRAG / %s  TURN      WHEEL / - +  ZOOM" % \
 		InputPrompt.group_text([&"ui_left", &"ui_right"], "")
 	var tabs := "      LB/RB  TABS" if InputPrompt.pad and InputPrompt.family == InputPrompt.Family.XBOX else \
 		("      %s/%s  TABS" % [InputPrompt.button_name(JOY_BUTTON_LEFT_SHOULDER), InputPrompt.button_name(JOY_BUTTON_RIGHT_SHOULDER)] if InputPrompt.pad else "")
@@ -600,7 +600,7 @@ func _build_stand(body: HBoxContainer) -> void:
 	var col := VBoxContainer.new()
 	col.name = "Stand"
 	col.size_flags_horizontal = SIZE_EXPAND_FILL
-	col.size_flags_stretch_ratio = 0.7
+	col.size_flags_stretch_ratio = 0.85
 	col.add_theme_constant_override("separation", 10)
 	body.add_child(col)
 	var frame := PanelContainer.new()

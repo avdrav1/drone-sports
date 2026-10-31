@@ -6,6 +6,11 @@ extends SubViewportContainer
 # would, its arms at the parts' arm length and its hull in the frame's shape.
 # The camera goes round it: the right stick, a mouse drag, or the arrow keys
 # while it has focus turn it; left alone, it turns slowly by itself.
+# Story 29.2: so the pilot's animal is easy to see, the view opens low and close
+# on its face and flank, between two props, against a backdrop light enough for
+# a dark bird, with a fill light on whichever side faces the camera. The wheel,
+# the right stick's up and down, or + and - while it has focus zoom out to the
+# whole drone, props and all, and back.
 
 ## Radians a second the turntable turns on its own, and at full stick or key.
 const IDLE_SPIN := 0.35
@@ -14,13 +19,26 @@ const TURN_SPEED := 2.6
 const DRAG_TURN := 0.012
 ## Seconds after the player turns it before it spins on its own again.
 const IDLE_AFTER := 3.0
-## The camera's height angle and its distance off the drone, m.
-const PITCH := 0.5
-const DISTANCE := 1.25
+## The camera's height angle.
+const PITCH := 0.28
+## What stays in view round the drone's centre, m: close in, the animal; zoomed
+## out, the prop tips (arm to the corner, plus PROP_REACH and PROP_MARGIN).
+const CLOSE_REACH := 0.14
+const PROP_REACH := 0.085
+const PROP_MARGIN := 0.03
+## Zoom a second at full stick or key, and a step of the wheel.
+const ZOOM_SPEED := 1.5
+const WHEEL_ZOOM := 0.12
 const STICK_DEADZONE := 0.2
 
+## The first view: ahead of the drone and to one side, the face between the
+## front motors, with the flank running back behind it.
+const OPENING_YAW := 2.75
+
 ## Where the camera looks from, round the drone, in radians.
-var yaw := 0.6
+var yaw := OPENING_YAW
+## 1 frames the animal, 0 the whole drone.
+var zoom := 1.0
 ## The display drone; replaced when the parts change.
 var drone: Drone
 var accent := Color(1.0, 0.76, 0.25)
@@ -42,7 +60,7 @@ func _ready() -> void:
 	add_child(_view)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.045, 0.05, 0.065)
+	env.background_color = Color(0.2, 0.23, 0.28)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.75, 0.78, 0.85)
 	env.ambient_light_energy = 0.55
@@ -67,6 +85,10 @@ func _ready() -> void:
 	_camera.fov = 34.0
 	_camera.current = true
 	_view.add_child(_camera)
+	var fill := DirectionalLight3D.new()
+	fill.name = "Fill"
+	fill.light_energy = 0.55
+	_camera.add_child(fill)
 	_place_camera()
 
 ## The stand: a dark disc with a ring lit in the accent.
@@ -80,8 +102,7 @@ func _build_stand() -> void:
 	disc.mesh = mesh
 	var m := StandardMaterial3D.new()
 	m.albedo_color = Color(0.11, 0.12, 0.14)
-	m.metallic = 0.4
-	m.roughness = 0.5
+	m.roughness = 0.8
 	disc.material_override = m
 	_view.add_child(disc)
 	var ring := MeshInstance3D.new()
@@ -122,9 +143,15 @@ func show_drone(l: Livery, parts: Dictionary, kit: BodyKit = null) -> void:
 		_pivot.add_child(drone)
 	var frame := Hangar.part(parts.get(&"frame", &""))
 	look().wear(l, frame.hull if frame else Vector3.ONE, kit)
+	_place_camera()
 
 func look() -> DroneLook:
 	return drone.get_node("Look") as DroneLook if drone else null
+
+## Moves the view toward the animal (positive) or the whole drone.
+func zoom_by(amount: float) -> void:
+	zoom = clampf(zoom + amount, 0.0, 1.0)
+	_place_camera()
 
 ## Turns the view by `angle` radians, as the player does.
 func turn(angle: float) -> void:
@@ -132,12 +159,21 @@ func turn(angle: float) -> void:
 	_since_turned = 0.0
 	_place_camera()
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_place_camera()
+
 func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 	var push := _stick()
 	if has_focus():
 		push += Input.get_axis(&"ui_left", &"ui_right")
+	var pull := _stick(JOY_AXIS_RIGHT_Y)
+	if has_focus():
+		pull += float(Input.is_physical_key_pressed(KEY_MINUS)) - float(Input.is_physical_key_pressed(KEY_EQUAL))
+	if absf(pull) > 0.0:
+		zoom_by(-pull * ZOOM_SPEED * delta)
 	if absf(push) > 0.0:
 		turn(push * TURN_SPEED * delta)
 	else:
@@ -146,11 +182,11 @@ func _process(delta: float) -> void:
 			yaw = wrapf(yaw + IDLE_SPIN * delta, -PI, PI)
 			_place_camera()
 
-## The right stick's left and right, past its deadzone, on any pad.
-static func _stick() -> float:
+## The right stick along `axis`, past its deadzone, on any pad.
+static func _stick(axis := JOY_AXIS_RIGHT_X) -> float:
 	var x := 0.0
 	for id in Input.get_connected_joypads():
-		var v := Input.get_joy_axis(id, JOY_AXIS_RIGHT_X)
+		var v := Input.get_joy_axis(id, axis)
 		if absf(v) > absf(x):
 			x = v
 	return x if absf(x) > STICK_DEADZONE else 0.0
@@ -158,6 +194,9 @@ static func _stick() -> float:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		grab_focus()
+	if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		zoom_by(WHEEL_ZOOM if event.button_index == MOUSE_BUTTON_WHEEL_UP else -WHEEL_ZOOM)
+		accept_event()
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
 		turn(event.relative.x * DRAG_TURN)
 		accept_event()
@@ -171,6 +210,15 @@ func _place_camera() -> void:
 		return
 	# The fov spans the view's narrower side, so a tall view still fits the drone.
 	_camera.keep_aspect = Camera3D.KEEP_WIDTH if size.x < size.y else Camera3D.KEEP_HEIGHT
-	var at := Vector3(sin(yaw) * cos(PITCH), sin(PITCH), cos(yaw) * cos(PITCH)) * DISTANCE
-	_camera.position = at + Vector3(0, 0.05, 0)
-	_camera.look_at(Vector3(0, 0.07, 0), Vector3.UP)
+	var at := Vector3(sin(yaw) * cos(PITCH), sin(PITCH), cos(yaw) * cos(PITCH)) * distance()
+	var centre := Vector3(0, _pivot.position.y, 0)
+	_camera.position = centre + at
+	_camera.look_at(centre, Vector3.UP)
+
+## How far off the camera sits to keep the zoom's reach in view across the
+## view's width. The fov spans the narrower side, so a wide view comes closer.
+func distance() -> float:
+	var arm := drone.arm_length if drone else 0.15
+	var reach := lerpf(arm * sqrt(2.0) + PROP_REACH + PROP_MARGIN, CLOSE_REACH, zoom)
+	var aspect := maxf(size.x, 1.0) / maxf(size.y, 1.0)
+	return reach / tan(deg_to_rad(_camera.fov) / 2.0) / maxf(aspect, 1.0) + reach * 0.5

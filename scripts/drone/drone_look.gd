@@ -126,12 +126,16 @@ func _build() -> void:
 	var arm := drone.arm_length if drone else 0.15
 	# Body: a flat hull with a raised canopy and a battery pack on the back.
 	var h := hull
-	_box(Vector3(0.11, 0.035, 0.22) * h, Vector3(0, 0, 0), body)
-	_box(Vector3(0.07, 0.035, 0.1) * h, Vector3(0, 0.03, -0.03) * h, canopy)
-	_box(Vector3(0.075, 0.03, 0.09) * h, Vector3(0, 0.03, 0.065) * h, battery)
-	_box(Vector3(0.11, 0.006, 0.02) * h, Vector3(0, 0.02, 0.0) * h, accent)
-	# Camera pod at the nose.
-	_box(Vector3(0.04, 0.035, 0.03) * h, Vector3(0, 0.005, -0.12) * h, metal)
+	# In a kit (Story 29.2) the hull slims to fit inside the animal, and the canopy
+	# and battery shrink to the plates that carry the decal and the number.
+	var hull_width := 0.076 if kit else 0.11
+	_box(Vector3(hull_width, 0.035, 0.22) * h, Vector3(0, 0, 0), body)
+	_box(Vector3(0.066, 0.035, 0.066) * h if kit else Vector3(0.07, 0.035, 0.1) * h, Vector3(0, 0.03, -0.03) * h, canopy)
+	_box(Vector3(0.07, 0.03, 0.04) * h if kit else Vector3(0.075, 0.03, 0.09) * h, Vector3(0, 0.03, 0.065) * h, battery)
+	_box(Vector3(hull_width, 0.006, 0.02) * h, Vector3(0, 0.02, 0.0) * h, accent)
+	# Camera pod at the nose; an animal has its head there instead.
+	if not kit:
+		_box(Vector3(0.04, 0.035, 0.03) * h, Vector3(0, 0.005, -0.12) * h, metal)
 	for i in Drone.MOTOR_COUNT:
 		var at := Drone.motor_offset(i, arm)
 		# Arm from body to motor.

@@ -326,3 +326,99 @@ func test_nothing_overlaps_at_either_size() -> bool:
 	if not out.is_empty():
 		print("        ", "\n        ".join(out.slice(0, 12)))
 	return out.is_empty()
+
+# Story 29.2: the pilot's animal is easy to see on the turntable.
+
+## Where `pts` (in the display drone's space) land on the turntable, as a box in
+## its view; zero size if any is behind the camera.
+func _on_view(h: HangarScreen, pts: PackedVector3Array) -> Rect2:
+	var camera: Camera3D = h.turntable.get_node("View").get_camera_3d()
+	var box := Rect2()
+	for i in pts.size():
+		var world: Vector3 = h.turntable.drone.global_transform * pts[i]
+		if camera.is_position_behind(world):
+			return Rect2()
+		var at := camera.unproject_position(world)
+		box = Rect2(at, Vector2.ZERO) if i == 0 else box.expand(at)
+	return box
+
+## The animal's body and head, in the display drone's space.
+func _animal(h: HangarScreen) -> PackedVector3Array:
+	var out := _part(h, &"Body")
+	out.append_array(_part(h, &"Head"))
+	return out
+
+## A part of the animal, in the display drone's space.
+func _part(h: HangarScreen, part: StringName) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	var look: DroneLook = h.turntable.look()
+	for mi: MeshInstance3D in look.get_node(AnimalShell.NAME + "/" + String(part)).find_children("*", "MeshInstance3D", true, false):
+		var t: Transform3D = look.transform * (look.get_node(AnimalShell.NAME) as Node3D).transform * (mi.get_parent() as Node3D).transform * mi.transform
+		for v in mi.mesh.get_faces():
+			out.append(t * v)
+	return out
+
+func test_the_turntable_opens_close_on_the_animals_face_and_fits_it() -> bool:
+	var ok := true
+	for screen in SCREENS:
+		var h: HangarScreen = await _open(screen)
+		await Sim.process_frames(2)
+		var view := Rect2(Vector2.ZERO, Vector2(h.turntable.get_node("View").size))
+		var box := _on_view(h, _animal(h))
+		# All of it in view, and at least half the width: the animal, not a speck.
+		ok = ok and view.encloses(box) and box.size.x > view.size.x * 0.5
+		# It starts in front of the drone's side, looking at the face.
+		var camera: Camera3D = h.turntable.get_node("View").get_camera_3d()
+		ok = ok and camera.global_position.z < 0.0
+		# Nothing of the frame stands in front of the face: the head is clear of
+		# each front motor and of the near half of its prop at rest.
+		var head := _on_view(h, _part(h, &"Head"))
+		var arm: float = h.turntable.drone.arm_length
+		for i in 2:
+			var m := Drone.motor_offset(i, arm)
+			var bell := PackedVector3Array([m + Vector3(0.022, 0.033, 0.022), m + Vector3(-0.022, 0.0, -0.022), m + Vector3(0.022, 0.0, -0.022), m + Vector3(-0.022, 0.033, 0.022),
+				m + Vector3(-signf(m.x) * 0.085, 0.036, 0.0)])
+			ok = ok and not head.intersects(_on_view(h, bell))
+		await _close(h)
+	return ok
+
+func test_zooming_out_shows_the_whole_drone_on_every_frame() -> bool:
+	var ok := true
+	for screen in SCREENS:
+		var h: HangarScreen = await _open(screen)
+		await Sim.process_frames(2)
+		var view := Rect2(Vector2.ZERO, Vector2(h.turntable.get_node("View").size))
+		var close: float = h.turntable.distance()
+		var wheel := InputEventMouseButton.new()
+		wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+		wheel.pressed = true
+		for i in 12:
+			h.turntable._gui_input(wheel)
+		ok = ok and h.turntable.zoom == 0.0 and h.turntable.distance() > close
+		for id in [&"", &"heavy_hauler", &"freestyle", &"light_racer"]:
+			var parts := {} if id == &"" else {&"frame": id}
+			h.turntable.show_drone(Livery.new(), parts, Hangar.kit(0))
+			var arm: float = h.turntable.drone.arm_length
+			for turn in 16:
+				h.turntable.turn(TAU / 16.0)
+				var tips := PackedVector3Array()
+				for i in Drone.MOTOR_COUNT:
+					var m := Drone.motor_offset(i, arm)
+					tips.append(m + Vector3(0, 0.036, 0) + m.normalized() * DroneTurntable.PROP_REACH)
+				ok = ok and view.encloses(_on_view(h, tips))
+		wheel.button_index = MOUSE_BUTTON_WHEEL_UP
+		for i in 12:
+			h.turntable._gui_input(wheel)
+		ok = ok and h.turntable.zoom == 1.0
+		await _close(h)
+	return ok
+
+func test_every_tab_name_fits_its_button() -> bool:
+	var ok := true
+	for screen in SCREENS:
+		var h: HangarScreen = await _open(screen)
+		for t in HangarScreen.TABS:
+			var b: Button = h.tab_buttons[t]
+			ok = ok and b.get_theme_font(&"font").get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1, b.get_theme_font_size(&"font_size")).x <= b.size.x
+		await _close(h)
+	return ok
