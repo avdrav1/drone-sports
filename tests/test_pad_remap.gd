@@ -1,6 +1,7 @@
 extends RefCounted
 # Story 28.5: remap buttons in PAD CHECK. A pad that reports its buttons in the
-# wrong order is fixed by a walk through A, B, X, Y, LB, RB, Back and Start;
+# wrong order is fixed by a walk through A, B, X, Y, LB, RB, Back, Start, L3
+# and R3;
 # the remap goes onto the InputMap (so actions follow), is saved per pad name,
 # and RESET puts the project's bindings back exactly.
 
@@ -9,7 +10,8 @@ const BOARD := "res://scenes/ui/job_board.tscn"
 const SCREENS: Array[Vector2i] = [Vector2i(960, 720), Vector2i(1920, 1080)]
 ## The raw buttons a walk gives that swaps A and B and keeps the rest.
 const SWAP: Array[int] = [JOY_BUTTON_B, JOY_BUTTON_A, JOY_BUTTON_X, JOY_BUTTON_Y,
-	JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_BACK, JOY_BUTTON_START]
+	JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_BACK, JOY_BUTTON_START,
+	JOY_BUTTON_LEFT_STICK, JOY_BUTTON_RIGHT_STICK]
 
 func _clean() -> void:
 	PadRemap.remaps = {}
@@ -81,7 +83,7 @@ func test_walk_swaps_a_and_b() -> bool:
 	var b: JobBoard = made[0]
 	var page: PadCheck = made[1]
 	await _key(KEY_R)
-	var ok := page.walking() and _text(page).contains("REMAP 1 of 8: press A, the bottom face button")
+	var ok := page.walking() and _text(page).contains("REMAP 1 of 10: press A, the bottom face button")
 	for i in SWAP.size():
 		await _press(SWAP[i])
 		ok = ok and b.page == &"pad_check"
@@ -157,7 +159,7 @@ func test_esc_cancels_and_a_repeat_is_refused() -> bool:
 	var ok := page.walk_step == 1
 	await _press(JOY_BUTTON_X)
 	ok = ok and page.walk_step == 1 and page.walk_note != "" and _text(page).contains("already A") \
-		and _text(page).contains("REMAP 2 of 8")
+		and _text(page).contains("REMAP 2 of 10")
 	# B and Start answer steps rather than leave or open anything.
 	await _press(JOY_BUTTON_A)
 	ok = ok and page.walk_step == 2 and b.page == &"pad_check"
@@ -250,3 +252,45 @@ func _overlaps(root: Control, size: Vector2i) -> Array:
 			if o != c and o.get_instance_id() > c.get_instance_id() and r.grow(-1.0).intersects(o.get_global_rect().grow(-1.0)):
 				out.append("%s overlaps %s at %s" % [c.name, o.name, size])
 	return out
+
+## A pad in Android mode: its LB on L3's index and its L3 on a d-pad index. The
+## walk takes the stick clicks too, so L3's action follows the stick; a remap
+## saved before the stick clicks were asked for still loads.
+func test_stick_clicks_are_walked_and_old_saves_load() -> bool:
+	_clean()
+	var made: Array = await _page()
+	var b: JobBoard = made[0]
+	var page: PadCheck = made[1]
+	var android: Array[int] = [JOY_BUTTON_A, JOY_BUTTON_B, JOY_BUTTON_X, JOY_BUTTON_Y,
+		JOY_BUTTON_LEFT_STICK, JOY_BUTTON_RIGHT_STICK, JOY_BUTTON_BACK, JOY_BUTTON_START,
+		JOY_BUTTON_DPAD_UP, JOY_BUTTON_DPAD_DOWN]
+	await _key(KEY_R)
+	var ok := page.last_button == -1 and _text(page).contains("Pressed: nothing yet")
+	for i in android.size():
+		if i == 8:
+			ok = ok and _text(page).contains("REMAP 9 of 10: press L3, the left stick, pushed in")
+		await _press(android[i])
+	ok = ok and not page.walking()
+	ok = ok and _raw(JOY_BUTTON_DPAD_UP).is_action(&"toggle_readout") \
+		and not _raw(JOY_BUTTON_LEFT_STICK).is_action(&"toggle_readout") \
+		and PadRemap.logical(JOY_BUTTON_LEFT_STICK) == JOY_BUTTON_LEFT_SHOULDER
+	b.free()
+	InputPrompt.use_keys()
+	var old := {}
+	for i in PadRemap.FIRST_STEPS:
+		old[str(PadRemap.STEPS[i])] = SWAP[i]
+	PadRemap.from_save({"old pad": old, "half pad": {"0": 1}})
+	ok = ok and PadRemap.has_remap("Old Pad") and not PadRemap.has_remap("Half Pad")
+	_clean()
+	return ok
+
+## The d-pad's arrows are in the menus' fonts (the web build has no system
+## font to borrow them from), on both skins.
+func test_menu_fonts_have_the_d_pad_arrows() -> bool:
+	var ok := true
+	for act in [1, 2]:
+		var t := FrontSkin.for_act(act).theme()
+		for font in [t.default_font, t.get_font("font", &"Display")]:
+			for c in "↑↓←→":
+				ok = ok and font.has_char(c.unicode_at(0))
+	return ok

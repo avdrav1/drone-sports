@@ -7,16 +7,23 @@ extends RefCounted
 # the InputMap before any node sees an event, so the remap is written onto the
 # InputMap's pad button bindings, from the project's own bindings kept here, and
 # every raw button_index check goes through logical(). D-pad and sticks are not
-# remapped. Saved by GameSettings in the "settings" section.
+# remapped. Saved by GameSettings in the "settings" section. The walk also asks
+# for L3 and R3: a pad in Android mode can report another button on L3's index,
+# and L3 does something (the readout).
 
-## The buttons the walk asks for, in order: the face buttons, shoulders, middle.
+## The buttons the walk asks for, in order: the face buttons, shoulders,
+## middle, stick clicks.
 const STEPS: Array[JoyButton] = [JOY_BUTTON_A, JOY_BUTTON_B, JOY_BUTTON_X, JOY_BUTTON_Y,
-	JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_BACK, JOY_BUTTON_START]
+	JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_BACK, JOY_BUTTON_START,
+	JOY_BUTTON_LEFT_STICK, JOY_BUTTON_RIGHT_STICK]
+## A saved remap from before the walk asked for the stick clicks has only these.
+const FIRST_STEPS := 8
 ## Where each step's button sits on the pad, in plain words.
 const WHERE := {JOY_BUTTON_A: "the bottom face button", JOY_BUTTON_B: "the right face button",
 	JOY_BUTTON_X: "the left face button", JOY_BUTTON_Y: "the top face button",
 	JOY_BUTTON_LEFT_SHOULDER: "the left shoulder", JOY_BUTTON_RIGHT_SHOULDER: "the right shoulder",
-	JOY_BUTTON_BACK: "the left middle button", JOY_BUTTON_START: "the right middle button"}
+	JOY_BUTTON_BACK: "the left middle button", JOY_BUTTON_START: "the right middle button",
+	JOY_BUTTON_LEFT_STICK: "the left stick, pushed in", JOY_BUTTON_RIGHT_STICK: "the right stick, pushed in"}
 
 ## Pad name -> {logical JoyButton: physical index}.
 static var remaps := {}
@@ -115,7 +122,8 @@ static func to_save() -> Dictionary:
 		out[n] = m
 	return out
 
-## From the save; a remap that is not a full, one-to-one walk is dropped.
+## From the save; a remap that is not a full, one-to-one walk is dropped. One
+## saved before the stick clicks were asked for keeps the first steps.
 static func from_save(saved) -> void:
 	remaps = {}
 	if not saved is Dictionary:
@@ -127,7 +135,8 @@ static func from_save(saved) -> void:
 		var map := {}
 		for k in m:
 			map[int(k)] = int(m[k])
-		var whole := STEPS.all(func(b): return map.has(b)) and map.size() == STEPS.size()
+		var whole := STEPS.slice(0, FIRST_STEPS).all(func(b): return map.has(b)) \
+			and map.keys().all(func(b): return STEPS.has(b))
 		var seen := {}
 		for v in map.values():
 			seen[v] = true

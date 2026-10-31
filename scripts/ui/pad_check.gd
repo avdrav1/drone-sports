@@ -8,8 +8,8 @@ extends PanelContainer
 # takes every key and button, so nothing pressed to test moves the menu; Back
 # (B or Esc) leaves. Story 28.3: the footer names the leave buttons in the
 # family of the pad on the page, plus Esc, and says the rest are only shown.
-# Story 28.5: REMAP (hold Start, or R) walks through the face, shoulder and
-# middle buttons and takes whichever physical button is pressed for each, for a
+# Story 28.5: REMAP (hold Start, or R) walks through the face, shoulder,
+# middle and stick-click buttons and takes whichever physical button is pressed for each, for a
 # pad that reports them in the wrong order; Esc cancels it. RESET (hold Back, or
 # Backspace) shows while the pad has a remap and puts the project's back. The
 # page names buttons as remapped (PadRemap.logical).
@@ -92,6 +92,8 @@ func _ready() -> void:
 		var l := Label.new()
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		l.add_theme_font_size_override("font_size", 15)
+		# Even columns, so the names line up under each other.
+		l.custom_minimum_size.x = 76
 		grid.add_child(l)
 		_buttons[b] = l
 	_last = _label(box, 18)
@@ -185,6 +187,9 @@ func start_remap() -> void:
 	walk_device = device
 	walk_note = ""
 	held.clear()
+	# The last press was named under the old remap; the walk names presses anew.
+	last_button = -1
+	last_button_text = ""
 	_show()
 
 ## The physical button `index` on pad `id` answers the step on now. One given
