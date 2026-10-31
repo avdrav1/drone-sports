@@ -82,6 +82,21 @@ enum Pattern { GRID, DIAGONAL, RADIAL, OLD_TOWN }
 @export_range(0.0, 1.0) var lane_branch := 0.4
 @export var lane_gap := 8.0
 @export var old_town_height := Vector2(5, 24)
+## Ducts and pipes overhead (Story 26.9, read by OverheadSpans, not the plan):
+## each stretch of a street no wider than `span_max_width` has a slot every
+## `span_spacing` metres, taken by chance `span_chance` (`span_lane_chance` on a
+## street narrower than street_width, such as an old town's lanes). A taken slot
+## is a pipe rack of two or three pipes by chance `rack_chance`, else a single
+## duct, its underside `span_clear` (least, most) metres up. `span_gap` is the
+## least gap between a rack's pipes and between any two spans; keep it wide
+## enough for the collision guard to let a drone through.
+@export var span_spacing := 6.0
+@export_range(0.0, 1.0) var span_chance := 0.75
+@export_range(0.0, 1.0) var span_lane_chance := 0.9
+@export var span_max_width := 12.0
+@export var span_clear := Vector2(7, 14)
+@export var span_gap := 2.4
+@export_range(0.0, 1.0) var rack_chance := 0.5
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
