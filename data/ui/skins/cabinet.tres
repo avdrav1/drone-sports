@@ -4,6 +4,7 @@
 [ext_resource type="FontFile" path="res://data/ui/fonts/PressStart2P-Regular.ttf" id="2_arcade"]
 
 [sub_resource type="FontVariation" id="body"]
+fallbacks = Array[Font]([ExtResource("2_arcade")])
 variation_embolden = 0.4
 
 [sub_resource type="FontVariation" id="display"]
