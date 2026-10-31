@@ -68,10 +68,15 @@ func test_map_is_darker_under_buildings() -> bool:
 	var lit := func(c: Color) -> float:
 		return c.get_luminance() * c.a
 	var ok := true
+	# Streets running along z (free flight's grid may drop segments, Story 26.3,
+	# so they are no longer every other entry).
+	var along_z := range(plan.streets.size()).filter(func(j): return plan.street_axis[j] == 0)
 	for i in 10:
-		var under: Color = px.call(plan.lots[i * 7].get_center())
-		# A street's centre, between crossings.
-		var street := plan.streets[(i * 2) % plan.streets.size()].get_center() + Vector2(0, 20.0 if i % 2 == 0 else -20.0)
+		var under: Color = px.call(plan.lots[(i * 7) % plan.lots.size()].get_center())
+		# A point on a street, off its centre, which may be a crossing.
+		var run := plan.streets[along_z[i % along_z.size()]]
+		var off := minf(20.0, run.size.y * 0.5 - 1.0)
+		var street := run.get_center() + Vector2(0, off if i % 2 == 0 else -off)
 		var open: Color = px.call(street)
 		ok = ok and lit.call(under) < lit.call(open)
 	s.free()

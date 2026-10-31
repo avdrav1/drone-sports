@@ -4,6 +4,9 @@ extends Resource
 # lots cut from each block, and heights that fall off from downtown to the edge.
 # Distances in metres; the grid is centred on the origin.
 
+## Street patterns a seed can pick (Story 26.3 on). Only the grid for now.
+enum Pattern { GRID }
+
 @export var seed := 1
 ## Lots stand fully inside this radius. Keep it inside the terrain's flat radius.
 @export var core_radius := 140.0
@@ -31,13 +34,22 @@ extends Resource
 ## Chance a lot is left empty: sand and no building, an open yard between
 ## towers (Story 26.2). Drawn from its own stream, so 0 builds the plan as before.
 @export_range(0.0, 1.0) var vacant_chance := 0.0
+## How the streets are laid out.
+@export var pattern: Pattern = Pattern.GRID
+## Chance a grid street segment between two junctions is left out and the blocks
+## either side merge into a superblock (Story 26.3). Drawn from its own stream,
+## so 0 builds the plan as before.
+@export_range(0.0, 1.0) var drop_chance := 0.0
+## Chance a block holds no lots: a paved square. Its own stream too.
+@export_range(0.0, 1.0) var square_chance := 0.0
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
 
 ## Everything that shapes the plan, for caches built from it.
 func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
-		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance]
+		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance,
+		pattern, drop_chance, square_chance]
 
 ## Drops every entry of a per-layout cache (keyed by params() and then the
 ## builder's own settings) that this layout did not build, so free flight's

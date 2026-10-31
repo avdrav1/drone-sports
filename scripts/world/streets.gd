@@ -132,12 +132,12 @@ static func road_pieces(p: CityPlan, l: CityLayout) -> Array:
 	var out := []
 	for i in p.streets.size():
 		var s := p.streets[i]
-		var along := 1 if i % 2 == 0 else 0 # streets at even indices run along z
+		var along := 1 if p.street_axis[i] == 0 else 0 # 0: the street runs along z
 		var width := s.size[1 - along]
 		var kind := 1 if l.avenue_width > l.street_width and width > l.street_width + 0.01 else 0
 		var cuts: Array[Vector2] = []
 		for j in p.streets.size():
-			if j % 2 == i % 2 or not s.intersects(p.streets[j]):
+			if p.street_axis[j] == p.street_axis[i] or not s.intersects(p.streets[j]):
 				continue
 			# Near the core's edge a clipped street may stop partway across
 			# another. Only a street that spans this one's width cuts it; the
@@ -146,7 +146,7 @@ static func road_pieces(p: CityPlan, l: CityLayout) -> Array:
 			if o.size[1 - along] < width - 0.001:
 				continue
 			cuts.append(Vector2(o.position[along], o.end[along]))
-			if i % 2 == 0 and o.size[along] >= p.streets[j].size[along] - 0.001:
+			if p.street_axis[i] == 0 and o.size[along] >= p.streets[j].size[along] - 0.001:
 				out.append([o, 0, o.size.x, 2])
 		cuts.sort_custom(func(a, b): return a.x < b.x)
 		var at: float = s.position[along]
