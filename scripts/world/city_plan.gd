@@ -57,6 +57,10 @@ static func build(layout: CityLayout) -> CityPlan:
 		_cache[key] = _generate(layout)
 	return _cache[key]
 
+## Drops cached plans of every layout but `keep` (Story 26.1).
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 ## True when a lot rectangle stays clear of every reserved clearing.
 static func clear_of(layout: CityLayout, r: Rect2) -> bool:
 	for c in layout.clearings:

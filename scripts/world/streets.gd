@@ -90,6 +90,18 @@ func build() -> void:
 			shape.size = box.size
 			_shape("%s%d" % [boxes[1], i], shape, box.get_center())
 
+## Frees what build() made, keeping the scene's own children, so the node can
+## build again from a new layout (Story 26.1).
+func clear() -> void:
+	for c in get_children():
+		if c.owner == null:
+			remove_child(c)
+			c.queue_free()
+
+## Drops cached builds of every layout but `keep`.
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 func _shape(n: String, s: Shape3D, at: Vector3) -> void:
 	var shape := CollisionShape3D.new()
 	shape.name = n

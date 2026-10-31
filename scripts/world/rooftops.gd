@@ -69,6 +69,18 @@ func build() -> void:
 		marker.label = "Pad"
 		pad.add_child(marker)
 
+## Frees what build() made, keeping the scene's own children, so the node can
+## build again from a new layout (Story 26.1).
+func clear() -> void:
+	for c in get_children():
+		if c.owner == null:
+			remove_child(c)
+			c.queue_free()
+
+## Drops cached builds of every layout but `keep`.
+static func prune(keep: CityLayout) -> void:
+	keep.prune(_cache)
+
 static func _side(r: Rect2) -> float:
 	return minf(r.size.x, r.size.y)
 

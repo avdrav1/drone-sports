@@ -1137,7 +1137,7 @@ Layout (Godot `JoyButton` indices; Xbox names, PlayStation in brackets):
 | Right stick | Pitch, roll | | |
 | A (0) [Cross] | Launch from the briefing | Drop in / back out | Select |
 | B (1) [Circle] | Leave dialog (as Esc) | Leave dialog | Back |
-| X (2) [Square] | | `send_lap` / `tag_unit` (one per job) | |
+| X (2) [Square] | New city (free flight, Story 26.1) | `send_lap` / `tag_unit` (one per job) | |
 | Y (3) [Triangle] | Camera view | Camera view | |
 | Back (4) [Create] | Full map | Full map | |
 | Start (6) [Options] | Pause (the leave dialog) | Pause | |
@@ -1311,11 +1311,12 @@ Owner decisions:
 
 Rules that hold throughout: nothing here moves a drone (rule 1), cars and obstacles are scene content like walls, never assists (rule 2), and new pieces are parameters on `CityLayout` or the generator scenes (rule 4). Every opening a drone is meant to fly through is wide and tall enough for Act 1's collision guard to let it through: at least the drone's collision box plus the guard's margin on each side, with room to spare (a test checks the numbers against `CollisionGuard.margin` and the drone's shape, not a hard-coded size). Everything is seeded: the same seed builds the same city, obstacles and traffic.
 
-- [ ] **26.1 A new city every launch**
+- [x] **26.1 A new city every launch**
   - Goal: Entering free flight builds a city from a fresh random seed. The seed shows on the HUD, and a key rebuilds the city from a new one.
   - Context: `scenes/debug_flight.tscn` instances `City`, `Streets` (with its `StreetClutter`) and `Rooftops`, which all read `sandbox_city.tres`. Free flight duplicates that layout, sets `seed`, and hands the copy to all three before they build, so the shared resource and every job scene keep seed 7. The spawn plaza and jammer clearings come with the copy. Reroll: a new `reroll_city` action on a free key, listed in the controls help and on the pad (Epic 23). It clears and rebuilds the three nodes, puts the drone back on the plaza as `reset_drone` does, and the radar and map follow (they read the plan through `City.layout`). `CityPlan`, `Streets`, `StreetClutter` and `Rooftops` cache per layout; rerolls must not grow those caches without bound (keep the current layout's entries, drop the rest).
   - Acceptance: Two launches of free flight build different plans; a given seed builds the same plan every time. Job scenes that show the city still build seed 7, and the obstacle fingerprints in `test_obstacle_structures.gd` are unchanged. A reroll changes the plan, the radar's lots, and the HUD seed, and leaves the drone on the plaza. After ten rerolls each cache holds one layout's entries. The seed is on the HUD at 960×720 and 1920×1080.
   - Out of scope: Typing in a seed, saving favourite seeds, new layout parameters (26.2).
+  - Note: `reroll_city` is B on keys and X on the pad (X is the fleet's only in command view, which free flight never has). The seed shows as the panel's state line ("CITY SEED n · B NEW CITY", `FlightHud.status`). Free flight rolls its seed in `_enter_tree`, before the city builds, and prunes the five city caches (City's too) to its layout on launch as well as on reroll, so a job after free flight rebuilds seed 7 once. `TerrainImage` now caches only the ground and paints the lots on a copy each bake, so the radar and map follow a reroll without growing its cache.
 
 - [ ] **26.2 Cities that differ in proportion, not just lots**
   - Goal: Each free-flight seed also picks the city's proportions: block size, street and avenue widths, how tall downtown gets, and how many lots stand empty.

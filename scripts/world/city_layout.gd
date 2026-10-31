@@ -35,3 +35,12 @@ extends Resource
 func params() -> Array:
 	return [seed, core_radius, block_size, street_width, avenue_every, avenue_width, sidewalk,
 		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings]
+
+## Drops every entry of a per-layout cache (keyed by params() and then the
+## builder's own settings) that this layout did not build, so free flight's
+## rerolls keep one city's worth (Story 26.1).
+func prune(cache: Dictionary) -> void:
+	var p := params()
+	for key: Array in cache.keys():
+		if key.slice(0, p.size()) != p:
+			cache.erase(key)
