@@ -11,8 +11,9 @@ extends StaticBody3D
 # Story 26.5: everything reads the plan's general form (paths, junctions, block
 # polygons), so streets can run at any angle. Roads are built per street leg in
 # the leg's own frame, cut where another street crosses its width, with a patch
-# over each crossing's leftover ground; kerbs, pavements and lights follow the
-# block outlines. A grid builds exactly what it did from rectangles.
+# over each crossing's leftover ground and over the outside of each bend;
+# kerbs, pavements and lights follow the block outlines. A grid builds exactly
+# what it did from rectangles.
 
 ## Road decals placed from the seed, besides crosswalks.
 enum Mark { MANHOLE, DRAIN, PATCH, ARROW }
@@ -164,6 +165,15 @@ class Piece extends RefCounted:
 	var c := 0.0
 	## Footprint in XZ (a stretch's four corners, or a patch's outline).
 	var poly := PackedVector2Array()
+	## A patch over a bend or two street ends meeting at an angle, not a crossing:
+	## the road runs on through it, so it does not end a stretch (meets()).
+	var joint := false
+	## For a stretch, whether its a0 and a1 ends stop at a joint.
+	var joined := [false, false]
+	## For a joint between two legs of one width and kind (Story 26.7): [leg,
+	## leg, inner, outer], the legs it joins and the two ends of the mitre line
+	## between them, so its markings carry on from both; empty otherwise.
+	var sides := []
 
 	func local(p: Vector2) -> Vector2:
 		return Vector2(p.dot(d), p.dot(n))
@@ -245,17 +255,95 @@ static func _shared(a: PackedVector2Array, b: PackedVector2Array) -> PackedVecto
 ## A street's straight legs: [from, to] for each run of its centreline that
 ## keeps one direction.
 static func _legs(path: CityPlan.Street) -> Array:
+	# Repeated points (a junction's point on an end) would make empty legs.
+	var points := PackedVector2Array()
+	for q in path.points:
+		if points.is_empty() or points[-1].distance_to(q) > 1e-4:
+			points.append(q)
 	var out := []
 	var start := 0
-	for k in range(1, path.points.size()):
-		if k < path.points.size() - 1:
-			var d1 := (path.points[k] - path.points[start]).normalized()
-			var d2 := (path.points[k + 1] - path.points[k]).normalized()
+	for k in range(1, points.size()):
+		if k < points.size() - 1:
+			var d1 := (points[k] - points[start]).normalized()
+			var d2 := (points[k + 1] - points[k]).normalized()
 			if d1.dot(d2) > 0.99999:
 				continue
-		out.append([path.points[start], path.points[k]])
+		out.append([points[start], points[k]])
 		start = k
 	return out
+
+## Where two legs meet end to end at an angle (a bend in a path, or the ends of
+## two legs that meet and no others): both legs cut back, in place, to where
+## the kerb lines on the inside of the turn cross, and the ground left on the
+## outside as a patch, mitred (bevelled past a 120° turn). `ends` holds each
+## leg's [from, to]; returns [patch, leg, leg, inner, outer] for each joint,
+## inner and outer the ends of the mitre line.
+static func _joints(p: CityPlan, legs: Array[Piece], ends: Array, of: Dictionary) -> Array:
+	var pairs := []
+	var tips := []
+	for i in p.paths.size():
+		var mine: Array = of[i]
+		for k in range(1, mine.size()):
+			pairs.append([mine[k - 1], 1, mine[k], 0])
+		if not mine.is_empty():
+			tips.append([mine[0], 0])
+			tips.append([mine[-1], 1])
+	for x in tips.size():
+		for y in range(x + 1, tips.size()):
+			var a: Array = tips[x]
+			var b: Array = tips[y]
+			var q: Vector2 = ends[a[0]][a[1]]
+			if a[0] == b[0] or q.distance_to(ends[b[0]][b[1]]) > 1e-3:
+				continue
+			if tips.any(func(t): return t != a and t != b and q.distance_to(ends[t[0]][t[1]]) <= 1e-3):
+				continue
+			pairs.append([a[0], a[1], b[0], b[1]])
+	var out := []
+	for pr in pairs:
+		var A: Piece = legs[pr[0]]
+		var B: Piece = legs[pr[2]]
+		var q: Vector2 = ends[pr[0]][pr[1]]
+		# Each leg's direction away from where they meet.
+		var ea: Vector2 = (ends[pr[0]][1 - pr[1]] - q).normalized()
+		var eb: Vector2 = (ends[pr[2]][1 - pr[3]] - q).normalized()
+		var dot := ea.dot(eb)
+		if dot < -0.99999 or dot > 0.99:
+			continue
+		# Normals toward the other leg: the inside of the turn.
+		var na := Vector2(-ea.y, ea.x)
+		if na.dot(eb) < 0.0:
+			na = -na
+		var nb := Vector2(-eb.y, eb.x)
+		if nb.dot(ea) < 0.0:
+			nb = -nb
+		var ha := A.width * 0.5
+		var hb := B.width * 0.5
+		var inner = Geometry2D.line_intersects_line(q + na * ha, ea, q + nb * hb, eb)
+		var outer = Geometry2D.line_intersects_line(q - na * ha, ea, q - nb * hb, eb)
+		if inner == null or outer == null:
+			continue
+		var ta: float = (inner - q).dot(ea)
+		var tb: float = (inner - q).dot(eb)
+		if ta < 0.0 or tb < 0.0 or ta >= A.a1 - A.a0 - 0.01 or tb >= B.a1 - B.a0 - 0.01:
+			continue
+		_trim(A, ea, ta)
+		_trim(B, eb, tb)
+		var ca := q + ea * ta - na * ha
+		var cb := q + eb * tb - nb * hb
+		var poly := PackedVector2Array([inner, ca, outer, cb]) if dot <= 0.5 else PackedVector2Array([inner, ca, cb])
+		out.append([poly, pr[0], pr[2], inner, outer])
+	return out
+
+## Cuts `by` off the end of stretch `L` that direction `away` (into the leg)
+## leaves from.
+static func _trim(L: Piece, away: Vector2, by: float) -> void:
+	if away.dot(L.d) > 0.0:
+		L.a0 += by
+		L.joined[0] = true
+	else:
+		L.a1 -= by
+		L.joined[1] = true
+	L.poly = L.area(L.span())
 
 static func _stretch(i: int, path: CityPlan.Street, from: Vector2, to: Vector2) -> Piece:
 	var p := Piece.new()
@@ -271,22 +359,28 @@ static func _stretch(i: int, path: CityPlan.Street, from: Vector2, to: Vector2) 
 	return p
 
 ## The road, as pieces that together cover every street exactly once: each
-## street's legs, cut wherever another street crosses its whole width, and a
-## patch over the ground each crossing leaves, emitted (once) just before the
-## stretches of the street at it that runs most nearly along z.
+## street's legs, cut back at bends and where street ends meet at an angle
+## (_joints), cut wherever another street crosses its whole width, and a patch
+## over the ground each crossing or joint leaves, emitted (once) just before
+## the stretches of the street at it that runs most nearly along z.
 static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 	var legs: Array[Piece] = []
+	var ends := []
 	var of := {}
 	for i in p.paths.size():
 		of[i] = []
 		for leg in _legs(p.paths[i]):
 			of[i].append(legs.size())
+			ends.append(leg)
 			legs.append(_stretch(i, p.paths[i], leg[0], leg[1]))
 	var cuts := {}
 	for k in legs.size():
 		cuts[k] = []
-	# Patches: [zones, legs at it, legs cut there].
+	# Patches: [zones, legs at it, legs cut there, true for a joint only, and
+	# for a lone joint its legs and mitre line (Piece.sides)].
 	var patches := []
+	for j in _joints(p, legs, ends, of):
+		patches.append([[j[0]], {j[1]: true, j[2]: true}, {j[1]: true, j[2]: true}, true, [j[1], j[2], j[3], j[4]]])
 	for j in p.junctions:
 		var zones: Array[PackedVector2Array] = []
 		var at := {}
@@ -317,7 +411,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 						if not zones.any(func(z): return _same(z, zone)):
 							zones.append(zone)
 		if not zones.is_empty():
-			patches.append([zones, at, cut])
+			patches.append([zones, at, cut, false, []])
 	# Patches that share ground are one patch.
 	var k := 0
 	while k < patches.size():
@@ -329,6 +423,8 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 						patches[k][0].append(z)
 				patches[k][1].merge(patches[m][1])
 				patches[k][2].merge(patches[m][2])
+				patches[k][3] = patches[k][3] and patches[m][3]
+				patches[k][4] = []
 				patches.remove_at(m)
 				merged = true
 				break
@@ -336,7 +432,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 			k += 1
 	var before := {}
 	for patch in patches:
-		var polys := _patch(patch[0], patch[1], patch[2], legs)
+		var polys := _patch(patch[0], patch[1], patch[2], legs, cuts)
 		if polys.is_empty():
 			continue
 		var owner := -1
@@ -354,6 +450,11 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 		for poly in polys:
 			var piece := Piece.new()
 			piece.kind = 2
+			piece.joint = patch[3]
+			var mitre: Array = patch[4]
+			if polys.size() == 1 and not mitre.is_empty() and legs[mitre[0]].kind == legs[mitre[1]].kind \
+					and is_equal_approx(legs[mitre[0]].width, legs[mitre[1]].width):
+				piece.sides = [legs[mitre[0]], legs[mitre[1]], mitre[2], mitre[3]]
 			piece.width = L.width
 			piece.d = L.d
 			piece.n = L.n
@@ -390,6 +491,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 				piece.c = L.c
 				piece.a0 = from
 				piece.a1 = c.x
+				piece.joined = [L.joined[0] and from == L.a0, L.joined[1] and c.x == L.a1]
 				piece.poly = piece.area(piece.span())
 				out.append(piece)
 			from = maxf(from, c.y)
@@ -405,12 +507,17 @@ static func _same(a: PackedVector2Array, b: PackedVector2Array) -> bool:
 	return true
 
 ## The ground a crossing leaves between the stretches round it: its zones
-## together, less any leg there that runs on uncut (which already covers it).
-static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array) -> Array[PackedVector2Array]:
+## together, less any leg there that runs on uncut (which already covers it),
+## and less what the stretches of a leg cut there cover outside its cuts (a
+## diagonal avenue cut by one street can still run over another's T end,
+## Story 26.6; at a grid crossing they only touch, so nothing changes).
+static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array, cuts := {}) -> Array[PackedVector2Array]:
 	var parts: Array[PackedVector2Array] = []
 	parts.assign(zones)
 	for a in at:
 		if cut.has(a):
+			if cuts.has(a):
+				parts = _less_stretches(parts, legs[a], cuts[a])
 			continue
 		var cover: PackedVector2Array = legs[a].poly
 		var next: Array[PackedVector2Array] = []
@@ -441,15 +548,43 @@ static func _patch(zones: Array, at: Dictionary, cut: Dictionary, legs: Array) -
 			union.append(z)
 	return union
 
+## `parts` less the ground leg `L`'s stretches cover between its cuts
+## `list`; only parts sharing more than a hundredth of a m² with a stretch
+## are clipped, so ones a stretch only touches keep their corners exactly.
+static func _less_stretches(parts: Array[PackedVector2Array], L: Piece, list: Array) -> Array[PackedVector2Array]:
+	var sorted := list.duplicate()
+	sorted.sort_custom(func(x, y): return x.x < y.x)
+	var from := L.a0
+	for c in sorted + [Vector2(L.a1, L.a1)]:
+		if c.x > from + 0.001:
+			var cover := L.area(Rect2(from, L.c - L.width * 0.5, c.x - from, L.width))
+			var next: Array[PackedVector2Array] = []
+			for z in parts:
+				var shared := 0.0
+				if bounds(z).intersects(bounds(cover)):
+					for q in Geometry2D.intersect_polygons(z, cover):
+						shared += absf(CityPlan.area(q))
+				if shared <= 0.01:
+					next.append(z)
+					continue
+				for rest in Geometry2D.clip_polygons(z, cover):
+					if CityPlan.area(rest) > 0.01:
+						next.append(rest)
+			parts = next
+		from = maxf(from, c.y)
+	return parts
+
 ## True when another piece meets `piece`'s end at `along` (a crossing or a
-## street it runs into).
+## street it runs into; a joint, where the road runs on, is neither).
 static func meets(pieces: Array, piece: Piece, along: float) -> bool:
+	if (piece.joined[0] and absf(along - piece.a0) < 1e-3) or (piece.joined[1] and absf(along - piece.a1) < 1e-3):
+		return false
 	var edge := piece.span()
 	edge.position.x = along - 0.01
 	edge.size.x = 0.02
 	var sliver := piece.area(edge)
 	for o in pieces:
-		if o != piece and overlaps(sliver, o.poly):
+		if o != piece and not o.joint and overlaps(sliver, o.poly):
 			return true
 	return false
 
@@ -485,7 +620,9 @@ static func edges(poly: PackedVector2Array, kerb: float) -> Array:
 				elif cos_a > 0.0:
 					back[side] = kerb * (1.0 + cos_a) / sin_a
 				else:
-					back[side] = kerb / sin_a
+					# The least setback that keeps clear of the owner's kerb (which
+					# runs to the corner): kerb * sin_a, kerb at a right angle.
+					back[side] = kerb * sin_a
 		var along := canon(dir)
 		var flip := not along.is_equal_approx(dir)
 		var start := poly[(i + 1) % count] if flip else poly[i]
@@ -533,6 +670,11 @@ static func inset(poly: PackedVector2Array, by: float) -> PackedVector2Array:
 		var m0 := Vector2(-prev.y, prev.x) * turn
 		var m1 := Vector2(-next.y, next.x) * turn
 		out.append(poly[i] + (m0 + m1) * (by / (1.0 + m0.dot(m1))))
+	# An edge shorter than the inset at a sharp corner (a wedge's tip) folds the
+	# moved corners past each other; let the clipper drop that edge instead.
+	if not convex(out) or CityPlan.area(out) * turn <= 0.0:
+		var grown := Geometry2D.offset_polygon(poly, -by, Geometry2D.JOIN_MITER)
+		return grown[0] if not grown.is_empty() else PackedVector2Array()
 	return out
 
 ## True when `r` lies inside the polygon `poly` (edges included).
@@ -624,6 +766,24 @@ func _markings(st: SurfaceTool) -> Array:
 	var chunk := 0
 	for piece: Piece in pieces:
 		var w := piece.width
+		if piece.kind == 2 and not piece.sides.is_empty():
+			# A joint (Story 26.7): each side of its mitre line is marked as the
+			# leg there, so edge and centre lines run on through the turn.
+			var inner: Vector2 = piece.sides[2]
+			var line: Vector2 = piece.sides[3] - inner
+			for side in 2:
+				var L: Piece = piece.sides[side]
+				var keep := signf(line.cross(L.world(Vector2((L.a0 + L.a1) * 0.5, L.c)) - inner))
+				var half_poly := _halve(piece.poly, inner, line * keep)
+				if half_poly.size() < 3 or absf(CityPlan.area(half_poly)) < 1e-6:
+					continue
+				var lo := INF
+				var hi := -INF
+				for q in half_poly:
+					lo = minf(lo, q.dot(L.d))
+					hi = maxf(hi, q.dot(L.d))
+				_polygon(st, half_poly, ROAD_Y, L.d, L.n, L.c, L.width, L.kind, [Color(lo, hi, 0.0, L.lane()), NONE, NONE, NONE])
+			continue
 		if piece.kind == 2:
 			_polygon(st, piece.poly, ROAD_Y, piece.d, piece.n, piece.c, w, 2, [NONE, NONE, NONE, NONE])
 			continue
@@ -752,6 +912,9 @@ func _block_kerbs(b: PackedVector2Array) -> Array[Transform3D]:
 			var t := x
 			x = z
 			z = t
+		# An edge at 45° keeps its axes unswapped; keep the box unmirrored.
+		if Basis(x, Vector3.UP, z).determinant() < 0.0:
+			z = -z
 		out.append(Transform3D(Basis(x + Vector3.ZERO, Vector3(0.0, kerb_height, 0.0), z + Vector3.ZERO),
 			Vector3(centre.x, kerb_height * 0.5, centre.y)))
 	return out
@@ -840,6 +1003,21 @@ static func _half(poly: PackedVector2Array, n: Vector2, at: float) -> PackedVect
 			elif n.y == 0.0:
 				q.x = at * n.x
 			out.append(q)
+	return out
+
+## The part of convex `poly` left of the line through `at` along `dir`
+## (Story 26.7).
+static func _halve(poly: PackedVector2Array, at: Vector2, dir: Vector2) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in poly.size():
+		var a := poly[i]
+		var b := poly[(i + 1) % poly.size()]
+		var da := dir.cross(a - at)
+		var db := dir.cross(b - at)
+		if da >= 0.0:
+			out.append(a)
+		if (da > 0.0 and db < 0.0) or (da < 0.0 and db > 0.0):
+			out.append(a + (b - a) * (da / (da - db)))
 	return out
 
 ## A flat polygon at height y. UV: across the street from its centre line `c`

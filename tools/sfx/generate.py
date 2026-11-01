@@ -9,6 +9,7 @@ With --check it renders into build/sfx/check/ instead and exits non-zero unless
 every file matches data/audio/generated/ byte for byte.
 """
 
+import fcntl
 import filecmp
 import json
 import math
@@ -653,6 +654,40 @@ def lattice_power_down():
         out.append((math.sin(phase) + 0.5 * math.sin(2 * phase) + 0.25 * math.sin(3 * phase)) * env)
     return out
 
+def car_engine():
+    """A second of a car's engine heard from the kerb (Story 26.12): a low
+    firing note on whole-Hz partials (whole cycles per loop, so it joins), an
+    uneven lope from partials a few Hz apart, and a rough low-passed rasp.
+    TrafficSound plays it pitched up with each car's speed."""
+    rng = random.Random(1470)
+    n = RATE
+    rasp = lowpass_loop(lowpass_loop([rng.uniform(-1, 1) for _ in range(n)], 0.12), 0.2)
+    partials = ((46, 1.0, 0.0), (92, 0.7, 0.9), (138, 0.45, 1.7), (184, 0.25, 2.3), (49, 0.35, 0.4), (95, 0.2, 2.8))
+    out = []
+    for i in range(n):
+        t = i / RATE
+        s = sum(a * math.sin(2 * math.pi * f * t + ph) for f, a, ph in partials)
+        lope = 0.8 + 0.2 * math.sin(2 * math.pi * 23 * t)  # firing unevenness, whole cycles
+        out.append(s * 0.35 * lope + rasp[i] * 1.2 * lope)
+    return out
+
+
+def car_tyres():
+    """Two seconds of tyres on asphalt: band-limited road roar (a fast
+    low-pass less a slow one, both round the loop) with a gentle swell.
+    TrafficSound raises it with each car's speed."""
+    rng = random.Random(1471)
+    n = RATE * 2
+    noise = [rng.uniform(-1, 1) for _ in range(n)]
+    fast = lowpass_loop(noise, 0.25)
+    slow = lowpass_loop(noise, 0.03)
+    out = []
+    for i in range(n):
+        t = i / RATE
+        swell = 0.85 + 0.15 * math.sin(2 * math.pi * t / 2.0)  # one swell per loop
+        out.append((fast[i] - slow[i]) * swell + slow[i] * 0.6)
+    return out
+
 
 def bed(seed, chord, hiss):
     """Three seconds of a cutscene's bed: a soft held chord (whole cycles per
@@ -683,7 +718,7 @@ def main():
                  "job_hold_done", "job_complete", "job_fail", "job_payout",
                  "hazard_warning", "hazard_strike", "ui_click", "ui_focus", "ui_confirm"):
         write(name + ".wav", globals()[name]())
-    for name in ("city_hum", "desert_wind", "room_tone"):
+    for name in ("city_hum", "desert_wind", "room_tone", "car_engine", "car_tyres"):
         write(name + ".wav", globals()[name](), loop=True)
     for name in ("city_hum", "desert_wind"):
         write(name + "_muffled.wav", muffled(globals()[name]()), loop=True)
@@ -711,6 +746,9 @@ def check():
     # Keeps Godot from importing the check renders into the project and export.
     os.makedirs(os.path.dirname(os.path.dirname(OUT)), exist_ok=True)
     open(os.path.join(os.path.dirname(os.path.dirname(OUT)), ".gdignore"), "a").close()
+    # Test processes run side by side, and this folder is shared: one at a time.
+    lock = open(os.path.join(os.path.dirname(os.path.dirname(OUT)), ".sfx_check.lock"), "w")
+    fcntl.flock(lock, fcntl.LOCK_EX)
     if os.path.isdir(OUT):
         for f in os.listdir(OUT):
             os.remove(os.path.join(OUT, f))

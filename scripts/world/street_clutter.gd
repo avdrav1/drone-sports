@@ -135,8 +135,16 @@ func _generate() -> Array:
 	var shelters: Array[Rect2] = []
 	for b in plan.block_polygons:
 		if Streets.within(b, layout.core_radius):
+			var block := _Block.new()
+			block.pavement = Streets.inset(b, streets.kerb_width)
+			block.square = Streets.square(block.pavement)
+			var near := Streets.bounds(b).grow(1.0)
+			for at in streets.lights:
+				if near.has_point(Vector2(at.x, at.z)):
+					var r := streets.pole_radius + 0.3
+					block.taken.append(CityPlan.polygon(Rect2(at.x - r, at.z - r, r * 2.0, r * 2.0)))
 			for e in Streets.edges(b, streets.kerb_width):
-				_edge(rng, b, e, road, found, shelters)
+				_edge(rng, block, e, road, found, shelters)
 	var strips := _parking(rng, road, found, shelters)
 	for i in plan.lots.size():
 		_walls(rng, i, found)
@@ -172,10 +180,33 @@ func _clear(box: AABB) -> bool:
 func _piece(kind: int, xform: Transform3D, lot := -1, tint := Color(1, 1, 1)) -> Dictionary:
 	return {"kind": kind, "xform": xform, "box": xform * _mesh(kind).get_aabb(), "lot": lot, "tint": tint}
 
+## One block's pavement while its edges are walked: the outline inside the kerbs,
+## and the footprints already standing on it (its street lights, and items
+## from edges walked before), so items from two edges meeting at a sharp corner
+## keep off each other.
+class _Block extends RefCounted:
+	var pavement := PackedVector2Array()
+	var square := false
+	var taken: Array[PackedVector2Array] = []
+
+## True when piece `f` stands wholly on the block's pavement and off everything
+## already there; if so it takes its ground.
+func _fits(block: _Block, f: Dictionary) -> bool:
+	var foot := _corners(f)
+	var flat := Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z)
+	if not (Streets.encloses(block.pavement, flat) if block.square else Streets.holds(block.pavement, foot)):
+		return false
+	if block.taken.any(func(t): return Streets.overlaps(t, foot)):
+		return false
+	block.taken.append(foot)
+	return true
+
 ## Pavement items along one edge of a block outline (a Streets.edges() entry):
 ## a bus shelter on an avenue, signs near the corners, trees in pits, and a
-## bench, each keeping off the street lights and the others along the kerb.
-func _edge(rng: RandomNumberGenerator, b: PackedVector2Array, edge: Array, road: Array, found: Array, shelters: Array[Rect2]) -> void:
+## bench, each keeping off the street lights and the others along the kerb, and
+## each kept only where it stands on the pavement clear of what the block's
+## other edges put there.
+func _edge(rng: RandomNumberGenerator, block: _Block, edge: Array, road: Array, found: Array, shelters: Array[Rect2]) -> void:
 	var along: Vector2 = edge[1]
 	var out: Vector2 = -(edge[2] as Vector2) + Vector2.ZERO
 	var start: Vector2 = edge[0]
@@ -204,19 +235,30 @@ func _edge(rng: RandomNumberGenerator, b: PackedVector2Array, edge: Array, road:
 		var t := rng.randf_range(CORNER + 3.0, length - CORNER - 3.0)
 		if _take(used, t, SHELTER_SIZE.x * 0.5 + 0.5):
 			var f := _piece(Kind.SHELTER, Transform3D(turn, at.call(t, streets.kerb_width + 0.5 + SHELTER_SIZE.z * 0.5)))
-			found.append(f)
-			shelters.append(Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z))
+			if _fits(block, f):
+				found.append(f)
+				shelters.append(Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z))
+			else:
+				used.pop_back()
 	for e in 2:
 		if rng.randf() < sign_chance:
 			var t := CORNER if e == 0 else length - CORNER
 			if _take(used, t, 0.5):
 				var tint := sign_tints[rng.randi() % sign_tints.size()]
-				found.append(_piece(Kind.SIGN, Transform3D(turn, at.call(t, streets.kerb_width + 0.35)), -1, tint))
+				var f := _piece(Kind.SIGN, Transform3D(turn, at.call(t, streets.kerb_width + 0.35)), -1, tint)
+				if _fits(block, f):
+					found.append(f)
+				else:
+					used.pop_back()
 	if rng.randf() < bench_chance:
 		var bt := rng.randf_range(CORNER + 1.5, length - CORNER - 1.5)
 		var half_bench := _mesh(Kind.BENCH).get_aabb().size.x * 0.5 + 0.3
 		if _take(used, bt, half_bench):
-			found.append(_piece(Kind.BENCH, Transform3D(turn, at.call(bt, streets.kerb_width + pave * 0.75))))
+			var f := _piece(Kind.BENCH, Transform3D(turn, at.call(bt, streets.kerb_width + pave * 0.75)))
+			if _fits(block, f):
+				found.append(f)
+			else:
+				used.pop_back()
 	# Trees: the crown's long side runs along the kerb, so it stays over the pavement.
 	var tree_aabb := _mesh(Kind.TREE).get_aabb()
 	var tree_turn := Basis(Vector3.UP, yaw + PI * 0.5)
@@ -240,9 +282,7 @@ func _edge(rng: RandomNumberGenerator, b: PackedVector2Array, edge: Array, road:
 				var tree_xf := Transform3D(tree_turn.scaled_local(Vector3(s, s * rng.randf_range(1.3, 1.6), s)), base)
 				var f := _piece(Kind.TREE, tree_xf)
 				# Keep a crown that cannot fit the pavement off it.
-				var pavement := Streets.inset(b, streets.kerb_width)
-				var flat := Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z)
-				if Streets.encloses(pavement, flat) if Streets.square(pavement) else Streets.holds(pavement, _corners(f)):
+				if _fits(block, f):
 					found.append(f)
 					found.append(_piece(Kind.PIT, Transform3D(Basis.from_scale(Vector3(PIT_SIZE, 0.02, PIT_SIZE)), base + Vector3.UP * 0.005)))
 				else:

@@ -14,6 +14,8 @@ const K := StreetClutter.Kind
 
 const FIXTURE_SEED := 30030
 const ANGLE := 30.0
+## A sharper avenue, for wedges whose corners are too tight for the old offsets.
+const SHARP := 18.0
 ## md5s of each part of the street level (parts(), numbers to the centimetre),
 ## taken from the rectangle builders on the parent commit: the sandbox (seed 7,
 ## which every job scene shows) and three rolled free-flight cities with drops.
@@ -136,7 +138,9 @@ static func rounded(text: String) -> String:
 static func _layouts() -> Dictionary:
 	var out := {"sandbox": SANDBOX}
 	for seed in [41, 1234, 98765]:
+		# Grid cities: seeds pick a pattern since Story 26.6.
 		out["roll%d" % seed] = VARIETY.roll(SANDBOX, seed)
+		out["roll%d" % seed].pattern = CityLayout.Pattern.GRID
 	return out
 
 static func _done() -> void:
@@ -161,37 +165,91 @@ func test_grid_streets_and_clutter_unchanged() -> bool:
 		_done()
 	return ok
 
-## Story 26.4's grid code never reads the rects back, so the fixture leaves
-## them empty: only the general form is there to build from.
-static func _strip(from: Vector2, to: Vector2, width: float) -> PackedVector2Array:
-	var d := (to - from).normalized()
-	var n := Vector2(-d.y, d.x) * width * 0.5
-	return PackedVector2Array([from - n, to - n, to + n, from + n])
+## A street's ground: its centreline swept half its width either side, cut
+## square at its ends and mitred at its bends. Story 26.4's grid code never
+## reads the rects back, so the fixture leaves them empty: only the general
+## form is there to build from.
+static func _strip(points: PackedVector2Array, width: float) -> PackedVector2Array:
+	var h := width * 0.5
+	var left := PackedVector2Array()
+	var right := PackedVector2Array()
+	for k in points.size():
+		var d0 := (points[k] - points[maxi(k - 1, 0)]).normalized()
+		var d1 := (points[mini(k + 1, points.size() - 1)] - points[k]).normalized()
+		if k == 0:
+			d0 = d1
+		elif k == points.size() - 1:
+			d1 = d0
+		var n0 := Vector2(-d0.y, d0.x)
+		var m := (n0 + Vector2(-d1.y, d1.x)).normalized()
+		var n := m * (h / m.dot(n0))
+		right.append(points[k] - n)
+		left.append(points[k] + n)
+	left.reverse()
+	return right + left
+
+## The fixture's turns: a street that bends 45° partway (one path), and two
+## streets meeting end to end at 60° (two paths): [path points, or the two
+## paths' points, the corner].
+const BEND := [Vector2(-80, -78), Vector2(-20, -78), Vector2(-3, -95)]
+const ELL_A := [Vector2(-80, 78), Vector2(-20, 78)]
+const ELL_B_DIR := 60.0
+
+static func _ell_b() -> PackedVector2Array:
+	var d := Vector2.from_angle(deg_to_rad(ELL_B_DIR))
+	return PackedVector2Array([ELL_A[1], ELL_A[1] + d * (17.0 / d.y)])
+
+## The ground every street of the fixture covers, as outlines: each path's,
+## and the two streets meeting end to end as one, whose mitre neither covers.
+static func grounds(p: CityPlan) -> Array[PackedVector2Array]:
+	var out: Array[PackedVector2Array] = []
+	for path in p.paths:
+		out.append(_strip(path.points, path.width))
+	out.append(_strip(PackedVector2Array(ELL_A) + PackedVector2Array([_ell_b()[1]]), 8.0))
+	return out
+
+## `q` added to a path's points on the segment it lies nearest, unless a point
+## is already there.
+static func _add_point(path: CityPlan.Street, q: Vector2) -> void:
+	var best := 0
+	var far := INF
+	for k in path.points.size() - 1:
+		var d := q.distance_to(Geometry2D.get_closest_point_to_segment(q, path.points[k], path.points[k + 1]))
+		if d < far - 1e-9:
+			far = d
+			best = k
+	var on := Geometry2D.get_closest_point_to_segment(q, path.points[best], path.points[best + 1])
+	if on.distance_to(path.points[best]) > 1e-3 and on.distance_to(path.points[best + 1]) > 1e-3:
+		path.points.insert(best + 1, on)
 
 ## A layout whose plan (put in CityPlan's cache under its params) is made by
-## hand: two streets along z, two along x, and an avenue at ANGLE through the
-## middle, each running out to the edge of a 160 × 190 m district, with blocks
-## cut between them, lots fitted inside, and one lot left vacant in a wedge.
-static func fixture() -> CityLayout:
+## hand: two streets along z, two along x, and an avenue at `angle` through the
+## middle, each running out to the edge of a 160 × 190 m district, a street
+## that bends partway and two that meet end to end at an angle, with blocks cut
+## between them, lots fitted inside, and one lot left vacant in a wedge.
+static func fixture(angle := ANGLE) -> CityLayout:
 	var l: CityLayout = SANDBOX.duplicate()
-	l.seed = FIXTURE_SEED
+	l.seed = FIXTURE_SEED if angle == ANGLE else FIXTURE_SEED + int(angle)
 	var p := CityPlan.new()
-	var dir := Vector2.from_angle(deg_to_rad(ANGLE))
+	var dir := Vector2.from_angle(deg_to_rad(angle))
 	var lines := [
-		[Vector2(-50, -95), Vector2(-50, 95), 8.0, CityPlan.Kind.STREET],
-		[Vector2(50, -95), Vector2(50, 95), 8.0, CityPlan.Kind.STREET],
-		[Vector2(-80, -60), Vector2(80, -60), 8.0, CityPlan.Kind.STREET],
-		[Vector2(-80, 60), Vector2(80, 60), 8.0, CityPlan.Kind.STREET],
-		[dir * (-80.0 / dir.x), dir * (80.0 / dir.x), 12.0, CityPlan.Kind.AVENUE],
+		[[Vector2(-50, -95), Vector2(-50, 95)], 8.0, CityPlan.Kind.STREET],
+		[[Vector2(50, -95), Vector2(50, 95)], 8.0, CityPlan.Kind.STREET],
+		[[Vector2(-80, -60), Vector2(80, -60)], 8.0, CityPlan.Kind.STREET],
+		[[Vector2(-80, 60), Vector2(80, 60)], 8.0, CityPlan.Kind.STREET],
+		[[dir * (-80.0 / dir.x), dir * (80.0 / dir.x)], 12.0, CityPlan.Kind.AVENUE],
+		[BEND, 8.0, CityPlan.Kind.STREET],
+		[ELL_A, 8.0, CityPlan.Kind.STREET],
+		[_ell_b(), 8.0, CityPlan.Kind.STREET],
 	]
 	var strips: Array[PackedVector2Array] = []
 	for line in lines:
 		var path := CityPlan.Street.new()
-		path.points = PackedVector2Array([line[0], line[1]])
-		path.width = line[2]
-		path.kind = line[3]
+		path.points = PackedVector2Array(line[0])
+		path.width = line[1]
+		path.kind = line[2]
 		p.paths.append(path)
-		strips.append(_strip(line[0], line[1], line[2]))
+		strips.append(_strip(path.points, path.width))
 	for i in strips.size():
 		for j in range(i + 1, strips.size()):
 			var shared := Geometry2D.intersect_polygons(strips[i], strips[j])
@@ -202,14 +260,9 @@ static func fixture() -> CityLayout:
 			junction.streets = PackedInt32Array([i, j])
 			p.junctions.append(junction)
 			for n in [i, j]:
-				var path := p.paths[n]
-				var q := Geometry2D.get_closest_point_to_segment(junction.at, path.points[0], path.points[-1])
-				var k := 1
-				while k < path.points.size() - 1 and path.points[k].distance_to(path.points[0]) < q.distance_to(path.points[0]):
-					k += 1
-				path.points.insert(k, q)
+				_add_point(p.paths[n], junction.at)
 	var blocks: Array[PackedVector2Array] = [CityPlan.polygon(Rect2(-80, -95, 160, 190))]
-	for strip in strips:
+	for strip in grounds(p):
 		var next: Array[PackedVector2Array] = []
 		for b in blocks:
 			for part in Geometry2D.clip_polygons(b, strip):
@@ -246,9 +299,9 @@ static func fixture() -> CityLayout:
 	CityPlan._cache[l.params()] = p
 	return l
 
-static func _fixture_streets() -> Streets:
+static func _fixture_streets(angle := ANGLE) -> Streets:
 	var s: Streets = STREETS.instantiate()
-	s.layout = fixture()
+	s.layout = fixture(angle)
 	return Sim.add(s)
 
 ## The ground two polygons share, in m².
@@ -269,7 +322,7 @@ func test_fixture_has_a_street_at_the_angle() -> bool:
 	var pieces := Streets.road_pieces(s.plan)
 	var slanted := pieces.filter(func(pc): return pc.kind != 2 and absf(pc.d.angle_to(Vector2.from_angle(deg_to_rad(ANGLE)))) < 1e-4)
 	var patches := pieces.filter(func(pc): return pc.kind == 2)
-	var ok := s.plan.streets.is_empty() and s.plan.blocks.is_empty() and slanted.size() == 3 and patches.size() == 6 \
+	var ok := s.plan.streets.is_empty() and s.plan.blocks.is_empty() and slanted.size() == 3 and patches.size() == 10 \
 		and not s.plan.lots.is_empty() and s.plan.vacant.size() == 1
 	if not ok:
 		print("        %d slanted stretches, %d patches" % [slanted.size(), patches.size()])
@@ -290,22 +343,33 @@ func test_fixture_road_covers_every_street_once_and_no_lot() -> bool:
 				print("        pieces %d and %d overlap by %.3f m²" % [i, j, both])
 				ok = false
 	# Every street's ground (its centreline swept half its width either side,
-	# cut square at its ends) is on a piece: sampled on a 1 m grid.
-	for path in p.paths:
-		var a := path.points[0]
-		var e := path.points[-1]
-		var d := (e - a).normalized()
-		var n := Vector2(-d.y, d.x)
-		var u := 0.37
-		while u < a.distance_to(e):
-			var v := -path.width * 0.5 + 0.21
-			while v < path.width * 0.5:
-				var q := a + d * u + n * v
-				if not pieces.any(func(pc): return Geometry2D.is_point_in_polygon(q, pc.poly)):
-					print("        %s is on a street but no road" % q)
+	# cut square at its ends and mitred at bends and where two ends meet) is on
+	# a piece: sampled on a 0.5 m grid.
+	var holes := 0
+	for ground in grounds(p):
+		var box := Streets.bounds(ground)
+		var x := box.position.x + 0.137
+		while x < box.end.x:
+			var z := box.position.y + 0.211
+			while z < box.end.y:
+				var q := Vector2(x, z)
+				if Geometry2D.is_point_in_polygon(q, ground) and not pieces.any(func(pc): return Geometry2D.is_point_in_polygon(q, pc.poly)):
+					holes += 1
+					if holes <= 5:
+						print("        %s is on a street but no road" % q)
 					ok = false
-				v += 1.0
-			u += 1.0
+				z += 0.5
+			x += 0.5
+	# The bend and the two ends meeting each got a patch over the outside of
+	# the turn, and no crosswalk.
+	var joints := pieces.filter(func(pc): return pc.joint)
+	if joints.size() != 2:
+		print("        %d joint patches" % joints.size())
+		ok = false
+	for cw in s.crosswalks:
+		if joints.any(func(j): return Streets.bounds(j.poly).grow(1.0).intersects(Streets.bounds(cw))):
+			print("        crosswalk at a bend: %s" % Streets.bounds(cw))
+			ok = false
 	# The road mesh is the pieces: the same area, every triangle on one.
 	var verts: PackedVector3Array = (s.get_node("Road") as MeshInstance3D).mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var mesh_area := 0.0
@@ -347,7 +411,14 @@ func test_fixture_lane_markings_run_along_their_street() -> bool:
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
 	var uv: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV]
 	var uv2: PackedVector2Array = arrays[Mesh.ARRAY_TEX_UV2]
-	var strips := p.paths.map(func(path): return _strip(path.points[0], path.points[-1], path.width))
+	# Each straight run of each path: [path, from, to, its ground].
+	var runs := []
+	for i in p.paths.size():
+		var path: CityPlan.Street = p.paths[i]
+		for k in path.points.size() - 1:
+			var a := path.points[k]
+			var b := path.points[k + 1]
+			runs.append([i, a, b, _strip(PackedVector2Array([a, b]), path.width)])
 	var ok := true
 	var slanted := 0
 	for t in range(0, verts.size(), 3):
@@ -360,12 +431,13 @@ func test_fixture_lane_markings_run_along_their_street() -> bool:
 		# The street the triangle lies on: its markings run along that
 		# street's centreline, and across it from the centreline out.
 		var on := false
-		for i in p.paths.size():
-			if not Geometry2D.is_point_in_polygon(mid, strips[i]):
+		for run in runs:
+			if not Geometry2D.is_point_in_polygon(mid, run[3]):
 				continue
+			var i: int = run[0]
 			var path: CityPlan.Street = p.paths[i]
-			var d := (path.points[-1] - path.points[0]).normalized()
-			var centre := Geometry2D.get_closest_point_to_segment(mid, path.points[0], path.points[-1])
+			var d: Vector2 = (run[2] - run[1]).normalized()
+			var centre := Geometry2D.get_closest_point_to_segment(mid, run[1], run[2])
 			if absf(absf(along.dot(d)) - 1.0) < 1e-3 and absf(along.length() - 1.0) < 1e-3 \
 					and absf(across.dot(d)) < 1e-3 and absf(across.length() - 1.0) < 1e-3 \
 					and is_equal_approx(uv2[t].x, path.width) \
@@ -381,7 +453,15 @@ func test_fixture_lane_markings_run_along_their_street() -> bool:
 	return ok and slanted > 10
 
 func test_fixture_lights_and_clutter_stand_on_pavements() -> bool:
-	var s := _fixture_streets()
+	return _on_pavements(ANGLE)
+
+## Below about 25° a bench at the rectangle-era offsets from an acute corner
+## would stand in the road; whatever cannot fit is left out.
+func test_sharp_wedge_clutter_stands_on_pavements() -> bool:
+	return _on_pavements(SHARP)
+
+func _on_pavements(angle: float) -> bool:
+	var s := _fixture_streets(angle)
 	var c: StreetClutter = s.get_node("Clutter")
 	var p := s.plan
 	var l := s.layout
@@ -414,9 +494,27 @@ func test_fixture_lights_and_clutter_stand_on_pavements() -> bool:
 			print("        %s at %s off its place" % [K.keys()[f.kind], f.xform.origin])
 			ok = false
 		var fwd: Vector3 = f.xform.basis.z.normalized()
-		for axis in [Vector2.from_angle(deg_to_rad(ANGLE)), Vector2.from_angle(deg_to_rad(ANGLE + 90.0))]:
+		for axis in [Vector2.from_angle(deg_to_rad(angle)), Vector2.from_angle(deg_to_rad(angle + 90.0))]:
 			if absf(absf(Vector2(fwd.x, fwd.z).dot(axis)) - 1.0) < 1e-3:
 				slanted[f.kind] = slanted.get(f.kind, 0) + 1
+	# Pavement items keep off each other and the light poles, even where two
+	# edges meet at a sharp corner.
+	var walk := c.pieces.filter(func(f): return f.kind in [K.BENCH, K.SHELTER, K.SIGN, K.TREE])
+	var feet := walk.map(func(f): return _foot(c, f))
+	for i in walk.size():
+		for j in range(i + 1, walk.size()):
+			if _shared(feet[i], feet[j]) > 0.001:
+				print("        %s and %s overlap at %s" % [K.keys()[walk[i].kind], K.keys()[walk[j].kind], walk[i].xform.origin])
+				ok = false
+		for at in s.lights:
+			var q := Vector2(at.x, at.z)
+			var foot: PackedVector2Array = feet[i]
+			var near := Geometry2D.is_point_in_polygon(q, foot)
+			for k in foot.size():
+				near = near or q.distance_to(Geometry2D.get_closest_point_to_segment(q, foot[k], foot[(k + 1) % foot.size()])) < s.pole_radius
+			if near:
+				print("        %s at %s on a light" % [K.keys()[walk[i].kind], walk[i].xform.origin])
+				ok = false
 	# The slanted avenue has parked cars, and its pavements things on them.
 	for kind in [K.CAR, K.TREE]:
 		if slanted.get(kind, 0) < 2:
@@ -435,6 +533,63 @@ func test_fixture_lights_and_clutter_stand_on_pavements() -> bool:
 	s.free()
 	_done()
 	return ok
+
+## Kerbs are boxes, so where two block edges meet at an angle some of the kerb
+## band (the block less its outline stood in by the kerb's width) is left bare
+## whatever is done: k² cot a at an acute corner, where the kerb along x runs
+## as near the corner as it can; k² sin a |cos a| / 2 at an obtuse one, where
+## the other kerb stops just clear of it; and the mitre's k² tan((a - 180°) / 2)
+## inside a reflex one. Anything more is a notch of bare ground.
+func test_fixture_kerbs_line_every_block_edge() -> bool:
+	var s := _fixture_streets()
+	var k := s.kerb_width
+	var feet: Array[PackedVector2Array] = []
+	for xf in s.kerbs:
+		var foot := PackedVector2Array()
+		for corner in [Vector3(-0.5, 0, -0.5), Vector3(0.5, 0, -0.5), Vector3(0.5, 0, 0.5), Vector3(-0.5, 0, 0.5)]:
+			var w: Vector3 = xf * corner
+			foot.append(Vector2(w.x, w.z))
+		feet.append(foot)
+	var ok := true
+	var bent := 0
+	for b in s.plan.block_polygons:
+		if not Streets.within(b, s.layout.core_radius):
+			continue
+		var inner := Streets.inset(b, k)
+		var mine := feet.filter(func(f): return _shared(b, f) > 0.001)
+		var band := absf(CityPlan.area(b)) - absf(CityPlan.area(inner))
+		var covered := 0.0
+		for i in mine.size():
+			covered += _shared(mine[i], b) - _shared(mine[i], inner)
+			for j in range(i + 1, mine.size()):
+				if _shared(mine[i], mine[j]) > 0.001:
+					print("        kerbs overlap at %s" % Streets.bounds(mine[i]).get_center())
+					ok = false
+		var allowed := 0.0
+		var turn := 1.0 if CityPlan.area(b) > 0.0 else -1.0
+		for i in b.size():
+			var back := b[(i - 1 + b.size()) % b.size()]
+			var next := b[(i + 1) % b.size()]
+			var a := absf((back - b[i]).angle_to(next - b[i]))
+			if (b[i] - back).cross(next - b[i]) * turn < 0.0:
+				a = TAU - a
+			if absf(a - PI * 0.5) < 1e-3 or absf(a - PI) < 1e-3:
+				continue
+			bent += 1
+			if a < PI * 0.5:
+				allowed += k * k / tan(a)
+			elif a < PI:
+				allowed += k * k * sin(a) * absf(cos(a)) * 0.5
+			else:
+				allowed += k * k * tan((a - PI) * 0.5)
+			# Float slack, and the kerbs' ends not quite meeting the inset's corners.
+			allowed += 0.1 * k * k
+		if band - covered > allowed + 0.001:
+			print("        block at %s: %.3f m² of kerb band bare, %.3f m² allowed" % [Streets.bounds(b).get_center(), band - covered, allowed])
+			ok = false
+	s.free()
+	_done()
+	return ok and bent > 10
 
 func test_fixture_loads_and_collides() -> bool:
 	var s := _fixture_streets()
