@@ -522,13 +522,21 @@ static func _radial_streets(layout: CityLayout, plan: CityPlan, angles: Array[fl
 		# The segment across a spoke reaches past its kerbs by the ring's half
 		# width and more, so the corners either side stay clear of the crossing.
 		var half := minf(asin(minf(0.95, (ws * 0.5 + wr * 0.5 + 1.5) / big)), TAU / n * 0.4)
+		# Each side of the segment across spoke i reaches the same way round,
+		# capped by the narrower gap beside it, so it stays centred on the spoke.
+		var gaps: Array[float] = []
+		for i in n:
+			gaps.append(angles[(i + 1) % n] + (TAU if i == n - 1 else 0.0) - angles[i])
+		var reach: Array[float] = []
+		for i in n:
+			reach.append(minf(half, minf(gaps[i], gaps[(i - 1 + n) % n]) * 0.4))
 		var corners: Array[float] = []
 		var across := PackedInt32Array()
 		for i in n:
 			var a := angles[i]
-			var b := angles[(i + 1) % n] + (TAU if i == n - 1 else 0.0)
-			var from := a + minf(half, (b - a) * 0.4)
-			var to := b - minf(half, (b - a) * 0.4)
+			var b := a + gaps[i]
+			var from := a + reach[i]
+			var to := b - reach[(i + 1) % n]
 			var m := maxi(1, ceili((to - from) / step - 0.001))
 			for j in m:
 				corners.append(from + (to - from) * j / m)

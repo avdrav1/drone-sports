@@ -170,6 +170,10 @@ class Piece extends RefCounted:
 	var joint := false
 	## For a stretch, whether its a0 and a1 ends stop at a joint.
 	var joined := [false, false]
+	## For a joint between two legs of one width and kind (Story 26.7): [leg,
+	## leg, inner, outer], the legs it joins and the two ends of the mitre line
+	## between them, so its markings carry on from both; empty otherwise.
+	var sides := []
 
 	func local(p: Vector2) -> Vector2:
 		return Vector2(p.dot(d), p.dot(n))
@@ -272,7 +276,8 @@ static func _legs(path: CityPlan.Street) -> Array:
 ## two legs that meet and no others): both legs cut back, in place, to where
 ## the kerb lines on the inside of the turn cross, and the ground left on the
 ## outside as a patch, mitred (bevelled past a 120° turn). `ends` holds each
-## leg's [from, to]; returns [patch, leg, leg] for each joint.
+## leg's [from, to]; returns [patch, leg, leg, inner, outer] for each joint,
+## inner and outer the ends of the mitre line.
 static func _joints(p: CityPlan, legs: Array[Piece], ends: Array, of: Dictionary) -> Array:
 	var pairs := []
 	var tips := []
@@ -326,7 +331,7 @@ static func _joints(p: CityPlan, legs: Array[Piece], ends: Array, of: Dictionary
 		var ca := q + ea * ta - na * ha
 		var cb := q + eb * tb - nb * hb
 		var poly := PackedVector2Array([inner, ca, outer, cb]) if dot <= 0.5 else PackedVector2Array([inner, ca, cb])
-		out.append([poly, pr[0], pr[2]])
+		out.append([poly, pr[0], pr[2], inner, outer])
 	return out
 
 ## Cuts `by` off the end of stretch `L` that direction `away` (into the leg)
@@ -371,10 +376,11 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 	var cuts := {}
 	for k in legs.size():
 		cuts[k] = []
-	# Patches: [zones, legs at it, legs cut there, true for a joint only].
+	# Patches: [zones, legs at it, legs cut there, true for a joint only, and
+	# for a lone joint its legs and mitre line (Piece.sides)].
 	var patches := []
 	for j in _joints(p, legs, ends, of):
-		patches.append([[j[0]], {j[1]: true, j[2]: true}, {j[1]: true, j[2]: true}, true])
+		patches.append([[j[0]], {j[1]: true, j[2]: true}, {j[1]: true, j[2]: true}, true, [j[1], j[2], j[3], j[4]]])
 	for j in p.junctions:
 		var zones: Array[PackedVector2Array] = []
 		var at := {}
@@ -405,7 +411,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 						if not zones.any(func(z): return _same(z, zone)):
 							zones.append(zone)
 		if not zones.is_empty():
-			patches.append([zones, at, cut, false])
+			patches.append([zones, at, cut, false, []])
 	# Patches that share ground are one patch.
 	var k := 0
 	while k < patches.size():
@@ -418,6 +424,7 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 				patches[k][1].merge(patches[m][1])
 				patches[k][2].merge(patches[m][2])
 				patches[k][3] = patches[k][3] and patches[m][3]
+				patches[k][4] = []
 				patches.remove_at(m)
 				merged = true
 				break
@@ -444,6 +451,10 @@ static func road_pieces(p: CityPlan, _l: CityLayout = null) -> Array:
 			var piece := Piece.new()
 			piece.kind = 2
 			piece.joint = patch[3]
+			var mitre: Array = patch[4]
+			if polys.size() == 1 and not mitre.is_empty() and legs[mitre[0]].kind == legs[mitre[1]].kind \
+					and is_equal_approx(legs[mitre[0]].width, legs[mitre[1]].width):
+				piece.sides = [legs[mitre[0]], legs[mitre[1]], mitre[2], mitre[3]]
 			piece.width = L.width
 			piece.d = L.d
 			piece.n = L.n
@@ -755,6 +766,24 @@ func _markings(st: SurfaceTool) -> Array:
 	var chunk := 0
 	for piece: Piece in pieces:
 		var w := piece.width
+		if piece.kind == 2 and not piece.sides.is_empty():
+			# A joint (Story 26.7): each side of its mitre line is marked as the
+			# leg there, so edge and centre lines run on through the turn.
+			var inner: Vector2 = piece.sides[2]
+			var line: Vector2 = piece.sides[3] - inner
+			for side in 2:
+				var L: Piece = piece.sides[side]
+				var keep := signf(line.cross(L.world(Vector2((L.a0 + L.a1) * 0.5, L.c)) - inner))
+				var half_poly := _halve(piece.poly, inner, line * keep)
+				if half_poly.size() < 3 or absf(CityPlan.area(half_poly)) < 1e-6:
+					continue
+				var lo := INF
+				var hi := -INF
+				for q in half_poly:
+					lo = minf(lo, q.dot(L.d))
+					hi = maxf(hi, q.dot(L.d))
+				_polygon(st, half_poly, ROAD_Y, L.d, L.n, L.c, L.width, L.kind, [Color(lo, hi, 0.0, L.lane()), NONE, NONE, NONE])
+			continue
 		if piece.kind == 2:
 			_polygon(st, piece.poly, ROAD_Y, piece.d, piece.n, piece.c, w, 2, [NONE, NONE, NONE, NONE])
 			continue
@@ -974,6 +1003,21 @@ static func _half(poly: PackedVector2Array, n: Vector2, at: float) -> PackedVect
 			elif n.y == 0.0:
 				q.x = at * n.x
 			out.append(q)
+	return out
+
+## The part of convex `poly` left of the line through `at` along `dir`
+## (Story 26.7).
+static func _halve(poly: PackedVector2Array, at: Vector2, dir: Vector2) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in poly.size():
+		var a := poly[i]
+		var b := poly[(i + 1) % poly.size()]
+		var da := dir.cross(a - at)
+		var db := dir.cross(b - at)
+		if da >= 0.0:
+			out.append(a)
+		if (da > 0.0 and db < 0.0) or (da < 0.0 and db > 0.0):
+			out.append(a + (b - a) * (da / (da - db)))
 	return out
 
 ## A flat polygon at height y. UV: across the street from its centre line `c`

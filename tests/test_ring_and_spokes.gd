@@ -4,8 +4,9 @@ extends RefCounted
 # plaza at seeded angles; blocks are the ring sectors between them, cut into
 # rectangular lots. Across 30 seeds the network is connected, every lot sits
 # inside its block and passes the 12.1 checks, ring segments join with no gaps
-# or overlaps in the road mesh, lane markings follow the curve, and the plaza is
-# where every spoke meets. Same seed, same city.
+# or overlaps in the road mesh, lane markings follow the curve (on through the
+# mitred joint at every ring corner), and the plaza is where every spoke meets.
+# Same seed, same city.
 
 const Sim = preload("res://tests/sim.gd")
 const Variety = preload("res://tests/test_city_variety.gd")
@@ -21,6 +22,11 @@ static func _seeds() -> Array[int]:
 	for k in 30:
 		out.append(2607 + k * 4099)
 	return out
+
+## Seeds whose seven spokes on the plaza ring leave gaps so uneven that one
+## side of a spoke's crossing segment is capped by its gap and the other is
+## not: the segment must still be centred on the spoke, and the spoke radial.
+const SKEWED: Array[int] = [57, 358, 1658, 2029, 3240]
 
 ## A rolled free-flight layout for seed `s`, set to the radial pattern.
 static func radial(s: int) -> CityLayout:
@@ -45,7 +51,7 @@ static func _ring_ground(p: CityPlan, k: int, by := 0.0) -> Array[PackedVector2A
 func test_network_connected_and_the_jammer_clearing_touches_a_street() -> bool:
 	var ok := true
 	var counts := {}
-	for s in _seeds():
+	for s in _seeds() + SKEWED:
 		var l := radial(s)
 		var p := CityPlan._generate(l)
 		counts[Vector2i(p.spokes.size(), p.rings.size())] = true
@@ -106,7 +112,7 @@ func test_lots_inside_their_blocks_pass_12_1() -> bool:
 	var ok := true
 	var total := 0
 	var fewest := 1 << 20
-	for s in _seeds():
+	for s in _seeds() + SKEWED:
 		var l := radial(s)
 		var p := CityPlan._generate(l)
 		ok = ok and p.blocks.size() == p.block_polygons.size() and p.lot_block.size() == p.lots.size() \
@@ -148,12 +154,14 @@ func test_lots_inside_their_blocks_pass_12_1() -> bool:
 					ok = false
 		total += p.lots.size()
 		fewest = mini(fewest, p.lots.size())
-	print("        %d lots over 30 radial seeds, fewest %d" % [total, fewest])
+	print("        %d lots over %d radial seeds, fewest %d" % [total, _seeds().size() + SKEWED.size(), fewest])
 	return ok and fewest > 20
 
 func test_the_plaza_is_where_every_spoke_meets() -> bool:
 	var ok := true
-	for s in _seeds():
+	for s in SKEWED:
+		ok = ok and radial(s).spokes == 7
+	for s in _seeds() + SKEWED:
 		var l := radial(s)
 		var p := CityPlan._generate(l)
 		var plaza := p.block_polygons[0]
@@ -255,9 +263,16 @@ static func _near_outline(q: Vector2, poly: PackedVector2Array, by: float) -> bo
 
 func test_ring_segments_join_with_no_gaps_or_overlaps() -> bool:
 	var ok := true
+	# The street level builds, with its lights, on a few of them.
 	for s in [2607, 23102, 43597, 64092]:
 		var st := _streets(s)
-		var p := st.plan
+		if st.lights.is_empty() or (st.get_node("Road") as MeshInstance3D).mesh == null:
+			print("        seed %d: %d lights" % [s, st.lights.size()])
+			ok = false
+		st.free()
+		Roads._done()
+	for s in _seeds() + SKEWED:
+		var p := CityPlan._generate(radial(s))
 		var pieces := Streets.road_pieces(p)
 		var overlaps := 0
 		for i in pieces.size():
@@ -335,18 +350,17 @@ func test_ring_segments_join_with_no_gaps_or_overlaps() -> bool:
 					z += 1.0
 				x += 1.0
 		var joints := pieces.filter(func(pc): return pc.joint).size()
-		if overlaps > 0 or off > 0 or holes > 0 or st.lights.is_empty() or joints == 0:
-			print("        seed %d: %d overlaps, %d on blocks, %d holes of %d, %d lights, %d joints" % [s, overlaps, off,
-				holes, checked, st.lights.size(), joints])
+		if overlaps > 0 or off > 0 or holes > 0 or joints == 0:
+			print("        seed %d: %d overlaps, %d on blocks, %d holes of %d, %d joints" % [s, overlaps, off,
+				holes, checked, joints])
 			ok = false
-		st.free()
-		Roads._done()
 	return ok
 
 func test_lane_markings_follow_the_curve() -> bool:
 	var ok := true
 	var ring_tris := 0
-	for s in [2607, 43597]:
+	var through := 0
+	for s in _seeds() + SKEWED:
 		var st := _streets(s)
 		var p := st.plan
 		# Each ring turns steadily one way at every corner, a full turn in all.
@@ -397,10 +411,64 @@ func test_lane_markings_follow_the_curve() -> bool:
 			if not on:
 				print("        seed %d: road at %s marked along %s" % [s, mid, along])
 				ok = false
+		# Through every ring corner, the mitred centre line and both edge
+		# lines lie on marked road the shader paints them on: road of the
+		# ring's width and kind, that far across from its centreline.
+		var cells := {}
+		for t in range(0, verts.size(), 3):
+			var lo := Vector2(INF, INF)
+			var hi := -lo
+			for v in 3:
+				var q := Vector2(verts[t + v].x, verts[t + v].z)
+				lo = lo.min(q)
+				hi = hi.max(q)
+			for cx in range(floori(lo.x / 2.0), floori(hi.x / 2.0) + 1):
+				for cz in range(floori(lo.y / 2.0), floori(hi.y / 2.0) + 1):
+					var key := Vector2i(cx, cz)
+					if not cells.has(key):
+						cells[key] = []
+					cells[key].append(t)
+		for k in p.rings.size():
+			var w := p.paths[p.rings[k][0]].width
+			var kind := 1.0 if w > p.paths[p.spokes[0]].width else 0.0
+			for o in [0.0, w * 0.5 - 0.425, -(w * 0.5 - 0.425)]:
+				var line := CityPlan._offset(_corners(p, k), o)
+				for i in line.size():
+					var q0 := line[i]
+					var back := (line[(i - 1 + line.size()) % line.size()] - q0).normalized()
+					var on := (line[(i + 1) % line.size()] - q0).normalized()
+					for m in range(-15, 16):
+						var q := q0 + (back if m < 0 else on) * absf(m) * 0.1 + Vector2(0.0013, 0.0007)
+						var hits := 0
+						for t in cells.get(Vector2i(floori(q.x / 2.0), floori(q.y / 2.0)), []):
+							var bc := _barycentric(q, Vector2(verts[t].x, verts[t].z), Vector2(verts[t + 1].x, verts[t + 1].z),
+								Vector2(verts[t + 2].x, verts[t + 2].z))
+							if bc.x < -1e-5 or bc.y < -1e-5 or bc.z < -1e-5:
+								continue
+							hits += 1
+							var u: float = uv[t].x * bc.x + uv[t + 1].x * bc.y + uv[t + 2].x * bc.z
+							if not is_equal_approx(uv2[t].y, kind) or not is_equal_approx(uv2[t].x, w) \
+									or absf(absf(u) - absf(o)) > 0.02:
+								hits = -1000
+								break
+						through += 1
+						if hits <= 0:
+							if ok:
+								print("        seed %d: ring %d's line %.2f across is unmarked at %s" % [s, k, o, q])
+							ok = false
 		st.free()
 		Roads._done()
-	print("        %d ring triangles marked along their segment" % ring_tris)
-	return ok and ring_tris > 200
+	print("        %d ring triangles marked along their segment, %d points of line through the corners" % [ring_tris, through])
+	return ok and ring_tris > 200 and through > 10000
+
+## Barycentric weights of `q` in the triangle a, b, c.
+static func _barycentric(q: Vector2, a: Vector2, b: Vector2, c: Vector2) -> Vector3:
+	var d := (b - a).cross(c - a)
+	if absf(d) < 1e-12:
+		return Vector3(-1, -1, -1)
+	var wb := (q - a).cross(c - a) / d
+	var wc := (b - a).cross(q - a) / d
+	return Vector3(1.0 - wb - wc, wb, wc)
 
 ## The street level's clutter (a child of Streets) builds on a radial city:
 ## parked cars in the lanes, things on the pavements.
