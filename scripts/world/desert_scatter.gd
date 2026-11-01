@@ -1,31 +1,34 @@
 class_name DesertScatter
 extends StaticBody3D
-# Rocks, scrub, and cacti in bulk on the desert (Story 15.8), placed from the
+# Rocks, scrub, and trees in bulk on the desert (Story 15.8), placed from the
 # terrain's seed and drawn through one MultiMesh per kind, variant, and chunk, so
 # far chunks drop out by visibility range. Nothing lands in a city's core (its
 # streets included) or clearings, or within a gate's radius of a course line.
-# Rocks above knee height and cacti collide, and stay outside the terrain's flat
+# Rocks above knee height and trees collide, and stay outside the terrain's flat
 # area, where jobs keep their geometry; scrub and low rocks never collide.
 # DesertTerrain builds this after its ground. Plans are cached like the ground.
+# The trees are khejri (Prosopis cineraria), the tree of the Thar around
+# Jaisalmer: a crooked trunk splitting under a wide, flat crown of fine leaves.
+# They stood in for saguaro cacti, which grow nowhere near India.
 
-enum Kind { ROCK, SCRUB, CACTUS }
+enum Kind { ROCK, SCRUB, TREE }
 
 ## Rocks whose top is above this collide, m.
 const KNEE := 0.5
 const VARIANTS := [3, 2, 2]
 ## Footprint radius of each kind's mesh at scale 1, m.
-const FOOTPRINT := [1.0, 0.9, 1.2]
+const FOOTPRINT := [1.0, 0.9, 2.6]
 
 @export var rock_count := 8000
 @export var scrub_count := 18000
-@export var cactus_count := 1400
+@export var tree_count := 900
 ## Side of one drawing chunk, m.
 @export var chunk_size := 300.0
 ## Beyond this distance a chunk of each kind is not drawn, m.
 @export var draw_distance := Vector3(700.0, 260.0, 550.0)
 @export var rock_material: Material
 @export var scrub_material: Material
-@export var cactus_material: Material
+@export var tree_material: Material
 
 static var _plans := {}
 static var _meshes := {}
@@ -33,7 +36,7 @@ static var _shape_parts := {}
 
 ## The scatter for `terrain` with `keep_out` ([a: Vector2, b: Vector2, radius] in
 ## terrain space): an Array of [kind, variant, Transform3D, collides, tint].
-static func plan(terrain: DesertTerrain, keep_out: Array, counts := Vector3i(8000, 18000, 1400)) -> Array:
+static func plan(terrain: DesertTerrain, keep_out: Array, counts := Vector3i(8000, 18000, 900)) -> Array:
 	var key := [terrain.params(), keep_out, counts]
 	if not _plans.has(key):
 		_plans[key] = _generate(terrain, keep_out, counts)
@@ -79,8 +82,8 @@ static func _flat(v: Vector3) -> Vector2:
 	return Vector2(v.x, v.z)
 
 func build(terrain: DesertTerrain, keep_out: Array) -> void:
-	var items := plan(terrain, keep_out, Vector3i(rock_count, scrub_count, cactus_count))
-	var materials := [rock_material, scrub_material, cactus_material]
+	var items := plan(terrain, keep_out, Vector3i(rock_count, scrub_count, tree_count))
+	var materials := [rock_material, scrub_material, tree_material]
 	# Group transforms by kind, variant, and chunk.
 	var groups := {}
 	for item in items:
@@ -158,15 +161,16 @@ static func _generate(terrain: DesertTerrain, keep_out: Array, counts: Vector3i)
 					# Flat and gentle sand, in patches; little on the high ridges.
 					chance = (1.0 - smoothstep(0.08, 0.3, slope)) * (0.15 + 0.85 * smoothstep(0.25, 0.65, c)) * (1.0 - smoothstep(25.0, 60.0, h))
 					scale = lerpf(0.5, 1.5, size)
-				Kind.CACTUS:
+				Kind.TREE:
+					# Khejri stand apart on the flats, a few to a clump.
 					chance = (1.0 - smoothstep(0.05, 0.15, slope)) * (0.2 + 0.8 * c) * (1.0 - smoothstep(15.0, 35.0, h))
-					scale = lerpf(0.55, 1.15, size)
+					scale = lerpf(0.7, 1.2, size)
 			if roll >= chance:
 				continue
 			var foot: float = FOOTPRINT[kind] * scale
-			var collides := kind == Kind.CACTUS or (kind == Kind.ROCK and scale * rock_top(variant) > KNEE)
+			var collides := kind == Kind.TREE or (kind == Kind.ROCK and scale * rock_top(variant) > KNEE)
 			if collides and r < flat_edge + foot:
-				if kind == Kind.CACTUS:
+				if kind == Kind.TREE:
 					continue
 				# A pebble in the flat area instead of a boulder.
 				scale = KNEE / rock_top(variant) * 0.95
@@ -205,7 +209,7 @@ static func mesh(kind: int, variant: int) -> ArrayMesh:
 			Kind.SCRUB:
 				_meshes[key] = _scrub_mesh(variant)
 			_:
-				_meshes[key] = _cactus_mesh(variant)
+				_meshes[key] = _tree_mesh(variant)
 	return _meshes[key]
 
 ## Collision for a kind and variant at scale 1: [[Shape3D, Transform3D], ...].
@@ -216,13 +220,19 @@ static func _shapes(kind: int, variant: int) -> Array:
 		if kind == Kind.ROCK:
 			out.append([mesh(kind, variant).create_convex_shape(true, true), Transform3D()])
 		else:
-			for part in _cactus_parts(variant):
+			for part in _tree_parts(variant):
 				var a: Vector3 = part[0]
 				var b: Vector3 = part[1]
 				var cyl := CylinderShape3D.new()
 				cyl.height = a.distance_to(b)
 				cyl.radius = part[2]
 				out.append([cyl, Transform3D(_tilt((b - a).normalized()), (a + b) * 0.5)])
+			# The crown, as a flat disc.
+			var crown: Array = _crown(variant)
+			var disc := CylinderShape3D.new()
+			disc.radius = crown[1]
+			disc.height = crown[2] * 1.4
+			out.append([disc, Transform3D(Basis(), crown[0])])
 		_shape_parts[key] = out
 	return _shape_parts[key]
 
@@ -311,56 +321,74 @@ static func _scrub_mesh(variant: int) -> ArrayMesh:
 		base += sphere[0].size()
 	return st.commit()
 
-# Saguaro-like parts, [from, to, radius] at scale 1: a trunk and, on variant 1, two arms.
-static func _cactus_parts(variant: int) -> Array:
-	var parts := [[Vector3.ZERO, Vector3(0, 3.6 + variant * 0.6, 0), 0.3]]
-	if variant == 1:
-		parts.append([Vector3(0.1, 1.6, 0), Vector3(0.75, 1.6, 0), 0.19])
-		parts.append([Vector3(0.75, 1.45, 0), Vector3(0.75, 3.0, 0), 0.21])
-		parts.append([Vector3(-0.1, 2.2, 0), Vector3(-0.68, 2.2, 0.12), 0.18])
-		parts.append([Vector3(-0.68, 2.05, 0.12), Vector3(-0.68, 3.4, 0.12), 0.2])
-	else:
-		parts.append([Vector3(0, 1.9, 0.1), Vector3(0, 1.9, 0.72), 0.18])
-		parts.append([Vector3(0, 1.75, 0.72), Vector3(0, 2.9, 0.72), 0.2])
-	return parts
+# Khejri trunk and boughs, [from, to, radius] at scale 1: a leaning trunk that
+# splits at about head height into boughs reaching up and out to the crown.
+static func _tree_parts(variant: int) -> Array:
+	if variant == 0:
+		return [
+			[Vector3.ZERO, Vector3(0.25, 1.9, 0.05), 0.22],
+			[Vector3(0.25, 1.85, 0.05), Vector3(1.3, 3.3, 0.4), 0.13],
+			[Vector3(0.25, 1.85, 0.05), Vector3(-0.9, 3.4, 0.5), 0.12],
+			[Vector3(0.25, 1.85, 0.05), Vector3(0.1, 3.6, -1.0), 0.12],
+			[Vector3(0.25, 1.85, 0.05), Vector3(0.5, 3.8, 0.1), 0.1]]
+	return [
+		[Vector3.ZERO, Vector3(-0.2, 1.5, 0.15), 0.18],
+		[Vector3(-0.2, 1.45, 0.15), Vector3(0.8, 2.7, -0.2), 0.11],
+		[Vector3(-0.2, 1.45, 0.15), Vector3(-0.9, 2.8, 0.4), 0.1],
+		[Vector3(-0.2, 1.45, 0.15), Vector3(0.0, 3.0, 0.7), 0.09]]
 
-# Ribbed columns with rounded tops along each part.
-static func _cactus_mesh(variant: int) -> ArrayMesh:
+## The crown: [centre, radius, half thickness] at scale 1.
+static func _crown(variant: int) -> Array:
+	if variant == 0:
+		return [Vector3(0.2, 3.9, 0.0), 2.5, 0.65]
+	return [Vector3(-0.05, 3.1, 0.15), 1.8, 0.6]
+
+# The tree: tapering boughs in bark (vertex colour black), under a crown of
+# flattened leafy lumps (white), so the scatter shader shades each apart.
+static func _tree_mesh(variant: int) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var sides := 12
-	var rings := 6
+	var sides := 7
 	var base := 0
-	for part in _cactus_parts(variant):
+	for part in _tree_parts(variant):
 		var a: Vector3 = part[0]
 		var b: Vector3 = part[1]
 		var radius: float = part[2]
 		var basis := _tilt((b - a).normalized())
-		for j in rings + 1:
-			var t := float(j) / rings
-			var along := a.lerp(b, t)
-			# The last ring closes into a dome.
-			var r := radius * (1.0 if j < rings else 0.35)
-			if j == rings - 1:
-				r = radius * 0.9
-			var extra := radius * 0.6 if j == rings else 0.0
+		for j in 2:
+			var r := radius * (1.0 if j == 0 else 0.55)
 			for i in sides:
 				var ang := TAU * i / sides
-				var rib := 1.0 if i % 2 == 0 else 0.82
-				var off := Vector3(cos(ang) * r * rib, extra, sin(ang) * r * rib)
-				st.add_vertex(along + basis * off)
-		# A cap closes the dome.
-		st.add_vertex(b + basis * Vector3(0.0, radius * 0.75, 0.0))
-		var cap := base + (rings + 1) * sides
-		for j in rings:
-			for i in sides:
-				var i1 := (i + 1) % sides
-				var p0 := base + j * sides + i
-				var p1 := base + j * sides + i1
-				var p2 := base + (j + 1) * sides + i
-				var p3 := base + (j + 1) * sides + i1
-				_add_tris(st, [p0, p2, p1, p1, p2, p3], 0)
+				var out := basis * Vector3(cos(ang), 0.0, sin(ang))
+				st.set_color(Color.BLACK)
+				st.set_normal(out)
+				st.add_vertex((a if j == 0 else b) + out * r)
 		for i in sides:
-			_add_tris(st, [base + rings * sides + i, cap, base + rings * sides + (i + 1) % sides], 0)
-		base = cap + 1
-	return _commit(st)
+			var i1 := (i + 1) % sides
+			_add_tris(st, [base + i, base + sides + i, base + i1, base + i1, base + sides + i, base + sides + i1], 0)
+		base += sides * 2
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 91 + variant
+	var noise := FastNoiseLite.new()
+	noise.seed = 61 + variant
+	noise.frequency = 2.0
+	var sphere := _icosphere(1)
+	var crown: Array = _crown(variant)
+	var centre: Vector3 = crown[0]
+	var reach: float = crown[1]
+	var thick: float = crown[2]
+	var lumps := 9 + variant * 2
+	for k in lumps:
+		# A ring of lumps round one in the middle, flattest at the rim: an umbrella.
+		var a := TAU * k / lumps + rng.randf() * 0.5
+		var d := 0.0 if k == 0 else reach * rng.randf_range(0.45, 0.75)
+		var r := reach * rng.randf_range(0.3, 0.42)
+		var at := centre + Vector3(cos(a) * d, rng.randf_range(-0.15, 0.2) - d * 0.08, sin(a) * d)
+		for v: Vector3 in sphere[0]:
+			var p := at + v * r * (1.0 + noise.get_noise_3dv(v + at) * 0.5) * Vector3(1.0, thick / r * 0.9, 1.0)
+			st.set_color(Color.WHITE)
+			st.set_normal(v.lerp((p - centre + Vector3(0.0, reach * 0.4, 0.0)).normalized(), 0.7).normalized())
+			st.add_vertex(p)
+		_add_tris(st, sphere[1], base)
+		base += sphere[0].size()
+	return st.commit()

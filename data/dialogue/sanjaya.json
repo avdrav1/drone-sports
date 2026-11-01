@@ -1048,5 +1048,65 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "New colours. Easier to spot on my gates, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice paint. I'll see you coming a mile off.",
+    "face": "happy"
+   },
+   {
+    "text": "Fancy. Now fly as good as it looks.",
+    "face": "neutral"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New paint! Fly past my window, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Looks good from the couch. Very bright.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice colours. I'll watch for them.",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "New part, {you}? I'll watch how it takes the turns.",
+    "face": "neutral"
+   },
+   {
+    "text": "Different part, different lines. I'll call them.",
+    "face": "determined"
+   },
+   {
+    "text": "Feels new already. Don't surprise my gates.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New part? Tell me how it flies, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "I'll hear the difference over the radio.",
+    "face": "neutral"
+   },
+   {
+    "text": "Fly it easy. I'm watching from here.",
+    "face": "neutral"
+   }
+  ]
  }
 }

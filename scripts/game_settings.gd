@@ -11,6 +11,7 @@ static var muted := false
 static var quality: int = default_quality()
 ## The pad (Story 23.6): StickLayout.MODE_2 or MODE_1, pitch inverted, stick feel
 ## (PilotInput.expo, 0 to 1), the flight sticks' deadzone, and rumble (Story 23.7).
+## Button remaps per pad name live in PadRemap (Story 28.5).
 static var stick_mode: int = StickLayout.MODE_2
 static var invert_pitch := false
 static var stick_expo := 0.4
@@ -25,7 +26,7 @@ static func save() -> void:
 	SaveGame.write_section("settings", {"expert_all_assists_off": expert_all_assists_off,
 		"volumes": volumes, "muted": muted, "quality": quality,
 		"stick_mode": stick_mode, "invert_pitch": invert_pitch, "stick_expo": stick_expo,
-		"stick_deadzone": stick_deadzone, "rumble": rumble})
+		"stick_deadzone": stick_deadzone, "rumble": rumble, "pad_remaps": PadRemap.to_save()})
 
 static func load_saved() -> void:
 	var saved = SaveGame.read_section("settings", {})
@@ -51,6 +52,8 @@ static func _load_pad(saved: Dictionary) -> void:
 	stick_deadzone = clampf(float(saved.get("stick_deadzone", 0.2)), StickLayout.DEADZONE_MIN, StickLayout.DEADZONE_MAX)
 	rumble = bool(saved.get("rumble", true))
 	StickLayout.apply()
+	PadRemap.from_save(saved.get("pad_remaps", {}))
+	PadRemap.refresh()
 
 ## High on desktop, Low on the web build.
 static func default_quality() -> int:

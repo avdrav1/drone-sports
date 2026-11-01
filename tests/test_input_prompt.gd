@@ -72,6 +72,7 @@ func test_prompts_follow_the_last_device() -> bool:
 	var board: JobBoard = Sim.add(load("res://scenes/ui/job_board.tscn").instantiate())
 	var sound: SoundDialog = Sim.add(SoundDialog.new())
 	await Sim.process_frames(3)
+	(free.get_node("HUD/Help") as ControlsHelp).show_full()
 	var keys := _prompts(job, free, board, sound)
 	var changes := [0]
 	InputPrompt.device_changed.connect(func(_pad): changes[0] += 1)
@@ -122,8 +123,8 @@ func test_prompts_follow_the_last_device() -> bool:
 		n.free()
 	return ok
 
-## A device change in the frame the panel arrives, before its first layout,
-## still leaves it centred on screen.
+## A device change in the frame the whole list comes up, before its first
+## layout, still leaves it centred on screen.
 func test_help_stays_centred_when_the_device_changes() -> bool:
 	await _key()
 	var view := SubViewport.new()
@@ -132,6 +133,7 @@ func test_help_stays_centred_when_the_device_changes() -> bool:
 	var free: Node = load("res://scenes/debug_flight.tscn").instantiate()
 	view.add_child(free)
 	var help: ControlsHelp = free.get_node("HUD/Help")
+	help.show_full()
 	InputPrompt.use_pad(0, "Xbox Controller")
 	await Sim.process_frames(3)
 	var rect := help.get_global_rect()

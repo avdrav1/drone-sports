@@ -32,13 +32,13 @@ func test_only_current_team_jobs_fly() -> bool:
 	var b := _board()
 	await Sim.process_frames(1)
 	var home := _flyable(b)
-	var race_lock: String = b.job_rows[&"sample_delivery"].get_node("Locked").text
+	var race_lock: String = b.lock_label(&"sample_delivery").text
 	b.free()
 	Career.team_id = &"harbor_couriers"
 	b = _board()
 	await Sim.process_frames(1)
 	var couriers := _flyable(b)
-	var race_lock_now: String = b.job_rows[&"test_race"].get_node("Locked").text
+	var race_lock_now: String = b.lock_label(&"test_race").text
 	var details: String = \
 		(b.job_rows[&"sample_delivery"].get_child(0).get_node("Details") as Label).text
 	b.free()
@@ -142,7 +142,7 @@ func test_enter_flies_an_unlocked_card_and_shakes_a_locked_one() -> bool:
 	_press(b, &"ui_accept")
 	await Sim.process_frames(3)
 	var stayed: bool = Sim.tree().current_scene == b and b.carousel.shakes == 1
-	var locked: Label = b.job_rows[&"sample_delivery"].get_node("Locked")
+	var locked: Label = b.lock_label(&"sample_delivery")
 	var short: bool = locked.text == "Join Harbor Couriers" and locked.tooltip_text.contains("Harbor Couriers") \
 		and b.job_rows[&"sample_delivery"].get_child(0).find_child("Padlock", true, false) != null \
 		and b.job_rows[&"test_race"].get_child(0).find_child("Padlock", true, false) == null

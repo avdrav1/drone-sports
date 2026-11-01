@@ -1,12 +1,15 @@
 extends Node
 # Autoload "Garage": upgrade levels bought, kept in the save's "upgrades" section.
-# Buying spends the wallet; `apply` sets the player's drone stats from the levels
-# and the chosen pilot's edge (Stories 7.2, 19.1).
+# Buying spends the wallet; `apply` sets the player's drone stats from the levels,
+# the hangar slot's parts and the chosen pilot's edge (Stories 7.2, 19.1, 27.4).
 
 signal bought(upgrade: Upgrade, level: int)
 
 const UPGRADES := "res://data/upgrades/upgrades.tres"
 const APPLIED := &"garage_applied"
+## A drone's hangar slot, set by FleetCrew on a fleet drone (Story 27.6); a
+## drone without one is the player's, slot 0.
+const SLOT := &"hangar_slot"
 
 var upgrades: UpgradeList
 ## Upgrade id -> level bought.
@@ -33,9 +36,14 @@ func price(id: StringName) -> int:
 	var l := level(id)
 	if u == null or l >= u.max_level():
 		return -1
+	return marked_up(u.prices[l])
+
+## A shop price as charged now: the markup and the price perk on `base`. The
+## hangar's items are priced the same way (Story 27.3).
+func marked_up(base: int) -> int:
 	var factor := Consequences.price_factor() * maxf(0.0, 1.0 - Perks.amount(&"price"))
 	# Snapped first, so 500 x 0.8 is 400, not 401 from float error.
-	return ceili(snappedf(u.prices[l] * factor, 0.001))
+	return ceili(snappedf(base * factor, 0.001))
 
 func can_buy(id: StringName) -> bool:
 	var p := price(id)
@@ -54,19 +62,58 @@ func buy(id: StringName) -> bool:
 	bought.emit(upgrade(id), levels[id])
 	return true
 
-## Set the drone's stats from its scene values plus every level bought and the
-## chosen pilot's edge, and tune its assists to the edge. Once per drone.
-func apply(drone: Drone) -> void:
+## Set the drone's stats from its scene values plus every level bought, the
+## parts fitted in its hangar slot (Story 27.4) and the chosen pilot's edge, and
+## tune its assists to the edge, and dress it in the slot's livery (Story 27.2).
+## Slot 0 is the player's drone; with no slot given, the drone's own (SLOT),
+## so a fleet drone handed to a runner keeps its slot. Upgrades and the edge
+## are the player's own: a fleet slot's drone (Story 27.6) takes only its
+## slot's parts and livery, so the player's drone never changes a fleet drone.
+## Once per drone.
+func apply(drone: Drone, slot := -1) -> void:
 	if drone == null or drone.has_meta(APPLIED):
 		return
+	if slot < 0:
+		slot = drone.get_meta(SLOT, 0)
 	drone.set_meta(APPLIED, true)
+	if slot == 0:
+		_add_levels(drone, levels)
+	Hangar.apply_parts(drone, slot)
+	if slot == 0:
+		_add_edge(drone)
+		tune(drone)
+	Hangar.dress(drone, slot)
+
+## What `apply` would set the stats to with these parts (kind -> part id) and
+## upgrade levels (id -> level; null is the levels bought): Part.STATS by name.
+## The hangar's stat bars (Story 27.5); no drone in the game is touched. For
+## a fleet slot (above 0), parts only, as `apply` gives it.
+func stats_with(parts: Dictionary, at_levels = null, slot := 0) -> Dictionary:
+	var d := Drone.new()
+	if slot == 0:
+		_add_levels(d, levels if at_levels == null else at_levels)
+	for kind in parts:
+		var p := Hangar.part(parts[kind])
+		if p:
+			p.apply_stats(d)
+	if slot == 0:
+		_add_edge(d)
+	var out := {}
+	for stat in Part.STATS:
+		out[stat] = d.get(stat)
+	d.free()
+	return out
+
+func _add_levels(drone: Drone, at_levels: Dictionary) -> void:
 	for u in upgrades.upgrades:
-		if level(u.id) > 0:
-			drone.set(u.stat, drone.get(u.stat) + u.step * level(u.id))
+		var l: int = at_levels.get(u.id, 0)
+		if l > 0:
+			drone.set(u.stat, drone.get(u.stat) + u.step * l)
+
+func _add_edge(drone: Drone) -> void:
 	var pilot := PlayerProfile.pilot()
 	if pilot and pilot.edge:
 		pilot.edge.apply_stats(drone)
-	tune(drone)
 
 ## Give the drone's assists that are on the chosen pilot's settings; the ones
 ## that are off keep their own. Call again after switching assists.

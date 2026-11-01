@@ -4,6 +4,9 @@ extends RefCounted
 # smile at rest; 17.1's blinks, talking and sizes still hold; brows never
 # cross the headwear; the dead have shut lids, a flat mouth, no blush and no
 # shine.
+# Story 26.1 retired the cartoon look this file checked: big eyes, headwear
+# kept above the brows, and the antenna stalk's outline. Eyes are now in human
+# proportion, brows keep below the hairline, and nothing is outlined.
 
 const Rig = preload("res://tests/test_face_rig.gd")
 
@@ -31,7 +34,8 @@ func test_brows_inner_ends_not_lower_except_determined() -> bool:
 			ok = ok and float(CharacterPortrait.pose(e, 0.0).brow_angle) <= 0.0
 	return ok
 
-func test_eyes_are_big_whenever_open() -> bool:
+func test_eyes_are_in_proportion_whenever_open() -> bool:
+	# Story 26.1: open eyes show, but never past a little over a human eye's height.
 	var ok := true
 	var checked := 0
 	for e in CharacterPortrait.EXPRESSIONS:
@@ -39,22 +43,20 @@ func test_eyes_are_big_whenever_open() -> bool:
 			var p := CharacterPortrait.pose(e, i * 0.05, i % 2 == 0, 3)
 			if float(p.lid) > 0.0:
 				checked += 1
-				ok = ok and CharacterPortrait.eye_height(p) >= 0.22
+				var h := CharacterPortrait.eye_height(p)
+				ok = ok and h >= CharacterPortrait.EYE.y * 0.5 and h <= CharacterPortrait.EYE.y * 1.25
 	return ok and checked > 6 * 300
 
 func test_neutral_smiles() -> bool:
 	var p := CharacterPortrait.pose(&"neutral", 0.0)
 	return float(p.mouth_curve) > 0.0 and float(p.blush) > 0.0
 
-func test_brows_stay_below_headwear() -> bool:
-	# Headwear's ink outline is half of 0.1 r; leave a clear gap past it.
-	var ok := CharacterPortrait.HEADWEAR_BOTTOM.size() == 4
-	for shape in CharacterPortrait.HEADWEAR_BOTTOM:
-		var bottom: float = CharacterPortrait.HEADWEAR_BOTTOM[shape]
-		for e in CharacterPortrait.EXPRESSIONS:
-			for i in 40:
-				var p := CharacterPortrait.pose(e, i * 0.25, i % 2 == 0, 5)
-				ok = ok and CharacterPortrait.brow_top(p) - bottom >= 0.1
+func test_brows_stay_below_the_hairline() -> bool:
+	var ok := true
+	for e in CharacterPortrait.EXPRESSIONS:
+		for i in 40:
+			var p := CharacterPortrait.pose(e, i * 0.25, i % 2 == 0, 5)
+			ok = ok and CharacterPortrait.brow_top(p) - CharacterPortrait.HAIRLINE >= 0.1
 	return ok
 
 func test_blinks_and_talking_as_before() -> bool:
@@ -85,15 +87,4 @@ func test_dead_face_shut_no_blush_no_shine() -> bool:
 	p.free()
 	greyed.free()
 	_fresh()
-	return ok
-
-func test_antenna_stalk_has_visible_fill() -> bool:
-	# The stalk's coloured fill must be at least a pixel and as wide as the
-	# outline, and the ink must rim it on both sides, at 32, 64 and 128 px.
-	var ok := true
-	for s in [32.0, 64.0, 128.0]:
-		var r: float = s * 0.34
-		var w := CharacterPortrait.antenna_widths(r)
-		var line := CharacterPortrait.ink_width(r)
-		ok = ok and w.y >= 1.0 and w.y >= line and w.x >= w.y + line * 2.0 - 0.001
 	return ok

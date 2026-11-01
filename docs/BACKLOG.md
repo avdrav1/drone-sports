@@ -1245,11 +1245,12 @@ Owner decisions:
   - Acceptance: `origin` points at `avdrav1/jaisalmer`, `scripts/ship.sh` deploys from it, and the domain still serves the game.
   - Out of scope: Renaming the folder on disk.
 
-- [ ] **24.6 The name, lettered like Hindi**
+- [x] **24.6 The name, lettered like Hindi**
   - Goal: The title "JAISALMER" is written in English letters drawn in the manner of Devanagari: the letters hang from one continuous headline bar (the shirorekha), with thick and thin strokes and a few hooked strokes below the line, so at a glance it reads like Hindi script and on a second look it reads "Jaisalmer".
   - Context: Today the title screen's logo (`title_screen.gd`, `title_label`) and the intro's title card use the cabinet skin's display font, Press Start 2P. The logo becomes its own `TitleMark` control used by both, with the name from `config/name` (24.1). The look comes from an open-licence (OFL) font with a Devanagari-inspired Latin face. Candidates to compare include Yatra One, Rozha One, Teko and Kurale; freeware "Hindi-look" fonts with unclear licences are not used. The bar is drawn by the control across the letters' tops, running a little past the first and last letter, because no candidate draws one across Latin text. Before choosing, a comparison sheet renders "JAISALMER" in each candidate with the bar and goes to the owner, who picks one. The font goes in `data/ui/fonts/` with its licence and a line in `data/LICENSES.md`, like Press Start 2P. Everything else on the title screen (PRESS START, the crawl, the menu) keeps the arcade font.
   - Acceptance: The title screen and the intro card draw the name with the chosen font and an unbroken headline bar touching the top of every letter, wider than the word on both sides. It is crisp and fully on screen at 960×720 and 1920×1080 and in the web build. It reads `config/name`, so a changed name redraws with no other edit. The font's licence file is in the repo and listed. A test checks the bar spans the word and that the control uses the font; the look is the owner's call on a rendered screenshot.
   - Out of scope: A new icon, Devanagari text (the name stays in English letters), the rest of the UI's fonts.
+  - Note: The owner asked for a more Indian look and picked from a sheet of fonts and treatments: Amita (OFL, drawn with a Devanagari pen), with the i-matra's loop (ि) rising from the I over the S, filled saffron to gold with a maroon edge. Yatra One is gone. The loop and colours are TitleMark's (`matra`, `saffron`), so the intro card wears them too.
 
 ## Epic 25: Names from the epics
 
@@ -1300,6 +1301,181 @@ Owner decisions (all decided):
   - Acceptance: The docs use the new names and ids throughout (a test greps the .md files outside BACKLOG.md for old names, as in 25.1). Rule 9 names Ravana and keeps the disable-only rule. Older backlog stories keep their text.
   - Out of scope: Rewriting backlog history.
 
+---
+
+## Epic 26: Faces from the epics, and a radio you can read
+
+Done when every crew face is drawn bigger and more lifelike, as its namesake from the Ramayana or the Mahabharata, and the radio's lines are big, stay up long enough to read, and scroll as a chat.
+
+Owner's direction: "make bigger, better drawn faces … but make the characters explicitly Indian mythology." Faces stay drawn in code (no image files), but leave the Saturday-morning cartoon (18.1, 18.2) for a painted, lifelike style. Each character looks like their namesake, in that figure's traditional iconography. The namesakes are treated with respect: Hanuman is worshipped, so Hanuman's face is dignified and never comic, and no face is played for laughs. Characters still have no stated pronouns in the game's text.
+
+Order: the face rig (26.1), then the looks (26.2), then the sizes (26.3); the radio stories (26.4, 26.5) can run beside them; docs last (26.6).
+
+| Id | Namesake | Drawn as |
+| --- | --- | --- |
+| `arjuna` | Arjuna, the archer prince | A young prince: a gold crown (mukut), long dark hair, the bow Gandiva over the shoulder |
+| `abhimanyu` | Abhimanyu, the young warrior | A youth in a warrior's helmet and armour, with a chakra (wheel) emblem |
+| `bhima` | Bhima, the strongest brother | Broad and heavy-browed, a thick moustache, the gada (mace) on the shoulder |
+| `drona` | Drona, the teacher | An elder brahmin teacher: white beard, a tilak, rudraksha beads, a bow behind |
+| `sanjaya` | Sanjaya, who saw the battle from afar | A court narrator in a turban, with a soft glow at the brow for the divine sight |
+| `nala` | Nala, who bridged the sea | A vanara (monkey-faced) builder, with a stone marked "Rama" and a builder's sash |
+| `sushena` | Sushena, the healer | An elder vanara physician, with a sprig of the sanjivani herb |
+| `jatayu` | Jatayu, the great bird | A great vulture: a hooked beak, a feathered crest, a gold neck ring |
+| `hanuman` | Hanuman, who leapt to Lanka | A vanara with a crown, the gada, and a calm, devoted face |
+
+Assumption to confirm: Nala and Sushena are vanaras in the Ramayana, so they are drawn as vanaras, as Hanuman is. Jatayu is drawn as a bird. Ravana (the boss) has no portrait, only its dot grid (`scripts/boss/chorus.gd`), and is out of scope.
+
+- [x] **26.1 A lifelike face rig**
+  - Goal: `CharacterPortrait` draws a lifelike, painted head and shoulders in place of 18.1's cartoon: human (and vanara and bird) proportions, a nose, smaller eyes with irises and lids, soft shading on skin and cloth (gradients, a key light and a shadow side), and hair or fur with strands, not one flat shape.
+  - Context: `scripts/ui/character_portrait.gd`. `pose(expression, t)`, EXPRESSIONS, DISTRESS, blinking on the seeded timer, `talking`, `look_at`, `pop_in`, `signal_lost` and the dead (greyed, eyes closed, still) all keep their API, so every place a face shows keeps working. 18.2's cartoon motion (squash and stretch, eye pops, the hop) becomes subtle: a breath, a small head tilt, the jaw moving while talking. Drawing stays in `_draw` (no image files, no shaders the web build lacks). Three head types: human, vanara and bird, picked by data (26.2).
+  - Acceptance: Every expression still gives a distinct pose (17.1's checks still pass). A face drawn at 256 px has a nose, irises and shading (a test reads the draw calls or a rendered image's colour spread, not exact pixels). No face uses the cartoon outline or the two shine dots. Every character draws without errors at 48, 128 and 256 px. The dead are greyed with eyes closed. Talking moves the mouth; a dead face never moves.
+  - Out of scope: Image-file portraits, lip sync, 3D heads.
+  - Note: `CharacterPortrait` paints in layers of triangles with a colour per vertex (`CharacterPortrait.Paint`: `dome` for lit rounded forms, `shaded`, `soft` glazes, `stroke` for locks and lashes, each edge faded over a pixel), lit by `Paint.LIGHT` from the upper left with a warm shadow side. The still layers (back, body, head, jaw, front, held) are built once per character, size and death by the static `paint(c, s, dead)` and kept as ArrayMeshes; the eyes, brows and mouth are kept per pose rounded to a fiftieth, so a face costs a few draw calls a frame. The head is `HEAD` 0.22 of the size, its centre `HEAD_Y` above the middle; `CrewLook.head` picks one of `HEADS` (human, vanara, bird; every look is human until 26.2). `painted_motion()` keeps `SUBTLE` 0.3 of 18.2's `motion()` plus a sway and a tilt per expression (`TILT`), and the jaw layer drops by `jaw(p)` as the mouth opens; `paint_parts(c, s)` lists what is painted for tests. With this story, tests that checked the cartoon look changed: 18.1's big-eye, headwear-gap and antenna-outline checks became an eye-proportion and brow-below-hairline check, 20.4's probe counts a look colour lit or in shadow and its hair check uses `brow_reach()`, 18.10's wince is measured against the open neutral eye, and `pupil_center` moves the iris by the eye's height as well as its width.
+
+- [x] **26.2 Looks from the epics**
+  - Goal: Each crew member is drawn as their namesake, per the table above.
+  - Context: `data/crew/looks/*.tres` (CrewLook: colours, accessory) gains the head type (human, vanara, bird) and the iconography: crown, helmet, turban, beard, tilak, beads, glow, and the held object (bow, gada, chakra, stone, herb). Data over code: a new look is a .tres, not a branch in the portrait. The CREW page's "named for" lines stay. Colours from the traditional depictions: Arjuna's and Hanuman's gold, Drona's white and saffron, and so on.
+  - Acceptance: Every character's look names its head type and at least one item of iconography from the table, and the portrait draws it (a test checks each look against the table). Nala, Sushena and Hanuman are vanaras; Jatayu is a bird; the rest are human. No two faces share the same headwear and held object. Faces still read at 48 px: each one's silhouette differs from every other's (a test compares their rendered outlines at 48 px).
+  - Out of scope: New characters, changing names, lines or voices.
+  - Note: `CrewLook` gains `head`'s company: `headwear` (one of `CrewLook.HEADWEAR`: crown, helmet, turban, band, crest), `hair_cut` (`HAIR`; empty takes the body's), `beard` (`BEARDS`), `held` and `held_side` (`HELD`: bow, gada, chakra, stone, herb), `marks` (`MARKS`: tilak, tripundra, glow, earrings, necklace, beads, sacred_thread, armour, sash, neck_ring), `age` and `build`; `validate()` checks each. `CharacterPortrait._paint_iconography` paints them from the look's colours (`accessory_color` for gold or steel, `accessory_detail` for gems and the sash, `top` for cloth, armour or wings), each headwear sitting at `HEADWEAR_BOTTOM` above the brows. The looks: Arjuna crown, long hair and bow; Abhimanyu helmet, curls, armour and chakra; Bhima band, moustache, gada and a broad build; Drona white jata and beard, tripundra, rudraksha beads, sacred thread and bow; Sanjaya turban and the glow of the divine sight; Nala a vanara with a builder's sash and a stone marked "राम"; Sushena a white-furred elder vanara with beads, tilak and the sanjivani herb; Jatayu a great bird with a crest and a gold neck ring; Hanuman a vanara with a crown, tilak, kundala and the gada. Look colours changed to match, so the 3D crew figures change colour too. `tests/portrait_probe.gd` also draws every face at 48 px and reports `outlines`, the least share of a 48 px square where two silhouettes differ; 20.4's probe now counts a colour down to the painted shadow's depth. The still layers take about 11 ms a face to build on desktop, once per size.
+
+- [x] **26.3 Bigger faces**
+  - Goal: Faces are much bigger everywhere they show.
+  - Context: The radio panel (`BarkBox.FACE`, 80 px now), the CREW page rows (64) and cards (88), pilot select (64), results (48), the crew warning, the race and flight HUD pilot face, the fleet command view, and the intro's portraits. Roughly doubled: the radio to 192 px, CREW and pilot select to 160, results to 112, the HUDs to what fits beside their readouts at 960×720. The layouts move to fit; nothing overlaps.
+  - Acceptance: Each place's face is at least twice its old size, or at the HUD limit stated in the story's test. At 960×720 and 1920×1080 no face overlaps text or another control (a test checks the rects). Pad focus and mouse clicks still reach every control.
+  - Out of scope: New screens.
+  - Note: Every face is at least twice its old size, none needing a HUD limit: the job card's comms face 128 (`JobBoard.COMMS_FACE`), a CREW row 176 (`CREW_FACE`), pilot select 128, or 160 on a screen 900 px tall (`PilotSelect.FACE`, `FACE_BIG`), results 112 (`Results.FACE`), the crew warning 144 on an 84 px disc (`CrewWarning.FACE`, `DISC`), the flight HUD 112 and the race HUD 128 (`PILOT_FACE`), the fleet command view 68, and the intro's card 320 (`CutscenePlayer.PORTRAIT`). Layouts moved: on a job card with someone on comms, Fly or Locked sits under their line beside the face (`fly_button` and the new `lock_label` find them), so the card keeps its height; a pilot card stacks the face over the name and the role (the FLYING tag on the role's line), Back sits in the top left corner, and the edge text sets tighter; the results rows sit in a ScrollContainer that takes the height the screen leaves (`fit_rows`), up and down scroll it, and the final crew pass runs two to a row (`Farewells`); the race HUD's face sits in the corner with the name, position and lap under it (`readouts_rect`), clear of the briefing line and the Act 1 leaderboard; the crew warning sits lower, clear of the job state line; a fleet face is centred over its drone's name. The radio panel's face is 26.4's.
+
+- [ ] **26.4 Radio text you can read**
+  - Goal: The crew's lines on the radio are bigger and stay up long enough to read.
+  - Context: `scripts/ui/bark_box.gd`. The pixel font stays crisp only at whole multiples of 16 px, so lines go to 32 px (the name too). Lines stay up for a time set by their length (about 2 s plus 0.07 s a character, at least 5 s) instead of a flat `hold` of 3.5 s. The panel grows to fit the bigger face (26.3) and text. Urgent lines still cut in at once.
+  - Acceptance: Lines draw at 32 px. A line of N characters stays at least max(5, 2 + 0.07 N) s after it finishes typing. The longest existing line fits the panel at 960×720 and 1920×1080 (18.12's test, at the new size). Urgent lines still cut in.
+  - Out of scope: The chat log (26.5).
+  - Note: `BarkBox.FONT_SIZE` is 32 and `BarkBox.FACE` 192. The panel is a low bar (`panel_rect`, 720×164, its top on the screen's lower third at 960×720) with the face on a tab standing up out of its left end (`face_rect`), below the speed gauge. A line holds `hold_time(text)` after typing (`hold_base`, `hold_per_char`, `hold_min`) when nothing waits; a waiting line still takes the channel after `beat`, as before. Left unticked, waiting on the owner: "A line of N characters stays at least max(5, 2 + 0.07 N) s after it finishes typing" is met only for a line nothing replaces. A waiting line still takes the channel after the 1 s `beat`, so a line can leave the bar about 1 s after it types out. Making waiting lines sit out the hold would break 17.7 (two chatter lines raised together both play; chatter waiting over 4 s is dropped) and 17.8 (a near miss during the briefing line is called on the radio, `test_flight_lines`). The owner picks one: waiting lines sit out the hold (and 17.7/17.8 change), or the criterion reads "when nothing replaces it" (a replaced line stays readable in 26.5's chat at 16 px). The jobs' briefing `ControlsHint` moved from under the bar to just above it, between the face and the radar, wrapping to two lines at 960 wide, only between items (`ControlsHint.wrapped`). The board's foot is all menu and card, so there the panel hangs from the top over the header (`at_top`, solid). The Lattice's line (`ChorusBox.label_rect`) moves up above the bar where the bar reaches it. A pilot speaking (not on the roster) gets their face and role (`BarkBox.speaker`). A line longer than the bar's three lines ends in an ellipsis (`BarkBox.MAX_LINES`), and the board's header and how-to line fade out while the bar hangs over them. `tests/test_radio_readable.gd`.
+
+- [x] **26.5 The radio as a chat**
+  - Goal: The radio keeps the last few lines on screen as a scrolling chat, so a line missed mid-flight can still be read.
+  - Context: `BarkBox` and the radio panel. The newest line types out at the bottom with its speaker's face and name; older lines move up, smaller faces beside them, and fade with age. Up to four lines show; older ones scroll off the top. The chat empties after a while with no new lines. It sits low on the left, as now, and never covers the gates or the drone's centre of the screen. On the board and the title the same chat shows the goodbye and the other front-end lines.
+  - Acceptance: After three lines, all three show, newest at the bottom, each with its speaker's name. A fifth line scrolls the first one off. Lines older than 20 s fade out. The chat never covers the middle third of the screen at 960×720 or 1920×1080. Pausing holds the chat as it is.
+  - Out of scope: Replying, a full radio history page.
+  - Note: `BarkBox.chat` holds the last `CHAT_LINES` (4) lines, oldest first; the newest types out in the bar, the older ones stack above the face in `row_rects`, at the font's native 16 px with 48 px faces and the speaker's name, in a column `chat_width` wide that stops short of the screen's middle third (taken as the centre cell of a 3×3 grid; a full-height or full-width band leaves no room for a 192 px face). A line fades once `FADE_AFTER` (20 s) old over `FADE_TIME`; when the newest has faded the chat is empty and hidden. `showing()` still means the newest line is within its hold, so faces on props (CrewFace) keep 26.4's timing. The flight HUD's speed gauge moves to the right, stacked above altitude (`FlightHud.SPD_RISE`), so in flight the left column from the job panel down to the face is the chat's. The rows form one stack and end at the first thing they must not cover (`BarkBox.avoid`: a sibling `FlightHud.readout_rects`, the job panel and the speed and altitude gauges, and controls in the `radio_avoid` group, the fleet jobs' Board and Stations); a row with no room left does not show. After three lines all three show in flight at 960×720 and 1920×1080, even with the longest lines; four short lines all show. On the board the panel hangs from the top (26.4), the rows hang below the face and stop at the first button or card (`JobBoard.radio_clear`), and the chat goes once the newest line's hold ends (`linger` false) rather than after 20 s. `tests/test_radio_chat.gd`.
+
+- [x] **26.6 The docs show the faces**
+  - Goal: `docs/CHARACTERS.md` describes each character's look as their namesake.
+  - Context: The cast table gains a "Drawn as" column from the table above. The respect line covers the faces too.
+  - Acceptance: Every character's row has a "Drawn as" entry matching their look. The respect line names the faces. 25.4's docs tests still pass.
+  - Out of scope: Backlog history.
+  - Note: The cast table gains a "Drawn as" column and a row for each pilot avatar (Abhimanyu, Jatayu, Hanuman), so every character with a portrait has one; `tests/test_docs_faces.gd` reads each entry against the character's `CrewLook` (a vanara or bird head, and every headwear, hair, beard, held object and mark it names). The respect line covers the faces and Hanuman's dignified face. Rule 5 (round, big-eyed, placeholder shapes) now describes the painted faces, the intro line drops "small, round", and the species question is ticked: humans, vanaras and a great bird.
+
+---
+
+## Epic 27: Your ride
+
+Done when the player can make each drone their own: its paint, lights, decals and name, and parts that trade one strength for another. All of it is set up in a hangar on the board, unlocked with job money or by achievement, and every drone in a fleet is set up on its own.
+
+Owner decisions (all decided):
+- Scope: looks, and parts with trade-offs.
+- Unlocks: both with job money and by achievement.
+- Fleet: each fleet drone is customized separately.
+
+Rules this epic keeps: one flight model (rule 1), so parts only change the drone's exported stats (rule 5), never add or remove an assist and never change physics code. Looks are visual only: `DroneLook` never touches physics, and nothing is graded on looks (rule 8). Data over code (rule 4): liveries, decals, parts and unlocks are `.tres` resources under `data/garage/`. The decals and patterns are original art made in code or in the repo, in Rajasthani and epic motifs (block print, jharokha lattice, chakra, lotus); no team, brand or franchise logos beyond the game's own teams.
+
+Order: 27.1, then 27.2 and 27.4 (independent), then 27.3, 27.5, 27.6, 27.7.
+
+- [x] **27.1 A livery in the save**
+  - Goal: Each drone slot has a livery (its looks and its name) and a set of parts, kept in the save. Slot 0 is the player's drone; slots 1 and up are the fleet's, as many as the largest fleet.
+  - Context: A `Livery` resource: body, arm, prop and canopy colours, light colour, decal id and its colour, a race number, and a name. Parts are ids per kind (frame, props, battery; 27.4). The save gets a "hangar" section (slot -> livery and parts, plus what is unlocked), read and written like `Garage`'s "upgrades". A new or old save starts every slot on the default livery, which is today's look exactly, and the default parts, which change nothing.
+  - Acceptance: A save with no hangar section loads with every slot on the default livery and parts, and a drone looks and flies exactly as before (stats unchanged). Changing slot 2's livery and parts and reloading keeps them, and slot 0 is untouched. An unknown decal or part id in a save falls back to the default instead of failing.
+  - Out of scope: The look itself (27.2), parts' stats (27.4), the hangar page (27.5).
+
+- [x] **27.2 Paint, lights and decals**
+  - Goal: A drone wears its slot's livery: colours on body, arms, props and canopy, under-glow and arm lights in the light colour, a decal on the top of the hull, and its race number.
+  - Context: `scripts/drone/drone_look.gd` builds the body from parts in `_build()`; it reads the livery there, and `still_mesh` (the boss's shell) keeps the default. Lights keep the white front and red back marks that show heading, with the livery's colour as an under-glow and arm strips, so heading still reads at a glance. Decals (at least eight to start: block print, jharokha lattice, chakra, lotus, peacock, sun, stripes, the team's emblem in team colours) are textures drawn in code or files made in the repo, with their licence listed. Works on the web build (GL Compatibility) and the fleet draws many drones, so materials are shared per livery, not per part.
+  - Acceptance: A drone with a non-default livery shows each colour on its part (a test reads the materials). The front and back heading lights are present in every livery. Every decal draws on the hull without errors. The default livery looks as before (the materials match today's). Ten drones with ten liveries in one scene add no more than ten sets of materials.
+  - Out of scope: Choosing them (27.5), unlocks (27.3).
+
+- [x] **27.3 Unlocks: money and achievements**
+  - Goal: Every look and part that is not a default is locked until bought with job money or earned by an achievement, and the player can see how to unlock it.
+  - Context: An `Unlock` on each item: a price (from the wallet, as `Garage` upgrades are), an achievement, or both (either one opens it). Achievements are data: a job completed, a job completed under a time or with no crashes, a best payout reached, a reputation level with a faction, a story flag, or the fleet first flown. Earned unlocks open at the job's results, with a line on the results screen and a radio line. Price markups and perks that already touch the shop (shop_closed, Story 7.6, and the price perk, Story 19.5) apply to hangar prices too.
+  - Acceptance: A locked item cannot be applied; buying it spends exactly its price, and an unaffordable item cannot be bought. Meeting an achievement opens its item once, shows it on the results screen, and keeps it unlocked after reload. An item with both a price and an achievement opens by either. Every item names how it unlocks. The shop markup and price perk change hangar prices as they do upgrades.
+  - Out of scope: New jobs made only for unlocks.
+
+- [x] **27.4 Parts with trade-offs**
+  - Goal: Parts that change how the drone flies by trading one strength for another: frames, props and batteries.
+  - Context: A `Part` is a kind (frame, props, battery) and steps on the drone's exported stats (mass, drag, angular drag, max thrust, arm length, yaw torque, battery flight time), applied by `Garage.apply` with the upgrades and the pilot's edge (Stories 7.2, 19.1), in the same way, so the flight model and assists are untouched (rules 1, 2, 5). Start with three frames (light racer: fast and twitchy, short battery; heavy hauler: steady in wind, slow to turn; freestyle: balanced, quick to yaw), three props (grip, speed, quiet efficiency) and three batteries (long range and heavy, light and short, standard). A frame also changes the look: arm length and hull shape follow it. Defaults are today's drone.
+  - Acceptance: Every non-default part makes at least one stat better and at least one worse. No part adds or removes an assist (a test compares the assist stack with and without each part). The default parts leave every stat as it is today. Every job can still be finished with every frame (the existing scripted runs pass with each frame fitted). Parts apply to the slot's drone only.
+  - Out of scope: Parts beyond these three kinds, tuning the jobs for parts.
+
+- [x] **27.5 The hangar**
+  - Goal: The board's Garage opens the hangar: the drone on a turntable, with Paint, Lights, Decals, Parts and Upgrades, and every change shown live before it is applied.
+  - Context: Replaces `ShopDialog` (the upgrades become the hangar's Upgrades tab, prices and rules unchanged). A SubViewport turntable of the drone with the slot's livery and parts; the player turns it with the right stick, the mouse or the arrow keys. Colours pick from a palette (no free colour wheel). Parts and upgrades show stat bars with the change highlighted before buying. The name is typed on keys, or picked from a list of names on a pad. Locked items show their price or their achievement (27.3). Works by pad alone, as Epic 23 requires, and at 960x720 and 1920x1080.
+  - Acceptance: Changing a colour, light, decal or part updates the turntable at once; leaving without applying keeps the old livery. Applying writes the slot (27.1). Stat bars show the change of a part before it is fitted. Every control is reachable by pad, keys and mouse, and B or Esc backs out. Nothing overlaps at either size. The old shop's tests pass against the Upgrades tab.
+  - Out of scope: Sharing liveries between players.
+
+- [x] **27.6 A livery for every fleet drone**
+  - Goal: In fleet jobs each drone flies its own slot's livery and parts, and the hangar sets each one up.
+  - Context: The hangar has a slot picker (your drone, then Fleet 1, Fleet 2, …, as many as the largest fleet; slots past the fleet you have reached are shown locked until the fleet is first flown). Fleet jobs build each drone from its slot. The fleet command view (`scripts/fleet/command_view.gd`) marks each drone's ring and name in its light colour, so the player can tell them apart, and a "copy to all" sets every fleet slot from the current one.
+  - Acceptance: In a fleet job, drone N wears slot N's livery and flies with slot N's parts (a test checks materials and stats per drone). The command view's ring for each drone is in its light colour. "Copy to all" copies the livery and parts but leaves names. Slot 0 never changes a fleet drone.
+  - Out of scope: Assigning crew pilots to drones by livery.
+
+- [x] **27.7 The crew notice**
+  - Goal: The ride is part of the game's people: the crew comment on new paint and parts, and the drone's name shows where the player's name does.
+  - Context: New bark events (`new_livery`, `new_part`), said the next time the board opens, by a living crew member, in each character's voice in `data/dialogue/`. Nala, the mechanic, has lines about parts. The drone's name shows on the results screen and in the flight HUD's job panel. Lines are respectful, with no pronouns for characters, as Epics 25 and 26 require.
+  - Acceptance: After a livery change, the next board says a `new_livery` line once; after a part change, a `new_part` line, by Nala when Nala is alive. No line plays for the dead. The drone's name shows on results and in the HUD, and a drone with no name shows none. Every new line fits the radio at both sizes (26.4's test).
+  - Out of scope: Voice audio beyond the existing babble.
+
+## Epic 28: Pad polish
+
+Done when the four loose ends left by Epic 23 are tied off: rumble only for what the player did, rumble that stops with the game, a PAD CHECK page that says plainly how to leave it, and a pad walk that covers the CONTROLLER options.
+
+Do this epic after Epic 27 (owner's call).
+
+- [x] **28.1 No failure rumble for leaving**
+  - Goal: Leaving a job (Esc, or B/Start then confirm) does not shake the pad as a failure does.
+  - Context: `JobRunner.leave()` ends a job with `fail("left")`, which sets `State.FAILED`, and `JobCues._on_state` plays `Rumble.play(&"failed")` for every FAILED. Leaving is the player's choice, not a failure of the flight. JobCues checks the runner's `fail_reason` (or a flag the runner sets when the player leaves) and skips the rumble for it; the fail sound and results stay as they are.
+  - Acceptance: Leaving a live job logs no `failed` rumble; a real failure (crash out, battery dead, time up, a strike that ends the job) still logs one. A test covers both through the runner.
+  - Out of scope: Changing what leaving does to pay or reputation.
+
+- [x] **28.2 Rumble stops on pause**
+  - Goal: Pausing stops any rumble at once, and nothing rumbles while the game is paused.
+  - Context: `scripts/audio/rumble.gd` starts vibrations with `Input.start_joy_vibration` for a set time; a long one (a strike, 0.6 s) keeps going after the pause menu opens. Rumble listens for the tree's pause (or the pause menu says so) and calls `Input.stop_joy_vibration` on the pad; `play` asks nothing while the tree is paused.
+  - Acceptance: A rumble playing when the game pauses is stopped (the log shows a stop), and `Rumble.play` while paused asks for nothing and returns false. Unpausing does not restart a stopped rumble.
+  - Out of scope: Rumble in menus.
+
+- [x] **28.3 PAD CHECK says how to leave**
+  - Goal: The PAD CHECK footer tells the player exactly which button leaves, in the pad's own names, and that every other button is only shown.
+  - Context: `scripts/ui/pad_check.gd` writes `"%s to go back" % InputPrompt.text(&"ui_cancel")`, which follows the device last touched, so it can name a key while the player is testing a pad, or the wrong family's button. The footer names the leave button for the pad on the page (B, Circle on PlayStation, B on Switch as laid out), plus Esc, e.g. "B or Esc: back to OPTIONS. Every other button is only shown here."
+  - Acceptance: With an Xbox, PlayStation and Switch pad (family from the joy name, as in 23.2), the footer names that family's leave button and Esc. It never names a button that does not leave. A test checks each family.
+  - Out of scope: Rebinding.
+
+- [x] **28.4 The pad walk covers CONTROLLER**
+  - Goal: The pad walk (`tests/test_pad_menus.gd::test_pad_walk_from_the_title_to_a_job_and_back`) also steps through OPTIONS > CONTROLLER (layout, stick deadzone and sensitivity, invert, rumble, PAD CHECK) by pad alone.
+  - Context: Story 23.3's walk goes title, board, pilot select, a job and back; 23.6's CONTROLLER section and 23.8's PAD CHECK were added after it and are only tested on their own. The walk reaches each control with the d-pad and stick, changes one setting with A or left/right, opens and leaves PAD CHECK with A and B, and comes back to the menu, with focus always on a visible control.
+  - Acceptance: The walk visits every CONTROLLER control by pad alone, changes one, leaves PAD CHECK with B, and finds the change kept after leaving OPTIONS. At no step is focus lost or on a hidden control.
+  - Out of scope: New settings.
+
+- [x] **28.5 Remap buttons in PAD CHECK**
+  - Goal: A pad whose driver or browser reports its buttons in the wrong order (a DInput or non-standard pad in the browser, such as the owner's GameSir USB pad) can be fixed by the player from PAD CHECK.
+  - Context: PAD CHECK (`scripts/ui/pad_check.gd`) gets a REMAP button, and a RESET button that shows only while the pad has a remap. REMAP walks through A (bottom face), B (right), X (left), Y (top), LB, RB, Back/Select and Start; each step names the button in the pad's family labels (InputPrompt) plus a plain position word, and takes whichever physical button is pressed next. A button already given in this walk is refused (the step stays, with a short note). Esc cancels and leaves the old mapping as it was; while the walk runs, no pad press acts on a menu or leaves the page. At the end the remap applies at once and is saved in GameSettings' "settings" section, keyed by the pad's lowercased `Input.get_joy_name`, and is applied on load and when a pad of that name connects. Godot sets action state from the InputMap before any node sees an event, so the remap rewrites the InputMap's pad button bindings (the project's own are kept, for RESET and other pads), and every raw `button_index` check goes through one helper (`PadRemap.logical`). PAD CHECK then shows the remapped names.
+  - Acceptance: A walk that gives B's physical button for A and A's for B swaps them: a raw press of the one triggers ui_accept and the A-bound flight actions, the other ui_cancel. The remap survives a save and reload and applies to that pad name only; another pad keeps the defaults. RESET restores the InputMap exactly. Esc mid-walk leaves the mapping as it was; a duplicate button is refused. REMAP and RESET are reached by pad (hold Start, hold Back) and keys (R, Backspace); PAD CHECK still passes its tests, and nothing overlaps at 960x720 and 1920x1080.
+  - Out of scope: The D-pad and the sticks; rebinding actions to other buttons.
+
+## Epic 29: Animal rides
+
+Done when each pilot's drone looks like the animal of that pilot's epic, so the four pilots' drones are told apart at a glance from the chase camera, by outline and by colour.
+
+Rules this epic keeps: looks only. One flight model (rule 1) and stats only from upgrades, parts and the edge (rule 5): the shell is meshes with no body, inside the drone's collision box, and never changes mass, shape, stats or assists. Data over code (rule 4): each kit is a `.tres` under `data/garage/kits/`, named on the pilot's character. The animals come from the epics and are drawn with respect, in original shapes, nothing from any franchise.
+
+- [x] Story 29.1: Each pilot's drone, shaped like the pilot's animal
+  - Goal: The player's drone wears the chosen pilot's animal: Arjuna's white horse (the epithet Svetavahana: "white steeds"), Hanuman's monkey, Abhimanyu's lion cub (the Drona Parva's lion cub charging the herd), Jatayu's vulture.
+  - Context: A `BodyKit` (animal, its own paint, mane, detail, battery and trim colours) on each pilot's character, `body_kit`. `DroneLook.wear` takes it, and `AnimalShell` builds the shell under a `Kit` node: the horse's long head with a gold band, pricked ears, a crest and a mane falling to one side, hindquarters and a long tail plume; the monkey's round head, pale smiling face, round ears and a tail curled up in a spiral; the lion cub's round head and muzzle in a shaggy collar of mane, small ears, a tufted tail; the vulture's broad swept wings with dark flight feathers, pale ruff, bare head, hooked beak and fanned tail. A livery colour still at its stock value wears the kit's paint; one the player chose wins, and the coat follows the body colour. `Hangar.kit(slot)` gives the chosen pilot's kit on slot 0 (the hangar's turntable shows it too) and none on a fleet slot, which the crew fly: those keep the stock frame in their slot's livery, as AI racers keep the stock drone.
+  - Acceptance: Every pilot has a kit, each a different animal, outline and colour. The player's drone, after `Garage.apply`, carries the chosen pilot's shell with every part of it; a fleet drone and a bare drone carry none. Stats, mass, the one collision box and the assists are as without a kit, and the props still spin. On every frame's hull the shell stays inside the collision box and clear of the prop discs, the motors and the white front and red back lights. A painted livery colours the body and the animal's coat, and its decal, number and lit strips show, none of them covered. A test covers each.
+  - Out of scope: Kits for the crew or the fleet, choosing a kit apart from the pilot, animation of the shell.
+- [x] Story 29.2: The animal, not a box wearing a head
+  - Goal: Each drone looks like its animal all over, and the hangar shows it clearly.
+  - Context: `AnimalShell` adds a rounded `Body` and `Legs` to every animal, and DroneLook slims the hull inside them; the canopy and the battery shrink to plates on its back, like a saddle, carrying the decal and the number. The horse gallops, with withers, croup, an arched neck and a noseband; the lion crouches, with a broad muzzle, a full ring of mane and big paws; the vulture spreads wide wings over the arms, below the props; the monkey leaps in Hanuman's traditional colours, with the crown and the gada in the left hand. Each group merges into one mesh per material. `DroneTurntable` opens low and close on the animal's face and flank against a lighter backdrop with a fill light from the camera; the wheel, the right stick's up and down, or + and - zoom out to the whole drone. The stand column widens.
+  - Acceptance: Every animal has a rounded body wider than its slimmer hull, legs below the hull and a head ahead of it; a stock drone is unchanged. All of 29.1's limits still hold on every frame (the box, the props, the motors, the lights, the decal, the number), and the shell stays behind the FPV camera. A shell is at most 24 meshes. The hangar opens with the animal's body and head in view across at least half the turntable's width, the camera ahead of the drone and neither front motor nor the near half of its prop in front of the head; zoomed out, every prop tip of every frame is in view at every angle, at both screen sizes. Every tab's name fits its button. A test covers each.
+  - Out of scope: Animation of the shell, kits for the crew or the fleet.
 ## Epic 26: A city worth exploring
 
 Done when free flight is a different city every time you enter it, not always a grid (broken grids, diagonal avenues, rings and spokes, winding old towns), with things to thread at drone height (ducts and pipes overhead, fences with holes in them) and cars driving the streets.
@@ -1394,3 +1570,84 @@ Rules that hold throughout: nothing here moves a drone (rule 1), cars and obstac
   - Acceptance: The voice pool never exceeds its size, whatever `car_count` is. The nearest car within range always has a voice. `tools/sfx/generate.py --check` passes. The hand flight on the web build holds frame rate (recorded in this story's Note with the machine used).
   - Out of scope: Doppler beyond what Godot does, car radios.
   - Note: `TrafficSound` (`scripts/world/traffic_sound.gd`) is a `Sound` child of `scenes/world/traffic.tscn`, so it rides every Traffic (free flight only; job scenes and their fingerprints are untouched) and survives a reroll's `clear()`. It holds a fixed pool of `voices` (4) voices, each an engine and a tyre `AudioStreamPlayer3D` on the World bus (8 players whatever `car_count` is); every physics tick it picks the `voices` cars nearest its `target` within `reach` (60 m), a car still picked keeps its voice (no restart), a dropped car's voice goes to a newly picked one, and the rest stop. Free flight sets `target` to the Drone; unset, it hears from the active camera. Engine pitch runs 0.75 to 1.5 and tyre level -24 to 0 dB over 0 to 14 m/s; Doppler is left at Godot's default (off). The loops are `car_engine` (1 s, whole-Hz firing partials and a low rasp, seed 1470) and `car_tyres` (2 s band-limited road roar, seed 1471) from `tools/sfx/generate.py`, in the bank and `LICENSES.md`. `tests/test_traffic_sound.gd` runs seed 7's sandbox at 26 and 200 cars with the listener hopping between cars and out of range, checking every tick that the pool never follows more cars than its size (nor one car twice) and that the brute-force nearest car within reach has a voice, plus `generate.py --check`. Left open (box unticked): the hand flight of the web build (export it, fly free flight for several seeds and rerolls with traffic, ducts and fences on, and record whether it holds frame rate and on what machine) needs a person; an unattended export was not run here either.
+
+## Epic 30: The Four
+
+Done when Brahma, Vishnu, Shiva and Krishna frame the career (act-gate scenes, Brahma's boon behind the final fight, Krishna's counsel before it) and the play (four optional vows, kept or not, lighting four shrines in the city), all as data, all reviewed for respect. The design is `docs/DEITIES.md`; read it before any story here.
+
+Do not start this epic until the owner says go.
+
+Rules that hold throughout (from `docs/DEITIES.md`, "Respect"):
+- No god is ever at risk, playable, crew, a perk, a shop item, an unlock, a currency or part of Ravana. Gods have no status in the save; only vows kept are saved.
+- No jokes, emotes, babble, barks or cartoon faces for any god. Symbols, colour, place and music only; Krishna's counsel is text in Sanjaya's voice.
+- Lines are original or Sanjaya's paraphrase; nothing is presented as a quotation unless it is one.
+- Vows never change pay, reputation, grade, unlocks or physics. A broken vow has no penalty and no scolding line.
+- Nothing here moves a drone (rule 1), adds an assist (rules 2, 5) or touches the strike rules (rule 7). With `lattice.tres` `enabled = false`, nothing about Ravana appears (rule 9).
+
+Owner decisions still open (from `docs/DEITIES.md`): who reviews, and when (30.11 waits on it); whether the shrines can be visited in free flight; whether Act 1 names Brahma or shows only his symbol.
+
+- [ ] **30.1 The Four as data**
+  - Goal: Each god is a resource in `data/deities/`, and a guard test keeps them out of every system that could put them at risk or on sale.
+  - Context: New `Deity` resource (`scripts/story/deity.gd`): `id`, `name`, `principle` (one line), `symbols` (names), `colour`, `motif` (a music stem id, filled in 30.2), `thread_act` (the act whose thread they lead; Krishna's is 5). A `DeityList` (`data/deities/deities.tres`) lists all four, as `TeamList` does, so exported builds find them. Unlike `Character`, a deity has no status, portrait, look, babble, edge or perk.
+  - Acceptance: The four load from the list. A guard test fails if any deity id appears in `Roster`/`Cast`, `data/characters/`, a job's `crew_in_field` or `requires_living`, a `HazardZone`, the pilot list, the emote or bark tables, `Perks`, the upgrade list or the boss data. `SaveGame` holds no deity status.
+  - Out of scope: Art, music, any scene.
+
+- [ ] **30.2 Symbols and motifs**
+  - Goal: Each god has an original symbol drawing and a short music motif, used everywhere they appear.
+  - Context: A `DeitySymbol` control draws each symbol from shapes (lotus and four Vedas; conch and chakra; trident, crescent and damaru; flute and peacock feather) in the god's colour, readable at 32, 64 and 128 px. Drawn in code or as original SVGs in `data/deities/`; no traced or copied temple, poster or game art. Motifs come from `tools/music/generate.py` in the song's key (F, from `song_profile.json`) as stems in `data/music/`, registered like the other stems; `--check` must pass and `data/music/` stays under its 10 MB cap.
+  - Acceptance: Each symbol renders without errors at all three sizes (screenshots checked by hand, noted in the story's Note). Each deity's `motif` resolves to a stem. `generate.py --check` passes and the music budget holds.
+  - Out of scope: Scenes that use them (30.3 on).
+
+- [ ] **30.3 Act gates**
+  - Goal: A short scene opens each thread: Brahma at the start of Act 1, Vishnu on joining the first team, Shiva at the first Act 4 promotion, Krishna at Act 5.
+  - Context: Four `Cutscene`s in `data/story/` (as `intro.tres`), each beat with a symbol card (`DeitySymbol`) and the god's motif, played once per save by `Career` on the matching act change and recorded in `StoryFlags`. Lines are original, two to four beats each, sincere, and name what the act asks of the pilot. The Act 1 scene follows the owner's decision on naming Brahma. Every scene is skippable like the intro.
+  - Acceptance: Each act change plays its scene once per save and never again. Skipping works. No scene has a portrait, emote, babble or bark. The existing intro and recruitment tests pass unchanged.
+  - Out of scope: Assist-removal scenes (30.4), vows.
+
+- [ ] **30.4 The shedding**
+  - Goal: Each promotion that removes an assist shows a short Shiva-thread beat naming what is let go and what it unlocks.
+  - Context: The assist table in CLAUDE.md gives each assist's "removing it unlocks" text; put it on the assist data (not in code) and read it here. Shown on the promotion offer (`OfferDialog`) or right after it, with Shiva's symbol and motif. Does not change which assists come off or when.
+  - Acceptance: Every promotion that removes assists names each of them and its unlock, from data. A promotion that removes none shows nothing extra. Assist presets per act are unchanged (existing tests pass).
+  - Out of scope: Vows.
+
+- [ ] **30.5 Vows**
+  - Goal: The launch dialog offers an optional vow on jobs whose data lists one, and the results screen says whether it was kept.
+  - Context: New `Vow` resource (`deity`, `kind`, `text`) and `Job.vows: Array[Vow]`. `LaunchDialog` shows the job's vows (none chosen by default; at most one). `JobRunner` tracks the chosen vow and decides kept or not at completion through a small checker per kind; this story adds the Vishnu kind, "no one is struck", kept when the job completes with no strike. The save records vows kept per deity. `Results` shows "Vow kept" or "Vow not kept" in one quiet line with the symbol.
+  - Acceptance: A job with no vows shows no vow choice. Choosing the Vishnu vow and finishing with no strike records it kept; one strike records it not kept; failing the job records nothing. Pay, reputation, grade and unlocks are identical with and without a vow (a test compares results). No line scolds a broken vow.
+  - Out of scope: The other three kinds (30.6, 30.7), shrines (30.8).
+
+- [ ] **30.6 Letting go, and guiding**
+  - Goal: Shiva's and Krishna's vows: fly with the next act's assist already off, and finish a fleet job without dropping into a drone.
+  - Context: Shiva: choosing the vow switches off, for this job only, the assist the next act removes, through the existing assist settings (the sim-player path); never on Act 5 jobs, never adding an assist. Kept when the job completes. Krishna: kept when a fleet job completes with no `drop_in`. Offered per job through `Job.vows` data.
+  - Acceptance: With the Shiva vow on an Act 2 job, collision guard is off for that job and back on after it; the flight model and other assists are untouched. The Krishna vow is kept on a fleet job finished from the command layer and not kept after any drop-in. Results and pay are as in 30.5.
+  - Out of scope: Brahma's vow (30.7).
+
+- [ ] **30.7 Making the path**
+  - Goal: Brahma's vow: before launch, place route points on the map; kept when the drone passes them in order.
+  - Context: The map screen (`MapScreen`) gains a planning mode on jobs offering the vow (Act 4 on): place, move and remove up to eight points, shown as a line. The route shows on the radar in flight. Points are passed within a radius from data. Keys and pad both work (Epic 23).
+  - Acceptance: A planned route of three points passed in order keeps the vow; out of order or a missed point does not. Planning is unavailable on jobs without the vow. The planned line shows on map and radar. Guidance and grading are unchanged.
+  - Out of scope: Saving routes between attempts.
+
+- [ ] **30.8 The shrines**
+  - Goal: Four rooftop shrines in the city, one per god, whose lamps light as that thread's vows are kept.
+  - Context: A `Shrine` scene (symbol, base, lamps) placed by the city plan on plazas clear of every course, gate, hazard and spawn, in job cities (seed 7) and free-flight cities alike. Lamp count from the save's vows kept, capped. On the map and radar as the symbol. Drones never collide with or damage a shrine (no collision with the drone's layer; nothing destructible), and no job uses one as a gate or target. Follows the owner's decision on visiting in free flight.
+  - Acceptance: Every city seed tested (20) places four shrines clear of courses, gates, hazards and the spawn. Lamps match the saved vows. No shrine shares a collision layer with a drone, and none is a node any job objective references. Obstacle fingerprints for seed 7 jobs are unchanged.
+  - Out of scope: New city patterns.
+
+- [ ] **30.9 Brahma's boon**
+  - Goal: The final job's briefing tells why Ravana can be stopped only by a human hand: the boon that left humans out.
+  - Context: `data/boss/lattice_job.tres` briefing, and the BOSS.md "Does Ravana have a reason?" question (answered: its makers built it so no machine could stop it, named for the king whose boon scorned humans). The fight does not change: it is already flown with every assist off. Respect for Brahma and for Ravana as a formidable king (rule 9). With `enabled = false`, none of this loads.
+  - Acceptance: The briefing names the boon in one or two original lines. The boss-disabled tests still prove nothing about Ravana loads. BOSS.md's open question is ticked with the answer.
+  - Out of scope: Fight changes.
+
+- [ ] **30.10 Krishna's counsel**
+  - Goal: Before the final job launches, Arjuna hesitates and Krishna's counsel, relayed by Sanjaya, is the launch confirmation.
+  - Context: The launch confirmation for a lethal job with crew in the field (`LaunchDialog`) becomes, for the final job only, a short counsel scene: original lines on duty, acting without clinging to the outcome, and the crew who stand with you, in Sanjaya's voice with Krishna's symbol and motif. Lines vary with vows kept per thread and crew lost (from the save). The player still chooses to launch or not. With the boss disabled, the counsel plays before the 6.4 fleet final instead, with no mention of Ravana. If Sanjaya is dead, the counsel is shown as text only, with no speaker.
+  - Acceptance: The final job's launch shows the counsel and still requires the player's choice; declining returns to the board. Different saves (no vows, vows on every thread, a crew death) show different lines. With `enabled = false` the counsel shows on the fleet final and names no boss. A dead Sanjaya never speaks (rule 7).
+  - Out of scope: Changing the job's lethality or requirements.
+
+- [ ] **30.11 Docs, rule and review**
+  - Goal: The docs carry the Four, and the lines, symbols and scenes have been reviewed by someone who practises the tradition.
+  - Context: Link `docs/DEITIES.md` from VISION.md, CHARACTERS.md and BOSS.md; answer its open questions with the owner's decisions. Propose CLAUDE.md rule 10 (text in DEITIES.md) to the owner, who edits CLAUDE.md. Collect every deity line into one review sheet. Waits on the owner arranging the review.
+  - Acceptance: The docs link and agree (a test greps them for the four names and the link). The review's changes are applied and noted in this story's Note with the reviewer's role (no name unless they agree). Every test passes.
+  - Out of scope: Story or mechanic changes beyond the review's.

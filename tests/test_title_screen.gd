@@ -172,3 +172,24 @@ func test_the_first_press_plays_and_the_next_goes_in() -> bool:
 func _stop_music() -> void:
 	Music.play(null, 0.0)
 	Music.clear_log()
+
+## Story 26.4's tall radio bar would sit on the prompt at 960x720: while the
+## goodbye is up, what it covers fades out, and comes back once it has gone.
+func test_the_prompt_fades_under_the_radio() -> bool:
+	var t: TitleScreen = await _open(TITLE)
+	t.goodbye()
+	await Sim.process_frames(3)
+	var ok: bool = t.radio != null and not t.radio.linger
+	# Put the score right on the bar, as a small screen does.
+	var bar := BarkBox.panel_rect(t.radio.size, t.radio.at_top)
+	t.best_label.global_position = t.radio.get_global_rect().position + bar.get_center() - t.best_label.size / 2.0
+	t.radio.visible = true
+	t.radio.modulate.a = 1.0
+	await Sim.process_frames(1)
+	ok = ok and t.under_radio(t.best_label) and t.best_label.modulate.a < 0.05
+	# The radio fading out gives it back as it goes.
+	t.radio.modulate.a = 0.25
+	await Sim.process_frames(1)
+	ok = ok and is_equal_approx(t.best_label.modulate.a, 0.75)
+	await _close()
+	return ok

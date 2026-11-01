@@ -4,6 +4,7 @@ extends Control
 # job panel at top left, assists at bottom left, battery at bottom right
 # with an ICING chip beside it while the props carry ice (Story 13.8),
 # GPS fix above the battery, the pilot's portrait at top right (Story 7.2).
+# Story 27.7: the job panel names the drone under the client, when it has one.
 # Reads the drone and an optional JobRunner; draws everything in _draw.
 # Heading: 0 is north (-Z), 90 east (+X), 270 west.
 
@@ -30,8 +31,13 @@ const ASSIST_NAMES := {
 	&"speed_governor": "GOVERNOR", &"battery_wind": "ENV SIM", &"single_drone_view": "SOLO VIEW",
 }
 const TAPE_SPAN := 120.0
+## How far the speed gauge's centre sits above the altitude gauge's.
+const SPD_RISE := 150.0
 ## Ice on the props, 0..1, above which the ICING chip shows.
 const ICING_SHOWN := 0.05
+## The pilot's face at top right, twice its old 56 px (Story 26.3): it fits
+## between the compass tape and the ALT gauge at 960x720.
+const PILOT_FACE := 112.0
 
 var font: Font
 ## The chosen pilot avatar's face.
@@ -46,7 +52,7 @@ func _ready() -> void:
 	pilot_face = CharacterPortrait.new()
 	pilot_face.name = "Pilot"
 	pilot_face.character = PlayerProfile.pilot()
-	pilot_face.size = Vector2(56, 56)
+	pilot_face.size = Vector2.ONE * PILOT_FACE
 	pilot_face.mouse_filter = MOUSE_FILTER_IGNORE
 	pilot_face.visible = show_pilot
 	add_child(pilot_face)
@@ -72,15 +78,23 @@ func speed_kmh() -> float:
 func altitude() -> float:
 	return drone.global_position.y
 
-## Title, subtitle, job state, then one {label, done} per objective.
+## Title, subtitle, the drone's name (empty when it has none), job state, then
+## one {label, done} per objective.
 func panel() -> Dictionary:
+	var ride := drone_line()
 	if runner and runner.job:
 		var rows := []
 		for o in runner.objectives():
 			rows.append({"label": o.label if o.label else String(o.name), "done": o.is_done()})
 		var sub := runner.job.client + ("  ·  %d" % runner.job.pay if runner.job.pay else "")
-		return {"title": runner.job.title.to_upper(), "subtitle": sub, "state": _state_line(), "rows": rows}
-	return {"title": title.to_upper(), "subtitle": subtitle, "state": status, "rows": []}
+		return {"title": runner.job.title.to_upper(), "subtitle": sub, "drone": ride, "state": _state_line(), "rows": rows}
+	return {"title": title.to_upper(), "subtitle": subtitle, "drone": ride, "state": status, "rows": []}
+
+## "DRONE  KESTREL": the player's drone by its hangar name (Story 27.7), or
+## empty for a drone with no name.
+static func drone_line() -> String:
+	var n := Hangar.drone_name(0)
+	return ("DRONE  " + n).to_upper() if n else ""
 
 func _state_line() -> String:
 	var name: String = JobRunner.State.keys()[runner.state]
@@ -108,7 +122,9 @@ func _draw() -> void:
 		return
 	var s := size
 	_draw_tape(Vector2(s.x * 0.5, 34.0), minf(s.x * 0.42, 560.0))
-	_draw_gauge(Vector2(64.0, s.y * 0.5), "SPD", "%d" % roundi(speed_kmh()), "KM/H", false)
+	# Story 26.5: speed stacks above altitude on the right, leaving the left
+	# column, between the job panel and the radio's face, to the radio's chat.
+	_draw_gauge(Vector2(s.x - 64.0, s.y * 0.5 - SPD_RISE), "SPD", "%d" % roundi(speed_kmh()), "KM/H", true)
 	_draw_gauge(Vector2(s.x - 64.0, s.y * 0.5), "ALT", "%d" % roundi(altitude()), "M", true)
 	_draw_panel(Vector2(28.0, 26.0))
 	_draw_assists(Vector2(28.0, s.y - 34.0))
@@ -119,8 +135,8 @@ func _draw() -> void:
 		_draw_gps(Vector2(s.x - 28.0, s.y - 76.0))
 	if pilot_face.visible:
 		pilot_face.position = Vector2(s.x - 28.0 - pilot_face.size.x, 22.0)
-		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 46.0), "PILOT", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 190)
-		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 66.0), pilot_face.character.name.to_upper(), 17, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 190)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 66.0), "PILOT", 12, DIM, HORIZONTAL_ALIGNMENT_RIGHT, 190)
+		_text(Vector2(s.x - 228.0 - pilot_face.size.x, 88.0), pilot_face.character.name.to_upper(), 17, LINE, HORIZONTAL_ALIGNMENT_RIGHT, 190)
 
 func _text(at: Vector2, t: String, size_px: int, color: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
 	draw_string(font, at + Vector2(1, 1), t, align, width, size_px, SHADOW)
@@ -161,18 +177,44 @@ func _draw_gauge(at: Vector2, name: String, value: String, unit: String, right: 
 	_text(Vector2(left, at.y + 12), value, 34, LINE, align, 160)
 	_text(Vector2(left, at.y + 32), unit, 13, DIM, align, 160)
 
+## What must stay in sight beside the flying: the job panel and the speed and
+## altitude gauges (their ladders and readouts). The radio's chat keeps off
+## them (Story 26.5).
+func readout_rects() -> Array[Rect2]:
+	var s := size
+	var gauge := Vector2(120, 124)
+	var x := s.x - 50.0 - gauge.x
+	return [panel_rect(), Rect2(Vector2(x, s.y * 0.5 - SPD_RISE - 62.0), gauge),
+		Rect2(Vector2(x, s.y * 0.5 - 62.0), gauge)]
+
+## Everything drawn that a panel laid over the flying keeps off: the readouts,
+## the compass tape, the pilot's face, and the assists, battery and GPS along
+## the foot.
+func drawn_rects() -> Array[Rect2]:
+	var s := size
+	var tape := minf(s.x * 0.42, 560.0)
+	var out := readout_rects()
+	out.append(Rect2(Vector2((s.x - tape) * 0.5, 0), Vector2(tape, 90)))
+	if pilot_face.visible:
+		out.append(Rect2(Vector2(s.x - 228.0 - pilot_face.size.x, 22), Vector2(200.0 + pilot_face.size.x, pilot_face.size.x)))
+	out.append(Rect2(Vector2(0, s.y - 96.0), Vector2(s.x, 96.0)))
+	return out
+
 ## Screen area the job panel covers at top left, for laying out around it.
 func panel_rect() -> Rect2:
 	var p := panel()
 	var w := 0.0
-	for t in [[p.title, 17], [p.subtitle, 15], [p.state, 12]] + p.rows.map(func(r): return [r.label, 14]):
+	for t in [[p.title, 17], [p.subtitle, 15], [p.drone, 12], [p.state, 12]] + p.rows.map(func(r): return [r.label, 14]):
 		w = maxf(w, font.get_string_size(t[0], HORIZONTAL_ALIGNMENT_LEFT, -1, t[1]).x)
-	var h: float = 64.0 + (20.0 if p.state else 0.0) + 22.0 * p.rows.size()
+	var h: float = 64.0 + (20.0 if p.drone else 0.0) + (20.0 if p.state else 0.0) + 22.0 * p.rows.size()
 	return Rect2(Vector2(28, 26), Vector2(w + 34.0, h))
 
 func _draw_panel(at: Vector2) -> void:
 	var p := panel()
 	var y := at.y + 64
+	if p.drone:
+		_text(Vector2(at.x + 14, y - 4), p.drone, 12, LINE)
+		y += 20
 	if p.state:
 		_text(Vector2(at.x + 14, y - 4), p.state, 12, DIM)
 		y += 20

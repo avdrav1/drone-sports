@@ -166,7 +166,7 @@ func test_job_needs_its_living_crew() -> bool:
 	await Sim.process_frames(1)
 	var row: Node = b.job_rows.get(&"spotter_drill")
 	var closed: bool = row != null and b.fly_button(&"spotter_drill") == null \
-		and (row.get_node("Locked") as Label).text.contains("Sanjaya")
+		and b.lock_label(&"spotter_drill").text.contains("Sanjaya")
 	b.fly(drill)
 	await Sim.process_frames(1)
 	var stayed: bool = Sim.tree().current_scene == null or Sim.tree().current_scene.scene_file_path != drill.scene

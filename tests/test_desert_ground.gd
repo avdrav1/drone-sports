@@ -43,7 +43,7 @@ func _scene_plan(scene: Node) -> Array:
 	var ground: DesertTerrain = scene.get_node("Ground")
 	var scatter: DesertScatter = ground.get_node("Scatter")
 	var keep := DesertScatter.keep_outs(scene, ground)
-	return DesertScatter.plan(ground, keep, Vector3i(scatter.rock_count, scatter.scrub_count, scatter.cactus_count))
+	return DesertScatter.plan(ground, keep, Vector3i(scatter.rock_count, scatter.scrub_count, scatter.tree_count))
 
 func test_scatter_stays_out_of_city_core_and_clearings() -> bool:
 	var scene: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
@@ -104,7 +104,7 @@ func test_only_tall_scatter_collides_outside_flat_area() -> bool:
 	var tall := 0
 	for item in DesertScatter._generate(t, [], COUNTS):
 		var xf: Transform3D = item[2]
-		var expect: bool = item[0] == DesertScatter.Kind.CACTUS or (item[0] == DesertScatter.Kind.ROCK and xf.basis.get_scale().y * DesertScatter.rock_top(item[1]) > DesertScatter.KNEE)
+		var expect: bool = item[0] == DesertScatter.Kind.TREE or (item[0] == DesertScatter.Kind.ROCK and xf.basis.get_scale().y * DesertScatter.rock_top(item[1]) > DesertScatter.KNEE)
 		if item[3] != expect:
 			ok = false
 		if item[3]:
@@ -114,27 +114,27 @@ func test_only_tall_scatter_collides_outside_flat_area() -> bool:
 	t.free()
 	return ok and tall > 0
 
-func test_cactus_is_a_contact_and_scrub_is_not() -> bool:
+func test_a_tree_is_a_contact_and_scrub_is_not() -> bool:
 	var scene: Node = Sim.add(load("res://scenes/jobs/test_race.tscn").instantiate())
 	await Sim.physics_frames(2)
 	var ground: DesertTerrain = scene.get_node("Ground")
 	var scatter: DesertScatter = ground.get_node("Scatter")
 	var space := ground.get_world_3d().direct_space_state
-	var cactus_hit := false
+	var tree_hit := false
 	var scrub_through := false
 	for item in _scene_plan(scene):
 		var xf: Transform3D = item[2]
 		var from := xf.origin + Vector3.UP * 20.0
 		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, xf.origin + Vector3.DOWN))
-		if item[0] == DesertScatter.Kind.CACTUS and not cactus_hit:
-			cactus_hit = not hit.is_empty() and hit.collider == scatter
+		if item[0] == DesertScatter.Kind.TREE and not tree_hit:
+			tree_hit = not hit.is_empty() and hit.collider == scatter
 		elif item[0] == DesertScatter.Kind.SCRUB and not scrub_through:
-			# Unless a rock or cactus stands over it, a ray down a bush reaches the ground.
+			# Unless a rock or tree stands over it, a ray down a bush reaches the ground.
 			scrub_through = not hit.is_empty() and hit.collider == ground
-		if cactus_hit and scrub_through:
+		if tree_hit and scrub_through:
 			break
 	scene.free()
-	return cactus_hit and scrub_through
+	return tree_hit and scrub_through
 
 func _dust_amount(base: Vector3) -> int:
 	var dust: DesertDust = Sim.add(DesertDust.new())

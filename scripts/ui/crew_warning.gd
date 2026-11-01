@@ -8,6 +8,13 @@ extends Control
 ## Seconds the strike notice stays up.
 @export var strike_hold := 2.0
 @export var flash_hz := 4.0
+## The portrait's size, twice its old 72 px (Story 26.3), and the dark disc's
+## radius behind it.
+const FACE := 144.0
+const DISC := 84.0
+## How far down the screen the portrait's top sits: its disc clears the job
+## state line under the compass.
+const TOP := 176.0
 
 var portrait: CharacterPortrait
 var label: Label
@@ -20,7 +27,7 @@ func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
 	mouse_filter = MOUSE_FILTER_IGNORE
 	portrait = CharacterPortrait.new()
-	portrait.size = Vector2(72, 72)
+	portrait.size = Vector2.ONE * FACE
 	add_child(portrait)
 	label = Label.new()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -54,9 +61,9 @@ func _process(delta: float) -> void:
 	_t += delta
 	_struck_age += delta
 	var w := warned()
-	var c := size * Vector2(0.5, 0.0) + Vector2(0, 200)
-	portrait.position = c - Vector2(36, 0)
-	label.position = c + Vector2(-250, 78)
+	var c := size * Vector2(0.5, 0.0) + Vector2(0, TOP)
+	portrait.position = c - Vector2(FACE * 0.5, 0)
+	label.position = c + Vector2(-250, FACE + DISC - FACE * 0.5 + 6.0)
 	label.size = Vector2(500, 30)
 	if _struck_age < strike_hold:
 		_show(_struck_id, "%s  STRUCK", Color(1.0, 0.35, 0.3), 1.0)
@@ -73,8 +80,8 @@ func _draw() -> void:
 	if not portrait.visible:
 		return
 	var c := portrait.position + portrait.size * 0.5
-	draw_circle(c, 42.0, Color(0.05, 0.03, 0.05, 0.75))
-	draw_arc(c, 42.0, 0.0, TAU, 48, _ring, 3.0, true)
+	draw_circle(c, DISC, Color(0.05, 0.03, 0.05, 0.75))
+	draw_arc(c, DISC, 0.0, TAU, 64, _ring, 3.0, true)
 
 func _show(id: StringName, text: String, color: Color, alpha: float) -> void:
 	var ch: Character = Roster.character(id)

@@ -95,8 +95,12 @@ func test_board_cheers_an_upgrade_and_an_unlock() -> bool:
 	var board: JobBoard = await _board()
 	Bark.moment_times.clear()
 	board.bark.used.clear()
+	# The cheer waits for the hangar to close: the radio is hidden over it.
+	board.shop.open()
 	board.shop.purchased.emit()
-	var ok := _said(board.bark, &"unlock")
+	var ok := not _said(board.bark, &"unlock")
+	board.shop.leave()
+	ok = ok and _said(board.bark, &"unlock")
 	Bark.moment_times.clear()
 	board.bark.used.clear()
 	# Nothing new: no cheer.

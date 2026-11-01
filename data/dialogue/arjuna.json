@@ -497,5 +497,37 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "New paint! New paint, {you}! It's so cool!",
+    "face": "happy"
+   },
+   {
+    "text": "Whoa, look at those colours! Can I fly it?",
+    "face": "happy"
+   },
+   {
+    "text": "That looks amazing. We look like pros now!",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "A new part! Is it faster? Is it fast, {you}?",
+    "face": "happy"
+   },
+   {
+    "text": "Ooh, it'll fly different now. Let's find out!",
+    "face": "happy"
+   },
+   {
+    "text": "New part! I bet it hums a new tune.",
+    "face": "happy"
+   }
+  ]
  }
 }

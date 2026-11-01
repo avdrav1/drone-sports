@@ -174,6 +174,103 @@ func test_gates_hazards_and_the_end_shake_the_pad() -> bool:
 	_done()
 	return ok
 
+## Story 28.1: leaving a job (Esc, or B/Start then confirm) plays the fail
+## sound but does not shake; every real failure still does.
+func test_leaving_does_not_shake_but_failing_does() -> bool:
+	_pad()
+	var ok := true
+	# Leaving in flight, live or in the countdown: the job fails, no shake.
+	for live in [true, false]:
+		var job := Job.new()
+		job.countdown = 3.0
+		var s := _setup(job)
+		var runner: JobRunner = s[1]
+		runner.back_scene = ""
+		if live:
+			await Sim.go_live(s[0])
+		else:
+			runner.begin()
+			runner.launch()
+			await Sim.physics_frames(2)
+		Rumble.clear_log()
+		Sfx.clear_log()
+		runner.leave()
+		await Sim.physics_frames(2)
+		var left: bool = runner.state == JobRunner.State.FAILED and runner.was_left() \
+			and Rumble.count(&"failed") == 0 and Rumble.log.is_empty() \
+			and Sfx.log.any(func(l): return l.id == &"job_fail")
+		if not left:
+			print("        left (live %s): " % live, Rumble.log.map(func(l): return l.id))
+		ok = ok and left
+		s[0].free()
+	# Time up, through the runner's own clock.
+	var timed := Job.new()
+	timed.time_limit = 0.2
+	var t := _setup(timed)
+	await Sim.go_live(t[0])
+	Rumble.clear_log()
+	for i in 60:
+		await Sim.physics_frames(1)
+		if t[1].is_over():
+			break
+	ok = ok and t[1].fail_reason == "time" and not t[1].was_left() and Rumble.count(&"failed") == 1
+	t[0].free()
+	# Crash out, battery dead, a strike that ends the job, the rescue clock.
+	for reason in ["crashed out", "battery dead", "crew struck", "time ran out", "fleet lost"]:
+		var s := _setup(Job.new())
+		await Sim.go_live(s[0])
+		Rumble.clear_log()
+		s[1].fail(reason)
+		var failed: bool = Rumble.count(&"failed") == 1 and not s[1].was_left()
+		if not failed:
+			print("        %s: " % reason, Rumble.log.map(func(l): return l.id))
+		ok = ok and failed
+		s[0].free()
+	_done()
+	return ok
+
+## Story 28.2: pausing stops a rumble at once, nothing shakes while paused,
+## and unpausing restarts nothing.
+func test_pausing_stops_the_rumble() -> bool:
+	_pad()
+	var tree := Sim.tree()
+	var ok := Rumble.play(&"strike")
+	tree.paused = true
+	# Stopped at once, before any frame passes.
+	var stopped: bool = Rumble.last().get("id") == Rumble.STOP and Rumble.last().device == 0 \
+		and Rumble.count(Rumble.STOP) == 1
+	var size := Rumble.log.size()
+	var quiet: bool = not Rumble.play(&"strike") and not Rumble.hit(20.0) and not Rumble.play(&"gate") \
+		and Rumble.log.size() == size
+	await Sim.process_frames(3)
+	tree.paused = false
+	await Sim.process_frames(3)
+	var not_restarted: bool = Rumble.log.size() == size and Rumble.count(&"strike") == 1
+	# Nothing going: a pause has nothing to stop.
+	await Sim.process_frames(1)
+	Rumble.clear_log()
+	tree.paused = true
+	var idle: bool = Rumble.log.is_empty()
+	tree.paused = false
+	# Through the game's own pause: Start in a live job opens the leave dialog.
+	var s := _setup(Job.new())
+	var runner: JobRunner = s[1]
+	runner.back_scene = ""
+	await Sim.go_live(s[0])
+	Rumble.clear_log()
+	Rumble.play(&"strike")
+	runner.request_leave()
+	var in_game: bool = tree.paused and Rumble.count(Rumble.STOP) == 1 and not Rumble.play(&"gate")
+	runner.leave_dialog.hide()
+	tree.paused = false
+	ok = ok and stopped and quiet and not_restarted and idle and in_game
+	if not ok:
+		print("        stopped %s quiet %s not_restarted %s idle %s in_game %s " % [stopped, quiet, not_restarted, idle, in_game],
+			Rumble.log.map(func(l): return l.id))
+	s[0].free()
+	_done()
+	return ok
+
 func test_play_is_the_same_without_rumble() -> bool:
 	var runs := []
 	for on in [true, false]:

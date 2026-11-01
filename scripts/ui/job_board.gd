@@ -23,6 +23,10 @@ extends Control
 # Story 18.5: the crew notice you on their radio here: a hello as you come back
 # (not right after someone died), a cheer for an upgrade bought or a job
 # unlocked, and on Esc to the title a wave goodbye, said over the title screen.
+# Story 27.5: GARAGE opens the hangar (HangarScreen), a layer over the board
+# like the pilot select; its UPGRADES tab is the old shop.
+# Story 27.7: new paint or a new part from the hangar is noticed here instead
+# of the hello, once (say_notices).
 
 const JOBS := "res://data/jobs/board.tres"
 const FREE_FLIGHT := "res://scenes/debug_flight.tscn"
@@ -32,12 +36,16 @@ const DIM := Color(1, 1, 1, 0.55)
 const HURT := Color(1.0, 0.45, 0.35)
 ## A fit crew member's perk on the CREW page (Story 19.7).
 const GOOD := Color(0.55, 0.9, 0.55)
+## Face sizes, twice what they were (Story 26.3): the crew member on comms on
+## a job card, and a row on the CREW page.
+const COMMS_FACE := 128
+const CREW_FACE := 176
 const HOW_TO := "Pick a job, fly it, get paid. Better grades pay more and get teams to notice you."
 ## What each menu item does, shown under the menu while it has focus.
 const MENU_HINTS := {
 	&"Fly": "Fly the job on the card.",
 	&"FreeFlight": "Fly around the city. No job, no clock.",
-	&"Garage": "Spend your pay on drone upgrades.",
+	&"Garage": "Paint your drone, fit parts, buy upgrades.",
 	&"Pilot": "Choose who you fly as.",
 	&"Crew": "See your crew and how they're doing.",
 	&"Options": "Sound, graphics, the controller, and the intro.",
@@ -47,7 +55,8 @@ var jobs: JobList
 ## The look for this act; set before the board builds.
 var skin: FrontSkin
 var offer_dialog: OfferDialog
-var shop: ShopDialog
+## The hangar (Story 27.5). Still `shop`: its UPGRADES tab is the old shop.
+var shop: HangarScreen
 var pilot_select: PilotSelect
 var sound: SoundDialog
 ## Job id -> its card's content (Fly or Locked inside), rebuilt on every refresh.
@@ -65,11 +74,17 @@ var pages := {}
 ## The crew's lines on the board, and the radio that shows them (Story 18.5).
 var bark: Bark
 var radio: BarkBox
+## The radio's own layer: hidden while the hangar is up (Story 27.5).
+var radio_layer: CanvasLayer
+## A purchase in the hangar, cheered once the hangar closes (Story 27.5).
+var _cheer_on_close := false
 ## Job ids flyable when the board last looked, this session; a new one is an unlock.
 static var flyable_seen: Array[StringName] = []
 static var flyable_known := false
 
 var _header: Label
+## The header (title, wallet, how-to), faded out under the radio (Story 26.4).
+var _under_radio: Array[Control] = []
 ## The focused menu item's hint.
 var menu_hint: Label
 ## Shows SaveGame.warning, once, when the save had to be reset.
@@ -92,11 +107,18 @@ func _ready() -> void:
 	offer_dialog = OfferDialog.new()
 	offer_dialog.answered.connect(func(_t, _a): refresh())
 	add_child(offer_dialog)
-	shop = ShopDialog.new()
+	shop = HangarScreen.new()
+	shop.name = "Hangar"
+	shop.skin = skin
+	shop.visible = false
+	# The cheer waits for the hangar to close: the radio is hidden over it.
 	shop.purchased.connect(func():
 		refresh()
-		if not death_on_last_job():
-			bark.moment(&"unlock"))
+		_cheer_on_close = true)
+	shop.closed.connect(_on_hangar_closed)
+	# The radio is hidden while the hangar is up: it would hang over the
+	# hangar's title and tabs, which it does not know to keep clear of.
+	shop.visibility_changed.connect(func(): radio_layer.visible = not shop.visible)
 	add_child(shop)
 	sound = SoundDialog.new()
 	sound.name = "SoundDialog"
@@ -127,10 +149,18 @@ func _ready() -> void:
 	MusicDirector.title()
 	Career.check_offers()
 	offer_dialog.show_next()
-	if PlayerProfile.has_pilot() and not death_on_last_job():
+	if PlayerProfile.has_pilot() and say_notices().is_empty() and not death_on_last_job():
 		bark.moment(&"hello")
 
-## The radio sits on its own layer over the board, low on the left.
+## The radio's bar hangs over the header, so the header fades out while the
+## radio is up, rather than peek out in pieces beside the bar.
+func _process(_delta: float) -> void:
+	if radio:
+		for c in _under_radio:
+			c.modulate.a = 1.0 - radio.modulate.a if radio.visible else 1.0
+
+## The radio sits on its own layer over the board. Its foot is all menu and
+## card, so the radio hangs from the top, over the header, and is solid.
 func _build_radio() -> void:
 	bark = Bark.new()
 	bark.name = "Bark"
@@ -138,14 +168,43 @@ func _build_radio() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "Radio"
 	add_child(layer)
+	radio_layer = layer
 	radio = BarkBox.new()
 	radio.bark = bark
+	radio.at_top = true
+	radio.panel_alpha = 1.0
+	# Story 26.5: the chat's rows step around the board's controls, and the
+	# chat goes once the newest line has had its hold, giving the header back.
+	radio.linger = false
+	radio.keep_clear = radio_clear
 	layer.add_child(radio)
 	radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+## What the radio's chat keeps off: every button and panel (the job cards, a
+## dialog's cards), the menu's hint, and the open page when it is not the jobs.
+func radio_clear() -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for c: Control in find_children("*", "Control", true, false):
+		if c.is_visible_in_tree() and not radio.is_ancestor_of(c) and (c is BaseButton or c is PanelContainer \
+				or c == menu_hint or (c in pages.values() and c != pages[&"jobs"])):
+			out.append(c.get_global_rect())
+	return out
 
 ## True when someone died on the last job flown: the board stays quiet then.
 static func death_on_last_job() -> bool:
 	return Roster.ids().any(func(id): return Roster.status(id) == Roster.Status.DEAD and Roster.jobs_since_death(id) == 0)
+
+## The crew notice the ride (Story 27.7): one line for each notice the Hangar
+## left, which it then forgets. After a death they are dropped unsaid: nobody
+## talks paint then. The hangar may call this as it closes. Returns the lines.
+func say_notices() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var quiet := death_on_last_job()
+	for event in Hangar.take_notices():
+		var line := {} if quiet else bark.say(event)
+		if not line.is_empty():
+			out.append(line)
+	return out
 
 ## Says `unlock` when a job is flyable that was not the last time the board looked.
 ## After a death it only takes note: a lock a death sets can open jobs, and
@@ -216,7 +275,12 @@ func hop_comms() -> void:
 
 func fly_button(job_id: StringName) -> Button:
 	var row: Node = job_rows.get(job_id)
-	return row.get_node_or_null("Fly") if row else null
+	return row.find_child("Fly", true, false) if row else null
+
+## A locked job's reason on its card, or null when it flies.
+func lock_label(job_id: StringName) -> Label:
+	var row: Node = job_rows.get(job_id)
+	return row.find_child("Locked", true, false) if row else null
 
 func fly(job: Job) -> void:
 	if Career.can_fly(job) and job.scene:
@@ -235,11 +299,22 @@ func _on_pilot_select_closed() -> void:
 	if f == null or pilot_select.is_ancestor_of(f) or not f.is_visible_in_tree():
 		menu_button(&"Pilot").grab_focus()
 
+## Out of the hangar, focus goes back to GARAGE, and the crew may notice what
+## changed: Story 27.7's `say_notices`, once that story is in.
+func _on_hangar_closed() -> void:
+	refresh()
+	menu_button(&"Garage").grab_focus()
+	if _cheer_on_close and not death_on_last_job():
+		bark.moment(&"unlock")
+	_cheer_on_close = false
+	if has_method(&"say_notices"):
+		call(&"say_notices")
+
 ## Esc (or pad B) with nothing open over the board: from a page back to the
 ## menu, from the menu back to the title.
 ## Left and right flip the carousel even when nothing has focus.
 func _unhandled_input(event: InputEvent) -> void:
-	if pilot_select.visible:
+	if pilot_select.visible or shop.visible:
 		return
 	if get_viewport().gui_get_focus_owner() == null and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")):
 		carousel.grab_focus()
@@ -359,7 +434,9 @@ func start_here() -> StringName:
 	return &""
 
 ## A job's card: a panel holding a box named for the job, whose first child is
-## the info (StartHere, Details, Grade, Comms) and whose last is Fly or Locked.
+## the info (StartHere, Details, Grade, Comms), then Fly or Locked. With someone
+## on comms, Fly or Locked sits under their line, beside their big face (Story
+## 26.3), so the card keeps its height.
 func _card(job: Job, boss: bool) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.name = "Card_" + String(job.id)
@@ -438,8 +515,11 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 	info.add_child(grade)
 	# The Lattice gets no cheerful pitch; its row keeps its own say (Story 8.1).
 	var who := comms_for(job) if not boss else &""
+	var foot: Container = box
 	if who != &"":
-		info.add_child(_comms(job, who))
+		var comms := _comms(job, who)
+		info.add_child(comms)
+		foot = comms.get_node("Text")
 	if flies:
 		var b := Button.new()
 		b.name = "Fly"
@@ -452,7 +532,7 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 			b.pressed.connect(func(): BossGate.open(get_tree()))
 		else:
 			b.pressed.connect(fly.bind(job))
-		box.add_child(b)
+		foot.add_child(b)
 	else:
 		var lock := Label.new()
 		lock.name = "Locked"
@@ -469,11 +549,11 @@ func _card(job: Job, boss: bool) -> PanelContainer:
 		lock.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lock.add_theme_color_override("font_color", DIM)
 		lock.add_theme_font_size_override("font_size", 19)
-		box.add_child(lock)
+		foot.add_child(lock)
 	return panel
 
 ## The crew member on comms for a job: their face making the pitch's
-## expression, name and role, and the line.
+## expression, and beside it (in Text) name and role, and the line.
 func _comms(job: Job, who: StringName) -> HBoxContainer:
 	var c: Character = Roster.character(who)
 	var line := Bark.pitch(who, job.id)
@@ -484,10 +564,11 @@ func _comms(job: Job, who: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.expression = line.get("face", &"neutral")
-	face.custom_minimum_size = Vector2(64, 64)
+	face.custom_minimum_size = Vector2.ONE * COMMS_FACE
 	face.follow_mouse = true
 	row.add_child(face)
 	var text := VBoxContainer.new()
+	text.name = "Text"
 	text.size_flags_horizontal = SIZE_EXPAND_FILL
 	text.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_child(text)
@@ -516,7 +597,7 @@ static func crew_row(id: StringName) -> HBoxContainer:
 	face.name = "Face"
 	face.character = c
 	face.greyed = not Roster.is_alive(id)
-	face.custom_minimum_size = Vector2(88, 88)
+	face.custom_minimum_size = Vector2.ONE * CREW_FACE
 	face.follow_mouse = true
 	# Clicking someone on the crew page makes them hop.
 	face.mouse_filter = MOUSE_FILTER_PASS
@@ -609,6 +690,7 @@ func _build() -> void:
 	margin.add_child(page)
 	var head := HBoxContainer.new()
 	page.add_child(head)
+	_under_radio.append(head)
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = SIZE_EXPAND_FILL
 	head.add_child(titles)
@@ -631,6 +713,7 @@ func _build() -> void:
 	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	how.add_theme_font_size_override("font_size", 20)
 	page.add_child(how)
+	_under_radio.append(how)
 	warning_label = Label.new()
 	warning_label.add_theme_color_override("font_color", HURT)
 	warning_label.text = SaveGame.warning

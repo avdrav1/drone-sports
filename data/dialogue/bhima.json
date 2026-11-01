@@ -977,5 +977,65 @@
     "face": "happy"
    }
   ]
+ },
+ "new_livery": {
+  "active": [
+   {
+    "text": "Fresh coat of paint! Good as a new site sign, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Now that's a work machine with pride.",
+    "face": "happy"
+   },
+   {
+    "text": "Looks sharp. The whole site will see you coming.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New paint! I'll admire it sitting down, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Looks proud. That's how a machine should look.",
+    "face": "happy"
+   },
+   {
+    "text": "Nice and bright. Good for safety, too.",
+    "face": "happy"
+   }
+  ]
+ },
+ "new_part": {
+  "active": [
+   {
+    "text": "New part? Good tools make good work, {you}.",
+    "face": "happy"
+   },
+   {
+    "text": "Learn it on small jobs before the big ones.",
+    "face": "determined"
+   },
+   {
+    "text": "Fitted proper? Then fly it like you mean it.",
+    "face": "happy"
+   }
+  ],
+  "injured": [
+   {
+    "text": "New part. Test it gently, {you}. Trust me on that.",
+    "face": "neutral"
+   },
+   {
+    "text": "Good upgrade. I'll cheer from the trailer.",
+    "face": "happy"
+   },
+   {
+    "text": "New gear. Learn it slow, then work it hard.",
+    "face": "determined"
+   }
+  ]
  }
 }

@@ -3,7 +3,8 @@ extends RefCounted
 # title card draw it in the title font, hanging from one unbroken headline bar
 # that touches every letter and runs past the word on both sides, fully on
 # screen at 960x720 and 1920x1080; a changed name redraws; the font's licence
-# is in the repo and listed. The look itself is the owner's call.
+# is in the repo and listed. The look itself is the owner's call: Amita, the
+# i-matra's loop over the letter after the I, saffron to gold edged in maroon.
 
 const Sim = preload("res://tests/sim.gd")
 const TITLE := "res://scenes/ui/title.tscn"
@@ -23,6 +24,24 @@ func _hangs(m: TitleMark, area: Rect2) -> bool:
 			and r.position.y <= b.end.y and r.end.y >= b.position.y \
 			and area.has_point(to_screen * r.position) and area.has_point(to_screen * r.end)
 	return ok
+
+## The matra rises from the I, above the bar, over the next letter, on screen.
+func _loops(m: TitleMark, area: Rect2) -> bool:
+	var loop := m.matra_loop()
+	var ink := m.letters()
+	var at := m.word.replace(" ", "").find("I")
+	if loop.size() < 2 or at < 0:
+		return false
+	var b := m.bar()
+	var to_screen := m.get_global_transform()
+	var top := INF
+	for p in loop:
+		top = minf(top, p.y)
+		if not area.has_point(to_screen * p):
+			return false
+	return ink[at].has_point(Vector2(loop[0].x, ink[at].get_center().y)) \
+		and loop[loop.size() - 1].x > ink[at + 1].get_center().x \
+		and top < b.position.y - m.size_used * 0.3
 
 ## Opens `path` in a `size` window and returns its title mark, on the title card.
 func _open(path: String, size: Vector2i) -> Array:
@@ -56,7 +75,22 @@ func test_bar_spans_the_word_on_both_screen_sizes() -> bool:
 			if not _hangs(m, Rect2(Vector2.ZERO, size)):
 				push_error("%s at %s: the bar does not hang the word on screen" % [path, size])
 				ok = false
+			if not _loops(m, Rect2(Vector2.ZERO, size)):
+				push_error("%s at %s: the matra is not over the I and on screen" % [path, size])
+				ok = false
 			opened[0].free()
+	return ok
+
+func test_saffron_with_a_maroon_edge() -> bool:
+	var opened := await _open(TITLE, Vector2i(1280, 720))
+	var m: TitleMark = opened[1]
+	var fill: Control = m.get_child(0, true)
+	var mat := fill.material as ShaderMaterial
+	var ok: bool = m.saffron and mat != null and mat.shader == TitleMark.GRADIENT \
+		and mat.get_shader_parameter("top_color") == m.top_color \
+		and mat.get_shader_parameter("bottom") > mat.get_shader_parameter("top") \
+		and m.edge_color.r > m.edge_color.g * 4.0
+	opened[0].free()
 	return ok
 
 func test_a_new_name_redraws() -> bool:

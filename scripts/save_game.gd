@@ -79,7 +79,7 @@ static func _hurt(entry) -> int:
 ## Every system reads its section again, as on a fresh launch.
 static func load_all(tree: SceneTree) -> void:
 	GameSettings.load_saved()
-	for autoload in ["Wallet", "Reputation", "Roster", "Career", "Garage", "Sfx"]:
+	for autoload in ["Wallet", "Reputation", "Roster", "Career", "Garage", "Hangar", "Sfx"]:
 		var node := tree.root.get_node_or_null(autoload)
 		if node:
 			node.load_saved()

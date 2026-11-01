@@ -8,6 +8,8 @@ enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 
 ## The leave dialog's warning, under any reason it was opened for.
 const LEAVE_TEXT := "Leaving now counts as a failed job: no pay."
+## The fail reason when the player leaves a job in flight (Story 28.1).
+const LEFT := "left"
 
 signal state_changed(state: State, previous: State)
 ## After Complete or Failed, once graded and paid.
@@ -52,6 +54,9 @@ var results_screen: Control
 var strikes := {}
 ## Character id -> status after a strike this job, e.g. injured or dead.
 var casualties := {}
+## Crashes while Live (Story 27.3), from the scene's FlightWatchers on this
+## runner's drone: a crash, or a recovery after one.
+var crashes := 0
 ## Next of the job's weather_changes to start.
 var _weather_step := 0
 var launch_dialog: LaunchDialog
@@ -106,6 +111,7 @@ func begin() -> void:
 	_weather_step = 0
 	_remove_dead_crew()
 	_arm_hazard_zones()
+	_watch_crashes()
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -185,7 +191,7 @@ func request_leave(why := "") -> void:
 func leave() -> void:
 	if state in [State.COUNTDOWN, State.LIVE]:
 		results_scene = null
-		fail("left")
+		fail(LEFT)
 	elif state != State.BRIEFING:
 		return
 	job_left.emit()
@@ -206,6 +212,10 @@ func fail(reason := "") -> void:
 		fail_reason = reason
 		_set_state(State.FAILED)
 		_finish()
+
+## True when the job ended because the player left it, not by failing it.
+func was_left() -> bool:
+	return state == State.FAILED and fail_reason == LEFT
 
 func is_over() -> bool:
 	return state == State.COMPLETE or state == State.FAILED
@@ -259,6 +269,8 @@ func _finish() -> void:
 		result.objectives.append({"label": o.label if o.label else String(o.name), "score": clampf(o.score(), 0.0, 1.0), "weight": o.weight})
 	result.score = Grader.total(objs)
 	result.letter = grade_scale.letter(result.score) if result.completed else "F"
+	result.time = live_time
+	result.crashes = crashes
 	if pays_out:
 		Payout.settle(result, grade_scale)
 		Roster.job_done(casualties.keys())
@@ -267,6 +279,9 @@ func _finish() -> void:
 		Career.job_flown(job.id, result.letter)
 		if result.completed:
 			Career.job_completed(job.id)
+		# After the pay and the career are saved, so a best payout or a job
+		# finished for the first time counts on this very job.
+		result.unlocks = Hangar.earn(result)
 	finished.emit(result)
 	if results_scene and is_inside_tree():
 		get_tree().create_timer(results_delay, true, true).timeout.connect(_show_results)
@@ -291,6 +306,21 @@ func hazard_zones() -> Array[HazardZone]:
 	for z in scope.find_children("*", "HazardZone", true, false):
 		out.append(z)
 	return out
+
+## Counts the crashes of the runner's drone (a watcher with no drone of its
+## own follows it), from the scene's FlightWatchers.
+func _watch_crashes() -> void:
+	crashes = 0
+	var scope: Node = owner if owner else get_parent()
+	if scope == null:
+		return
+	for w: FlightWatcher in scope.find_children("*", "FlightWatcher", true, false):
+		if w.runner == self and w.drone == null and not w.flight_event.is_connected(_on_flight_event):
+			w.flight_event.connect(_on_flight_event)
+
+func _on_flight_event(event: StringName) -> void:
+	if state == State.LIVE and event in [&"crash", &"reset"]:
+		crashes += 1
 
 ## A dead character's zone and figure never spawn: they are taken out of the scene.
 func _remove_dead_crew() -> void:

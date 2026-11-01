@@ -1,6 +1,6 @@
 # Jaisalmer: Characters
 
-The crew is the heart of the story. They are small, round, expressive, and they can die. Every death is the player's fault and the game says so.
+The crew is the heart of the story. They are expressive, they are drawn as the heroes of the Ramayana and the Mahabharata they are named for, and they can die. Every death is the player's fault and the game says so.
 
 ## Rules
 
@@ -8,20 +8,23 @@ The crew is the heart of the story. They are small, round, expressive, and they 
 2. Death is never random. A character is only at risk on a job that declares it, in a marked zone, after a visible warning. Two strikes: injured first, dead second.
 3. Death is permanent and changes the game: lines, team offers, available jobs, the roster you can fly in fleet mode.
 4. Characters are data. Roster, portraits, and lines live in `data/characters/` and `data/dialogue/`; no character is hard-coded in a scene.
-5. Cute is a shape language, not a species. Round bodies, big eyes, two or three colors each, readable at 64 px. Species is an open question; placeholder art is colored shapes.
+5. Faces are painted in code, lifelike, as each character's namesake in that figure's traditional iconography (the "Drawn as" column below): humans, vanaras (monkey-faced, as in the Ramayana) and a great bird. Each face reads at 48 px by its silhouette alone.
 
 ## Cast
 
-| Id | Name | Role | Where they stand on a job | Risk | Named for |
-| --- | --- | --- | --- | --- | --- |
-| `arjuna` | Arjuna | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) | The student archer every teacher wanted to train |
-| `sanjaya` | Sanjaya | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High | The one who saw the whole battle from afar and told it |
-| `nala` | Nala | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium | The engineer who bridged the sea to Lanka |
-| `bhima` | Bhima | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs | The strongest of the five brothers |
-| `sushena` | Sushena | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs | The healer who sent for the life-giving herb |
-| `drona` | Drona | The scout who recruits you. Story voice | Never in the field | None | The teacher who found and trained the great archers |
+| Id | Name | Role | Where they stand on a job | Risk | Named for | Drawn as |
+| --- | --- | --- | --- | --- | --- | --- |
+| `arjuna` | Arjuna | Rookie pilot, the default player avatar | In the pilot chair | Never (the player) | The student archer every teacher wanted to train | A young prince: a gold crown (mukut) over long dark hair, earrings and a necklace, the bow Gandiva over the shoulder |
+| `sanjaya` | Sanjaya | Spotter. Calls gates, marks, and hazards over comms | On the course, near the hardest gate | High | The one who saw the whole battle from afar and told it | A court narrator in a white turban, with a soft glow at the brow for the divine sight |
+| `nala` | Nala | Mechanic. Repairs, sells upgrades, complains | In the van; near the building on demolition runs | Medium | The engineer who bridged the sea to Lanka | A vanara (monkey-faced) builder in a builder's sash, holding a stone marked "राम" (Rama) |
+| `bhima` | Bhima | Demolition foreman. Runs the salvage crew, calls the collapse | At the base of the building | High on demolition runs | The strongest of the five brothers | Broad and heavy-browed, a thick moustache, a band round the brow, earrings, the gada (mace) on the shoulder |
+| `sushena` | Sushena | Medic. The one you are looking for on search and rescue | Lost in the weather, timer running | High on rescue jobs | The healer who sent for the life-giving herb | An elder vanara physician, white-furred and bearded, with a tilak, rudraksha beads and a sprig of the sanjivani herb |
+| `drona` | Drona | The scout who recruits you. Story voice | Never in the field | None | The teacher who found and trained the great archers | An elder brahmin teacher: white jata (matted locks) and beard, the tripundra on the brow, rudraksha beads, the sacred thread, a bow behind |
+| `abhimanyu` | Abhimanyu | Sprint pilot, a pilot avatar | In the pilot chair | Never (the player) | The young warrior who charged straight in | A youth in a warrior's helmet and armour, curls under the helmet, with a chakra (wheel) |
+| `jatayu` | Jatayu | Glide pilot, a pilot avatar | In the pilot chair | Never (the player) | The great bird who rode the high winds | A great bird, a vulture: a hooked beak, a feathered crest, a gold neck ring |
+| `hanuman` | Hanuman | Long-haul pilot, a pilot avatar | In the pilot chair | Never (the player) | The one who leapt the ocean to Lanka | A vanara with a gold crown, a tilak, kundala (earrings) and a necklace, the gada, and a calm, devoted face |
 
-Every name comes from the Ramayana or the Mahabharata and echoes the character's job; the CREW page (or, for a pilot with no CREW row, their pilot card) shows each "named for" line. The namesakes are treated with respect: no line mocks a namesake, and no deity is played for laughs. The ids are the code's keys (saves, jobs, file names); a save from before the rename is carried over to them on load.
+Every name comes from the Ramayana or the Mahabharata and echoes the character's job; the CREW page (or, for a pilot with no CREW row, their pilot card) shows each "named for" line. The namesakes are treated with respect, in the lines and in the faces: no line or face mocks a namesake, no face or line is played for laughs, and no deity is comic. Hanuman is worshipped, so Hanuman's face is calm and dignified; every face keeps its namesake's traditional iconography, drawn faithfully. The ids are the code's keys (saves, jobs, file names); a save from before the rename is carried over to them on load.
 
 Three more pilot avatars (so "play as" means a choice) are data beside Arjuna: Abhimanyu (`abhimanyu`, the young warrior who charged straight in), Jatayu (`jatayu`, the great bird who rode the high winds) and Hanuman (`hanuman`, who leapt the ocean to Lanka). Each avatar is a portrait, a voice-line set, and an edge, never a different flight model. An edge is data on the character: steps on the drone's exported stats (thrust, drag, flight time) and settings on the assists in front of the mixer (a higher governor cap, a faster climb). It never adds or removes an assist, and a setting for an assist the act has already removed does nothing.
 
@@ -59,6 +62,6 @@ The CREW page shows each perk under its owner's status: struck through with the 
 
 ## Open questions
 
-- [ ] Species: animals, robots, something new? Decide before any art is commissioned.
+- [x] Species: animals, robots, something new? Each character is drawn as their namesake (Epic 26): humans, the vanaras Nala, Sushena and Hanuman, and Jatayu the great bird.
 - [ ] Should there be a rookie mode where strikes injure but never kill?
 - [x] Do crew members ever fly drones themselves (Epic 6), and does a dead crew member shrink the fleet? Yes to both: crew tagged `can_fly` (Arjuna, Sanjaya, Nala, Sushena) each fly one fleet drone under autopilot, and a death takes that drone out of every fleet job (Story 7.7).

@@ -62,6 +62,8 @@ func goodbye() -> Dictionary:
 		add_child(bark)
 		radio = BarkBox.new()
 		radio.bark = bark
+		# As on the board: the chat goes once the goodbye has had its hold.
+		radio.linger = false
 		title_mark.get_parent().add_child(radio)
 		radio.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return bark.moment(&"goodbye")
@@ -71,6 +73,22 @@ func _process(delta: float) -> void:
 	press_start.visible = not needs_play
 	play_button.visible = needs_play
 	press_start.modulate.a = 1.0 if fmod(_age, blink) < blink * 0.65 else 0.15
+	# The radio's bar is tall since Story 26.4: on a small screen it would sit on
+	# the prompt and the best score, so they fade out under it while it is up.
+	var clear := 1.0 - radio.modulate.a if radio else 1.0
+	if under_radio(press_start):
+		press_start.modulate.a *= clear
+	best_label.modulate.a = clear if under_radio(best_label) else 1.0
+
+## True while the radio is up and its bar or face covers `c`.
+func under_radio(c: Control) -> bool:
+	if radio == null or not radio.visible:
+		return false
+	var at := radio.get_global_rect().position
+	var bar := BarkBox.panel_rect(radio.size, radio.at_top)
+	var face := BarkBox.face_rect(radio.size, radio.at_top)
+	var r := c.get_global_rect()
+	return r.intersects(Rect2(bar.position + at, bar.size)) or r.intersects(Rect2(face.position + at, face.size))
 
 ## "- - - -" for nothing paid yet, else the payout.
 static func best_text(best: int) -> String:

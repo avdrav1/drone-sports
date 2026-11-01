@@ -1,9 +1,22 @@
 extends Control
 # Results after a job: every objective and its score, crew strikes, the grade,
 # pay, reputation change, who was hurt or killed, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
+# Story 27.3: and each hangar item the job opened by achievement.
+# Story 27.7: the drone's name heads the rows, when it has one.
 
 signal retry_pressed
 signal continue_pressed
+
+## A crew face beside its line, more than twice the old 48 px (Story 26.3),
+## and the width its line wraps at; an epilogue line wraps narrower, two
+## faces to a row.
+const FACE := 112.0
+const TEXT := 440.0
+const EPILOGUE_TEXT := 260.0
+## Room kept above and below the panel, and how far a press of up or down
+## scrolls the rows.
+const EDGE := 12.0
+const SCROLL_STEP := 80
 
 @export_file("*.tscn") var continue_scene := "res://scenes/ui/job_board.tscn"
 ## The scene Retry reloads. Set by whoever shows the results.
@@ -14,6 +27,8 @@ var offer_dialog: OfferDialog
 @onready var title: Label = %Title
 @onready var grade: Label = %Grade
 @onready var rows: VBoxContainer = %Rows
+## Holds the rows; scrolls when the faces and lines outgrow the screen.
+@onready var scroll: ScrollContainer = %Scroll
 @onready var money: Label = %Money
 @onready var retry_button: Button = %Retry
 @onready var continue_button: Button = %Continue
@@ -22,13 +37,35 @@ func _ready() -> void:
 	retry_button.pressed.connect(retry)
 	continue_button.pressed.connect(continue_on)
 	continue_button.grab_focus()
+	resized.connect(fit_rows)
+
+## The rows take what height the screen has left, less EDGE above and below
+## the panel, and scroll past it.
+func fit_rows() -> void:
+	scroll.custom_minimum_size.y = 0.0
+	var others: float = $Center/Panel.get_combined_minimum_size().y
+	scroll.custom_minimum_size.y = maxf(minf(rows.get_combined_minimum_size().y, size.y - EDGE * 2.0 - others), 0.0)
+
+## Up and down scroll the rows, by pad or keys, while the buttons keep focus.
+func _unhandled_input(event: InputEvent) -> void:
+	for dir in [["ui_up", -1], ["ui_down", 1]]:
+		if event.is_action_pressed(dir[0], true):
+			scroll.scroll_vertical += dir[1] * SCROLL_STEP
+			get_viewport().set_input_as_handled()
 
 func show_result(r: JobResult) -> void:
 	result = r
 	title.text = "%s  —  %s" % [r.job.title, "COMPLETE" if r.completed else "FAILED" + (" (%s)" % r.fail_reason if r.fail_reason else "")]
 	grade.text = "Grade %s   (%d%%)" % [r.letter, roundi(r.score * 100.0)]
 	for c in rows.get_children():
+		rows.remove_child(c)
 		c.queue_free()
+	if drone_text() != "":
+		var ride := Label.new()
+		ride.name = "Drone"
+		ride.text = drone_text()
+		ride.add_theme_color_override("font_color", Color(1.0, 0.76, 0.25))
+		rows.add_child(ride)
 	for o in r.objectives:
 		var row := Label.new()
 		row.text = "%-28s %3d%%   x%s" % [o.label, roundi(o.score * 100.0), str(o.weight)]
@@ -49,17 +86,38 @@ func show_result(r: JobResult) -> void:
 		rows.add_child(casualty_row(r, id))
 		if r.casualties[id] != Roster.Status.DEAD and r.casualty_lines.get(id, "") != "":
 			Bark.chirp(id, &"neutral", &"hurt")
+	var opened := unlock_lines(r)
+	for i in opened.size():
+		var row := Label.new()
+		row.name = "Unlock%d" % i
+		row.text = opened[i]
+		row.add_theme_color_override("font_color", Color(0.95, 0.78, 0.3))
+		rows.add_child(row)
 	if not r.bark.is_empty():
 		rows.add_child(bark_row(r.bark, r))
 		Bark.chirp(r.bark.id, r.bark.get("face", &"neutral"), r.bark.get("event", &"results"))
-	for e in r.epilogue:
-		rows.add_child(epilogue_row(e))
+	# The final crew pass, two to a row so their big faces fit (Story 26.3).
+	if not r.epilogue.is_empty():
+		var grid := GridContainer.new()
+		grid.name = "Farewells"
+		grid.columns = 2
+		grid.add_theme_constant_override("h_separation", 24)
+		rows.add_child(grid)
+		for e in r.epilogue:
+			grid.add_child(epilogue_row(e, EPILOGUE_TEXT))
 	money.text = "Pay %d     Reputation (%s) %+d" % [r.pay, r.job.faction, r.reputation_change]
 	if r.pay > 0:
 		Sfx.play(&"job_payout")
+	fit_rows.call_deferred()
 	retry_button.disabled = not can_retry(r.job)
 	retry_button.tooltip_text = "" if can_retry(r.job) else "This job is off the board now."
 	show_offers()
+
+## "Drone  Kestrel": the player's drone by its hangar name, or empty when it
+## has none (Story 27.7).
+static func drone_text() -> String:
+	var n := Hangar.drone_name(0)
+	return "Drone  " + n if n else ""
 
 ## A death can take a job off the board (its faction locked, or crew it needs
 ## gone); Retry must not fly it anyway (Story 7.6).
@@ -80,6 +138,14 @@ static func bonus_lines(r: JobResult) -> Array[String]:
 	var out: Array[String] = []
 	for b in r.bonuses:
 		out.append("%s %+d%s" % [b.text, b.amount, b.unit])
+	return out
+
+## One line per hangar item the job opened (Story 27.3), e.g. "Unlocked: Lotus
+## decal (finish Search and rescue with no crashes)".
+static func unlock_lines(r: JobResult) -> Array[String]:
+	var out: Array[String] = []
+	for u in r.unlocks:
+		out.append("Unlocked: %s (%s)" % [u.name, u.achievement.describe() if u.achievement else ""])
 	return out
 
 ## One line per struck character, e.g. "Sanjaya struck 1x".
@@ -127,26 +193,31 @@ static func casualty_row(r: JobResult, id: StringName) -> HBoxContainer:
 	var face := Bark.face_of(id, &"hurt", line) if line and not dead else &"neutral"
 	return _face_row("Casualty", c, text, dead, Color(1.0, 0.45, 0.35), face)
 
-## The last word from one crew member: theirs if alive, their memorial if not.
-static func epilogue_row(e: Dictionary) -> HBoxContainer:
+## The last word from one crew member: theirs if alive, their memorial if not,
+## wrapped to `width`.
+static func epilogue_row(e: Dictionary, width := TEXT) -> HBoxContainer:
 	var c: Character = Roster.character(e.id)
 	var who := c.name if c else String(e.id)
 	var text: String = ("%s: %s" % [who, e.text]) if e.alive else ("%s is not coming home. %s" % [who, e.text])
 	var face := Bark.face_of(e.id, &"epilogue", e.text) if e.alive else &"neutral"
-	return _face_row("Epilogue_%s" % e.id, c, text, not e.alive, Color.WHITE if e.alive else Color(1, 1, 1, 0.55), face)
+	return _face_row("Epilogue_%s" % e.id, c, text, not e.alive, Color.WHITE if e.alive else Color(1, 1, 1, 0.55), face, width)
 
-static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color, expression: StringName = &"neutral") -> HBoxContainer:
+static func _face_row(row_name: String, c: Character, text: String, greyed: bool, color: Color, expression: StringName = &"neutral", width := TEXT) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.name = row_name
+	row.add_theme_constant_override("separation", 12)
 	var face := CharacterPortrait.new()
 	face.character = c
 	face.greyed = greyed
 	face.expression = expression
-	face.custom_minimum_size = Vector2(48, 48)
+	face.custom_minimum_size = Vector2.ONE * FACE
 	row.add_child(face)
 	var line := Label.new()
 	line.text = text
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	line.custom_minimum_size.x = width
 	line.add_theme_color_override("font_color", color)
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(line)
 	return row

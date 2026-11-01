@@ -50,9 +50,14 @@ func _ready() -> void:
 	# The window hears every event before any node can mark it handled; _input
 	# also hears events pushed straight into the viewport.
 	get_tree().root.window_input.connect(seen)
+	# Story 28.5: a pad that connects gets its saved button remap.
+	Input.joy_connection_changed.connect(_on_joy_connection)
 
 func _input(event: InputEvent) -> void:
 	seen(event)
+
+func _on_joy_connection(_id: int, _connected: bool) -> void:
+	PadRemap.refresh()
 
 ## Notes which device `event` came from.
 func seen(event: InputEvent) -> void:
@@ -127,8 +132,8 @@ func pad_text(action: StringName) -> String:
 	if not InputMap.has_action(action):
 		return ""
 	for e in InputMap.action_get_events(action):
-		if e is InputEventJoypadButton:
-			return button_name(e.button_index)
+		if e is InputEventJoypadButton and e.button_index != JOY_BUTTON_INVALID:
+			return button_name(PadRemap.logical(e.button_index) as JoyButton)
 		if e is InputEventJoypadMotion:
 			return axis_name(e.axis, e.axis_value)
 	return ""

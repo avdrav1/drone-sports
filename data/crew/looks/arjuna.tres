@@ -6,11 +6,17 @@
 [resource]
 script = ExtResource("1_look")
 body = ExtResource("2_body")
-skin = Color(0.98, 0.8, 0.65, 1)
-hair = Color(0.45, 0.28, 0.15, 1)
-top = Color(1, 0.8, 0.3, 1)
+skin = Color(0.66, 0.45, 0.32, 1)
+hair = Color(0.1, 0.07, 0.06, 1)
+top = Color(0.93, 0.58, 0.16, 1)
 bottom = Color(0.3, 0.35, 0.55, 1)
 shoes = Color(0.95, 0.95, 0.95, 1)
 accessory = &"round"
-accessory_color = Color(0.3, 0.55, 0.95, 1)
-accessory_detail = Color(1, 0.95, 0.8, 1)
+accessory_color = Color(0.95, 0.74, 0.3, 1)
+accessory_detail = Color(0.75, 0.08, 0.15, 1)
+head = &"human"
+headwear = &"crown"
+hair_cut = &"long"
+held = &"bow"
+held_side = 1.0
+marks = Array[StringName]([&"earrings", &"necklace"])
