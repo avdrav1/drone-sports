@@ -121,6 +121,9 @@ func _draw() -> void:
 			continue
 		var at := to_chart(m.global_position)
 		var lit := m.highlighted
+		if m.symbol:
+			Radar.draw_symbol(self, at, m.symbol)
+			continue
 		Radar.draw_icon(self, at, m.icon, 6.0 if lit else 4.5, Radar.marker_color(m))
 		if m.label and m.kind != &"gate":
 			_text(at + Vector2(8, 4), m.label, 12, LINE)

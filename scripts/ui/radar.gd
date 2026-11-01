@@ -90,6 +90,8 @@ func blips() -> Array:
 		if m.get_parent() == gps.drone:
 			continue
 		var p := radar_point(m.global_position)
+		if p.on_rim and not m.on_rim:
+			continue
 		out.append({"marker": m, "pos": p.pos, "on_rim": p.on_rim, "lit": m.highlighted})
 	return out
 
@@ -148,6 +150,9 @@ func _blip(at: Vector2, m: MapMarker, lit: bool, on_rim: bool) -> void:
 	if on_rim:
 		col.a *= 0.6
 	var r := 6.0 if lit else 4.0
+	if m.symbol:
+		draw_symbol(self, at, m.symbol)
+		return
 	draw_icon(self, at, m.icon, r, col)
 	if lit:
 		draw_arc(at, r + 4.0, 0, TAU, 16, col, 1.5, true)
@@ -155,6 +160,11 @@ func _blip(at: Vector2, m: MapMarker, lit: bool, on_rim: bool) -> void:
 ## Drones red, lit markers and drop points amber, the rest white. Shared with the map screen.
 static func marker_color(m: MapMarker) -> Color:
 	return DRONE if m.kind == &"drone" else (ACCENT if m.highlighted or m.kind == &"drop" else LINE)
+
+## A marker's symbol (Story 30.8) centred on `at`, at its own size, shared
+## with the map screen.
+static func draw_symbol(ci: CanvasItem, at: Vector2, symbol: Texture2D) -> void:
+	ci.draw_texture(symbol, (at - symbol.get_size() * 0.5).round())
 
 ## A marker icon of radius r, shared with the map screen.
 static func draw_icon(ci: CanvasItem, at: Vector2, icon: StringName, r: float, col: Color) -> void:

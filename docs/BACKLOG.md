@@ -1627,11 +1627,12 @@ Owner decisions (2026-11-01):
   - Acceptance: A planned route of three points passed in order keeps the vow; out of order or a missed point does not. Planning is unavailable on jobs without the vow. The planned line shows on map and radar. Guidance and grading are unchanged.
   - Out of scope: Saving routes between attempts.
 
-- [ ] **30.8 The shrines**
+- [x] **30.8 The shrines**
   - Goal: Four rooftop shrines in the city, one per god, whose lamps light as that thread's vows are kept.
   - Context: A `Shrine` scene (symbol, base, lamps) placed by the city plan on plazas clear of every course, gate, hazard and spawn, in job cities (seed 7) and free-flight cities alike. Lamp count from the save's vows kept, capped. On the map and radar as the symbol. Drones never collide with or damage a shrine (no collision with the drone's layer; nothing destructible), and no job uses one as a gate or target. Follows the owner's decision on visiting in free flight.
   - Acceptance: Every city seed tested (20) places four shrines clear of courses, gates, hazards and the spawn. Lamps match the saved vows. No shrine shares a collision layer with a drone, and none is a node any job objective references. Obstacle fingerprints for seed 7 jobs are unchanged.
   - Out of scope: New city patterns.
+  - Note: `CityPlan` picks one low roof per quarter (NE, NW, SW, SE in thread order: Brahma, Vishnu, Shiva, Krishna) with no random draws, past every clearing by `CityLayout.shrine_clearance` (`plan.shrines`, `plan.shrine_lots`); `Rooftops` builds a `Shrine` (`scenes/world/shrine.tscn`, `scripts/world/shrine.gd`: sandstone steps, the `DeitySymbol` flat on a dais via a one-shot SubViewport, `lamps` = 8 lamps lit to `min(Vows.kept, 8)` when built) on each, keeps clutter off its square and pads `shrine_clearance` away (seed 7's pads unchanged). Shrines are meshes only, with a `MapMarker` of kind `shrine` whose new `symbol` texture the radar and map draw in place of an icon and whose new `on_rim = false` keeps it off the radar's rim (seen only); `tests/test_shrines.gd` checks 20 seeds, the three city scenes' objectives (20 m), collision, references and fingerprints.
 
 - [ ] **30.9 Brahma's boon**
   - Goal: The final job's briefing tells why Ravana can be stopped only by a human hand: the boon that left humans out.
