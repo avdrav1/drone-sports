@@ -10,6 +10,8 @@ enum State { IDLE, BRIEFING, COUNTDOWN, LIVE, COMPLETE, FAILED }
 const LEAVE_TEXT := "Leaving now counts as a failed job: no pay."
 ## The fail reason when the player leaves a job in flight (Story 28.1).
 const LEFT := "left"
+## Krishna's counsel before the final job (Story 30.10).
+const COUNSEL := "res://data/story/counsel.tres"
 
 signal state_changed(state: State, previous: State)
 ## After Complete or Failed, once graded and paid.
@@ -127,12 +129,13 @@ static func assists_for(j: Job) -> AssistStack:
 	return j.required_assists.intersect(Career.preset())
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
-## With injured crew in the field it asks first, unless `confirmed`.
+## With injured crew in the field, or before the final job's counsel, it asks
+## first, unless `confirmed`.
 func launch(confirmed := false) -> void:
 	if state != State.BRIEFING:
 		return
 	var hurt := injured_in_field()
-	if confirm_risk and not confirmed and not hurt.is_empty():
+	if confirm_risk and not confirmed and (not hurt.is_empty() or counsel_due() != null):
 		_ask_launch(hurt)
 		return
 	_set_state(State.COUNTDOWN)
@@ -142,11 +145,18 @@ func launch(confirmed := false) -> void:
 func request_launch() -> void:
 	if state != State.BRIEFING:
 		return
-	if job.vows.is_empty():
+	if job.vows.is_empty() and counsel_due() == null:
 		launch()
 		return
 	var hurt: Array[StringName] = injured_in_field() if confirm_risk else []
 	_ask_launch(hurt)
+
+## The counsel when this job is the final one and launches ask first; else null.
+func counsel_due() -> Counsel:
+	if not confirm_risk or job == null:
+		return null
+	var c: Counsel = load(COUNSEL)
+	return c if c.applies_to(job) else null
 
 ## Make one of the job's vows for this flight, or none with null. Only in the
 ## briefing.
@@ -183,11 +193,16 @@ func _ask_launch(hurt: Array[StringName]) -> void:
 	if launch_dialog == null:
 		launch_dialog = LaunchDialog.new()
 		launch_dialog.confirmed.connect(_on_launch_confirmed)
-		launch_dialog.canceled.connect(decline_launch)
+		launch_dialog.canceled.connect(_on_launch_declined)
 		add_child(launch_dialog)
-	launch_dialog.ask(hurt, job.tags.has(&"lethal"), job.vows)
+	launch_dialog.ask(hurt, job.tags.has(&"lethal"), job.vows, counsel_due(), job)
+
+func _on_launch_declined() -> void:
+	launch_dialog.hush()
+	decline_launch()
 
 func _on_launch_confirmed() -> void:
+	launch_dialog.hush()
 	choose_vow(launch_dialog.chosen)
 	launch(true)
 
