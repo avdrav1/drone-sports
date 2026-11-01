@@ -9,8 +9,9 @@ extends StaticBody3D
 # Streets node after its Clutter and reads the plan, the street lights, and the
 # clutter; cached per layout, like StreetClutter.
 #
-# A span's underside is never below the tallest street clutter or a light's
-# head, and stands at least `span_gap` over anything beneath it; every span keeps
+# A span's underside is never below a light's head or the tallest street
+# clutter where it crosses (a tree on another street does not hold it up), and
+# stands at least `span_gap` over anything beneath it; every span keeps
 # `span_gap` off every other. Its ends sink `EMBED` into the walls they meet,
 # and between them it touches no building, trim, lot, or wall clutter.
 
@@ -126,20 +127,23 @@ func clear() -> void:
 static func prune(keep: CityLayout) -> void:
 	keep.prune(_cache)
 
-## The lowest any span's underside may be: the top of the tallest street
-## clutter, or of a street light's head, whichever is higher.
-func floor_height() -> float:
+## The lowest a span's underside may be where it crosses the street, over
+## `area` (XZ): never below a street light's head, and a gap over the tallest
+## street clutter or light head standing within it. A tree on another street
+## does not hold a lane's spans up.
+func floor_height(area: Rect2) -> float:
 	var out := streets.pole_height + 0.06
 	for f in clutter.pieces:
-		if f.lot < 0:
-			out = maxf(out, f.box.end.y)
+		if f.lot < 0 and Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z).intersects(area):
+			out = maxf(out, f.box.end.y + layout.span_gap)
+	for p in streets.lights:
+		if Rect2(p.x - 0.9, p.z - 0.9, 1.8, 1.8).intersects(area):
+			out = maxf(out, streets.pole_height + 0.06 + layout.span_gap)
 	return out
 
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = layout.seed + 41
-	var low := maxf(layout.span_clear.x, floor_height())
-	var high := maxf(low, layout.span_clear.y)
 	# What stands beneath a span: street clutter and light heads, as XZ rects and tops.
 	var beneath := []
 	for f in clutter.pieces:
@@ -165,9 +169,16 @@ func _generate() -> Array:
 			var gaps: Array[float] = [rng.randf_range(0.0, 0.6), rng.randf_range(0.0, 0.6)]
 			if take:
 				var at := piece.world(Vector2(t, piece.c))
+				var reach := piece.width * 0.5 + layout.sidewalk + REACH
+				# The floor is what stands on this street across the slot: within a
+				# gap of the widest, longest span it could hold.
+				var across := Streets.bounds(piece.area(Rect2(t - duct_size.x * 0.5, piece.c - reach - 1.0,
+					duct_size.x, (reach + 1.0) * 2.0))).grow(layout.span_gap)
+				var low := maxf(layout.span_clear.x, floor_height(across))
+				var high := maxf(low, layout.span_clear.y)
 				# The underside goes no higher than lets the lower facing wall stand
 				# over the top; a rack too tall for it loses pipes, then is a duct.
-				var wall := _wall_top(at, piece.n, low, piece.width * 0.5 + layout.sidewalk + REACH)
+				var wall := _wall_top(at, piece.n, low, reach)
 				for n in ([pipes, 2, 1] if rack else [1]):
 					var offsets: Array[Vector2] = []
 					if n == 1:

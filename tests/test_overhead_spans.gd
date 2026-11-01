@@ -215,7 +215,8 @@ func test_every_gap_meets_the_collision_guard_rule() -> bool:
 
 ## Every duct and pipe has one collision box, and a ray straight up from the
 ## street at a span's middle first meets that span, at its clear height, which
-## is never below the tallest street clutter or a street light's head.
+## is never below a street light's head or the tallest street clutter where it
+## crosses (within a gap of its footprint).
 func test_every_span_collides_and_a_ray_up_meets_it_at_its_clear_height() -> bool:
 	var ok := true
 	for l in _layouts():
@@ -224,13 +225,14 @@ func test_every_span_collides_and_a_ray_up_meets_it_at_its_clear_height() -> boo
 		var spans: OverheadSpans = built[2]
 		var space := spans.get_world_3d().direct_space_state
 		var parts := 0
-		var tallest := streets.pole_height
-		for f in (streets.get_node("Clutter") as StreetClutter).pieces:
-			if f.lot < 0:
-				tallest = maxf(tallest, f.box.end.y)
 		var bad := 0
 		for s in spans.spans:
 			parts += s.parts.size()
+			var tallest := streets.pole_height
+			var wide := Streets.bounds(s.footprint(s.from, s.to)).grow(l.span_gap)
+			for f in (streets.get_node("Clutter") as StreetClutter).pieces:
+				if f.lot < 0 and Rect2(f.box.position.x, f.box.position.z, f.box.size.x, f.box.size.z).intersects(wide):
+					tallest = maxf(tallest, f.box.end.y)
 			var q := PhysicsRayQueryParameters3D.create(Vector3(s.at.x, Streets.ROAD_Y + 0.01, s.at.y),
 				Vector3(s.at.x, 200.0, s.at.y))
 			var hit := space.intersect_ray(q)
@@ -244,6 +246,48 @@ func test_every_span_collides_and_a_ray_up_meets_it_at_its_clear_height() -> boo
 			print("        seed %d: %d bad rays, %d boxes for %d parts" % [l.seed, bad, shapes.size(), parts])
 			ok = false
 		_done(built)
+	return ok
+
+## The old town's narrow lanes get the most spans: across old-town cities its
+## lanes hold more spans per metre of stretch than its through streets do. The
+## floor under a span is the clutter where it crosses, not the city's tallest
+## tree, so some lane spans hang lower than the town's tallest street clutter.
+func test_old_town_lanes_get_more_spans_than_its_streets() -> bool:
+	var lane := Vector2.ZERO
+	var street := Vector2.ZERO
+	var under_trees := 0
+	for k in 4:
+		var l := VARIETY.roll(SANDBOX, 2609 + CityLayout.Pattern.OLD_TOWN * 977 + k * 4127)
+		l.pattern = CityLayout.Pattern.OLD_TOWN
+		var built: Array = await _build(l)
+		var streets: Streets = built[1]
+		var spans: OverheadSpans = built[2]
+		var lanes := {}
+		for p: Streets.Piece in Streets.road_pieces(streets.plan, l):
+			if p.kind == 2 or p.width > l.span_max_width + 1e-3:
+				continue
+			var metres := maxf(0.0, p.a1 - p.a0 - 2.0 * OverheadSpans.END_MARGIN)
+			if p.width < l.street_width - 1e-3:
+				lanes[p.street] = true
+				lane.y += metres
+			else:
+				street.y += metres
+		var tallest := 0.0
+		for f in (streets.get_node("Clutter") as StreetClutter).pieces:
+			if f.lot < 0:
+				tallest = maxf(tallest, f.box.end.y)
+		for s in spans.spans:
+			if lanes.has(s.street):
+				lane.x += 1.0
+				if s.clear < tallest:
+					under_trees += 1
+			else:
+				street.x += 1.0
+		_done(built)
+	var ok := lane.x > 0.0 and lane.y > 0.0 and street.y > 0.0 and lane.x / lane.y > street.x / street.y and under_trees > 0
+	if not ok:
+		print("        old town: lanes %d spans over %.0f m (%d under the tallest clutter), streets %d over %.0f m" % [
+			lane.x, lane.y, under_trees, street.x, street.y])
 	return ok
 
 ## Same seed, same spans: two builds from scratch match span for span.
