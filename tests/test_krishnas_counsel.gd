@@ -139,10 +139,11 @@ func test_only_the_final_job_has_it() -> bool:
 	var ok := c.applies_to(load(BossGate.DATA).job) and not c.applies_to(load(FLEET_FINAL))
 	for p in ["res://data/jobs/inspection.tres", "res://data/jobs/rescue.tres", "res://data/jobs/fleet_inspection.tres"]:
 		ok = ok and not c.applies_to(load(p))
-	# Another job launches as before, with no dialog.
+	# Another job asks for no counsel: its launch dialog, if any, is for its
+	# vows alone (fleet jobs offer guiding, Story 30.6).
 	var root := _rig(load(FLEET_FINAL))
 	var runner := await _ask(root)
-	ok = ok and runner.launch_dialog == null and runner.state == JobRunner.State.COUNTDOWN
+	ok = ok and runner.counsel_due() == null and runner.launch_dialog != null and runner.launch_dialog.counsel == null
 	root.free()
 	BossGate.boss = null
 	return ok
