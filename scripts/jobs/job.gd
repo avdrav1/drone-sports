@@ -9,6 +9,9 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var title := ""
 ## What you do on this job, in one plain sentence, shown on the board.
 @export var summary := ""
+## A line or two of story read while the job waits in its briefing; most jobs
+## have none (Story 30.9).
+@export_multiline var briefing := ""
 ## The scene that flies this job, opened from the job board.
 @export_file("*.tscn") var scene := ""
 ## Who is paying, as shown to the player.

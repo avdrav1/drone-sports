@@ -7,6 +7,8 @@
 script = ExtResource("1_job")
 id = &"lattice"
 title = "Ravana"
+briefing = "Its makers built it so that no drone, no assist and no autopilot could ever stop it, and named it for the king of Lanka, whose boon from Brahma held that no god, demon or spirit could unmake him.
+The king thought humans beneath notice and left them off the list. Every assist is off: only a human hand on the sticks can reach the override."
 scene = "res://scenes/boss/lattice_job.tscn"
 client = "Everyone under it"
 job_type = &"boss"

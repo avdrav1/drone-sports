@@ -1635,11 +1635,12 @@ Owner decisions (2026-11-01):
   - Acceptance: Every city seed tested (20) places four shrines clear of courses, gates, hazards and the spawn. Lamps match the saved vows. No shrine shares a collision layer with a drone, and none is a node any job objective references. Obstacle fingerprints for seed 7 jobs are unchanged.
   - Out of scope: New city patterns.
 
-- [ ] **30.9 Brahma's boon**
+- [x] **30.9 Brahma's boon**
   - Goal: The final job's briefing tells why Ravana can be stopped only by a human hand: the boon that left humans out.
   - Context: `data/boss/lattice_job.tres` briefing, and the BOSS.md "Does Ravana have a reason?" question (answered: its makers built it so no machine could stop it, named for the king whose boon scorned humans). The fight does not change: it is already flown with every assist off. Respect for Brahma and for Ravana as a formidable king (rule 9). With `enabled = false`, none of this loads.
   - Acceptance: The briefing names the boon in one or two original lines. The boss-disabled tests still prove nothing about Ravana loads. BOSS.md's open question is ticked with the answer.
   - Out of scope: Fight changes.
+  - Note: `Job.briefing` (multiline, empty on every other job) holds the boon in two original lines on `data/boss/lattice_job.tres`; `LatticeHud` (HUD/Phase) shows it while the fight is in its BRIEFING phase and now sits under the State label (`below`) so the two never overlap. BOSS.md's reason question is ticked with the answer, and `tests/test_brahmas_boon.gd` checks the lines, the HUD, the unchanged Act 5 preset and that a disabled boss shows none of it; 30.10 can put counsel lines on its own data the same way, and must keep pronoun-free prose in BOSS.md (test_docs_names checks it).
 
 - [ ] **30.10 Krishna's counsel**
   - Goal: Before the final job launches, Arjuna hesitates and Krishna's counsel, relayed by Sanjaya, is the launch confirmation.
