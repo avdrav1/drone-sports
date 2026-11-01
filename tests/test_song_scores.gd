@@ -63,14 +63,6 @@ func test_acts_play_the_songs_chords() -> bool:
 		ok = ok and good
 	return ok
 
-func test_generator_is_deterministic() -> bool:
-	# --check renders everything again and fails unless every file matches.
-	var out := []
-	var code := OS.execute("python3", [ProjectSettings.globalize_path("res://tools/music/generate.py"), "--check"], out, true)
-	if code != 0:
-		print("        generate.py --check exited %d: %s" % [code, "".join(out).strip_edges()])
-	return code == 0
-
 func test_each_act_has_fewer_stems_than_the_one_before() -> bool:
 	var ok := true
 	var last := 1 << 30

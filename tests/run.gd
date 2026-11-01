@@ -52,6 +52,10 @@ func _run() -> void:
 			var name: String = m.name
 			if not name.begins_with("test_"):
 				continue
+			# Every test starts inside a physics tick, before the nodes' own step. A
+			# flight test relies on it: a drone it adds flies in that same tick.
+			# Otherwise where a test starts hangs on how the one before it finished.
+			await physics_frame
 			_errors.clear()
 			var start := Time.get_ticks_msec()
 			_fresh_roster()

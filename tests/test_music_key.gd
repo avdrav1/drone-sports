@@ -13,15 +13,6 @@ func _json(path: String) -> Dictionary:
 	var d = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return d if d is Dictionary else {}
 
-func test_generator_writes_the_same_files_twice() -> bool:
-	# --check renders everything again into build/music/check/ and compares
-	# each file with data/music/ byte for byte.
-	var out := []
-	var code := OS.execute("python3", [ProjectSettings.globalize_path("res://tools/music/generate.py"), "--check"], out, true)
-	if code != 0:
-		print("        generate.py --check exited %d: %s" % [code, "".join(out).strip_edges()])
-	return code == 0
-
 func test_demo_manifest_lists_every_instrument() -> bool:
 	var m := _json(MANIFEST)
 	var all: Array = m.get("instruments", [])

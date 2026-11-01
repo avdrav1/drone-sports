@@ -3,7 +3,7 @@
 # its own save), then list any failures and the slowest tests. Exits nonzero on
 # any failure, or if a process dies before finishing its files.
 # Env: ONLY=test_foo,test_song_*  just those files, in one process (`*` is a wildcard)
-#      JOBS=n                     processes for a full run (default: 8, at most the CPU count)
+#      JOBS=n                     processes for a full run (default: 12, at most the CPU count)
 #      GODOT_BIN                  the Godot binary (default: godot)
 #      DRONE_TEST_SAVE            base name for the test saves (default: unique to this run)
 set -euo pipefail
@@ -34,17 +34,19 @@ if [[ -n "${ONLY:-}" ]]; then
   run_tests 0 "$ONLY" 2>&1 | tee "$logs/0.log" || true
 else
   cpus="$(nproc 2>/dev/null || echo 8)"
-  jobs="${JOBS:-$(( cpus < 8 ? cpus : 8 ))}"
+  jobs="${JOBS:-$(( cpus < 12 ? cpus : 12 ))}"
   (( jobs >= 1 )) || { echo "JOBS must be at least 1"; exit 1; }
   # Too slow to share: on a full run each gets a process of its own, so it does
   # not hold up the files dealt alongside it.
-  alone=(test_parts)
+  alone=(test_parts_freestyle test_parts_heavy_hauler test_parts_light_racer
+         test_flight_style test_song_profile test_fleet_path)
   # Dealt out by a fixed order, so a run can be repeated exactly.
   groups=()
   n=0
   first=0
   for name in "${alone[@]}"; do
-    if (( jobs - first > 1 )); then
+    # At most half the processes: the rest carry all the other files.
+    if (( first < jobs / 2 )); then
       groups[first]="$name"
       first=$(( first + 1 ))
     fi
