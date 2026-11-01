@@ -69,9 +69,9 @@ func _use_test_save() -> void:
 
 ## Strikes injure and kill for good, and offers and teams stick, so every test
 ## starts with the whole crew alive, no flags, no reputation, no team, a stock drone,
-## a stock ride (Story 27.1), and no pilot chosen.
+## a stock ride (Story 27.1), no pilot chosen, and no vows kept (Story 30.5).
 func _fresh_roster() -> void:
-	for section in ["roster", "career", "flags", "reputation", "upgrades", "hangar", "profile"]:
+	for section in ["roster", "career", "flags", "reputation", "upgrades", "hangar", "profile", "vows"]:
 		SaveGame.write_section(section, {})
 	for autoload in ["Roster", "Career", "Reputation", "Garage", "Hangar"]:
 		var node := root.get_node_or_null(autoload)

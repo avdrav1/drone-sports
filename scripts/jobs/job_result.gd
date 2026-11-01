@@ -32,3 +32,7 @@ var bark := {}
 ## The final crew pass after the Lattice (Story 8.6): {id, text, alive} for
 ## every crew member, the dead with their memorial line.
 var epilogue: Array[Dictionary] = []
+## The vow made at launch (Story 30.5), set only when the job completed, and
+## whether it was kept. Neither moves pay, reputation, grade or unlocks.
+var vow: Vow
+var vow_kept := false

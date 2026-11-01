@@ -60,6 +60,8 @@ var crashes := 0
 ## Next of the job's weather_changes to start.
 var _weather_step := 0
 var launch_dialog: LaunchDialog
+## The vow the player made at launch (Story 30.5), one of the job's, or null.
+var vow: Vow
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
 ## The job's sounds; an internal child, so objectives() never sees it.
@@ -112,6 +114,7 @@ func begin() -> void:
 	_remove_dead_crew()
 	_arm_hazard_zones()
 	_watch_crashes()
+	vow = null
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -133,6 +136,23 @@ func launch(confirmed := false) -> void:
 		_ask_launch(hurt)
 		return
 	_set_state(State.COUNTDOWN)
+
+## The player's launch key. On a job that offers vows the launch dialog asks
+## first, with any crew risk; elsewhere it is launch().
+func request_launch() -> void:
+	if state != State.BRIEFING:
+		return
+	if job.vows.is_empty():
+		launch()
+		return
+	var hurt: Array[StringName] = injured_in_field() if confirm_risk else []
+	_ask_launch(hurt)
+
+## Make one of the job's vows for this flight, or none with null. Only in the
+## briefing.
+func choose_vow(v: Vow) -> void:
+	if state == State.BRIEFING and (v == null or v in job.vows):
+		vow = v
 
 ## Back out of a risky launch, to `back_scene`.
 func decline_launch() -> void:
@@ -158,13 +178,18 @@ func injured_in_field() -> Array[StringName]:
 	return out
 
 func _ask_launch(hurt: Array[StringName]) -> void:
-	launch_confirm_needed.emit(hurt)
+	if not hurt.is_empty():
+		launch_confirm_needed.emit(hurt)
 	if launch_dialog == null:
 		launch_dialog = LaunchDialog.new()
-		launch_dialog.confirmed.connect(launch.bind(true))
+		launch_dialog.confirmed.connect(_on_launch_confirmed)
 		launch_dialog.canceled.connect(decline_launch)
 		add_child(launch_dialog)
-	launch_dialog.ask(hurt, job.tags.has(&"lethal"))
+	launch_dialog.ask(hurt, job.tags.has(&"lethal"), job.vows)
+
+func _on_launch_confirmed() -> void:
+	choose_vow(launch_dialog.chosen)
+	launch(true)
 
 ## Esc. In the briefing it leaves at once; in flight it asks first, with the
 ## game paused, because leaving then fails the job. `why`, when set, heads the
@@ -224,7 +249,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if (launch_dialog and launch_dialog.visible) or (leave_dialog and leave_dialog.visible):
 		return
 	if state == State.BRIEFING and event.is_action_pressed("ui_accept"):
-		launch()
+		request_launch()
 		# The pad's A is also drop_in: launching a fleet job must not drop in too.
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_cancel"):
@@ -271,6 +296,10 @@ func _finish() -> void:
 	result.letter = grade_scale.letter(result.score) if result.completed else "F"
 	result.time = live_time
 	result.crashes = crashes
+	# A vow is decided only on a completed job; a failed one records nothing.
+	if vow and result.completed:
+		result.vow = vow
+		result.vow_kept = vow.kept_on(self)
 	if pays_out:
 		Payout.settle(result, grade_scale)
 		Roster.job_done(casualties.keys())
@@ -282,6 +311,8 @@ func _finish() -> void:
 		# After the pay and the career are saved, so a best payout or a job
 		# finished for the first time counts on this very job.
 		result.unlocks = Hangar.earn(result)
+		if result.vow_kept:
+			Vows.record_kept(vow.deity.id)
 	finished.emit(result)
 	if results_scene and is_inside_tree():
 		get_tree().create_timer(results_delay, true, true).timeout.connect(_show_results)

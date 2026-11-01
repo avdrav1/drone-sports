@@ -1608,11 +1608,12 @@ Owner decisions (2026-11-01):
   - Acceptance: Every promotion that removes assists names each of them and its unlock, from data. A promotion that removes none shows nothing extra. Assist presets per act are unchanged (existing tests pass).
   - Out of scope: Vows.
 
-- [ ] **30.5 Vows**
+- [x] **30.5 Vows**
   - Goal: The launch dialog offers an optional vow on jobs whose data lists one, and the results screen says whether it was kept.
   - Context: New `Vow` resource (`deity`, `kind`, `text`) and `Job.vows: Array[Vow]`. `LaunchDialog` shows the job's vows (none chosen by default; at most one). `JobRunner` tracks the chosen vow and decides kept or not at completion through a small checker per kind; this story adds the Vishnu kind, "no one is struck", kept when the job completes with no strike. The save records vows kept per deity. `Results` shows "Vow kept" or "Vow not kept" in one quiet line with the symbol.
   - Acceptance: A job with no vows shows no vow choice. Choosing the Vishnu vow and finishing with no strike records it kept; one strike records it not kept; failing the job records nothing. Pay, reputation, grade and unlocks are identical with and without a vow (a test compares results). No line scolds a broken vow.
   - Out of scope: The other three kinds (30.6, 30.7), shrines (30.8).
+  - Note: `Vow` (`scripts/story/vow.gd`: deity, kind, text; `kept_on(runner)` matches on kind, so 30.6/30.7 add a branch there) and `Job.vows`; `data/vows/keeping.tres` (Vishnu) is offered on inspection, demolition and rescue, not on the Lattice job. On a job with vows the player's launch key goes through `JobRunner.request_launch()`, which opens `LaunchDialog` with the vows as check boxes beside 32 px symbols (none made, at most one; any crew risk shown above them), while a direct `launch()` makes none; the runner's `vow` is decided only on a completed job (`JobResult.vow`, `vow_kept`), `Vows.record_kept` counts it under the save's "vows" section (deity id -> count, reset per test in tests/run.gd), and Results adds one grey line, "Vow kept/Vow not kept: the vow of keeping.", with the symbol.
 
 - [ ] **30.6 Letting go, and guiding**
   - Goal: Shiva's and Krishna's vows: fly with the next act's assist already off, and finish a fleet job without dropping into a drone.

@@ -40,3 +40,6 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var weather: Weather
 ## Weather changes on a schedule after launch, each blending from the last (Story 13.6).
 @export var weather_changes: Array[WeatherChange] = []
+## Vows the launch dialog offers on this job (Story 30.5); the player may make
+## at most one, or none. Empty offers none.
+@export var vows: Array[Vow] = []
