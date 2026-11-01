@@ -101,10 +101,7 @@ These are gods worshipped by more than a billion people today, not only figures 
 4. No invented scripture. Lines are original and in the spirit of the texts, or a paraphrase spoken by Sanjaya. Nothing is presented as a quotation unless it is one, from a translation the project may use.
 5. Shrines are never collided with, damaged, used as gates, or placed in a job's path.
 6. Before release, someone who practises the tradition reviews every line, symbol and scene. The epic's last story waits for that review.
-
-CLAUDE.md is the owner's to edit. A rule worth adding there, beside rule 9:
-
-> 10. Brahma, Vishnu, Shiva and Krishna frame the story and the vows (`docs/DEITIES.md`). They are data in `data/deities/`, have no status in the save beyond vows kept, and are never at risk, playable, sold, earned, mocked or shown in the crew's cartoon style.
+7. Brahma, Vishnu, Shiva and Krishna frame the story and the vows. They are data in `data/deities/`, have no status in the save beyond vows kept, and are never at risk, playable, sold, earned, mocked or shown in the crew's cartoon style. This rule stands beside CLAUDE.md's design rules, as their rule 10; CLAUDE.md is the owner's to edit, so it is kept here.
 
 ## When the boss is switched off
 
