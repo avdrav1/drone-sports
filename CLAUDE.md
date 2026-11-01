@@ -5,7 +5,7 @@ A near-future drone-piloting game. You start as a gamer, get scouted by a team, 
 ## Stack
 
 - Engine: Godot 4.3+, GDScript, Forward+ on desktop, GL Compatibility on web
-- Tests: `scripts/test.sh` (headless; `tests/run.gd` runs every `tests/test_*.gd`)
+- Tests: `scripts/test.sh` (headless; `tests/run.gd` runs `tests/test_*.gd`, split across `JOBS` processes, default 8; `ONLY=test_foo,test_song_* scripts/test.sh` runs just those)
 - Deploy: `scripts/ship.sh` exports the Web preset and pushes it to the `gh-pages` branch (GitHub Pages)
 - No addons unless a story asks for one
 

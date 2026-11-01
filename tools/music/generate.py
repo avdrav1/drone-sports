@@ -18,6 +18,7 @@ nonzero unless every file there matches data/music/ byte for byte.
 """
 
 import array
+import fcntl
 import filecmp
 import json
 import math
@@ -762,6 +763,10 @@ def write_manifest():
 def check():
     """Renders into build/music/check/ and compares with data/music/."""
     global OUT
+    # Test processes run side by side, and this folder is shared: one at a time.
+    os.makedirs(WAV_DIR, exist_ok=True)
+    lock = open(os.path.join(WAV_DIR, ".check.lock"), "w")
+    fcntl.flock(lock, fcntl.LOCK_EX)
     real = OUT
     OUT = os.path.join(WAV_DIR, "check")
     if os.path.isdir(OUT):

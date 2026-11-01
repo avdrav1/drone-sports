@@ -9,6 +9,7 @@ With --check it renders into build/sfx/check/ instead and exits non-zero unless
 every file matches data/audio/generated/ byte for byte.
 """
 
+import fcntl
 import filecmp
 import json
 import math
@@ -711,6 +712,9 @@ def check():
     # Keeps Godot from importing the check renders into the project and export.
     os.makedirs(os.path.dirname(os.path.dirname(OUT)), exist_ok=True)
     open(os.path.join(os.path.dirname(os.path.dirname(OUT)), ".gdignore"), "a").close()
+    # Test processes run side by side, and this folder is shared: one at a time.
+    lock = open(os.path.join(os.path.dirname(os.path.dirname(OUT)), ".sfx_check.lock"), "w")
+    fcntl.flock(lock, fcntl.LOCK_EX)
     if os.path.isdir(OUT):
         for f in os.listdir(OUT):
             os.remove(os.path.join(OUT, f))
