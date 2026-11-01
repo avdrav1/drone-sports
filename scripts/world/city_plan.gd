@@ -11,6 +11,8 @@ extends RefCounted
 # 26.4: the plan also gives the general form beside the rectangles: streets as
 # centrelines with a width and a kind, junctions joining them, and blocks as
 # polygons that the lots are cut from, so later patterns can run at any angle.
+# Story 30.8: the plan also picks four low roofs for the Four's shrines, one per
+# quarter, with no random draws, so everything else is as before.
 # Story 26.6: the DIAGONAL pattern lays the grid, then one or two avenues across
 # it at a seeded angle, splitting the blocks they cross into wedges along their
 # kerbs; a wedge's lots are trimmed to fit it, or left out. Story 26.7: the
@@ -127,6 +129,11 @@ var vacant_block := PackedInt32Array()
 var heights := PackedFloat32Array()
 ## Shape of each lot, same order as lots.
 var shapes: Array[Shape] = []
+## The Four's shrines (Story 30.8), in thread order: where each stands, on the
+## middle of its roof (x, roof height, z), and the lot it stands on. A quarter
+## with no fitting roof has none, so there can be fewer than four.
+var shrines := PackedVector3Array()
+var shrine_lots := PackedInt32Array()
 
 static func build(layout: CityLayout) -> CityPlan:
 	var key := layout.params()
@@ -176,6 +183,7 @@ static func _generate(layout: CityLayout) -> CityPlan:
 		shaping.seed = layout.seed + 3
 		for i in plan.lots.size():
 			plan.shapes.append(_shape(layout, shaping, plan.lots[i], plan.heights[i]))
+		_shrines(layout, plan)
 		return plan
 	var lines: Array[Vector2] = []
 	for s: Vector2 in axis[0]:
@@ -218,7 +226,52 @@ static func _generate(layout: CityLayout) -> CityPlan:
 	shape_rng.seed = layout.seed + 3
 	for i in plan.lots.size():
 		plan.shapes.append(_shape(layout, shape_rng, plan.lots[i], plan.heights[i]))
+	_shrines(layout, plan)
 	return plan
+
+## The quarters the shrines stand in, in thread order: north-east, north-west,
+## south-west, south-east (north is -z).
+const SHRINE_QUARTERS: Array[Vector2] = [Vector2(1, -1), Vector2(-1, -1), Vector2(-1, 1), Vector2(1, 1)]
+## How far out along its quarter's diagonal a shrine is sought, as a fraction of
+## the core radius.
+const SHRINE_REACH := 0.55
+
+## Story 30.8: one roof per quarter for a shrine. A roof qualifies when it is
+## low (layout.shrine_height), its clear roof is at least shrine_side across,
+## and it lies shrine_clearance past every clearing; of those, the one nearest a
+## point out along the quarter's diagonal. With no low roof in a quarter, any
+## height will do. Deterministic and draw-free.
+static func _shrines(layout: CityLayout, plan: CityPlan) -> void:
+	var low := layout.height_min + (layout.height_max - layout.height_min) * layout.shrine_height
+	for q in SHRINE_QUARTERS:
+		var aim := q.normalized() * layout.core_radius * SHRINE_REACH
+		var best := -1
+		for any_height in [false, true]:
+			var nearest := INF
+			for i in plan.lots.size():
+				var c := plan.shapes[i].roof_clear.get_center()
+				if c.x * q.x <= 0.0 or c.y * q.y <= 0.0 or (plan.heights[i] > low and not any_height):
+					continue
+				if minf(plan.shapes[i].roof_clear.size.x, plan.shapes[i].roof_clear.size.y) < layout.shrine_side:
+					continue
+				if not _past_clearings(layout, plan.lots[i]):
+					continue
+				if c.distance_to(aim) < nearest:
+					nearest = c.distance_to(aim)
+					best = i
+			if best >= 0:
+				break
+		if best >= 0:
+			var c := plan.shapes[best].roof_clear.get_center()
+			plan.shrines.append(Vector3(c.x, plan.heights[best], c.y))
+			plan.shrine_lots.append(best)
+
+## True when `r` lies shrine_clearance past the edge of every clearing.
+static func _past_clearings(layout: CityLayout, r: Rect2) -> bool:
+	for c in layout.clearings:
+		if touches(Vector3(c.x, c.y, c.z + layout.shrine_clearance), r):
+			return false
+	return true
 
 ## Cuts block `b`'s lots: spans along its bounds, each kept only if it fits
 ## inside. A rectangle's bounds are the rectangle, so a grid cuts the lots it

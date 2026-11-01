@@ -195,7 +195,7 @@ mouse_filter = 2
 script = ExtResource("23_warn")
 runner = NodePath("../../JobRunner")
 
-[node name="Phase" type="Label" parent="HUD" node_paths=PackedStringArray("fight")]
+[node name="Phase" type="Label" parent="HUD" node_paths=PackedStringArray("fight", "below")]
 offset_left = 28.0
 offset_top = 60.0
 offset_right = 900.0
@@ -203,6 +203,7 @@ offset_bottom = 96.0
 theme = ExtResource("19_theme")
 script = ExtResource("24_hud")
 fight = NodePath("../../Fight")
+below = NodePath("../State")
 
 [node name="State" type="Label" parent="HUD"]
 offset_left = 28.0

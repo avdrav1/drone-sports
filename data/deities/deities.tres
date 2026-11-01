@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DeityList" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/deity_list.gd" id="1_list"]
+[ext_resource type="Resource" path="res://data/deities/brahma.tres" id="d0"]
+[ext_resource type="Resource" path="res://data/deities/vishnu.tres" id="d1"]
+[ext_resource type="Resource" path="res://data/deities/shiva.tres" id="d2"]
+[ext_resource type="Resource" path="res://data/deities/krishna.tres" id="d3"]
+
+[resource]
+script = ExtResource("1_list")
+deities = Array[Resource]([ExtResource("d0"), ExtResource("d1"), ExtResource("d2"), ExtResource("d3")])

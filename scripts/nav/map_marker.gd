@@ -12,6 +12,11 @@ const GROUP := &"map_markers"
 @export var icon: StringName = &"diamond"
 ## False keeps it off the map, e.g. a rescue target found by beacon only.
 @export var on_map := true
+## Drawn in place of the icon when set, e.g. a shrine's symbol (Story 30.8).
+@export var symbol: Texture2D
+## False leaves it off the radar's rim: shown only when in range, never pointed
+## at from afar.
+@export var on_rim := true
 
 ## Drawn lit: the next target, e.g. the next gate.
 var highlighted := false

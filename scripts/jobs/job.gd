@@ -9,6 +9,9 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var title := ""
 ## What you do on this job, in one plain sentence, shown on the board.
 @export var summary := ""
+## A line or two of story read while the job waits in its briefing; most jobs
+## have none (Story 30.9).
+@export_multiline var briefing := ""
 ## The scene that flies this job, opened from the job board.
 @export_file("*.tscn") var scene := ""
 ## Who is paying, as shown to the player.
@@ -28,8 +31,8 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var default_view := CameraRig.View.CHASE
 ## Objective weights by objective node name. Overrides each objective's own weight.
 @export var weights := {}
-## Free-form tags, e.g. act1 for the home-game framing, open for a job any
-## pilot may fly whatever their team.
+## Free-form tags, e.g. act1 for a home-game job, flyable all career, or open
+## for a job any pilot may fly whatever their team, without the home framing.
 @export var tags: Array[StringName] = []
 ## Route display: the whole route, the next leg only, or nothing. Not an assist.
 @export var guidance := Guidance.FULL
@@ -41,3 +44,6 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var weather: Weather
 ## Weather changes on a schedule after launch, each blending from the last (Story 13.6).
 @export var weather_changes: Array[WeatherChange] = []
+## Vows the launch dialog offers on this job (Story 30.5); the player may make
+## at most one, or none. Empty offers none.
+@export var vows: Array[Vow] = []

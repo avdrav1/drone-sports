@@ -4,7 +4,10 @@ extends StaticBody3D
 # antennas draw through one MultiMesh each; anything taller than collide_above
 # gets a collision box. Pads go on the broadest tall roofs, clear of clutter,
 # each with a map marker. All seeded and cached per layout, like City. Everything
-# sits on each lot's top box, clear of its plant room (Story 15.6).
+# sits on each lot's top box, clear of its plant room (Story 15.6). The Four's
+# shrines (Story 30.8) stand on the roofs the plan picks for them, which keep
+# no clutter on their clear square; pads keep the layout's shrine_clearance
+# from them, so no landing target sits beside a shrine.
 
 enum Kind { AC, TANK, ANTENNA }
 
@@ -18,6 +21,10 @@ enum Kind { AC, TANK, ANTENNA }
 @export var collide_above := 1.0
 ## Pieces stay this far in from a roof's edge.
 @export var edge_margin := 1.0
+## The shrine built on each of the plan's shrine roofs, and the Four, in the
+## plan's thread order.
+@export var shrine_scene: PackedScene
+@export var deities: DeityList
 
 ## params -> [pieces, pads, multimeshes, shapes].
 static var _cache := {}
@@ -27,6 +34,8 @@ var plan: CityPlan
 var pieces: Array = []
 ## Pad centres, on the roof.
 var pads := PackedVector3Array()
+## The shrines built, in thread order.
+var shrines: Array[Shrine] = []
 
 func _ready() -> void:
 	build()
@@ -68,6 +77,15 @@ func build() -> void:
 		marker.icon = &"circle"
 		marker.label = "Pad"
 		pad.add_child(marker)
+	shrines.clear()
+	if shrine_scene and deities:
+		for i in mini(plan.shrines.size(), deities.deities.size()):
+			var shrine: Shrine = shrine_scene.instantiate()
+			shrine.name = "Shrine%d" % i
+			shrine.deity = deities.deities[i]
+			shrine.position = plan.shrines[i]
+			add_child(shrine)
+			shrines.append(shrine)
 
 ## Frees what build() made, keeping the scene's own children, so the node can
 ## build again from a new layout (Story 26.1).
@@ -91,13 +109,29 @@ func _clear_of_pads(p: Vector3, r: float, at: PackedVector3Array) -> bool:
 			return false
 	return true
 
+## True when lot i's roof is shrine_clearance from every shrine, so it may hold a pad.
+func _off_shrines(i: int) -> bool:
+	var c := plan.shapes[i].roof_clear.get_center()
+	for s in plan.shrines:
+		if c.distance_to(Vector2(s.x, s.z)) < layout.shrine_clearance:
+			return false
+	return true
+
+## True when `foot` reaches a shrine's clear square.
+func _on_shrine(foot: Rect2) -> bool:
+	var side := layout.shrine_side
+	for s in plan.shrines:
+		if Rect2(s.x - side * 0.5, s.z - side * 0.5, side, side).intersects(foot):
+			return true
+	return false
+
 func _generate() -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = layout.seed + 2
 	# Pads: the broadest clear roofs among the tall ones.
 	var tall := layout.height_min + (layout.height_max - layout.height_min) * pad_min_height
 	var order := range(plan.lots.size()).filter(func(i):
-		return plan.heights[i] >= tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
+		return _off_shrines(i) and plan.heights[i] >= tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
 	order.sort_custom(func(a, b):
 		var sa := _side(plan.shapes[a].roof_clear)
 		var sb := _side(plan.shapes[b].roof_clear)
@@ -106,7 +140,7 @@ func _generate() -> Array:
 	# tallest broad roofs below the line make up the count.
 	if order.size() < pad_count:
 		var low := range(plan.lots.size()).filter(func(i):
-			return plan.heights[i] < tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
+			return _off_shrines(i) and plan.heights[i] < tall and _side(plan.shapes[i].roof_clear) >= (pad_radius + edge_margin) * 2.0)
 		low.sort_custom(func(a, b): return plan.heights[a] > plan.heights[b] if plan.heights[a] != plan.heights[b] else a < b)
 		order.append_array(low)
 	var pad_at := PackedVector3Array()
@@ -137,7 +171,7 @@ func _generate() -> Array:
 			var p := Vector3(rng.randf_range(inner.position.x + size.x * 0.5, inner.end.x - size.x * 0.5), h,
 				rng.randf_range(inner.position.y + size.z * 0.5, inner.end.y - size.z * 0.5))
 			var foot := Rect2(p.x - size.x * 0.5, p.z - size.z * 0.5, size.x, size.z)
-			var free := _clear_of_pads(p, maxf(size.x, size.z) * 0.5, pad_at)
+			var free := _clear_of_pads(p, maxf(size.x, size.z) * 0.5, pad_at) and not _on_shrine(foot)
 			for j in shape.trims.size():
 				var t := shape.trims[j]
 				if shape.trim_kinds[j] == CityPlan.Trim.PLANT \

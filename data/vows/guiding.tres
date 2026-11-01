@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Vow" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/vow.gd" id="1_vow"]
+[ext_resource type="Resource" path="res://data/deities/krishna.tres" id="2_krishna"]
+
+[resource]
+script = ExtResource("1_vow")
+deity = ExtResource("2_krishna")
+kind = &"guiding"
+text = "Guide the fleet to the end without dropping into a drone."

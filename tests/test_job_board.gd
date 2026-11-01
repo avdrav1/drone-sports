@@ -32,13 +32,13 @@ func test_only_current_team_jobs_fly() -> bool:
 	var b := _board()
 	await Sim.process_frames(1)
 	var home := _flyable(b)
-	var race_lock: String = b.lock_label(&"sample_delivery").text
+	var race_lock: String = b.lock_label(&"rescue").text
 	b.free()
 	Career.team_id = &"harbor_couriers"
 	b = _board()
 	await Sim.process_frames(1)
 	var couriers := _flyable(b)
-	var race_lock_now: String = b.lock_label(&"test_race").text
+	var race_lock_now: String = b.lock_label(&"spotter_drill").text
 	var details: String = \
 		(b.job_rows[&"sample_delivery"].get_child(0).get_node("Details") as Label).text
 	b.free()
@@ -49,8 +49,8 @@ func test_only_current_team_jobs_fly() -> bool:
 	var juniors := _flyable(b)
 	b.free()
 	Career.team_id = &""
-	return home == [&"inspection", &"test_race"] and race_lock.contains("Harbor Couriers") \
-		and couriers == [&"inspection", &"sample_delivery"] and race_lock_now.contains("Skyline Juniors") \
+	return home == [&"inspection", &"sample_delivery", &"test_race"] and race_lock.contains("City Rescue Air") \
+		and couriers == [&"inspection", &"sample_delivery", &"test_race"] and race_lock_now.contains("Skyline Juniors") \
 		and race_lock_now.contains("Halcyon Racing") and details.contains("Harbor Couriers") \
 		and details.contains("pay 500") and details.contains("Act 2 assists") and juniors.has(&"inspection")
 
@@ -88,7 +88,7 @@ func test_offers_ask_on_the_board() -> bool:
 	var asked: bool = b.offer_dialog.visible and b.offer_dialog.team.id == &"skyline_juniors"
 	b.offer_dialog.confirmed.emit()
 	await Sim.process_frames(1)
-	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"inspection", &"spotter_drill", &"test_race"]
+	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"inspection", &"sample_delivery", &"spotter_drill", &"test_race"]
 	b.free()
 	await Sim.process_frames(1)
 	Sim.tree().unload_current_scene()  # the recruitment scene (Story 11.2)
@@ -144,13 +144,13 @@ func test_enter_flies_an_unlocked_card_and_shakes_a_locked_one() -> bool:
 	Sim.tree().change_scene_to_file(BOARD)
 	await Sim.process_frames(3)
 	var b: JobBoard = Sim.tree().current_scene
-	b.carousel.go(b.job_ids.find(&"sample_delivery"))
+	b.carousel.go(b.job_ids.find(&"demolition"))
 	_press(b, &"ui_accept")
 	await Sim.process_frames(3)
 	var stayed: bool = Sim.tree().current_scene == b and b.carousel.shakes == 1
-	var locked: Label = b.lock_label(&"sample_delivery")
-	var short: bool = locked.text == "Join Harbor Couriers" and locked.tooltip_text.contains("Harbor Couriers") \
-		and b.job_rows[&"sample_delivery"].get_child(0).find_child("Padlock", true, false) != null \
+	var locked: Label = b.lock_label(&"demolition")
+	var short: bool = locked.text.contains("Cannery Row") and locked.tooltip_text.contains("Cannery Row") \
+		and b.job_rows[&"demolition"].get_child(0).find_child("Padlock", true, false) != null \
 		and b.job_rows[&"test_race"].get_child(0).find_child("Padlock", true, false) == null
 	b.carousel.go(b.job_ids.find(&"test_race"))
 	_press(b, &"ui_accept")

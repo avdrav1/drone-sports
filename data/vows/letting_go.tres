@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Vow" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/vow.gd" id="1_vow"]
+[ext_resource type="Resource" path="res://data/deities/shiva.tres" id="2_shiva"]
+[ext_resource type="Resource" path="res://data/assists/act2.tres" id="3_act2"]
+[ext_resource type="Resource" path="res://data/assists/act3.tres" id="4_act3"]
+[ext_resource type="Resource" path="res://data/assists/act4.tres" id="5_act4"]
+
+[resource]
+script = ExtResource("1_vow")
+deity = ExtResource("2_shiva")
+kind = &"letting_go"
+text = "Fly this job with the next act's assists already off."
+steps = Array[Resource]([ExtResource("3_act2"), ExtResource("4_act3"), ExtResource("5_act4")])

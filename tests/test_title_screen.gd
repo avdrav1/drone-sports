@@ -40,6 +40,7 @@ func test_launch_with_intro_seen_opens_the_title() -> bool:
 	return ok
 
 func test_any_key_click_or_pad_button_opens_the_board() -> bool:
+	StoryFlags.set_flag(&"act_1_gate_seen")  # past Brahma's act gate (Story 30.3)
 	PlayerProfile.choose_pilot(&"arjuna")
 	var ok := true
 	var key := InputEventKey.new()
@@ -70,7 +71,13 @@ func test_new_game_opens_pilot_select_first() -> bool:
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_ENTER
 	var now: Node = await _press(key)
-	var ok: bool = not PlayerProfile.has_pilot() and now is JobBoard and now.pilot_select.visible
+	# Through Brahma's act gate first (Story 30.3).
+	var gate := now as CutscenePlayer
+	var ok: bool = gate != null and gate.cutscene.gate_act == 1
+	gate.finish()
+	await Sim.process_frames(3)
+	now = Sim.tree().current_scene
+	ok = ok and not PlayerProfile.has_pilot() and now is JobBoard and now.pilot_select.visible
 	await _close()
 	return ok
 
@@ -136,6 +143,7 @@ func test_esc_on_the_board_returns_to_the_title() -> bool:
 	return ok
 
 func test_the_first_press_plays_and_the_next_goes_in() -> bool:
+	StoryFlags.set_flag(&"act_1_gate_seen")  # past Brahma's act gate (Story 30.3)
 	TitleScreen.needs_play = true
 	_stop_music()
 	var t: TitleScreen = await _open(TITLE)

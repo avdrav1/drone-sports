@@ -1,8 +1,10 @@
-[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="Job" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
 [ext_resource type="Resource" path="res://data/assists/act4.tres" id="2_act4"]
 [ext_resource type="Resource" path="res://data/weather/whiteout.tres" id="3_weather"]
+[ext_resource type="Resource" path="res://data/vows/keeping.tres" id="9_keeping"]
+[ext_resource type="Resource" path="res://data/vows/making.tres" id="10_making"]
 
 [resource]
 script = ExtResource("1_job")
@@ -23,4 +25,5 @@ weights = {
 }
 guidance = 2
 crew_in_field = Array[StringName]([&"sushena"])
+vows = Array[Resource]([ExtResource("9_keeping"), ExtResource("10_making")])
 weather = ExtResource("3_weather")

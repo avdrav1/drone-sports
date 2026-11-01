@@ -43,6 +43,6 @@ When the override lands, Ravana powers down section by section, the shell loosen
 
 ## Open questions
 
-- [ ] Does Ravana have a reason, or is it just a runaway loop? A reason makes it sadder; a loop keeps it a machine.
+- [x] Does Ravana have a reason, or is it just a runaway loop? A reason makes it sadder; a loop keeps it a machine. A reason (Story 30.9): its makers built it so that no drone, no assist and no autopilot could ever stop it, and named it for the king whose boon from Brahma left out the humans that king scorned. That is why the trench and the override are flown with every assist off, and the final job's briefing says so.
 - [ ] Should the override port move between attempts so the fight cannot be memorized?
 - [ ] After the shutdown, is there an epilogue job flying the freed drones home?

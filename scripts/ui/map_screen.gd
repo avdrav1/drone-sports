@@ -4,6 +4,10 @@ extends Control
 # grid, landmarks, markers, and the player's track. An overlay: it never pauses
 # the job. The track records while the job is Live, or always with no job.
 # Scenes put it on its own CanvasLayer above the HUD and the Act 1 bezel.
+# Story 30.7: in the briefing of a job offering the vow of making, the map plans
+# a path: a cursor (flight stick or arrows, or the mouse) places, moves and
+# removes the runner's points. The path is drawn in its thread's colour, in the
+# briefing and in flight.
 
 @export var gps: Gps
 ## Optional: the ground shaded under the chart.
@@ -19,6 +23,10 @@ extends Control
 ## Seconds between track points.
 @export var track_interval := 0.25
 @export var max_track_points := 4000
+## Planning cursor speed, chart sides per second at full stick.
+@export var cursor_speed := 0.4
+## How near the cursor, px, picks up a planned point.
+@export var pick_px := 12.0
 
 const LINE := FlightHud.LINE
 const DIM := FlightHud.DIM
@@ -30,6 +38,10 @@ var track: PackedVector2Array = []
 var texture: Texture2D
 var font: Font
 var _since_point := 0.0
+## Planning: the cursor in chart px (negative until first placed), and the
+## index of the point being moved, or -1.
+var cursor := -Vector2.ONE
+var held := -1
 
 func _ready() -> void:
 	set_anchors_preset(PRESET_FULL_RECT)
@@ -53,6 +65,66 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func toggle() -> void:
 	visible = not visible
+	held = -1
+	if visible and planning() and not chart_rect().has_point(cursor):
+		cursor = to_chart(gps.drone.global_position)
+
+## Whether the map is open to plan a path (Story 30.7).
+func planning() -> bool:
+	return visible and runner != null and runner.can_plan() and gps != null and gps.map != null and gps.drone != null
+
+## The planning keys and buttons, before the job's own: the cursor's press,
+## remove, and Esc to close.
+func _input(event: InputEvent) -> void:
+	if not planning():
+		return
+	if event is InputEventMouseMotion:
+		cursor = _clamp(make_input_local(event).position)
+	elif event is InputEventMouseButton and event.pressed:
+		cursor = _clamp(make_input_local(event).position)
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			press()
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			remove()
+	elif event.is_action_pressed("ui_accept"):
+		press()
+	elif event.is_action_pressed("reset_drone"):
+		remove()
+	elif event.is_action_pressed("ui_cancel"):
+		toggle()
+	else:
+		return
+	get_viewport().set_input_as_handled()
+
+## At the cursor: put down the point being moved, else pick up the point there,
+## else place a new one at the end of the path.
+func press() -> void:
+	if held >= 0:
+		runner.move_point(held, to_world(cursor))
+		held = -1
+		return
+	var i := point_at(cursor)
+	if i >= 0:
+		held = i
+	else:
+		runner.place_point(to_world(cursor))
+
+## Removes the point at the cursor, or the last one.
+func remove() -> void:
+	var i := held if held >= 0 else point_at(cursor)
+	held = -1
+	runner.remove_point(i if i >= 0 else runner.plan.size() - 1)
+
+## The planned point within pick_px of `px`, or -1.
+func point_at(px: Vector2) -> int:
+	for i in runner.plan.size():
+		if to_chart(runner.plan[i]).distance_to(px) <= pick_px:
+			return i
+	return -1
+
+func _clamp(px: Vector2) -> Vector2:
+	var r := chart_rect()
+	return px.clamp(r.position, r.end)
 
 func recording() -> bool:
 	return runner == null or runner.state == JobRunner.State.LIVE
@@ -68,7 +140,11 @@ func _physics_process(delta: float) -> void:
 		if track.size() > max_track_points:
 			track.remove_at(0)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if planning():
+		var v := Input.get_vector(&"roll_left", &"roll_right", &"pitch_forward", &"pitch_back")
+		var r := chart_rect()
+		cursor = _clamp(cursor + v * cursor_speed * maxf(r.size.x, r.size.y) * delta)
 	if visible:
 		queue_redraw()
 
@@ -113,6 +189,7 @@ func _draw() -> void:
 		draw_circle(at, 3.0, DIM)
 		_text(at + Vector2(6, 4), String(name), 12, DIM)
 	_draw_track()
+	_draw_plan()
 	var leg := route_chart()
 	for i in leg.size() - 1:
 		draw_dashed_line(leg[i], leg[i + 1], ACCENT, 2.0, 6.0)
@@ -121,6 +198,9 @@ func _draw() -> void:
 			continue
 		var at := to_chart(m.global_position)
 		var lit := m.highlighted
+		if m.symbol:
+			Radar.draw_symbol(self, at, m.symbol)
+			continue
 		Radar.draw_icon(self, at, m.icon, 6.0 if lit else 4.5, Radar.marker_color(m))
 		if m.label and m.kind != &"gate":
 			_text(at + Vector2(8, 4), m.label, 12, LINE)
@@ -159,6 +239,49 @@ func _draw_track() -> void:
 	for p in track:
 		pts.append(to_chart(Vector3(p.x, 0.0, p.y)))
 	draw_polyline(pts, Color(ACCENT, 0.7), 2.0, true)
+
+## The planned path as chart points, the one being moved at the cursor.
+func plan_chart() -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in runner.plan.size() if runner else 0:
+		out.append(cursor if i == held else to_chart(runner.plan[i]))
+	return out
+
+## The planned path in its thread's colour: a numbered ring per point, passed
+## ones filled; while planning, the cursor and the keys.
+func _draw_plan() -> void:
+	var v: Vow = runner.making_vow() if runner else null
+	if v == null:
+		return
+	var col := v.deity.colour
+	var pts := plan_chart()
+	if pts.size() > 1:
+		draw_polyline(pts, Color(SHADOW, 0.6), 5.0, true)
+		draw_polyline(pts, col, 2.5, true)
+	for i in pts.size():
+		draw_circle(pts[i], 8.0, Color(col, 0.85) if i < runner.plan_passed else Color(0, 0, 0, 0.55))
+		draw_arc(pts[i], 8.0, 0, TAU, 24, col, 2.0, true)
+		_text(pts[i] + Vector2(-8, 4), "%d" % (i + 1), 11, LINE, HORIZONTAL_ALIGNMENT_CENTER, 16)
+	if not planning():
+		return
+	draw_arc(cursor, pick_px, 0, TAU, 24, LINE, 1.5, true)
+	draw_line(cursor - Vector2(pick_px + 6, 0), cursor - Vector2(pick_px - 4, 0), LINE, 1.5)
+	draw_line(cursor + Vector2(pick_px - 4, 0), cursor + Vector2(pick_px + 6, 0), LINE, 1.5)
+	draw_line(cursor - Vector2(0, pick_px + 6), cursor - Vector2(0, pick_px - 4), LINE, 1.5)
+	draw_line(cursor + Vector2(0, pick_px - 4), cursor + Vector2(0, pick_px + 6), LINE, 1.5)
+	var r := chart_rect()
+	# The arrows need ControlsHelp's font; the theme's has no arrow glyphs.
+	var at := Vector2(r.position.x, r.end.y + 40)
+	draw_string(ControlsHelp.font(), at + Vector2(1, 1), plan_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, SHADOW)
+	draw_string(ControlsHelp.font(), at, plan_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, col)
+
+## Under the chart while planning, e.g. "PLAN YOUR PATH  ·  3/8  ·
+## ← → ↑ ↓ MOVE  ·  SPACE PLACE OR PICK UP  ·  R REMOVE".
+func plan_text() -> String:
+	var move := InputPrompt.group_text([&"roll_left", &"roll_right", &"pitch_forward", &"pitch_back"], " ")
+	return "PLAN YOUR PATH  ·  %d/%d  ·  %s MOVE  ·  %s PLACE OR PICK UP  ·  %s REMOVE" % [runner.plan.size(),
+		runner.making_vow().max_points, move.to_upper(), InputPrompt.text(&"ui_accept").to_upper(),
+		InputPrompt.text(&"reset_drone").to_upper()]
 
 func _draw_player() -> void:
 	var at := to_chart(gps.drone.global_position)

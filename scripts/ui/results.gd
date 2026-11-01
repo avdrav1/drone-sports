@@ -3,6 +3,7 @@ extends Control
 # pay, reputation change, who was hurt or killed, and a closing line from the crew. Retry reloads the job scene; Continue goes to continue_scene.
 # Story 27.3: and each hangar item the job opened by achievement.
 # Story 27.7: the drone's name heads the rows, when it has one.
+# Story 30.5: whether the vow made at launch was kept, in one quiet line.
 
 signal retry_pressed
 signal continue_pressed
@@ -17,6 +18,9 @@ const EPILOGUE_TEXT := 260.0
 ## scrolls the rows.
 const EDGE := 12.0
 const SCROLL_STEP := 80
+## The vow line's symbol and its one quiet colour, kept or not (Story 30.5).
+const VOW_SYMBOL := 32.0
+const VOW_COLOUR := Color(0.78, 0.8, 0.86)
 
 @export_file("*.tscn") var continue_scene := "res://scenes/ui/job_board.tscn"
 ## The scene Retry reloads. Set by whoever shows the results.
@@ -86,6 +90,8 @@ func show_result(r: JobResult) -> void:
 		rows.add_child(casualty_row(r, id))
 		if r.casualties[id] != Roster.Status.DEAD and r.casualty_lines.get(id, "") != "":
 			Bark.chirp(id, &"neutral", &"hurt")
+	if r.vow:
+		rows.add_child(vow_row(r))
 	var opened := unlock_lines(r)
 	for i in opened.size():
 		var row := Label.new()
@@ -118,6 +124,30 @@ func show_result(r: JobResult) -> void:
 static func drone_text() -> String:
 	var n := Hangar.drone_name(0)
 	return "Drone  " + n if n else ""
+
+## Story 30.5: "Vow kept: the vow of keeping." or "Vow not kept: ...", the
+## same quiet colour either way and nothing more said, or empty with no vow.
+static func vow_text(r: JobResult) -> String:
+	if r == null or r.vow == null:
+		return ""
+	return "%s: %s." % ["Vow kept" if r.vow_kept else "Vow not kept", r.vow.title().to_lower()]
+
+## The vow line beside its thread's symbol.
+static func vow_row(r: JobResult) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.name = "Vow"
+	row.add_theme_constant_override("separation", 10)
+	var symbol := DeitySymbol.new()
+	symbol.deity = r.vow.deity
+	symbol.custom_minimum_size = Vector2.ONE * VOW_SYMBOL
+	symbol.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(symbol)
+	var line := Label.new()
+	line.text = vow_text(r)
+	line.add_theme_color_override("font_color", VOW_COLOUR)
+	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(line)
+	return row
 
 ## A death can take a job off the board (its faction locked, or crew it needs
 ## gone); Retry must not fly it anyway (Story 7.6).

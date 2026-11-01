@@ -2,14 +2,21 @@ extends Node
 # Autoload "Career": which team the pilot flies for and which offers they have
 # had. No team is Act 1, the home game. An offer is made once per team, ever:
 # accepting or declining it, the team never asks again.
+# Story 30.3: each of the Four's threads opens with an act gate scene
+# (data/story/act_gates.tres), played once per save on the way into play
+# after the act changes: Act 1's as a new game starts, the others before the
+# next job flown (Act 5's before the first fleet job).
 
 signal offer_made(team: Team)
 signal team_changed(team: Team)
 
 const TEAMS := "res://data/teams/teams.tres"
 const HOME_PRESET := "res://data/assists/act1.tres"
+const GATES := "res://data/story/act_gates.tres"
+const BOARD := "res://scenes/ui/job_board.tscn"
 
 var teams: TeamList
+var gates: ActGates
 ## Current team id; empty in Act 1.
 var team_id: StringName = &""
 ## Team ids ever offered, accepted or not.
@@ -25,6 +32,7 @@ var last_job: StringName = &""
 
 func _ready() -> void:
 	teams = load(TEAMS)
+	gates = load(GATES)
 	# Settings are a static class with no node of their own; the career brings them in.
 	GameSettings.load_saved()
 	load_saved()
@@ -46,8 +54,8 @@ func act() -> int:
 	return int(preset().label.trim_prefix("Act "))
 
 ## Would `t` make an offer now? It must never have offered, want a pilot this
-## good (a later act than now), and see the faction reputation it needs, or for
-## a team with `needs_flag`, that story flag.
+## good (a later act than now), and see the faction reputation it needs or
+## enough missions completed, or for a team with `needs_flag`, that story flag.
 func wants(t: Team) -> bool:
 	if t.id in offered or t.id == team_id or Consequences.faction_locked(t.faction):
 		return false
@@ -57,6 +65,8 @@ func wants(t: Team) -> bool:
 	# A scout's team asks on the flag alone: they already saw the run.
 	if t.needs_flag != &"":
 		return StoryFlags.is_set(t.needs_flag)
+	if t.noticed_after > 0 and missions_completed() >= t.noticed_after:
+		return true
 	return Reputation.of(t.faction) >= t.reputation_needed
 
 ## Make every offer now due. Returns the new ones. Offers from a faction
@@ -96,21 +106,18 @@ func decline(id: StringName) -> void:
 	pending.erase(id)
 	save()
 
-## Jobs the pilot may fly now: the current team's job types, or the home
-## game's tagged jobs in Act 1. Never a locked faction's job or one whose
-## required crew is dead (Story 7.6). A pilot left on a locked faction's team
-## keeps its assists and flies the home game's jobs too, so the career goes on.
-## A job tagged open flies for every pilot, on any team or none.
+## Jobs the pilot may fly now: the home game's tagged jobs, and the current
+## team's job types. Never a locked faction's job or one whose required crew is
+## dead (Story 7.6). The home jobs stay open on a team (Story 31.1): they earn
+## the reputation that gets the pilot noticed by another faction.
+## A job tagged open flies for every pilot too, on any team or none.
 func can_fly(job: Job) -> bool:
 	if not Consequences.listed(job) or not Consequences.missing_crew(job).is_empty():
 		return false
 	if job.tags.has(&"open"):
 		return true
 	var t := team()
-	var home := job.tags.has(&"act1")
-	if t == null:
-		return home
-	return job.job_type in t.job_types or (home and team_locked())
+	return job.tags.has(&"act1") or (t != null and job.job_type in t.job_types)
 
 ## The pilot's own team is in a faction a death has locked.
 func team_locked() -> bool:
@@ -133,6 +140,13 @@ func job_completed(job_id: StringName) -> void:
 	completed[job_id] = times_completed(job_id) + 1
 	save()
 
+## Every mission completed, repeats included.
+func missions_completed() -> int:
+	var total := 0
+	for id in completed:
+		total += completed[id]
+	return total
+
 func times_completed(job_id: StringName) -> int:
 	return completed.get(job_id, 0)
 
@@ -146,6 +160,32 @@ func job_flown(job_id: StringName, letter: String) -> void:
 ## The best grade flown on a job, or "" before it has been flown.
 func best_grade(job_id: StringName) -> String:
 	return grades.get(job_id, "")
+
+## The act gate due now, or null: the first unseen one for the career's act
+## or an earlier one, or for `job_act` (the act a job is flown in; a fleet job
+## is Act 5's) when that is beyond it. Act 1's opens a new game from the
+## title, so flying a job (any `job_act`) never opens it.
+func gate_due(job_act := 0) -> Cutscene:
+	for c in gates.gates:
+		if StoryFlags.is_set(c.seen_flag) or (job_act > 0 and c.gate_act == 1):
+			continue
+		if c.gate_act <= act() or (job_act > act() and c.gate_act == job_act):
+			return c
+	return null
+
+## Opens `path`, or first the act gate due, which opens it when it ends (and
+## any gate due after it first).
+func open_through_gate(tree: SceneTree, path: String, job_act := 0) -> void:
+	var c := gate_due(job_act)
+	if c == null:
+		tree.change_scene_to_file(path)
+		return
+	var p := CutscenePlayer.new()
+	p.name = "ActGate"
+	p.cutscene = c
+	p.then = path
+	p.job_act = job_act
+	tree.change_scene_to_node(p)
 
 func save() -> void:
 	var done := {}

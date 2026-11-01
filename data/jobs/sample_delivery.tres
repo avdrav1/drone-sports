@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
 [ext_resource type="Resource" path="res://data/assists/act1.tres" id="2_act1"]
+[ext_resource type="Resource" path="res://data/vows/letting_go.tres" id="9_letting_go"]
 
 [resource]
 script = ExtResource("1_job")
@@ -14,6 +15,8 @@ job_type = &"delivery"
 faction = &"city"
 required_assists = ExtResource("2_act1")
 time_limit = 60.0
+tags = Array[StringName]([&"act1"])
 pay = 500
 countdown = 3.0
 default_view = 0
+vows = Array[Resource]([ExtResource("9_letting_go")])

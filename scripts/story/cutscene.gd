@@ -10,6 +10,9 @@ extends Resource
 @export var score: Score
 ## Set when the cutscene ends, played through or skipped.
 @export var seen_flag: StringName
+## The act whose thread this scene opens (Story 30.3), played once per save by
+## Career at that act change; 0 for a scene that is no act gate.
+@export_range(0, 5) var gate_act := 0
 
 func total_time() -> float:
 	var t := 0.0

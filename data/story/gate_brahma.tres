@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="Cutscene" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/cutscene.gd" id="1_cut"]
+[ext_resource type="Script" path="res://scripts/story/cutscene_beat.gd" id="2_beat"]
+[ext_resource type="Resource" path="res://data/music/four.tres" id="3_four"]
+[ext_resource type="Resource" path="res://data/deities/brahma.tres" id="4_deity"]
+
+[sub_resource type="Resource" id="beat0"]
+script = ExtResource("2_beat")
+backdrop = "res://scenes/debug_flight.tscn"
+camera = 0
+focus = NodePath("City")
+orbit_radius = 230.0
+orbit_height = 60.0
+orbit_speed = 2.0
+caption = "Brahma, the maker. Creation: every flight begins as something made with care."
+deity = ExtResource("4_deity")
+duration = 8.0
+
+[sub_resource type="Resource" id="beat1"]
+script = ExtResource("2_beat")
+camera = 0
+focus = NodePath("City")
+orbit_radius = 230.0
+orbit_height = 60.0
+orbit_speed = 2.0
+caption = "A drone built by hand. A city of yellow stone. A pilot not yet made."
+deity = ExtResource("4_deity")
+duration = 7.0
+
+[sub_resource type="Resource" id="beat2"]
+script = ExtResource("2_beat")
+camera = 0
+focus = NodePath("City")
+orbit_radius = 230.0
+orbit_height = 60.0
+orbit_speed = 2.0
+caption = "Act 1 asks you to make yourself a pilot, one flight at a time."
+deity = ExtResource("4_deity")
+duration = 7.0
+
+[resource]
+script = ExtResource("1_cut")
+beats = Array[ExtResource("2_beat")]([SubResource("beat0"), SubResource("beat1"), SubResource("beat2")])
+next_scene = "res://scenes/ui/job_board.tscn"
+bed = &"desert_wind"
+score = ExtResource("3_four")
+seen_flag = &"act_1_gate_seen"
+gate_act = 1

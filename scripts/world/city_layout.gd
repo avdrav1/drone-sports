@@ -118,6 +118,13 @@ enum Pattern { GRID, DIAGONAL, RADIAL, OLD_TOWN }
 @export var car_speed := Vector2(8, 13)
 ## Areas no lot may touch: x, z, and radius.
 @export var clearings: PackedVector3Array = []
+## The Four's shrines (Story 30.8) stand on low roofs, one per quarter of the
+## city: a roof at most this high (a fraction of the height range), with a clear
+## square at least `shrine_side` across, and this far past every clearing's edge.
+## They never change the lots; the plan only picks roofs for them.
+@export_range(0.0, 1.0) var shrine_height := 0.35
+@export var shrine_side := 8.0
+@export var shrine_clearance := 24.0
 
 ## Everything that shapes the plan, for caches built from it.
 func params() -> Array:
@@ -125,7 +132,7 @@ func params() -> Array:
 		lot_gap, lot_min, lot_max, height_min, height_max, height_falloff, ground_floor, storey, clearings, vacant_chance,
 		pattern, drop_chance, square_chance, diagonals, diagonal_angle, diagonal_offset,
 		diagonal_run_on, hub_radius, spokes, rings, ring_spacing, ring_step, through_streets, lane_width,
-		lane_length, lane_bend, lane_branch, lane_gap, old_town_height]
+		lane_length, lane_bend, lane_branch, lane_gap, old_town_height, shrine_height, shrine_side, shrine_clearance]
 
 ## Drops every entry of a per-layout cache (keyed by params() and then the
 ## builder's own settings) that this layout did not build, so free flight's

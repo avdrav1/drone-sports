@@ -275,7 +275,7 @@ func drone_rects() -> Array[Rect2]:
 		var r := Rect2()
 		var first := true
 		for m: GeometryInstance3D in drone.find_children("*", "GeometryInstance3D", true, false):
-			if m is CPUParticles3D or m is GPUParticles3D or not m.is_visible_in_tree():
+			if m is CPUParticles3D or m is GPUParticles3D or m is GroundShadow or not m.is_visible_in_tree():
 				continue
 			var box := m.global_transform * m.get_aabb()
 			if box.grow(0.3).has_point(cam.global_position):
