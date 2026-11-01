@@ -99,10 +99,11 @@ func test_a_new_name_redraws() -> bool:
 	Sim.add(m)
 	var was = ProjectSettings.get_setting(GameName.SETTING)
 	ProjectSettings.set_setting(GameName.SETTING, "Sand Castle")
-	await Sim.process_frames(1)
+	# Two to see a _process update (see tests/sim.gd).
+	await Sim.process_frames(2)
 	var renamed := m.word == "SAND CASTLE" and _hangs(m, Rect2(Vector2.ZERO, m.size))
 	ProjectSettings.set_setting(GameName.SETTING, was)
-	await Sim.process_frames(1)
+	await Sim.process_frames(2)
 	var back := m.word == "JAISALMER"
 	m.free()
 	return renamed and back

@@ -83,7 +83,8 @@ func test_longest_line_fits_at_both_resolutions() -> bool:
 	var ok := lines.size() > 100
 	for s in SIZES:
 		var box := _radio(s)
-		await Sim.process_frames(1)
+		# Two: the first ends before this frame's layout has settled.
+		await Sim.process_frames(2)
 		var panel := BarkBox.panel_rect(s)
 		ok = ok and Rect2(Vector2.ZERO, s).encloses(panel) and panel.encloses(Rect2(box.label.position, box.label.size)) \
 			and panel.encloses(Rect2(box.name_label.position, box.name_label.size))
