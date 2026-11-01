@@ -66,58 +66,78 @@ static func _on(p: Vector2, polys: Array[PackedVector2Array]) -> bool:
 func test_two_minutes_no_overlap_on_lanes_and_moving() -> bool:
 	var ok := true
 	for l in _layouts():
-		var built: Array = await _build(l)
-		var streets: Streets = built[0]
-		var traffic: Traffic = built[1]
-		var clutter: StreetClutter = streets.get_node("Clutter")
-		# Parked cars by 8 m cell.
-		var parked := {}
-		for f in clutter.pieces:
-			if f.kind == StreetClutter.Kind.CAR:
-				var q := clutter._corners(f)
-				var cell := Vector2i(((q[0] + q[2]) * 0.125).floor())
-				if not parked.has(cell):
-					parked[cell] = []
-				parked[cell].append(q)
-		var n := traffic.cars.size()
-		var still := PackedFloat32Array()
-		still.resize(n)
-		var last := traffic.footprints()
-		var worst := 0.0
-		var overlaps := 0
-		var off_lane := 0
-		for tick in 7200:
-			traffic.step(1.0 / 60.0)
-			if tick % 6 != 5:
-				continue
-			var feet := traffic.footprints()
-			for i in n:
-				var a := feet[i]
-				var ca := (a[0] + a[2]) * 0.5
-				for j in range(i + 1, n):
-					if ca.distance_to((feet[j][0] + feet[j][2]) * 0.5) < 6.0 and Streets.overlaps(a, feet[j]):
-						overlaps += 1
-				var cell := Vector2i((ca * 0.125).floor())
-				for x in range(cell.x - 1, cell.x + 2):
-					for y in range(cell.y - 1, cell.y + 2):
-						for q: PackedVector2Array in parked.get(Vector2i(x, y), []):
-							if Streets.overlaps(a, q):
-								overlaps += 1
-				var c := traffic.cars[i]
-				var at := traffic._point(c, c.pos)
-				var xf := traffic._pose(c)
-				if not _on(at, clutter.lanes) or Vector2(xf.origin.x, xf.origin.z).distance_to(at) > 0.01:
-					off_lane += 1
-				still[i] = still[i] + 0.1 if ca.distance_to((last[i][0] + last[i][2]) * 0.5) < 0.001 else 0.0
-				worst = maxf(worst, still[i])
-			last = feet
-		var good := n > 0 and overlaps == 0 and off_lane == 0 and worst <= 10.0
-		if not good:
-			print("        pattern %d seed %d: %d cars, %d overlaps, %d off lane, longest still %.1f s" % [
-				l.pattern, l.seed, n, overlaps, off_lane, worst])
-		ok = ok and good
-		_done(streets)
+		ok = await _two_minutes(l, 10.0) and ok
 	return ok
+
+## Owner's call on 26.11: 10 s holds on the test seeds above; on any city free
+## flight rolls, no car stands still longer than STALL_CAP. These are the
+## worst cities a sweep of 16 seeds per pattern found (10 to 15.4 s).
+const STALL_CAP := 20.0
+
+func test_stalls_stay_under_the_cap_on_the_worst_rolled_cities() -> bool:
+	var ok := true
+	for pick in [[CityLayout.Pattern.DIAGONAL, 222], [CityLayout.Pattern.DIAGONAL, 777],
+			[CityLayout.Pattern.RADIAL, 13], [CityLayout.Pattern.RADIAL, 31],
+			[CityLayout.Pattern.RADIAL, 1234], [CityLayout.Pattern.OLD_TOWN, 1234]]:
+		var l := VARIETY.roll(SANDBOX, pick[1])
+		l.pattern = pick[0]
+		ok = await _two_minutes(l, STALL_CAP) and ok
+	return ok
+
+## Two minutes of `l`'s traffic: true when no car overlaps another or a parked
+## car, every car stays on its lane, and none stands still longer than `cap` s.
+func _two_minutes(l: CityLayout, cap: float) -> bool:
+	var built: Array = await _build(l)
+	var streets: Streets = built[0]
+	var traffic: Traffic = built[1]
+	var clutter: StreetClutter = streets.get_node("Clutter")
+	# Parked cars by 8 m cell.
+	var parked := {}
+	for f in clutter.pieces:
+		if f.kind == StreetClutter.Kind.CAR:
+			var q := clutter._corners(f)
+			var cell := Vector2i(((q[0] + q[2]) * 0.125).floor())
+			if not parked.has(cell):
+				parked[cell] = []
+			parked[cell].append(q)
+	var n := traffic.cars.size()
+	var still := PackedFloat32Array()
+	still.resize(n)
+	var last := traffic.footprints()
+	var worst := 0.0
+	var overlaps := 0
+	var off_lane := 0
+	for tick in 7200:
+		traffic.step(1.0 / 60.0)
+		if tick % 6 != 5:
+			continue
+		var feet := traffic.footprints()
+		for i in n:
+			var a := feet[i]
+			var ca := (a[0] + a[2]) * 0.5
+			for j in range(i + 1, n):
+				if ca.distance_to((feet[j][0] + feet[j][2]) * 0.5) < 6.0 and Streets.overlaps(a, feet[j]):
+					overlaps += 1
+			var cell := Vector2i((ca * 0.125).floor())
+			for x in range(cell.x - 1, cell.x + 2):
+				for y in range(cell.y - 1, cell.y + 2):
+					for q: PackedVector2Array in parked.get(Vector2i(x, y), []):
+						if Streets.overlaps(a, q):
+							overlaps += 1
+			var c := traffic.cars[i]
+			var at := traffic._point(c, c.pos)
+			var xf := traffic._pose(c)
+			if not _on(at, clutter.lanes) or Vector2(xf.origin.x, xf.origin.z).distance_to(at) > 0.01:
+				off_lane += 1
+			still[i] = still[i] + 0.1 if ca.distance_to((last[i][0] + last[i][2]) * 0.5) < 0.001 else 0.0
+			worst = maxf(worst, still[i])
+		last = feet
+	var good := n > 0 and overlaps == 0 and off_lane == 0 and worst <= cap
+	if not good:
+		print("        pattern %d seed %d: %d cars, %d overlaps, %d off lane, longest still %.1f s" % [
+			l.pattern, l.seed, n, overlaps, off_lane, worst])
+	_done(streets)
+	return good
 
 ## A route that crosses one junction edge twice holds it for both visits: the
 ## rear leaving the first lets go of that one only, so the car is never left
