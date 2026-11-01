@@ -13,6 +13,10 @@ const FACTIONS: Array[StringName] = [&"league", &"city", &"salvage"]
 @export var job_types: Array[StringName] = []
 ## Faction reputation at which the team makes an offer.
 @export var reputation_needed := 0
+## Missions completed, of any kind, at which the team asks whatever the pilot's
+## reputation: word gets round. 0 for never. Salvage needs it, since only a
+## salvage team flies salvage's jobs (Story 31.1).
+@export var noticed_after := 0
 ## A story flag that makes the team ask, e.g. scouted. When set, it replaces
 ## the reputation check.
 @export var needs_flag: StringName
@@ -39,6 +43,8 @@ func validate(known_types: Array) -> Array[String]:
 			out.append("%s: no job of type %s" % [id, t])
 	if reputation_needed < 0:
 		out.append("%s: negative reputation needed" % id)
+	if noticed_after < 0:
+		out.append("%s: negative missions to be noticed" % id)
 	if preset == null:
 		out.append("%s: grants no assist preset" % id)
 	return out

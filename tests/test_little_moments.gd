@@ -114,20 +114,18 @@ func test_board_cheers_an_upgrade_and_an_unlock() -> bool:
 	await _close()
 	return ok
 
-func test_no_cheer_for_jobs_a_death_opens() -> bool:
+func test_no_cheer_on_the_board_after_a_death() -> bool:
 	PlayerProfile.choose_pilot(&"arjuna")
 	Career.pending.append(&"cannery_row")
 	Career.accept(&"cannery_row")
 	var board: JobBoard = await _board()
 	board.refresh()
 	await _close()
-	var before := JobBoard.flyable_seen.duplicate()
-	# Bhima's death locks salvage, so the home jobs open again: nobody cheers that.
+	# Bhima's death locks salvage and closes jobs: nobody cheers on that board.
 	Roster.kill(&"bhima")
 	Bark.moment_times.clear()
 	board = await _board()
 	var ok: bool = JobBoard.death_on_last_job() and Career.team_locked()
-	ok = ok and JobBoard.flyable_seen.any(func(id): return not id in before)
 	ok = ok and not _said(board.bark, &"unlock") and not _said(board.bark, &"hello")
 	ok = ok and board.radio.current.get("event", &"") != &"unlock"
 	# Nor a garage purchase right after.

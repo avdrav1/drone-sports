@@ -146,7 +146,7 @@ func test_pilot_on_a_locked_team_flies_home_jobs_and_can_move_on() -> bool:
 	var deadweight := Career.wants(Career.teams.by_id(&"deadweight"))
 	var kept := Career.preset().label == "Act 3"
 	Career.team_id = &""
-	return not before and after and kept and rescue_air and not deadweight
+	return before and after and kept and rescue_air and not deadweight
 
 func test_job_needs_its_living_crew() -> bool:
 	var drill: Job = load("res://data/jobs/spotter_drill.tres")

@@ -46,8 +46,8 @@ func act() -> int:
 	return int(preset().label.trim_prefix("Act "))
 
 ## Would `t` make an offer now? It must never have offered, want a pilot this
-## good (a later act than now), and see the faction reputation it needs, or for
-## a team with `needs_flag`, that story flag.
+## good (a later act than now), and see the faction reputation it needs or
+## enough missions completed, or for a team with `needs_flag`, that story flag.
 func wants(t: Team) -> bool:
 	if t.id in offered or t.id == team_id or Consequences.faction_locked(t.faction):
 		return false
@@ -57,6 +57,8 @@ func wants(t: Team) -> bool:
 	# A scout's team asks on the flag alone: they already saw the run.
 	if t.needs_flag != &"":
 		return StoryFlags.is_set(t.needs_flag)
+	if t.noticed_after > 0 and missions_completed() >= t.noticed_after:
+		return true
 	return Reputation.of(t.faction) >= t.reputation_needed
 
 ## Make every offer now due. Returns the new ones. Offers from a faction
@@ -96,18 +98,15 @@ func decline(id: StringName) -> void:
 	pending.erase(id)
 	save()
 
-## Jobs the pilot may fly now: the current team's job types, or the home
-## game's tagged jobs in Act 1. Never a locked faction's job or one whose
-## required crew is dead (Story 7.6). A pilot left on a locked faction's team
-## keeps its assists and flies the home game's jobs too, so the career goes on.
+## Jobs the pilot may fly now: the home game's tagged jobs, and the current
+## team's job types. Never a locked faction's job or one whose required crew is
+## dead (Story 7.6). The home jobs stay open on a team (Story 31.1): they earn
+## the reputation that gets the pilot noticed by another faction.
 func can_fly(job: Job) -> bool:
 	if not Consequences.listed(job) or not Consequences.missing_crew(job).is_empty():
 		return false
 	var t := team()
-	var home := job.tags.has(&"act1")
-	if t == null:
-		return home
-	return job.job_type in t.job_types or (home and team_locked())
+	return job.tags.has(&"act1") or (t != null and job.job_type in t.job_types)
 
 ## The pilot's own team is in a faction a death has locked.
 func team_locked() -> bool:
@@ -129,6 +128,13 @@ func wants_still(t: Team) -> bool:
 func job_completed(job_id: StringName) -> void:
 	completed[job_id] = times_completed(job_id) + 1
 	save()
+
+## Every mission completed, repeats included.
+func missions_completed() -> int:
+	var total := 0
+	for id in completed:
+		total += completed[id]
+	return total
 
 func times_completed(job_id: StringName) -> int:
 	return completed.get(job_id, 0)
