@@ -1577,7 +1577,10 @@ Rules that hold throughout (from `docs/DEITIES.md`, "Respect"):
 - Vows never change pay, reputation, grade, unlocks or physics. A broken vow has no penalty and no scolding line.
 - Nothing here moves a drone (rule 1), adds an assist (rules 2, 5) or touches the strike rules (rule 7). With `lattice.tres` `enabled = false`, nothing about Ravana appears (rule 9).
 
-Owner decisions still open (from `docs/DEITIES.md`): who reviews, and when (30.11 waits on it); whether the shrines can be visited in free flight; whether Act 1 names Brahma or shows only his symbol.
+Owner decisions (2026-11-01):
+- Act 1's opening names Brahma and his principle from its first beat.
+- The shrines are seen only: visible from the air and on the map, with nothing that invites flying to them.
+- Still open: who reviews, and when. 30.11 waits on it; 30.1 to 30.10 may be built first.
 
 - [ ] **30.1 The Four as data**
   - Goal: Each god is a resource in `data/deities/`, and a guard test keeps them out of every system that could put them at risk or on sale.

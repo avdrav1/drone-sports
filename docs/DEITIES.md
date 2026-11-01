@@ -114,5 +114,5 @@ When `data/boss/lattice.tres` has `enabled = false`, nothing about Ravana loads:
 
 - [ ] Who reviews the lines and symbols, and when?
 - [ ] Do the four have voices of their own anywhere, or only symbols, music and Sanjaya's relay? (This proposal: only the relay.)
-- [ ] Should the shrines be visitable in free flight (a slow, respectful pass), or seen only?
-- [ ] Does the act-1 opening name Brahma, or show only his symbol until the player first sees the shrine?
+- [x] Should the shrines be visitable in free flight (a slow, respectful pass), or seen only? Seen only (owner, 2026-11-01).
+- [x] Does the act-1 opening name Brahma, or show only his symbol until the player first sees the shrine? It names him (owner, 2026-11-01).
