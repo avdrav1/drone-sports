@@ -1618,7 +1618,7 @@ Owner decisions (2026-11-01):
 - [ ] **30.6 Letting go, and guiding**
   - Goal: Shiva's and Krishna's vows: fly with the next act's assist already off, and finish a fleet job without dropping into a drone.
   - Context: Shiva: choosing the vow switches off, for this job only, the assist the next act removes, through the existing assist settings (the sim-player path); never on Act 5 jobs, never adding an assist. Kept when the job completes. Krishna: kept when a fleet job completes with no `drop_in`. Offered per job through `Job.vows` data.
-  - Acceptance: With the Shiva vow on an Act 2 job, collision guard is off for that job and back on after it; the flight model and other assists are untouched. The Krishna vow is kept on a fleet job finished from the command layer and not kept after any drop-in. Results and pay are as in 30.5.
+  - Acceptance: With the Shiva vow on an Act 1 job (e.g. sample_delivery, act1 preset), collision guard is off for that job and back on after it; the flight model and other assists are untouched. The Krishna vow is kept on a fleet job finished from the command layer and not kept after any drop-in. Results and pay are as in 30.5.
   - Out of scope: Brahma's vow (30.7).
 
 - [ ] **30.7 Making the path**
