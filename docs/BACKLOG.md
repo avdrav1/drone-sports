@@ -1664,3 +1664,13 @@ Owner decisions (2026-11-01):
   - Context: Link `docs/DEITIES.md` from VISION.md, CHARACTERS.md and BOSS.md; answer its open questions with the owner's decisions. Propose CLAUDE.md rule 10 (text in DEITIES.md) to the owner, who edits CLAUDE.md. Collect every deity line into one review sheet. Waits on the owner arranging the review.
   - Acceptance: The docs link and agree (a test greps them for the four names and the link). The review's changes are applied and noted in this story's Note with the reviewer's role (no name unless they agree). Every test passes.
   - Out of scope: Story or mechanic changes beyond the review's.
+
+## Epic 31: A career you can finish
+
+Done when every mission on the board can be reached by playing from a new save.
+
+- [x] **31.1 Every mission can be reached**
+  - Goal: A new pilot can earn their way to every mission. Before this, only league reputation could be earned, so Harbor Couriers, City Rescue Air, Cannery Row and Deadweight never made an offer and five missions stayed locked.
+  - Context: Reputation comes only from flying a faction's jobs, and those jobs needed that faction's team. "Parcel to the pad" joins the home game (`act1`), so it earns city reputation from the start. Home jobs stay flyable on any team, replacing Story 5.3's "only the current team's jobs". A team's `noticed_after` makes it ask after that many completed missions of any kind, whatever its reputation: Cannery Row at 5, Deadweight at 12.
+  - Acceptance: `tests/test_career_reach.gd` plays from a new save, earning reputation at a C grade, tries every accept and decline, and fails if any board mission is never flyable. Joining Skyline Juniors first still reaches the city's missions. Salvage asks after enough missions with no salvage reputation.
+  - Out of scope: Offers stay one-shot and acts only go up, so some choices still close missions on that save (joining Halcyon Racing closes the city's and salvage's teams).
