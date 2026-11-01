@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="Score" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/audio/stem.gd" id="stem"]
+[ext_resource type="Script" path="res://scripts/audio/score.gd" id="score"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_brahma.ogg" id="1"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_brahma_muffled.ogg" id="m1"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_vishnu.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_vishnu_muffled.ogg" id="m2"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_shiva.ogg" id="3"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_shiva_muffled.ogg" id="m3"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_krishna.ogg" id="4"]
+[ext_resource type="AudioStream" path="res://data/music/four_motif_krishna_muffled.ogg" id="m4"]
+
+[sub_resource type="Resource" id="stem_1"]
+script = ExtResource("stem")
+id = &"motif_brahma"
+stream = ExtResource("1")
+level_db = -10.0
+muffled = ExtResource("m1")
+
+[sub_resource type="Resource" id="stem_2"]
+script = ExtResource("stem")
+id = &"motif_vishnu"
+stream = ExtResource("2")
+level_db = -9.0
+muffled = ExtResource("m2")
+
+[sub_resource type="Resource" id="stem_3"]
+script = ExtResource("stem")
+id = &"motif_shiva"
+stream = ExtResource("3")
+level_db = -6.0
+muffled = ExtResource("m3")
+
+[sub_resource type="Resource" id="stem_4"]
+script = ExtResource("stem")
+id = &"motif_krishna"
+stream = ExtResource("4")
+level_db = -13.0
+muffled = ExtResource("m4")
+
+[resource]
+script = ExtResource("score")
+id = &"four"
+tempo = 80.0
+tonic = 174.72
+bars = 4
+stems = Array[ExtResource("stem")]([SubResource("stem_1"), SubResource("stem_2"), SubResource("stem_3"), SubResource("stem_4")])

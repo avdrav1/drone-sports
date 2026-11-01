@@ -10,4 +10,5 @@ principle = "Guidance. Show the road, then hand over the reins."
 symbols = Array[StringName]([&"flute", &"peacock_feather"])
 colour = Color(0.1, 0.15, 0.4, 1)
 accent = Color(0.05, 0.5, 0.45, 1)
+motif = &"motif_krishna"
 thread_act = 5

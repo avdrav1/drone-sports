@@ -352,6 +352,24 @@
    "tempo_multiple": 0.5,
    "tonic": 174.72
   },
+  "four": {
+   "bars": 4,
+   "plays": {
+    "motif_brahma": "strings",
+    "motif_krishna": "flute",
+    "motif_shiva": "frame_drum",
+    "motif_vishnu": "pad"
+   },
+   "stems": [
+    "motif_brahma",
+    "motif_vishnu",
+    "motif_shiva",
+    "motif_krishna"
+   ],
+   "tempo": 80.0,
+   "tempo_multiple": 0.5,
+   "tonic": 174.72
+  },
   "lattice": {
    "bars": 8,
    "densities": {

@@ -397,6 +397,18 @@ def keys(freq, length, seed=0):
     return out
 
 
+def flute(freq, length, seed=0):
+    """A bamboo flute (Story 30.2, Krishna's motif; not in the demo): a soft
+    near-sine with a little second harmonic, breath in the attack and a thread
+    of it throughout, and vibrato that comes in as the note is held."""
+    rng = random.Random(seed)
+    tab = _table([1.0, 0.22, 0.06])
+    env = _envelope(int(length * RATE), 0.07, 0.18)
+    n = len(env)
+    s = _osc(tab, freq, n, vibrato=0.007, rate=5.0, delay=0.3)
+    breath = _lowpass(_lowpass([rng.uniform(-1, 1) for _ in range(n)], 0.25), 0.25)
+    return [(s[i] + breath[i] * (0.12 + 0.5 * math.exp(-i / RATE * 18))) * env[i] for i in range(n)]
+
 PLAY = {name: globals()[name] for name in INSTRUMENTS}
 
 

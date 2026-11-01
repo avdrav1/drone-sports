@@ -199,6 +199,14 @@ Every audio file under `data/audio/` and `data/music/` is listed here (music by 
 | `../music/lattice_drone.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/lattice_voice.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_brahma.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_brahma_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_vishnu.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_vishnu_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_shiva.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_shiva_muffled.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_krishna.ogg` | `tools/music/generate.py` | generated |
+| `../music/four_motif_krishna_muffled.ogg` | `tools/music/generate.py` | generated |
 | `../music/theme_song.ogg` | "There's Only Love in My Heart" by Avdrav, the user's own song (https://youtu.be/oT1lXzJybus), 6:00 to 7:12 cut by `tools/music/generate.py` | own work |
 | `../music/theme_song_muffled.ogg` | the same stretch of the user's own song, low-passed by `tools/music/generate.py` | own work |
 | `../music/act_1_counter.ogg` | `tools/music/generate.py` | generated |

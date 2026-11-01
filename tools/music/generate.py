@@ -683,6 +683,52 @@ def lattice():
     write_score("lattice", tempo, key.TONIC, bars, stems, {"plays": plays, "densities": densities, "drone": drone})
 
 
+# Story 30.2: the Four's motifs (docs/DEITIES.md, "How they appear"). One score,
+# `four`, at the song's half-time pulse, four bars, one stem per god named by
+# their Deity.motif (data/deities/). Each stands alone and the four sit together
+# in the key. No voice plays any of them: the Four have no voices of their own.
+FOUR_TEMPO = SONG_BPM / 2
+FOUR_BARS = 4
+# Stem id -> (the instrument that plays it, its level in dB), levelled so the
+# four sound about as loud as each other.
+FOUR = {"motif_brahma": ("strings", -10.0), "motif_vishnu": ("pad", -9.0),
+        "motif_shiva": ("frame_drum", -6.0), "motif_krishna": ("flute", -13.0)}
+# Brahma's rising line, slow: (degree, octave, beats), rising to the tonic above.
+BRAHMA_LINE = ((1, 0, 3), (2, 0, 1), (3, 0, 3), (5, 0, 1), (6, 0, 3), (8, 0, 4))
+# Vishnu's held chord: the tonic, its fifth and third, under one roof.
+VISHNU_CHORD = ((1, -1), (5, -1), (1, 0), (3, 0))
+# Krishna's flute line, in the key: (degree, octave, beats), 16 beats with a rest.
+KRISHNA_LINE = ((5, 1, 1), (6, 1, 1), (8, 1, 2), (9, 1, 1), (8, 1, 1), (6, 1, 2),
+                (5, 1, 1.5), (6, 1, 0.5), (5, 1, 1), (3, 1, 1), (5, 1, 3))
+
+
+def the_four():
+    """Story 30.2: data/music/four.tres. Brahma's line rises slowly on strings;
+    Vishnu's chord is held on the pad through the whole loop; Shiva's damaru
+    pulses, a double stroke on every beat, the bar's first one deeper; Krishna's
+    flute plays a short line in the key."""
+    tempo, bars = FOUR_TEMPO, FOUR_BARS
+    n = bar_samples(tempo, bars)
+    t = {k: instruments.Track(n, tempo) for k in FOUR}
+    beat = t["motif_brahma"].seconds(1)
+    at = 0
+    for k, (d, o, beats) in enumerate(BRAHMA_LINE):
+        t["motif_brahma"].add(at, instruments.strings(key.hz(d, o), beats * beat * 0.95, 3000 + k), 0.6)
+        at += beats
+    for k, (d, o) in enumerate(VISHNU_CHORD):
+        t["motif_vishnu"].add(0, instruments.pad(key.hz(d, o), (bars * BEATS_PER_BAR - 1) * beat, 3010 + k), 0.4)
+    for b in range(bars * BEATS_PER_BAR):
+        low = b % BEATS_PER_BAR == 0
+        t["motif_shiva"].add(b, instruments.frame_drum(key.hz(1, -1 if low else 0), seed=3020 + 2 * b), 1.0 if low else 0.7)
+        t["motif_shiva"].add(b + 0.25, instruments.frame_drum(key.hz(1, 0), seed=3021 + 2 * b), 0.55)
+    at = 0
+    for k, (d, o, beats) in enumerate(KRISHNA_LINE):
+        t["motif_krishna"].add(at, instruments.flute(key.hz(d, o), beats * beat * 0.92, 3060 + k), 0.6)
+        at += beats
+    assert at == bars * BEATS_PER_BAR - 1, at
+    write_score("four", tempo, key.TONIC, bars, [(k, t[k].buf, FOUR[k][1]) for k in FOUR],
+                {"plays": {k: FOUR[k][0] for k in FOUR}})
+
 # The main title (Story 21.1): the user's own song, "There's Only Love in My
 # Heart" by Avdrav, used with their permission. Its FLAC (from their own
 # upload) sits in tools/music/source/, gitignored and never committed; the
@@ -791,6 +837,7 @@ def generate():
     act_4()
     act_5()
     lattice()
+    the_four()
     song_theme()
     write_manifest()
 
