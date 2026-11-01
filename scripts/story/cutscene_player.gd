@@ -138,7 +138,7 @@ func advance() -> void:
 	if beat.score:
 		MusicDirector.play_score(beat.score, &"live")
 	if beat.deity:
-		_sound_motif(beat.deity)
+		sound_motif(beat.deity)
 	_place_camera(0.0, true)
 
 func finish() -> void:
@@ -159,7 +159,7 @@ func focus_node() -> Node3D:
 	return backdrop.get_node_or_null(beat.focus) as Node3D
 
 ## Only the deity's own motif sounds of the Four's score, if it is playing.
-func _sound_motif(d: Deity) -> void:
+static func sound_motif(d: Deity) -> void:
 	if Music.score == null or Music.score.find(d.motif) == null:
 		return
 	for s in Music.score.stems:

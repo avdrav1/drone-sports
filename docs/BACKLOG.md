@@ -1603,11 +1603,12 @@ Owner decisions (2026-11-01):
   - Out of scope: Assist-removal scenes (30.4), vows.
   - Note: `data/story/gate_<god>.tres` (three beats over a slow orbit of the city, desert wind as bed; each beat's `CutsceneBeat.deity` shows a `DeitySymbol` card at 192 px with the name and sounds only that god's motif of `four.tres`) are listed in `data/story/act_gates.tres` (`ActGates`), and `Cutscene.gate_act` with save flags `act_<n>_gate_seen` (no deity in the save) makes each play once. `Career.gate_due()`/`open_through_gate()` play them on the way into play: the title's start (Brahma on a new game, or any later gate due), and `JobBoard.fly`, which opens a new act's gate before the next job (Vishnu after the recruitment scene and board, which are unchanged; Shiva on an Act 4 team; Krishna before the first fleet job, as no team is Act 5); a gate never interrupts the recruitment scene or the board. Tests that pressed start on a new save now pass through or mark Brahma's gate (test_title_screen, test_title_crawl, test_pilot_select, test_pad_menus), and later scenes (30.4, 30.10) can chain the same way through `CutscenePlayer.then`.
 
-- [ ] **30.4 The shedding**
+- [x] **30.4 The shedding**
   - Goal: Each promotion that removes an assist shows a short Shiva-thread beat naming what is let go and what it unlocks.
   - Context: The assist table in CLAUDE.md gives each assist's "removing it unlocks" text; put it on the assist data (not in code) and read it here. Shown on the promotion offer (`OfferDialog`) or right after it, with Shiva's symbol and motif. Does not change which assists come off or when.
   - Acceptance: Every promotion that removes assists names each of them and its unlock, from data. A promotion that removes none shows nothing extra. Assist presets per act are unchanged (existing tests pass).
   - Out of scope: Vows.
+  - Note: `AssistUnlocks` (`data/assists/unlocks.tres`: each assist's name and what removing it unlocks, from CLAUDE.md's table, plus the brake, which Act 3 also removes) is read by `Shedding` (`data/story/shedding.tres`: Shiva, a heading line and a line format), and `OfferDialog.show_offer` adds it under the offer when joining removes assists: a 64 px Shiva symbol, the heading and one "Let go of ...: ..." line per assist (`shed_lines`), with Shiva's motif alone of `four.tres` until the offer is answered, then the music from before (the dialog's own label keeps `dialog_text` but is hidden while `content` shows it). An offer removing nothing is unchanged; `CutscenePlayer.sound_motif(deity)` is now a public static helper that 30.10 can reuse.
 
 - [x] **30.5 Vows**
   - Goal: The launch dialog offers an optional vow on jobs whose data lists one, and the results screen says whether it was kept.
