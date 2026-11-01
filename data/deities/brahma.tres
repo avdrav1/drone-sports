@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Deity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/deity.gd" id="1_deity"]
+
+[resource]
+script = ExtResource("1_deity")
+id = &"brahma"
+name = "Brahma"
+principle = "Creation. Every flight begins as something made with care."
+symbols = Array[StringName]([&"lotus", &"vedas"])
+colour = Color(0.86, 0.66, 0.22, 1)
+accent = Color(0.86, 0.66, 0.22, 1)
+thread_act = 1

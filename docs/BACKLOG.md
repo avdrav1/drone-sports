@@ -1582,11 +1582,12 @@ Owner decisions (2026-11-01):
 - The shrines are seen only: visible from the air and on the map, with nothing that invites flying to them.
 - Still open: who reviews, and when. 30.11 waits on it; 30.1 to 30.10 may be built first.
 
-- [ ] **30.1 The Four as data**
+- [x] **30.1 The Four as data**
   - Goal: Each god is a resource in `data/deities/`, and a guard test keeps them out of every system that could put them at risk or on sale.
   - Context: New `Deity` resource (`scripts/story/deity.gd`): `id`, `name`, `principle` (one line), `symbols` (names), `colour`, `motif` (a music stem id, filled in 30.2), `thread_act` (the act whose thread they lead; Krishna's is 5). A `DeityList` (`data/deities/deities.tres`) lists all four, as `TeamList` does, so exported builds find them. Unlike `Character`, a deity has no status, portrait, look, babble, edge or perk.
   - Acceptance: The four load from the list. A guard test fails if any deity id appears in `Roster`/`Cast`, `data/characters/`, a job's `crew_in_field` or `requires_living`, a `HazardZone`, the pilot list, the emote or bark tables, `Perks`, the upgrade list or the boss data. `SaveGame` holds no deity status.
   - Out of scope: Art, music, any scene.
+  - Note: `Deity` (`scripts/story/deity.gd`: id, name, principle, symbols, colour, accent for Shiva's and Krishna's second colour, motif empty until 30.2, thread_act 1/2/4/5) and `DeityList` (`data/deities/deities.tres`, `by_id`, `ids`) hold the Four; the principles are one original line each, starting with the principle's name (Creation, Preservation, Dissolution, Guidance). `tests/test_the_four.gd` is the guard: it fails on a deity id or name in the cast, character files, pilots, any Job's `crew_in_field`/`requires_living`, any HazardZone `character` in scenes/, the emote table, Bark events, dialogue JSON keys, perks, upgrades, the hangar catalog, the boss data or the save outside a "vows" section (30.5 should save vows kept per deity under that key, as counts only); in .tres files it matches only whole quoted strings, so prose such as 30.9's briefing mentioning Brahma passes, but an id slot like `&"brahma"` there fails.
 
 - [ ] **30.2 Symbols and motifs**
   - Goal: Each god has an original symbol drawing and a short music motif, used everywhere they appear.

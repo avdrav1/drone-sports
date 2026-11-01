@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Deity" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/deity.gd" id="1_deity"]
+
+[resource]
+script = ExtResource("1_deity")
+id = &"vishnu"
+name = "Vishnu"
+principle = "Preservation. Keep safe the ones who stand with you."
+symbols = Array[StringName]([&"conch", &"chakra"])
+colour = Color(0.12, 0.2, 0.55, 1)
+accent = Color(0.12, 0.2, 0.55, 1)
+thread_act = 2
