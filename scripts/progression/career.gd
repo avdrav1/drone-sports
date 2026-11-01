@@ -2,14 +2,21 @@ extends Node
 # Autoload "Career": which team the pilot flies for and which offers they have
 # had. No team is Act 1, the home game. An offer is made once per team, ever:
 # accepting or declining it, the team never asks again.
+# Story 30.3: each of the Four's threads opens with an act gate scene
+# (data/story/act_gates.tres), played once per save on the way into play
+# after the act changes: Act 1's as a new game starts, the others before the
+# next job flown (Act 5's before the first fleet job).
 
 signal offer_made(team: Team)
 signal team_changed(team: Team)
 
 const TEAMS := "res://data/teams/teams.tres"
 const HOME_PRESET := "res://data/assists/act1.tres"
+const GATES := "res://data/story/act_gates.tres"
+const BOARD := "res://scenes/ui/job_board.tscn"
 
 var teams: TeamList
+var gates: ActGates
 ## Current team id; empty in Act 1.
 var team_id: StringName = &""
 ## Team ids ever offered, accepted or not.
@@ -25,6 +32,7 @@ var last_job: StringName = &""
 
 func _ready() -> void:
 	teams = load(TEAMS)
+	gates = load(GATES)
 	# Settings are a static class with no node of their own; the career brings them in.
 	GameSettings.load_saved()
 	load_saved()
@@ -143,6 +151,32 @@ func job_flown(job_id: StringName, letter: String) -> void:
 ## The best grade flown on a job, or "" before it has been flown.
 func best_grade(job_id: StringName) -> String:
 	return grades.get(job_id, "")
+
+## The act gate due now, or null: the first unseen one for the career's act
+## or an earlier one, or for `job_act` (the act a job is flown in; a fleet job
+## is Act 5's) when that is beyond it. Act 1's opens a new game from the
+## title, so flying a job (any `job_act`) never opens it.
+func gate_due(job_act := 0) -> Cutscene:
+	for c in gates.gates:
+		if StoryFlags.is_set(c.seen_flag) or (job_act > 0 and c.gate_act == 1):
+			continue
+		if c.gate_act <= act() or (job_act > act() and c.gate_act == job_act):
+			return c
+	return null
+
+## Opens `path`, or first the act gate due, which opens it when it ends (and
+## any gate due after it first).
+func open_through_gate(tree: SceneTree, path: String, job_act := 0) -> void:
+	var c := gate_due(job_act)
+	if c == null:
+		tree.change_scene_to_file(path)
+		return
+	var p := CutscenePlayer.new()
+	p.name = "ActGate"
+	p.cutscene = c
+	p.then = path
+	p.job_act = job_act
+	tree.change_scene_to_node(p)
 
 func save() -> void:
 	var done := {}

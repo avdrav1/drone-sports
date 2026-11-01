@@ -122,7 +122,8 @@ func start() -> void:
 		return
 	started = true
 	Sfx.play(skin.start_sound if skin.start_sound != &"" else UiSounds.CONFIRM)
-	get_tree().change_scene_to_file.call_deferred(BOARD)
+	# Story 30.3: a new game opens Act 1 with Brahma's gate, then the board.
+	Career.open_through_gate.call_deferred(get_tree(), BOARD)
 
 func _build() -> void:
 	var layer := CanvasLayer.new()

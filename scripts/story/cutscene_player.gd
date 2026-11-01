@@ -7,11 +7,16 @@ extends Node3D
 # cutscene's bed loops under every beat until it ends. As `backdrop_only` it is
 # just the moving picture behind another screen (the title, Story 17.3): no
 # overlay, bed, score, or skipping, and the last beat holds for good.
+# Story 30.3: a beat with a deity shows their symbol card (DeitySymbol and
+# name, never a portrait) and sounds their motif alone of the Four's score. An
+# act gate ends through Career, so any other gate due plays before `then`.
 
 signal finished
 
 ## The portrait's size on a card beat.
 const PORTRAIT := 320.0
+## A deity's symbol on their card (Story 30.3).
+const SYMBOL := 192.0
 
 ## Set before opening the scene to play a cutscene that was already seen.
 static var replay := false
@@ -24,6 +29,11 @@ static var replay := false
 @export var framing: ArcadeFraming = preload("res://data/framing/act1.tres")
 ## Only the backdrop and camera: the screen in front owns input and text.
 @export var backdrop_only := false
+## Opened at the end in place of the cutscene's next_scene, e.g. the job an
+## act gate stands before.
+var then := ""
+## The act of the job `then` opens, for any further gate (Career.gate_due).
+var job_act := 0
 
 var index := -1
 var beat: CutsceneBeat
@@ -40,6 +50,10 @@ var portrait: CharacterPortrait
 ## The card behind a portrait; "UNKNOWN" for a silhouette.
 var card: PanelContainer
 var card_name: Label
+## A deity's card: their symbol and name (Story 30.3).
+var symbol_card: PanelContainer
+var symbol: DeitySymbol
+var symbol_name: Label
 var bezel: Control
 var curtain: ColorRect
 ## Plays the cutscene's bed; null when it has none.
@@ -117,8 +131,14 @@ func advance() -> void:
 		card_name.text = "UNKNOWN VIEWER" if beat.silhouette else c.name.to_upper()
 		portrait.queue_redraw()
 	bezel.visible = beat.bezel
+	symbol_card.visible = beat.deity != null
+	if beat.deity:
+		symbol.deity = beat.deity
+		symbol_name.text = beat.deity.name.to_upper()
 	if beat.score:
 		MusicDirector.play_score(beat.score, &"live")
+	if beat.deity:
+		_sound_motif(beat.deity)
 	_place_camera(0.0, true)
 
 func finish() -> void:
@@ -138,7 +158,18 @@ func focus_node() -> Node3D:
 		return null
 	return backdrop.get_node_or_null(beat.focus) as Node3D
 
+## Only the deity's own motif sounds of the Four's score, if it is playing.
+func _sound_motif(d: Deity) -> void:
+	if Music.score == null or Music.score.find(d.motif) == null:
+		return
+	for s in Music.score.stems:
+		var want := s.level_db if s.id == d.motif else Music.SILENT_DB
+		if not is_equal_approx(Music.level(s.id), want):
+			Music.set_level(s.id, want, -1.0 if s.id == d.motif else 0.0)
+
 func _start_bed() -> void:
+	if cutscene.bed == &"":
+		return
 	var e := Sfx.bank.find(cutscene.bed) if Sfx.bank and cutscene.bed != &"" else null
 	if e == null or e.streams.is_empty():
 		push_warning("CutscenePlayer: no bed '%s'" % cutscene.bed)
@@ -152,8 +183,13 @@ func _start_bed() -> void:
 	bed.play()
 
 func _go_next() -> void:
-	if cutscene.next_scene != "" and is_inside_tree():
-		get_tree().change_scene_to_file(cutscene.next_scene)
+	var next := then if then != "" else cutscene.next_scene
+	if next == "" or not is_inside_tree():
+		return
+	if cutscene.gate_act > 0:
+		Career.open_through_gate(get_tree(), next, job_act)
+	else:
+		get_tree().change_scene_to_file(next)
 
 func _load_backdrop(b: CutsceneBeat) -> void:
 	if backdrop:
@@ -215,6 +251,7 @@ func _fade() -> void:
 	title_label.modulate.a = text_alpha
 	title_mark.modulate.a = text_alpha
 	card.modulate.a = text_alpha
+	symbol_card.modulate.a = text_alpha
 
 func _build_overlay() -> void:
 	var layer := CanvasLayer.new()
@@ -297,6 +334,7 @@ func _build_overlay() -> void:
 	card_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_name.add_theme_font_size_override("font_size", 14)
 	stack.add_child(card_name)
+	_build_symbol_card(root)
 	var skip := Label.new()
 	skip.name = "Skip"
 	skip.text = skip_text()
@@ -315,6 +353,40 @@ func _build_overlay() -> void:
 	curtain.set_anchors_preset(Control.PRESET_FULL_RECT)
 	curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(curtain)
+
+## A quiet dark card with a thin border, the
+## symbol over the name. No face, no expression (docs/DEITIES.md).
+func _build_symbol_card(root: Control) -> void:
+	symbol_card = PanelContainer.new()
+	symbol_card.name = "SymbolCard"
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.04, 0.06, 0.82)
+	style.border_color = Color(1, 1, 1, 0.18)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(24)
+	symbol_card.add_theme_stylebox_override("panel", style)
+	symbol_card.anchor_left = 0.5
+	symbol_card.anchor_right = 0.5
+	symbol_card.anchor_top = 0.5
+	symbol_card.anchor_bottom = 0.5
+	symbol_card.offset_left = -SYMBOL * 0.5 - 24.0
+	symbol_card.offset_right = SYMBOL * 0.5 + 24.0
+	symbol_card.offset_top = -200.0
+	symbol_card.offset_bottom = 60.0
+	symbol_card.visible = false
+	root.add_child(symbol_card)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 14)
+	symbol_card.add_child(stack)
+	symbol = DeitySymbol.new()
+	symbol.custom_minimum_size = Vector2.ONE * SYMBOL
+	stack.add_child(symbol)
+	symbol_name = Label.new()
+	symbol_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	symbol_name.add_theme_font_size_override("font_size", 18)
+	symbol_name.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	stack.add_child(symbol_name)
 
 ## "Any key to skip", or "Any button" with a pad in hand (Story 23.2).
 static func skip_text() -> String:

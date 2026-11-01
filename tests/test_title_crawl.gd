@@ -48,6 +48,7 @@ func test_crawl_rolls_up_and_loops() -> bool:
 	return rising and looped
 
 func test_start_works_mid_crawl() -> bool:
+	StoryFlags.set_flag(&"act_1_gate_seen")  # past Brahma's act gate (Story 30.3)
 	var t := await _open()
 	t._age = t.start_grace
 	t.crawl.scroll = t.crawl.text_height * 0.5

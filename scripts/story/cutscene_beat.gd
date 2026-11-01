@@ -28,6 +28,9 @@ enum Camera { ORBIT, CHASE, FIXED }
 ## Character shown beside the caption; `silhouette` blacks them out.
 @export var portrait: StringName
 @export var silhouette := false
+## One of the Four (Story 30.3): their symbol card in place of a portrait, and
+## their motif alone of the Four's score. Never with a portrait.
+@export var deity: Deity
 ## Frame the shot as the arcade home game.
 @export var bezel := false
 ## Score crossfaded in, every stem, as this beat starts (Story 16.5). Null keeps the music.
