@@ -60,6 +60,9 @@ weathers = Array[Resource]([ExtResource("98_fog"), ExtResource("99_whiteout"), E
 
 [node name="Traffic" parent="Streets" instance=ExtResource("95_traffic")]
 
+[node name="Sound" parent="Streets/Traffic" index="0" node_paths=PackedStringArray("target")]
+target = NodePath("../../../Drone")
+
 [node name="Rooftops" parent="." instance=ExtResource("93_roofs")]
 
 [node name="Drone" parent="." node_paths=PackedStringArray("intent_source") instance=ExtResource("4_drone")]
