@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
 [ext_resource type="Resource" path="res://data/assists/act5.tres" id="2_act5"]
+[ext_resource type="Resource" path="res://data/vows/guiding.tres" id="9_guiding"]
 
 [resource]
 script = ExtResource("1_job")
@@ -22,3 +23,4 @@ weights = {
 "Relay2": 1.0,
 "Relay3": 1.0
 }
+vows = Array[Resource]([ExtResource("9_guiding")])

@@ -151,6 +151,9 @@ func drop_in() -> void:
 	if selected == null:
 		return
 	flown = selected
+	# The vow of guiding is kept only with none (Story 30.6).
+	if runner:
+		runner.drop_ins += 1
 	pilot.reparent(flown)
 	pilot.reset()
 	flown.intent_source = pilot

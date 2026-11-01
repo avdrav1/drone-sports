@@ -64,6 +64,14 @@ var _weather_step := 0
 var launch_dialog: LaunchDialog
 ## The vow the player made at launch (Story 30.5), one of the job's, or null.
 var vow: Vow
+## Times the player dropped into a fleet drone since the briefing (the
+## CommandView counts them); the vow of guiding is kept at none (Story 30.6).
+var drop_ins := 0
+## The path the player made on the map in the briefing, for the vow of making
+## (Story 30.7): world points on the ground, in order. Not saved between attempts.
+var plan := PackedVector3Array()
+## How many of the plan's points the drone has passed, in order.
+var plan_passed := 0
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
 ## The job's sounds; an internal child, so objectives() never sees it.
@@ -108,15 +116,17 @@ func begin() -> void:
 		o.bind(self)
 		if job.weights.has(String(o.name)):
 			o.weight = job.weights[String(o.name)]
-	if job.required_assists and drone and drone.assists:
-		drone.assists.apply_stack(GameSettings.effective_stack(assists_for(job)))
+	vow = null
+	drop_ins = 0
+	plan = PackedVector3Array()
+	plan_passed = 0
+	_apply_assists()
 	Garage.apply(drone)
 	_apply_weather()
 	_weather_step = 0
 	_remove_dead_crew()
 	_arm_hazard_zones()
 	_watch_crashes()
-	vow = null
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -127,6 +137,65 @@ func begin() -> void:
 ## The job's assists, with any the pilot's career has taken away also off.
 static func assists_for(j: Job) -> AssistStack:
 	return j.required_assists.intersect(Career.preset())
+
+## The assists this flight flies with: the job's, after the career and the
+## expert setting, then the vow's (letting go turns the next act's off).
+func flight_stack() -> AssistStack:
+	var stack := GameSettings.effective_stack(assists_for(job))
+	return vow.stack_for(stack) if vow else stack
+
+func _apply_assists() -> void:
+	if job.required_assists and drone and drone.assists:
+		drone.assists.apply_stack(flight_stack())
+
+## The job's vows that can be made on this flight (Story 30.6: letting go only
+## while the next act still has an assist to take away).
+func offered_vows() -> Array[Vow]:
+	var out: Array[Vow] = []
+	var stack := GameSettings.effective_stack(assists_for(job)) if job.required_assists else AssistStack.new().all_off()
+	for v in job.vows:
+		# Making needs a path made on the map first.
+		if v.offered_with(stack) and (v.kind != &"making" or not plan.is_empty()):
+			out.append(v)
+	return out
+
+## The job's vow of making, or null: only a job that offers it can be planned.
+func making_vow() -> Vow:
+	for v in job.vows if job else []:
+		if v.kind == &"making":
+			return v
+	return null
+
+## Whether the map may plan a path now: in the briefing of a job offering making.
+func can_plan() -> bool:
+	return state == State.BRIEFING and making_vow() != null
+
+## Adds a point to the end of the plan, up to the vow's limit. Its index, or -1.
+func place_point(at: Vector3) -> int:
+	if not can_plan() or plan.size() >= making_vow().max_points:
+		return -1
+	plan.append(Vector3(at.x, 0.0, at.z))
+	return plan.size() - 1
+
+func move_point(i: int, at: Vector3) -> void:
+	if can_plan() and i >= 0 and i < plan.size():
+		plan[i] = Vector3(at.x, 0.0, at.z)
+
+func remove_point(i: int) -> void:
+	if can_plan() and i >= 0 and i < plan.size():
+		plan.remove_at(i)
+		# A vow of making with no path left cannot stand.
+		if plan.is_empty() and vow and vow.kind == &"making":
+			vow = null
+
+## Counts the next planned point as passed once the drone is over it, within
+## the vow's radius. Only in order: a later point flown first does not count.
+func _follow_plan() -> void:
+	if plan_passed >= plan.size() or drone == null:
+		return
+	var d := drone.global_position - plan[plan_passed]
+	if Vector2(d.x, d.z).length() <= making_vow().pass_radius:
+		plan_passed += 1
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
 ## With injured crew in the field, or before the final job's counsel, it asks
@@ -145,7 +214,7 @@ func launch(confirmed := false) -> void:
 func request_launch() -> void:
 	if state != State.BRIEFING:
 		return
-	if job.vows.is_empty() and counsel_due() == null:
+	if offered_vows().is_empty() and counsel_due() == null:
 		launch()
 		return
 	var hurt: Array[StringName] = injured_in_field() if confirm_risk else []
@@ -159,10 +228,11 @@ func counsel_due() -> Counsel:
 	return c if c.applies_to(job) else null
 
 ## Make one of the job's vows for this flight, or none with null. Only in the
-## briefing.
+## briefing. The drone takes the vow's assists at once.
 func choose_vow(v: Vow) -> void:
-	if state == State.BRIEFING and (v == null or v in job.vows):
+	if state == State.BRIEFING and (v == null or v in offered_vows()):
 		vow = v
+		_apply_assists()
 
 ## Back out of a risky launch, to `back_scene`.
 func decline_launch() -> void:
@@ -195,7 +265,7 @@ func _ask_launch(hurt: Array[StringName]) -> void:
 		launch_dialog.confirmed.connect(_on_launch_confirmed)
 		launch_dialog.canceled.connect(_on_launch_declined)
 		add_child(launch_dialog)
-	launch_dialog.ask(hurt, job.tags.has(&"lethal"), job.vows, counsel_due(), job)
+	launch_dialog.ask(hurt, job.tags.has(&"lethal"), offered_vows(), counsel_due(), job)
 
 func _on_launch_declined() -> void:
 	launch_dialog.hush()
@@ -288,6 +358,7 @@ func _physics_process(delta: float) -> void:
 		State.LIVE:
 			live_time += delta
 			_run_weather_changes()
+			_follow_plan()
 			if _finish_line_reached():
 				complete()
 			elif job.time_limit > 0.0 and live_time >= job.time_limit:
@@ -448,6 +519,8 @@ func _update_label() -> void:
 		State.BRIEFING:
 			state_label.text = "BRIEFING  %s  for %s  pay %d\npress %s to launch" % [job.title, job.client, job.pay,
 				InputPrompt.text(&"ui_accept")]
+			if can_plan():
+				state_label.text += "\n%s to plan a path" % InputPrompt.text(&"toggle_map")
 		State.COUNTDOWN:
 			state_label.text = "COUNTDOWN  %d" % ceili(job.countdown - state_time)
 		State.LIVE:
