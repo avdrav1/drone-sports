@@ -86,7 +86,7 @@ zone = NodePath("../Sushena/Zone")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain")]
+[node name="Radar" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "terrain", "runner")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -97,6 +97,7 @@ mouse_filter = 2
 script = ExtResource("radar")
 gps = NodePath("../../Gps")
 terrain = NodePath("../../Ground")
+runner = NodePath("../../JobRunner")
 
 [node name="Flight" type="Control" parent="HUD" node_paths=PackedStringArray("gps", "drone", "runner")]
 layout_mode = 3

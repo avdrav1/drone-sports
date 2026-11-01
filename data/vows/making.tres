@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Vow" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/vow.gd" id="1_vow"]
+[ext_resource type="Resource" path="res://data/deities/brahma.tres" id="2_brahma"]
+
+[resource]
+script = ExtResource("1_vow")
+deity = ExtResource("2_brahma")
+kind = &"making"
+text = "Fly the path you made on the map, through each point in order."
+max_points = 8
+pass_radius = 12.0

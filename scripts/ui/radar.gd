@@ -13,6 +13,8 @@ extends Control
 @export var city: City
 ## Optional: the job's route, drawn dotted.
 @export var route: RouteSource
+## Optional: its planned path (Story 30.7) is drawn in the thread's colour.
+@export var runner: JobRunner
 ## World metres from the centre to the rim.
 @export var range_m := 120.0
 @export var radius := 84.0
@@ -104,6 +106,31 @@ func route_dots() -> PackedVector2Array:
 			out.append(p.pos))
 	return out
 
+## Radar offsets of the planned path's dots inside the rim, from the drone
+## through the points not yet passed. Empty with no plan or no fix.
+func plan_dots() -> PackedVector2Array:
+	var out := PackedVector2Array()
+	if runner == null or runner.plan_passed >= runner.plan.size() or not gps.has_fix():
+		return out
+	var line := runner.plan.slice(runner.plan_passed)
+	line.insert(0, gps.drone.global_position)
+	RouteSource.walk(line, range_m / 24.0, func(at: Vector3) -> void:
+		var p: Dictionary = radar_point(at)
+		if not p.on_rim:
+			out.append(p.pos))
+	return out
+
+func _draw_plan(c: Vector2) -> void:
+	var dots := plan_dots()
+	if dots.is_empty():
+		return
+	var col := runner.making_vow().deity.colour
+	for dot in dots:
+		draw_circle(c + dot, 1.4, col)
+	for i in range(runner.plan_passed, runner.plan.size()):
+		var p: Dictionary = radar_point(runner.plan[i])
+		draw_arc(c + p.pos, 4.5 if i == runner.plan_passed else 3.0, 0, TAU, 16, Color(col, 0.6 if p.on_rim else 1.0), 1.5, true)
+
 func _draw() -> void:
 	if gps == null or gps.drone == null:
 		return
@@ -128,6 +155,7 @@ func _draw() -> void:
 	_static(c, 1.0 - gps.signal_strength())
 	for dot in route_dots():
 		draw_circle(c + dot, 1.6, Color(ACCENT, 0.8))
+	_draw_plan(c)
 	for b in blips():
 		_blip(c + b.pos, b.marker, b.lit, b.on_rim)
 	# The player: a chevron pointing up.

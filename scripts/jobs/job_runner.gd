@@ -65,6 +65,11 @@ var vow: Vow
 ## Times the player dropped into a fleet drone since the briefing (the
 ## CommandView counts them); the vow of guiding is kept at none (Story 30.6).
 var drop_ins := 0
+## The path the player made on the map in the briefing, for the vow of making
+## (Story 30.7): world points on the ground, in order. Not saved between attempts.
+var plan := PackedVector3Array()
+## How many of the plan's points the drone has passed, in order.
+var plan_passed := 0
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
 ## The job's sounds; an internal child, so objectives() never sees it.
@@ -111,6 +116,8 @@ func begin() -> void:
 			o.weight = job.weights[String(o.name)]
 	vow = null
 	drop_ins = 0
+	plan = PackedVector3Array()
+	plan_passed = 0
 	_apply_assists()
 	Garage.apply(drone)
 	_apply_weather()
@@ -145,9 +152,48 @@ func offered_vows() -> Array[Vow]:
 	var out: Array[Vow] = []
 	var stack := GameSettings.effective_stack(assists_for(job)) if job.required_assists else AssistStack.new().all_off()
 	for v in job.vows:
-		if v.offered_with(stack):
+		# Making needs a path made on the map first.
+		if v.offered_with(stack) and (v.kind != &"making" or not plan.is_empty()):
 			out.append(v)
 	return out
+
+## The job's vow of making, or null: only a job that offers it can be planned.
+func making_vow() -> Vow:
+	for v in job.vows if job else []:
+		if v.kind == &"making":
+			return v
+	return null
+
+## Whether the map may plan a path now: in the briefing of a job offering making.
+func can_plan() -> bool:
+	return state == State.BRIEFING and making_vow() != null
+
+## Adds a point to the end of the plan, up to the vow's limit. Its index, or -1.
+func place_point(at: Vector3) -> int:
+	if not can_plan() or plan.size() >= making_vow().max_points:
+		return -1
+	plan.append(Vector3(at.x, 0.0, at.z))
+	return plan.size() - 1
+
+func move_point(i: int, at: Vector3) -> void:
+	if can_plan() and i >= 0 and i < plan.size():
+		plan[i] = Vector3(at.x, 0.0, at.z)
+
+func remove_point(i: int) -> void:
+	if can_plan() and i >= 0 and i < plan.size():
+		plan.remove_at(i)
+		# A vow of making with no path left cannot stand.
+		if plan.is_empty() and vow and vow.kind == &"making":
+			vow = null
+
+## Counts the next planned point as passed once the drone is over it, within
+## the vow's radius. Only in order: a later point flown first does not count.
+func _follow_plan() -> void:
+	if plan_passed >= plan.size() or drone == null:
+		return
+	var d := drone.global_position - plan[plan_passed]
+	if Vector2(d.x, d.z).length() <= making_vow().pass_radius:
+		plan_passed += 1
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
 ## With injured crew in the field it asks first, unless `confirmed`.
@@ -297,6 +343,7 @@ func _physics_process(delta: float) -> void:
 		State.LIVE:
 			live_time += delta
 			_run_weather_changes()
+			_follow_plan()
 			if _finish_line_reached():
 				complete()
 			elif job.time_limit > 0.0 and live_time >= job.time_limit:
@@ -457,6 +504,8 @@ func _update_label() -> void:
 		State.BRIEFING:
 			state_label.text = "BRIEFING  %s  for %s  pay %d\npress %s to launch" % [job.title, job.client, job.pay,
 				InputPrompt.text(&"ui_accept")]
+			if can_plan():
+				state_label.text += "\n%s to plan a path" % InputPrompt.text(&"toggle_map")
 		State.COUNTDOWN:
 			state_label.text = "COUNTDOWN  %d" % ceili(job.countdown - state_time)
 		State.LIVE:

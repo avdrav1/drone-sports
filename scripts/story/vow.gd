@@ -8,7 +8,7 @@ extends Resource
 ## The thread it belongs to.
 @export var deity: Deity
 ## Which checker decides it: keeping (Vishnu), letting_go (Shiva), guiding
-## (Krishna). 30.7 adds Brahma's.
+## (Krishna), making (Brahma).
 @export var kind: StringName
 ## The promise in one plain line, e.g. "No one in the field is struck."
 @export var text := ""
@@ -17,6 +17,10 @@ extends Resource
 ## would fly with. Act 5's step is the fleet layer, which one drone cannot let
 ## go to, so it is not listed and Act 4 jobs are not offered the vow.
 @export var steps: Array[AssistStack] = []
+## Making (Story 30.7): the most points the player may place on the map, and
+## how near the drone must come to one, in metres over the ground, to pass it.
+@export var max_points := 8
+@export var pass_radius := 12.0
 
 ## "The vow of keeping", "The vow of letting go".
 func title() -> String:
@@ -53,5 +57,7 @@ func kept_on(runner: JobRunner) -> bool:
 			return true
 		&"guiding":
 			return runner.drop_ins == 0
+		&"making":
+			return not runner.plan.is_empty() and runner.plan_passed == runner.plan.size()
 	push_warning("No checker for the vow kind %s" % kind)
 	return false
