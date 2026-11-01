@@ -52,6 +52,8 @@ func _ready() -> void:
 	get_tree().root.window_input.connect(seen)
 	# Story 28.5: a pad that connects gets its saved button remap.
 	Input.joy_connection_changed.connect(_on_joy_connection)
+	# Story 23.9: mappings for pads the browser leaves unmapped.
+	PadMappings.add_all()
 
 func _input(event: InputEvent) -> void:
 	seen(event)

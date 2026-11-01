@@ -259,6 +259,9 @@ func _show() -> void:
 		_name.text = "Press any button on the pad."
 	else:
 		_name.text = "%s  ·  %s layout" % [joy_name() if joy_name() != "" else "Pad %d" % device, FAMILY_NAMES[f]]
+		# Story 23.9: a pad Godot has no mapping for sends its raw numbers.
+		if not Input.is_joy_known(device):
+			_name.text += "  ·  unknown pad: raw numbers"
 	left_stick.value = Vector2(axis(JOY_AXIS_LEFT_X), axis(JOY_AXIS_LEFT_Y))
 	right_stick.value = Vector2(axis(JOY_AXIS_RIGHT_X), axis(JOY_AXIS_RIGHT_Y))
 	left_trigger.value = axis(JOY_AXIS_TRIGGER_LEFT)
@@ -271,7 +274,13 @@ func _show() -> void:
 		l.add_theme_color_override("font_color", LIT if held.has(b) else DIM)
 	_last.text = "Pressed: %s  (button %d)" % [last_button_text, _last_raw] if last_button >= 0 else "Pressed: nothing yet"
 	var raw: Array[String] = []
-	for a in range(JOY_AXIS_LEFT_X, JOY_AXIS_TRIGGER_RIGHT + 1):
+	# Story 23.9: and any axis above them the pad sent, e.g. a d-pad hat.
+	var shown: Array = range(JOY_AXIS_LEFT_X, JOY_AXIS_TRIGGER_RIGHT + 1)
+	for a in axes.keys():
+		if not shown.has(a):
+			shown.append(a)
+	shown.sort()
+	for a in shown:
 		raw.append("%d: %+.2f" % [a, axis(a)])
 	_raw.text = "Axes  " + "   ".join(raw)
 	_back.text = back_text(f)

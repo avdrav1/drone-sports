@@ -1,0 +1,6 @@
+{
+	"about": "Pads the browser gives no standard mapping (Story 23.9), in SDL's format and matched on Godot's web GUID. Added at start with Input.add_joy_mapping. First: the GameSir in Android mode, Chromium on Linux, read from the owner's pad.",
+	"mappings": [
+		"Linux0079181c,SHANWAN Android Gamepad,a:b0,b:b1,x:b3,y:b4,leftshoulder:b6,rightshoulder:b7,lefttrigger:b8,righttrigger:b9,back:b10,start:b11,guide:b12,leftstick:b13,rightstick:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3,dpup:-a7,dpdown:+a7,dpleft:-a6,dpright:+a6,platform:Web"
+	]
+}

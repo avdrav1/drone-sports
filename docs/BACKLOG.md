@@ -1198,6 +1198,13 @@ The free-flight start-a-job keys (J K L H U) stay keyboard only: they are sandbo
   - Acceptance: A test feeds joypad motion and button events and reads the page's stick positions and button name. The page is reachable and leavable by pad (B). The owner playtests the deployed build in Chrome and Firefox (and Safari on the Mac) with an Xbox-style and a PlayStation pad and records the results in the story's Note.
   - Out of scope: Remapping non-standard pads.
 
+- [x] **23.9 Pads the browser leaves unmapped**
+  - Goal: A pad the browser gives no standard mapping still has its d-pad, triggers and every face and shoulder button in the right place on the web build, starting with the owner's GameSir in Android mode.
+  - Context: Found while playtesting 23.8 in Chromium on Linux: the GameSir in Android mode is "SHANWAN Android Gamepad" (USB 0079:181c). Chromium gives it `mapping=""`, so Godot's web build names it `Linux0079181c`, finds no mapping, and passes raw numbers through: the d-pad arrives as a hat on axes 6 and 7, LT and RT as buttons 8 and 9, X and Y as 3 and 4, LB and RB as 6 and 7. Chromium's report, read from the pad itself: a6/a7 = -1/+1 for left/right and up/down; b0 A, b1 B, b3 X, b4 Y, b6 LB, b7 RB, b8 LT, b9 RT. Mappings are data: `data/ui/pad_mappings.json` holds SDL-style lines, `platform:Web`, added with `Input.add_joy_mapping` at start. PAD CHECK also lists every axis the pad sends, not only 0-5, and says when the pad is unknown to Godot, so the next such pad shows its raw numbers.
+  - Acceptance: Every line in the file parses and maps the d-pad, both triggers, A/B/X/Y and both shoulders. The GameSir's line (`Linux0079181c`) is added when the game starts (a headless test cannot connect a pad, so the owner checks it on the deployed build). PAD CHECK shows an axis above 5 when one moves, and names an unknown pad as such.
+  - Out of scope: Other pads until someone reports one; desktop builds (SDL's own database covers them).
+  - Note: Mapping lines are matched on Godot's web GUID: `pad.mapping` when the browser gives one, else OS + vendor + product from the pad's id, e.g. `Linux0079181c`. Add a line for any pad PAD CHECK shows as unknown. Select/Start/L3/R3 (b10, b11, b13, b14) follow the evdev order and were not pressed in the owner's check.
+
 ## Epic 24: Jaisalmer
 
 Done when the game is called Jaisalmer everywhere a player or a contributor sees it, it is served from the owner's own domain, and nobody's save is lost on the way.
