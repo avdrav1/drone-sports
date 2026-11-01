@@ -151,7 +151,8 @@ func test_rows_keep_off_the_flight_readouts() -> bool:
 	var runner: JobRunner = scene.get_node("JobRunner")
 	runner.pays_out = false
 	Sim.add(scene)
-	await Sim.process_frames(3)
+	# Four: until then the HUD's panels have not settled.
+	await Sim.process_frames(4)
 	var box: BarkBox = scene.get_node("HUD/BarkBox")
 	var flight: FlightHud = scene.get_node("HUD/Flight")
 	var radar: Radar = scene.get_node("HUD/Radar")

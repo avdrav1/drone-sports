@@ -84,6 +84,7 @@ func test_key_takes_the_profiles_tonic() -> bool:
 		print("        profile %s, key.py %s" % [tonic, "".join(out).strip_edges()])
 	return ok
 
+# The suite's one music --check: it re-renders everything, about 80 s.
 func test_both_generators_check_after_regenerating() -> bool:
 	var music := _python("res://tools/music/generate.py", ["--check"])
 	var sfx := _python("res://tools/sfx/generate.py", ["--check"])

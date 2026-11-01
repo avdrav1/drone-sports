@@ -197,27 +197,39 @@ func _fresh() -> void:
 		if node:
 			node.load_saved()
 
-func test_every_job_finishes_with_every_frame() -> bool:
+## Reruns every job suite with one frame fitted. Each frame's run takes minutes,
+## so each has a test_parts_<id>.gd of its own for scripts/test.sh to run alone.
+func every_job_finishes_with(frame_id: StringName) -> bool:
 	_open_all()
 	var ok := true
+	_fresh()
+	Hangar.fitted.clear()
+	Hangar.fit(0, frame_id)
+	var flown: bool = await _flies_the_route()
+	if not flown:
+		print("        %s: the autopilot route did not finish" % frame_id)
+	ok = ok and flown and _stats() != _stock()
+	for file in RUNS:
+		var suite = load("res://tests/" + file).new()
+		for m in suite.get_method_list():
+			if not m.name.begins_with("test_"):
+				continue
+			# Starts where the runner starts a test (see tests/run.gd).
+			await Sim.physics_frames(1)
+			_fresh()
+			var passed = await suite.call(m.name)
+			if passed == false:
+				print("        %s: %s::%s failed" % [frame_id, file, m.name])
+				ok = false
+		# The run kept the frame on.
+		ok = ok and Hangar.part_id(0, &"frame") == frame_id
+	return ok
+
+func test_every_frame_has_its_job_run() -> bool:
+	var ok := _frames().size() > 0
 	for frame in _frames():
-		_fresh()
-		Hangar.fitted.clear()
-		Hangar.fit(0, frame.id)
-		var flown: bool = await _flies_the_route()
-		if not flown:
-			print("        %s: the autopilot route did not finish" % frame.id)
-		ok = ok and flown and _stats() != _stock()
-		for file in RUNS:
-			var suite = load("res://tests/" + file).new()
-			for m in suite.get_method_list():
-				if not m.name.begins_with("test_"):
-					continue
-				_fresh()
-				var passed = await suite.call(m.name)
-				if passed == false:
-					print("        %s: %s::%s failed" % [frame.id, file, m.name])
-					ok = false
-			# The run kept the frame on.
-			ok = ok and Hangar.part_id(0, &"frame") == frame.id
+		var file := "res://tests/test_parts_%s.gd" % frame.id
+		if not FileAccess.file_exists(file):
+			print("        no job run for frame %s: add %s" % [frame.id, file])
+			ok = false
 	return ok

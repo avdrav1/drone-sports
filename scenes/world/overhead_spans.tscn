@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/overhead_spans.gd" id="1_spans"]
+[ext_resource type="Texture2D" path="res://data/materials/painted_metal_albedo.jpg" id="2_metal"]
+[ext_resource type="Texture2D" path="res://data/materials/painted_metal_nr.jpg" id="3_metal_nr"]
+
+[sub_resource type="StandardMaterial3D" id="duct"]
+albedo_color = Color(0.55, 0.57, 0.58, 1)
+albedo_texture = ExtResource("2_metal")
+metallic = 0.6
+roughness_texture = ExtResource("3_metal_nr")
+roughness_texture_channel = 2
+uv1_triplanar = true
+uv1_world_triplanar = true
+uv1_scale = Vector3(0.7, 0.7, 0.7)
+
+[sub_resource type="StandardMaterial3D" id="pipe"]
+albedo_color = Color(0.5, 0.36, 0.26, 1)
+albedo_texture = ExtResource("2_metal")
+metallic = 0.5
+roughness_texture = ExtResource("3_metal_nr")
+roughness_texture_channel = 2
+uv1_triplanar = true
+uv1_world_triplanar = true
+uv1_scale = Vector3(0.7, 0.7, 0.7)
+
+[node name="Spans" type="StaticBody3D"]
+script = ExtResource("1_spans")
+duct_material = SubResource("duct")
+pipe_material = SubResource("pipe")
