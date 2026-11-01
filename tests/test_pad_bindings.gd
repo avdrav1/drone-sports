@@ -145,6 +145,12 @@ func test_a_launches_a_fleet_job_without_dropping_in() -> bool:
 	var briefing := runner.state == JobRunner.State.BRIEFING
 	_button(scene, JOY_BUTTON_A)
 	await Sim.process_frames(1)
-	var ok: bool = briefing and runner.state == JobRunner.State.COUNTDOWN and view.flown == null
+	# Story 30.6: the job offers the vow of guiding, so A opens the launch
+	# dialog, focused on launching; A again launches with none made.
+	var asked: bool = runner.launch_dialog != null and runner.launch_dialog.visible and view.flown == null
+	_button(scene, JOY_BUTTON_A)
+	await Sim.process_frames(1)
+	var ok: bool = briefing and asked and runner.state == JobRunner.State.COUNTDOWN and view.flown == null \
+		and runner.vow == null
 	scene.free()
 	return ok

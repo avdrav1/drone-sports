@@ -100,7 +100,7 @@ func test_the_crew_jobs_offer_the_vow_of_keeping() -> bool:
 		and keeping.kind == &"keeping" and keeping.text != ""
 	for p in CREW_JOBS:
 		var j: Job = load(p)
-		ok = ok and j.vows.size() == 1 and j.vows[0] == keeping
+		ok = ok and j.vows.count(keeping) == 1
 	# The vow of keeping is offered only where someone is in the field.
 	for p in DirAccess.get_files_at("res://data/jobs"):
 		if p.ends_with(".tres"):

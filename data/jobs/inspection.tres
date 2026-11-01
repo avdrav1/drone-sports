@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="Job" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
 [ext_resource type="Resource" path="res://data/assists/act2.tres" id="2_act2"]
 [ext_resource type="Resource" path="res://data/vows/keeping.tres" id="9_keeping"]
+[ext_resource type="Resource" path="res://data/vows/letting_go.tres" id="10_letting_go"]
 
 [resource]
 script = ExtResource("1_job")
@@ -19,7 +20,7 @@ pay = 650
 countdown = 3.0
 default_view = 2
 crew_in_field = Array[StringName]([&"sanjaya"])
-vows = Array[Resource]([ExtResource("9_keeping")])
+vows = Array[Resource]([ExtResource("9_keeping"), ExtResource("10_letting_go")])
 weights = {
 "Hold1": 1.0,
 "Hold2": 1.0,

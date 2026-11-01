@@ -62,6 +62,9 @@ var _weather_step := 0
 var launch_dialog: LaunchDialog
 ## The vow the player made at launch (Story 30.5), one of the job's, or null.
 var vow: Vow
+## Times the player dropped into a fleet drone since the briefing (the
+## CommandView counts them); the vow of guiding is kept at none (Story 30.6).
+var drop_ins := 0
 ## Asks before leaving a job in flight.
 var leave_dialog: ConfirmationDialog
 ## The job's sounds; an internal child, so objectives() never sees it.
@@ -106,15 +109,15 @@ func begin() -> void:
 		o.bind(self)
 		if job.weights.has(String(o.name)):
 			o.weight = job.weights[String(o.name)]
-	if job.required_assists and drone and drone.assists:
-		drone.assists.apply_stack(GameSettings.effective_stack(assists_for(job)))
+	vow = null
+	drop_ins = 0
+	_apply_assists()
 	Garage.apply(drone)
 	_apply_weather()
 	_weather_step = 0
 	_remove_dead_crew()
 	_arm_hazard_zones()
 	_watch_crashes()
-	vow = null
 	if camera_rig:
 		camera_rig.default_view = job.default_view
 		camera_rig.use_default_view()
@@ -125,6 +128,26 @@ func begin() -> void:
 ## The job's assists, with any the pilot's career has taken away also off.
 static func assists_for(j: Job) -> AssistStack:
 	return j.required_assists.intersect(Career.preset())
+
+## The assists this flight flies with: the job's, after the career and the
+## expert setting, then the vow's (letting go turns the next act's off).
+func flight_stack() -> AssistStack:
+	var stack := GameSettings.effective_stack(assists_for(job))
+	return vow.stack_for(stack) if vow else stack
+
+func _apply_assists() -> void:
+	if job.required_assists and drone and drone.assists:
+		drone.assists.apply_stack(flight_stack())
+
+## The job's vows that can be made on this flight (Story 30.6: letting go only
+## while the next act still has an assist to take away).
+func offered_vows() -> Array[Vow]:
+	var out: Array[Vow] = []
+	var stack := GameSettings.effective_stack(assists_for(job)) if job.required_assists else AssistStack.new().all_off()
+	for v in job.vows:
+		if v.offered_with(stack):
+			out.append(v)
+	return out
 
 ## Leave Briefing. The player confirms with ui_accept; tests call it directly.
 ## With injured crew in the field it asks first, unless `confirmed`.
@@ -142,17 +165,18 @@ func launch(confirmed := false) -> void:
 func request_launch() -> void:
 	if state != State.BRIEFING:
 		return
-	if job.vows.is_empty():
+	if offered_vows().is_empty():
 		launch()
 		return
 	var hurt: Array[StringName] = injured_in_field() if confirm_risk else []
 	_ask_launch(hurt)
 
 ## Make one of the job's vows for this flight, or none with null. Only in the
-## briefing.
+## briefing. The drone takes the vow's assists at once.
 func choose_vow(v: Vow) -> void:
-	if state == State.BRIEFING and (v == null or v in job.vows):
+	if state == State.BRIEFING and (v == null or v in offered_vows()):
 		vow = v
+		_apply_assists()
 
 ## Back out of a risky launch, to `back_scene`.
 func decline_launch() -> void:
@@ -185,7 +209,7 @@ func _ask_launch(hurt: Array[StringName]) -> void:
 		launch_dialog.confirmed.connect(_on_launch_confirmed)
 		launch_dialog.canceled.connect(decline_launch)
 		add_child(launch_dialog)
-	launch_dialog.ask(hurt, job.tags.has(&"lethal"), job.vows)
+	launch_dialog.ask(hurt, job.tags.has(&"lethal"), offered_vows())
 
 func _on_launch_confirmed() -> void:
 	choose_vow(launch_dialog.chosen)
