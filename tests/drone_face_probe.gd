@@ -8,7 +8,8 @@ extends SceneTree
 var _errors: Array = []
 
 func _initialize() -> void:
-	SaveGame.path = "user://probe_save.json"
+	# Named by run.gd: test processes running side by side each have their own.
+	SaveGame.path = OS.get_environment("DRONE_PROBE_SAVE")
 	await process_frame
 	var out_path: String = OS.get_cmdline_user_args()[0]
 	if ClassDB.class_exists("Logger"):

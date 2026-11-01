@@ -73,7 +73,8 @@ func test_face_and_bar_stay_on_screen_and_hold_their_contents() -> bool:
 		var box := BarkBox.new()
 		host.add_child(box)
 		box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		await Sim.process_frames(1)
+		# Two: the first ends before this frame's layout has settled.
+		await Sim.process_frames(2)
 		var screen := Rect2(Vector2.ZERO, s)
 		var bar := BarkBox.panel_rect(s)
 		var tab := BarkBox.face_rect(s)

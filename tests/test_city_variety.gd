@@ -163,13 +163,23 @@ func test_free_flight_loads_twenty_seeds() -> bool:
 			and (scene.get_node("Rooftops") as Rooftops).layout == city.layout \
 			and streets.plan == city.plan and city.plan.lots.size() > 20
 		# No pavement over a vacant lot (shapes hold float32, so edges may touch).
+		# A wedge's pavement (a diagonal city, Story 26.6) is a prism.
 		for c in streets.get_children():
 			if c is CollisionShape3D and c.name.begins_with("Pavement"):
-				var size: Vector3 = (c.shape as BoxShape3D).size
-				var flat := Rect2(c.position.x - size.x * 0.5, c.position.z - size.z * 0.5, size.x, size.z)
+				var flat := PackedVector2Array()
+				if c.shape is BoxShape3D:
+					var size: Vector3 = c.shape.size
+					flat = CityPlan.polygon(Rect2(c.position.x - size.x * 0.5, c.position.z - size.z * 0.5, size.x, size.z))
+				else:
+					for q: Vector3 in (c.shape as ConvexPolygonShape3D).points:
+						if q.y == 0.0:
+							flat.append(Vector2(q.x, q.z) + Vector2(c.position.x, c.position.z))
 				for v in city.plan.vacant:
-					if flat.grow(-0.01).intersects(v):
-						print("        pavement %s over vacant %s" % [flat, v])
+					var over := 0.0
+					for part in Geometry2D.intersect_polygons(flat, CityPlan.polygon(v)):
+						over += absf(CityPlan.area(part))
+					if over > 0.01:
+						print("        pavement %s over vacant %s" % [Streets.bounds(flat), v])
 						good = false
 		if not good:
 			print("        seed %d does not build its rolled city: %s %s %d" % [s, scene.city_seed,
