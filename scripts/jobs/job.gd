@@ -28,7 +28,8 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var default_view := CameraRig.View.CHASE
 ## Objective weights by objective node name. Overrides each objective's own weight.
 @export var weights := {}
-## Free-form tags, e.g. act1 for the home-game framing.
+## Free-form tags, e.g. act1 for the home-game framing, open for a job any
+## pilot may fly whatever their team.
 @export var tags: Array[StringName] = []
 ## Route display: the whole route, the next leg only, or nothing. Not an assist.
 @export var guidance := Guidance.FULL

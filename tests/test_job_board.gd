@@ -42,11 +42,17 @@ func test_only_current_team_jobs_fly() -> bool:
 	var details: String = \
 		(b.job_rows[&"sample_delivery"].get_child(0).get_node("Details") as Label).text
 	b.free()
+	# The relay tower inspection is open: it flies on a team that does no inspections.
+	Career.team_id = &"skyline_juniors"
+	b = _board()
+	await Sim.process_frames(1)
+	var juniors := _flyable(b)
+	b.free()
 	Career.team_id = &""
-	return home == [&"test_race"] and race_lock.contains("Harbor Couriers") \
+	return home == [&"inspection", &"test_race"] and race_lock.contains("Harbor Couriers") \
 		and couriers == [&"inspection", &"sample_delivery"] and race_lock_now.contains("Skyline Juniors") \
 		and race_lock_now.contains("Halcyon Racing") and details.contains("Harbor Couriers") \
-		and details.contains("pay 500") and details.contains("Act 2 assists")
+		and details.contains("pay 500") and details.contains("Act 2 assists") and juniors.has(&"inspection")
 
 func test_header_shows_wallet_reputation_and_team() -> bool:
 	Wallet.balance = 1234
@@ -82,7 +88,7 @@ func test_offers_ask_on_the_board() -> bool:
 	var asked: bool = b.offer_dialog.visible and b.offer_dialog.team.id == &"skyline_juniors"
 	b.offer_dialog.confirmed.emit()
 	await Sim.process_frames(1)
-	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"spotter_drill", &"test_race"]
+	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"inspection", &"spotter_drill", &"test_race"]
 	b.free()
 	await Sim.process_frames(1)
 	Sim.tree().unload_current_scene()  # the recruitment scene (Story 11.2)

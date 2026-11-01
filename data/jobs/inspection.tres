@@ -18,6 +18,7 @@ pay = 650
 countdown = 3.0
 default_view = 2
 crew_in_field = Array[StringName]([&"sanjaya"])
+tags = Array[StringName]([&"open"])
 weights = {
 "Hold1": 1.0,
 "Hold2": 1.0,

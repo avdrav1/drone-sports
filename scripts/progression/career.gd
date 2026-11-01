@@ -100,9 +100,12 @@ func decline(id: StringName) -> void:
 ## game's tagged jobs in Act 1. Never a locked faction's job or one whose
 ## required crew is dead (Story 7.6). A pilot left on a locked faction's team
 ## keeps its assists and flies the home game's jobs too, so the career goes on.
+## A job tagged open flies for every pilot, on any team or none.
 func can_fly(job: Job) -> bool:
 	if not Consequences.listed(job) or not Consequences.missing_crew(job).is_empty():
 		return false
+	if job.tags.has(&"open"):
+		return true
 	var t := team()
 	var home := job.tags.has(&"act1")
 	if t == null:
