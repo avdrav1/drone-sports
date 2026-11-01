@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Counsel" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/counsel.gd" id="1_counsel"]
+[ext_resource type="Resource" path="res://data/deities/krishna.tres" id="2_krishna"]
+
+[resource]
+script = ExtResource("1_counsel")
+deity = ExtResource("2_krishna")
+speaker = &"sanjaya"
+dialog_title = "Before the launch"
+heading = "Sanjaya relays Krishna's counsel."
+heading_unspoken = "Krishna's counsel."
+boss_job = &"lattice"
+final_job = &"fleet_race"
+hesitation_boss = "The crew stand under the machine, and here any strike kills. Your hand rests on the sticks and does not move."
+hesitation_final = "The last relay: every drone in the air is yours to guide. Your hand rests on the sticks and does not move."
+lines_duty = Array[String](["The work in front of you is yours to do. Turning from it helps no one; do it fully.", "Act without clinging to the outcome. Fly as well as you can, and let what follows be what it is."])
+kept_lines = {
+"brahma": "You planned a path and flew the path you made.",
+"krishna": "You guided many and kept your hand off the sticks.",
+"shiva": "You let go of what held you up.",
+"vishnu": "You brought the crew home unharmed."
+}
+all_kept = "You have kept a vow on every thread: making, keeping, letting go and guiding. Bring that in with you, not the score."
+none_kept = "You made no vows on the way here, and none is asked of you now. The work is the same."
+crew_whole = "The crew who stood with you are all here, and they stand with you now."
+crew_lost = "Not everyone who stood with you is here. Carry {names} with you, and fly for those who still stand beside you."
+closing = "The choice to launch is yours."
+launch_text = "Launch"
+decline_text = "Not yet"

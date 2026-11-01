@@ -1603,17 +1603,19 @@ Owner decisions (2026-11-01):
   - Out of scope: Scenes that use them (30.3 on).
   - Note: `DeitySymbol` (`scripts/ui/deity_symbol.gd`, set `deity` and a square size) draws a disc in the god's colour with original shape-built symbols, its layout, counts and line weights in `data/deities/symbol_art.tres`; below 48 px it draws one larger symbol per god (lotus, conch, trident, feather), and screenshots at 32, 64 and 128 px on dark and light grounds were checked by hand (clean, no polygon skipped). Motifs are one score, `data/music/four.tres` (80 bpm, 4 bars, in F): stems `motif_brahma` (rising strings), `motif_vishnu` (held pad chord), `motif_shiva` (damaru double-stroke pulse), `motif_krishna` (flute, a new `instruments.flute` kept out of the demo), no voices; `Deity.motif_stem()` finds a god's stem, so 30.3 plays `four` and silences the other three with `Music.set_level`. `generate.py --check` passes; data/music/ is about 15.1 MB of the 16 MB budget the music tests enforce (the story's 10 MB is stale since 21.1).
 
-- [ ] **30.3 Act gates**
+- [x] **30.3 Act gates**
   - Goal: A short scene opens each thread: Brahma at the start of Act 1, Vishnu on joining the first team, Shiva at the first Act 4 promotion, Krishna at Act 5.
   - Context: Four `Cutscene`s in `data/story/` (as `intro.tres`), each beat with a symbol card (`DeitySymbol`) and the god's motif, played once per save by `Career` on the matching act change and recorded in `StoryFlags`. Lines are original, two to four beats each, sincere, and name what the act asks of the pilot. The Act 1 scene follows the owner's decision on naming Brahma. Every scene is skippable like the intro.
   - Acceptance: Each act change plays its scene once per save and never again. Skipping works. No scene has a portrait, emote, babble or bark. The existing intro and recruitment tests pass unchanged.
   - Out of scope: Assist-removal scenes (30.4), vows.
+  - Note: `data/story/gate_<god>.tres` (three beats over a slow orbit of the city, desert wind as bed; each beat's `CutsceneBeat.deity` shows a `DeitySymbol` card at 192 px with the name and sounds only that god's motif of `four.tres`) are listed in `data/story/act_gates.tres` (`ActGates`), and `Cutscene.gate_act` with save flags `act_<n>_gate_seen` (no deity in the save) makes each play once. `Career.gate_due()`/`open_through_gate()` play them on the way into play: the title's start (Brahma on a new game, or any later gate due), and `JobBoard.fly`, which opens a new act's gate before the next job (Vishnu after the recruitment scene and board, which are unchanged; Shiva on an Act 4 team; Krishna before the first fleet job, as no team is Act 5); a gate never interrupts the recruitment scene or the board. Tests that pressed start on a new save now pass through or mark Brahma's gate (test_title_screen, test_title_crawl, test_pilot_select, test_pad_menus), and later scenes (30.4, 30.10) can chain the same way through `CutscenePlayer.then`.
 
-- [ ] **30.4 The shedding**
+- [x] **30.4 The shedding**
   - Goal: Each promotion that removes an assist shows a short Shiva-thread beat naming what is let go and what it unlocks.
   - Context: The assist table in CLAUDE.md gives each assist's "removing it unlocks" text; put it on the assist data (not in code) and read it here. Shown on the promotion offer (`OfferDialog`) or right after it, with Shiva's symbol and motif. Does not change which assists come off or when.
   - Acceptance: Every promotion that removes assists names each of them and its unlock, from data. A promotion that removes none shows nothing extra. Assist presets per act are unchanged (existing tests pass).
   - Out of scope: Vows.
+  - Note: `AssistUnlocks` (`data/assists/unlocks.tres`: each assist's name and what removing it unlocks, from CLAUDE.md's table, plus the brake, which Act 3 also removes) is read by `Shedding` (`data/story/shedding.tres`: Shiva, a heading line and a line format), and `OfferDialog.show_offer` adds it under the offer when joining removes assists: a 64 px Shiva symbol, the heading and one "Let go of ...: ..." line per assist (`shed_lines`), with Shiva's motif alone of `four.tres` until the offer is answered, then the music from before (the dialog's own label keeps `dialog_text` but is hidden while `content` shows it). An offer removing nothing is unchanged; `CutscenePlayer.sound_motif(deity)` is now a public static helper that 30.10 can reuse.
 
 - [x] **30.5 Vows**
   - Goal: The launch dialog offers an optional vow on jobs whose data lists one, and the results screen says whether it was kept.
@@ -1640,17 +1642,19 @@ Owner decisions (2026-11-01):
   - Acceptance: Every city seed tested (20) places four shrines clear of courses, gates, hazards and the spawn. Lamps match the saved vows. No shrine shares a collision layer with a drone, and none is a node any job objective references. Obstacle fingerprints for seed 7 jobs are unchanged.
   - Out of scope: New city patterns.
 
-- [ ] **30.9 Brahma's boon**
+- [x] **30.9 Brahma's boon**
   - Goal: The final job's briefing tells why Ravana can be stopped only by a human hand: the boon that left humans out.
   - Context: `data/boss/lattice_job.tres` briefing, and the BOSS.md "Does Ravana have a reason?" question (answered: its makers built it so no machine could stop it, named for the king whose boon scorned humans). The fight does not change: it is already flown with every assist off. Respect for Brahma and for Ravana as a formidable king (rule 9). With `enabled = false`, none of this loads.
   - Acceptance: The briefing names the boon in one or two original lines. The boss-disabled tests still prove nothing about Ravana loads. BOSS.md's open question is ticked with the answer.
   - Out of scope: Fight changes.
+  - Note: `Job.briefing` (multiline, empty on every other job) holds the boon in two original lines on `data/boss/lattice_job.tres`; `LatticeHud` (HUD/Phase) shows it while the fight is in its BRIEFING phase and now sits under the State label (`below`) so the two never overlap. BOSS.md's reason question is ticked with the answer, and `tests/test_brahmas_boon.gd` checks the lines, the HUD, the unchanged Act 5 preset and that a disabled boss shows none of it; 30.10 can put counsel lines on its own data the same way, and must keep pronoun-free prose in BOSS.md (test_docs_names checks it).
 
-- [ ] **30.10 Krishna's counsel**
+- [x] **30.10 Krishna's counsel**
   - Goal: Before the final job launches, Arjuna hesitates and Krishna's counsel, relayed by Sanjaya, is the launch confirmation.
   - Context: The launch confirmation for a lethal job with crew in the field (`LaunchDialog`) becomes, for the final job only, a short counsel scene: original lines on duty, acting without clinging to the outcome, and the crew who stand with you, in Sanjaya's voice with Krishna's symbol and motif. Lines vary with vows kept per thread and crew lost (from the save). The player still chooses to launch or not. With the boss disabled, the counsel plays before the 6.4 fleet final instead, with no mention of Ravana. If Sanjaya is dead, the counsel is shown as text only, with no speaker.
   - Acceptance: The final job's launch shows the counsel and still requires the player's choice; declining returns to the board. Different saves (no vows, vows on every thread, a crew death) show different lines. With `enabled = false` the counsel shows on the fleet final and names no boss. A dead Sanjaya never speaks (rule 7).
   - Out of scope: Changing the job's lethality or requirements.
+  - Note: `Counsel` (`scripts/story/counsel.gd`, data `data/story/counsel.tres`: heading with and without the speaker, a hesitation for the boss job and one for the fleet final that names no boss, two lines on duty and the outcome, a kept line per thread or one for all or none, a crew line naming the dead, a closing) heads `LaunchDialog` when `JobRunner.counsel_due()` (the Lattice while `BossGate.listed()`, else `fleet_race`; only with `confirm_risk`), with Krishna's 64 px symbol and his motif alone until answered (`hush()`), backing out the default and "Not yet" going to the board. Lines are in the second person, so they fit any pilot; with Sanjaya dead the heading drops him and nothing is in his voice (no babble anywhere), and any later vow kinds (30.6, 30.7) need only a `kept_lines` entry keyed by deity id. `tests/test_krishnas_counsel.gd`.
 
 - [ ] **30.11 Docs, rule and review**
   - Goal: The docs carry the Four, and the lines, symbols and scenes have been reviewed by someone who practises the tradition.

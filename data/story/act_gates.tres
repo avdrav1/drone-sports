@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ActGates" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/story/act_gates.gd" id="1_gates"]
+[ext_resource type="Resource" path="res://data/story/gate_brahma.tres" id="g0"]
+[ext_resource type="Resource" path="res://data/story/gate_vishnu.tres" id="g1"]
+[ext_resource type="Resource" path="res://data/story/gate_shiva.tres" id="g2"]
+[ext_resource type="Resource" path="res://data/story/gate_krishna.tres" id="g3"]
+
+[resource]
+script = ExtResource("1_gates")
+gates = Array[Resource]([ExtResource("g0"), ExtResource("g1"), ExtResource("g2"), ExtResource("g3")])

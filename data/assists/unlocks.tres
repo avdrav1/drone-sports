@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="AssistUnlocks" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/drone/assist_unlocks.gd" id="1_unlocks"]
+
+[resource]
+script = ExtResource("1_unlocks")
+names = Dictionary[StringName, String]({
+&"altitude_hold": "altitude hold",
+&"auto_level": "auto-level",
+&"battery_wind": "the shelter from battery and wind",
+&"brake": "the brake",
+&"collision_guard": "collision guard",
+&"single_drone_view": "the single-drone view",
+&"speed_governor": "the speed governor"
+})
+unlocks = Dictionary[StringName, String]({
+&"altitude_hold": "dives and low passes",
+&"auto_level": "banked turns and dutch angles",
+&"battery_wind": "route planning and timing to gusts",
+&"brake": "drift and momentum through turns",
+&"collision_guard": "tight gaps and interior flying",
+&"single_drone_view": "the fleet command layer",
+&"speed_governor": "full throttle and top speed"
+})

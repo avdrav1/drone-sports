@@ -283,8 +283,11 @@ func lock_label(job_id: StringName) -> Label:
 	return row.find_child("Locked", true, false) if row else null
 
 func fly(job: Job) -> void:
-	if Career.can_fly(job) and job.scene:
-		get_tree().change_scene_to_file(job.scene)
+	if not Career.can_fly(job) or not job.scene:
+		return
+	# Story 30.3: an act gate due (a new team's act, or Act 5 for the first
+	# fleet job) plays before the job.
+	Career.open_through_gate(get_tree(), job.scene, MusicDirector.act_for(job))
 
 ## Picks the renderer tier (Quality.Tier) and saves it; scenes loaded after use it.
 func set_quality(tier: int) -> void:

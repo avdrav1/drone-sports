@@ -91,6 +91,10 @@ func test_pad_walk_from_the_title_to_a_job_and_back() -> bool:
 	Sim.tree().change_scene_to_file(TITLE)
 	await _wait_grace()
 	await _pad(JOY_BUTTON_A, 4)
+	# A new game opens on Brahma's act gate (Story 30.3); A skips it.
+	_expect("act gate after title", _scene() is CutscenePlayer and _scene().cutscene.gate_act == 1)
+	await _wait_grace()
+	await _pad(JOY_BUTTON_A, 4)
 	# A new game picks a pilot first.
 	var b: JobBoard = _scene()
 	_expect("board after title", b is JobBoard and b.pilot_select.visible)
