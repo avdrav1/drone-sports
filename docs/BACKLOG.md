@@ -1699,6 +1699,7 @@ Done when a pilot who has lost auto-level can fly: the sticks ask for a rotation
   - Context: Horizon mode is the trainer setting on real quads: the sticks still ask for a rate, and near center a pull toward level is added that fades out as the stick moves to full. `Horizon` (`scripts/drone/assists/horizon.gd`) is an assist with id `horizon`, on in Acts 1–3 and off from Act 4 (`act4.tres`, `act5.tres`), so Act 4 is where full rate mode (32.1) begins. It sits right before RateMode and rewrites the pitch and roll sticks to the ones whose rate is the pilot's plus the pull (`RateMode.stick_for_rate`). It does nothing while auto-level is on. The HUD shows it as HORIZON, and the shedding names it ("horizon mode", unlocking "holding any attitude hands-off"). CLAUDE.md's assist table needs the owner to add a row: `| Horizon | Act 3 | Holding any attitude hands-off |`.
   - Acceptance: In Act 3, released after a third of a second of half stick, the drone is within 3° of level a second later. A fifth of a stick holds a lean between 3° and 30°. Full stick still flips in at most 0.8 s. Released at 120° of roll, it is within 5° of level 1.5 s later. Act 4 has it off, and it changes nothing while auto-level is on. 32.1's rate tests now fly Act 4.
   - Out of scope: Horizon strength in OPTIONS, vows that remove it early.
+  - Superseded: "Full stick still flips" was replaced by 32.5 (no flips in Act 3).
   - Note: Measured: a 37° lean returns to 2.8° in a second; a fifth of a stick settles at 22°; from 120° of roll it rights in 1.5 s.
 
 - [x] **32.3 A gentler middle**
@@ -1713,3 +1714,10 @@ Done when a pilot who has lost auto-level can fly: the sticks ask for a rotation
   - Context: Once altitude hold is off, `PilotInput` latches the keyboard throttle at hover, but a pad's throttle went straight to the mixer, and a centered stick (0) is half of max thrust: 2.25 N a motor against the 2.45 N a 1 kg drone needs. So as soon as the pad's throttle was touched, letting it rest sank the drone at about 0.8 m/s². Now, while latched, `PilotInput.pad_throttle` maps the stick so its center is hover and its ends are still full and zero thrust. With altitude hold on, the springy throttle is unchanged. Shaping only: the mixer and flight model are unchanged.
   - Acceptance: With altitude hold off, a centered pad throttle gives the hover throttle, full up gives 1, full down gives -1, and half up is halfway from hover to full. With altitude hold on, half up still gives 0.5.
   - Out of scope: Throttle that makes up for tilt, throttle curves in OPTIONS.
+
+- [x] **32.5 No flips in Act 3**
+  - Goal: In Act 3, however hard a stick is held, the drone leans no further than a steep bank and never goes over. Owner report, 2026-11-02, after 32.2–32.4: "still flips way too much".
+  - Context: In 32.2 the pull toward level faded to nothing at three-quarters of a stick, so a stick pushed toward its edge to go fast asked for 200–720°/s and kept turning the drone over. `Horizon` now also caps how fast the lean may grow, in proportion to how far it is short of `max_lean` (55°), and past it the same rule turns it back. So a held stick eases into a 55° bank and stops there. Flips arrive in Act 4, where horizon mode is off and RateMode flies alone; Story 1.10's flip (all assists off) is unchanged. This replaces 32.2's "full stick still flips", at the owner's report.
+  - Acceptance: In Act 3, full stick held for 3 s forward, back, right, or forward-left peaks between 45° and 65° and stays upright. 32.2's other tests and Story 1.10's flip still pass.
+  - Out of scope: The max lean in OPTIONS, a flip button.
+  - Note: Measured: peak 55° on every stick. Held, the lean then eases as the speed governor caps speed.

@@ -31,17 +31,22 @@ func test_a_small_stick_holds_a_small_lean() -> bool:
 	d.free()
 	return tilt > 3.0 and tilt < 30.0 and drift < 2.0
 
-func test_full_stick_still_flips() -> bool:
-	var d := Sim.drone(Sim.intent(0.1, 1.0), Vector3(0, 40, 0), load(ACT3))
-	var turned := 0.0
-	var frames := 0
-	while turned < TAU and frames < 120:
-		await Sim.physics_frames(1)
-		frames += 1
-		turned += -FlightControl.body_rate(d).x / 60.0
-	print("        full-stick flip: %.2f s" % (frames / 60.0))
-	d.free()
-	return turned >= TAU and frames <= 48
+# Story 32.5: owner, 2026-11-02, "still flips way too much". However hard the
+# stick is held, the lean stops short of going over.
+func test_full_stick_never_goes_over() -> bool:
+	var ok := true
+	for sticks in [[1.0, 0.0], [-1.0, 0.0], [0.0, 1.0], [0.7, -1.0]]:
+		var d := Sim.drone(Sim.intent(0.1, sticks[0], sticks[1]), Vector3(0, 80, 0), load(ACT3))
+		var top := 0.0
+		for f in 180:
+			await Sim.physics_frames(1)
+			top = maxf(top, _deg(FlightControl.tilt(d)))
+		# Held, the lean then eases as the speed governor (on in Act 3) caps speed.
+		var up := d.global_transform.basis.y.y
+		print("        full stick %s for 3 s: peak %.0f deg" % [str(sticks), top])
+		d.free()
+		ok = ok and top > 45.0 and top < 65.0 and up > 0.0
+	return ok
 
 func test_rights_itself_from_steep_tilt() -> bool:
 	var d := Sim.drone(Sim.intent(0.1), Vector3(0, 60, 0), load(ACT3))
