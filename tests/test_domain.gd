@@ -30,14 +30,16 @@ func test_ship_sets_the_domain_and_prints_it() -> bool:
 
 ## No absolute or site-specific path in what the export is made from: the
 ## default HTML shell (which loads index.js, index.pck and index.wasm by
-## relative name), no head include, and no /drone-sports/ prefix anywhere.
+## relative name), a head include that loads nothing by a rooted or outside path
+## (inline style is fine), and no /drone-sports/ prefix anywhere.
 func test_the_export_uses_relative_paths() -> bool:
 	var cfg := ConfigFile.new()
 	if cfg.load(PRESETS) != OK:
 		return false
+	var head: String = cfg.get_value("preset.0.options", "html/head_include")
 	var ok: bool = cfg.get_value("preset.0", "export_path") == "build/web/index.html" \
 		and cfg.get_value("preset.0.options", "html/custom_html_shell") == "" \
-		and cfg.get_value("preset.0.options", "html/head_include") == ""
+		and absolute_refs(head).is_empty() and "url(" not in head
 	for f in [PRESETS, "res://project.godot"]:
 		ok = ok and "drone-sports/" not in FileAccess.get_file_as_string(f)
 	if FileAccess.file_exists(BUILT):

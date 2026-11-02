@@ -29,3 +29,9 @@ func test_the_background_is_darker_than_the_logos_edge() -> bool:
 	var edge: Color = mark.edge_color
 	mark.free()
 	return bg.a == 1.0 and bg.get_luminance() < edge.get_luminance() and bg.r > bg.g and bg.r > bg.b
+
+func test_the_web_loaders_bar_is_saffron() -> bool:
+	var presets := ConfigFile.new()
+	presets.load("res://export_presets.cfg")
+	var head: String = presets.get_value("preset.0.options", "html/head_include", "")
+	return head.contains("#status-progress") and head.contains("accent-color: #fa7314")
