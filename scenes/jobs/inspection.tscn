@@ -502,8 +502,6 @@ script = ExtResource("4_input")
 
 [node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("5_rig")]
 target = NodePath("../Drone")
-chase_distance = 1.5
-chase_height = 0.45
 
 [node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("13_gps")

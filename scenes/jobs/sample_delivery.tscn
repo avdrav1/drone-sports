@@ -137,8 +137,6 @@ script = ExtResource("2_input")
 
 [node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("3_rig")]
 target = NodePath("../Drone")
-chase_distance = 1.5
-chase_height = 0.45
 
 [node name="Jammer" parent="." instance=ExtResource("87_jammer")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -38)

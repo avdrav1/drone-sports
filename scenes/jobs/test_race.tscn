@@ -80,8 +80,6 @@ lane = 0.0
 
 [node name="CameraRig" parent="." node_paths=PackedStringArray("target") instance=ExtResource("7_rig")]
 target = NodePath("../Drone")
-chase_distance = 1.5
-chase_height = 0.45
 
 [node name="Gps" type="Node" parent="." node_paths=PackedStringArray("drone")]
 script = ExtResource("80_gps")

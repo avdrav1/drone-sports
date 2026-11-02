@@ -13,6 +13,12 @@ func _delivery() -> Node:
 	return scene
 
 func test_marks_the_next_point_ahead() -> bool:
+	# At a real screen's size: in the headless 64 px window the 16 px margin
+	# covers the top of the picture, where the far pad sits under the chase
+	# camera's downward look (Story 33.1).
+	var window := Sim.tree().root
+	var was := window.size
+	window.size = Vector2i(1280, 720)
 	var scene := _delivery()
 	await Sim.process_frames(3)
 	var tm: TargetMarker = scene.get_node("HUD/TargetMarker")
@@ -22,6 +28,7 @@ func test_marks_the_next_point_ahead() -> bool:
 	var ok: bool = not m.is_empty() and m.on_screen and tm.target().is_equal_approx(pad) \
 		and is_equal_approx(m.distance, d.distance_to(pad))
 	scene.free()
+	window.size = was
 	return ok
 
 func test_edge_arrow_when_behind() -> bool:

@@ -1721,3 +1721,14 @@ Done when a pilot who has lost auto-level can fly: the sticks ask for a rotation
   - Acceptance: In Act 3, full stick held for 3 s forward, back, right, or forward-left peaks between 45° and 65° and stays upright. 32.2's other tests and Story 1.10's flip still pass.
   - Out of scope: The max lean in OPTIONS, a flip button.
   - Note: Measured: peak 55° on every stick. Held, the lean then eases as the speed governor caps speed.
+
+## Epic 33: Seeing the ground
+
+Done when a pilot in the chase view can judge height and a landing from the drone's shadow.
+
+- [x] **33.1 A shadow the chase camera can see**
+  - Goal: In the chase view, the soft shadow under the drone (`GroundShadow`) is on screen and easy to see while the drone is low. Owner report, 2026-11-02: "when i did the parcel mission, i still wasn't seeing the shadow of the drone."
+  - Context: The shadow was there, but off screen. Every job scene set the chase camera to 1.5 m behind and 0.45 m above the drone, aimed at the drone, so it looked down only 17°, and with a 75° view the ground straight below the drone left the frame once the drone was above about 1.6 m. The shadow was also only 0.9 m wide, about the drone's own span, and pale against the orange sand. Owner's choice: a higher chase camera. `CameraRig` now defaults to 2.5 m behind and 1.4 m above, looking down 29°, and the six job and debug scenes that overrode it now use the default, so every job frames the drone the same way; the ground below the drone stays in view to about 4 m. `GroundShadow` is wider (1.4 m near the ground, 4.5 m at 40 m), darker (0.85), and solid to nearly half its radius before it fades. Visual only: the camera is not graded (rule 8), and nothing touches physics.
+  - Acceptance: In the parcel job's chase view, the shadow is visible and inside the camera's view with the drone at 1, 2.5, and 3.5 m (before, only at 1 m). The chase camera still sits behind and above the drone in open space and never ends a frame inside a wall.
+  - Out of scope: Camera distance in OPTIONS, a drop line, the FPV view.
+  - Note: Rendered in GL Compatibility at 1 m (clear, just below the drone) and at 4 m (at the bottom edge).

@@ -104,3 +104,24 @@ func test_has_no_body_of_its_own() -> bool:
 	d.free()
 	f.free()
 	return ok
+
+# Owner, 2026-11-02: "when i did the parcel mission, i still wasn't seeing the
+# shadow of the drone". The chase camera sat 1.5 m back and 0.45 m up, so the
+# ground below the drone left the frame above about 1.6 m.
+func test_in_the_chase_view_of_the_parcel_job() -> bool:
+	var scene: Node = Sim.add(load("res://scenes/jobs/sample_delivery.tscn").instantiate())
+	var d: Drone = scene.get_node("Drone")
+	await Sim.physics_frames(2)
+	var ok := true
+	for h in [1.0, 2.5, 3.5]:
+		d.freeze = true
+		d.global_position = Vector3(20, h, -40)
+		await Sim.physics_frames(60)
+		var cam := scene.get_viewport().get_camera_3d()
+		var s := _shadow(d)
+		var at := s.global_position
+		var seen := s.visible and cam.is_position_in_frustum(at)
+		print("        drone at %.1f m: shadow in the chase view %s" % [h, seen])
+		ok = ok and seen
+	scene.free()
+	return ok

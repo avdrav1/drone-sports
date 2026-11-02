@@ -14,8 +14,8 @@ signal view_changed(view: View)
 @export var default_view := View.CHASE
 
 @export_group("Chase")
-@export var chase_distance := 3.0
-@export var chase_height := 1.0
+@export var chase_distance := 2.5
+@export var chase_height := 1.4
 ## Higher is snappier. Exponential smoothing rate, 1/s.
 @export var chase_smoothing := 8.0
 @export_group("FPV")

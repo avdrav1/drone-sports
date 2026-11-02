@@ -9,10 +9,10 @@ extends MeshInstance3D
 ## No shadow above this height over the ground, m. It fades out on the way up.
 @export var max_height := 40.0
 ## Width on the ground when the drone is down, and at `max_height`, m.
-@export var near_size := 0.9
-@export var far_size := 3.0
+@export var near_size := 1.4
+@export var far_size := 4.5
 ## Darkness when the drone is down, 0 to 1.
-@export var near_alpha := 0.7
+@export var near_alpha := 0.85
 ## Lift off the surface so the two do not fight, m.
 @export var lift := 0.03
 
@@ -66,9 +66,9 @@ static func _falloff() -> GradientTexture2D:
 	if _texture:
 		return _texture
 	var ramp := Gradient.new()
-	ramp.offsets = PackedFloat32Array([0.0, 0.25, 0.5, 0.75, 1.0])
+	ramp.offsets = PackedFloat32Array([0.0, 0.45, 0.75, 1.0])
 	ramp.colors = PackedColorArray([
-		Color.WHITE, Color(1, 1, 1, 0.82), Color(1, 1, 1, 0.45), Color(1, 1, 1, 0.13), Color(1, 1, 1, 0),
+		Color.WHITE, Color(1, 1, 1, 0.9), Color(1, 1, 1, 0.35), Color(1, 1, 1, 0),
 	])
 	_texture = GradientTexture2D.new()
 	_texture.gradient = ramp

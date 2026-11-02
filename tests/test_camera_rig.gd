@@ -99,7 +99,7 @@ func test_chase_sits_behind_and_above_in_open_space() -> bool:
 	var rel := rig.camera.global_position - d.global_position
 	rig.free()
 	d.free()
-	return rel.z > 2.5 and rel.y > 0.5
+	return rel.z > 2.0 and rel.y > 1.0
 
 func test_orbit_and_top_down_follow() -> bool:
 	var d := Sim.drone(Sim.intent(), Vector3(5, 10, -5))
