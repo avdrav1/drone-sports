@@ -45,7 +45,7 @@ func test_disable_live() -> bool:
 	return governed <= 12.6 and free > 13.0
 
 func test_no_change_below_cap() -> bool:
-	var d := Sim.drone(Sim.intent(0.0, 0.3, 0.2), Vector3(0, 30, 0), _stack(true, false))
+	var d := Sim.without_rate_mode(Sim.drone(Sim.intent(0.0, 0.3, 0.2), Vector3(0, 30, 0), _stack(true, false)))
 	var ok := true
 	for i in 20:
 		await Sim.physics_frames(1)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/drone/drone.gd" id="1_drone"]
 [ext_resource type="Script" path="res://scripts/drone/assist_pipeline.gd" id="2_pipeline"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://scripts/drone/crash_recovery.gd" id="12_recovery"]
 [ext_resource type="Script" path="res://scripts/drone/drone_sound.gd" id="13_sound"]
 [ext_resource type="Script" path="res://scripts/drone/ground_shadow.gd" id="14_shadow"]
+[ext_resource type="Script" path="res://scripts/drone/rate_mode.gd" id="15_rate"]
 
 [sub_resource type="BoxShape3D" id="body_shape"]
 size = Vector3(0.4, 0.12, 0.4)
@@ -100,6 +101,9 @@ script = ExtResource("11_brake")
 
 [node name="AutoLevel" type="Node" parent="Assists"]
 script = ExtResource("4_level")
+
+[node name="RateMode" type="Node" parent="Assists"]
+script = ExtResource("15_rate")
 
 [node name="AltitudeHold" type="Node" parent="Assists"]
 script = ExtResource("5_alt")

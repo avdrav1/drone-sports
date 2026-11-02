@@ -67,7 +67,7 @@ func test_expert_toggle_in_debug_scene() -> bool:
 	scene.get_node("HUD/Expert").button_pressed = true
 	await Sim.process_frames(2)
 	var all_off := true
-	for a in scene.get_node("Drone/Assists").get_children():
+	for a in (scene.get_node("Drone/Assists") as AssistPipeline).assists():
 		all_off = all_off and not a.enabled
 	var shown: bool = scene.get_node("HUD/Readout").text.contains("expert")
 	scene.get_node("HUD/Expert").button_pressed = false

@@ -50,6 +50,12 @@ static func drone(with_intent: Intent, position := Vector3(0, 20, 0), stack: Ass
 	d.global_position = position
 	return d
 
+## Takes the drone's rate loop (Story 32.1) out, so a test sees one assist's
+## sticks alone.
+static func without_rate_mode(d: Drone) -> Drone:
+	d.assists.get_node("RateMode").free()
+	return d
+
 ## A job rig: root Node3D with Drone, Rig (CameraRig), and Runner (JobRunner,
 ## auto_begin off). The drone starts at (0, 5, 0). Caller frees the root.
 static func job_setup(job: Job, objectives: Array = []) -> Node:

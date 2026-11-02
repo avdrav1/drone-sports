@@ -104,7 +104,7 @@ func test_disable_live() -> bool:
 
 func test_no_change_when_clear() -> bool:
 	var wanted := Sim.intent(_hover(), 0.3, -0.2, 0.1)
-	var d := Sim.drone(wanted, Vector3(0, 10, 0), _guard_stack())
+	var d := Sim.without_rate_mode(Sim.drone(wanted, Vector3(0, 10, 0), _guard_stack()))
 	d.linear_velocity = Vector3(0, 0, -10)
 	var ok := true
 	for i in 30:

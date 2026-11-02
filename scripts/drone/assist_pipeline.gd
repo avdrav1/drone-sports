@@ -1,6 +1,7 @@
 class_name AssistPipeline
 extends Node
-# Runs child Assist nodes in tree order every physics frame, before the mixer.
+# Runs child Assist nodes in tree order every physics frame, before the mixer,
+# and the RateMode among them, which is always on (Story 32.1).
 
 func assists() -> Array[Assist]:
 	var out: Array[Assist] = []
@@ -10,9 +11,11 @@ func assists() -> Array[Assist]:
 	return out
 
 func run(intent: Intent, drone: Drone, delta: float) -> void:
-	for a in assists():
-		if a.enabled:
-			a.apply(intent, drone, delta)
+	for c in get_children():
+		if c is Assist and c.enabled:
+			c.apply(intent, drone, delta)
+		elif c is RateMode:
+			c.apply(intent, drone, self)
 
 func reset() -> void:
 	for a in assists():
