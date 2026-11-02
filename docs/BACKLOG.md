@@ -1707,3 +1707,9 @@ Done when a pilot who has lost auto-level can fly: the sticks ask for a rotation
   - Acceptance: Half stick asks for at most 60°/s, three-quarters at most 220°/s, and full stick 720°/s. Story 1.10's flip still takes at most 0.8 s, and 32.1's and 32.2's tests pass.
   - Out of scope: Rate settings in OPTIONS.
   - Note: Measured: half stick 55°/s (set 60), three-quarters set 212°/s, flip 0.80 s.
+
+- [x] **32.4 A centered pad throttle hovers**
+  - Goal: With altitude hold off, a pad's throttle stick at rest holds the drone's height instead of letting it sink. Owner report, 2026-11-01, flying Act 3 on a GameSir pad: "loses height".
+  - Context: Once altitude hold is off, `PilotInput` latches the keyboard throttle at hover, but a pad's throttle went straight to the mixer, and a centered stick (0) is half of max thrust: 2.25 N a motor against the 2.45 N a 1 kg drone needs. So as soon as the pad's throttle was touched, letting it rest sank the drone at about 0.8 m/s². Now, while latched, `PilotInput.pad_throttle` maps the stick so its center is hover and its ends are still full and zero thrust. With altitude hold on, the springy throttle is unchanged. Shaping only: the mixer and flight model are unchanged.
+  - Acceptance: With altitude hold off, a centered pad throttle gives the hover throttle, full up gives 1, full down gives -1, and half up is halfway from hover to full. With altitude hold on, half up still gives 0.5.
+  - Out of scope: Throttle that makes up for tilt, throttle curves in OPTIONS.

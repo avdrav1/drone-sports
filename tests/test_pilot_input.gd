@@ -75,6 +75,23 @@ func test_pad_throttle_takes_over_latch() -> bool:
 	p.free()
 	return is_equal_approx(pad, -0.6) and after == 0.0 and keys_back > 0.0
 
+# Story 32.4: a centered pad throttle sat 0.09 below hover before, so
+# the drone sank whenever altitude hold was off.
+func test_centered_pad_throttle_hovers_once_latched() -> bool:
+	var d := Sim.drone(Sim.intent())
+	var p := PilotInput.new()
+	d.add_child(p)
+	var hover := Mixer.hover_throttle(d.hover_thrust(), d.max_thrust)
+	var up := _hold(p, _axes(), _axes(1.0), 1, true).throttle
+	var half := _hold(p, _axes(), _axes(0.5), 1, true).throttle
+	var down := _hold(p, _axes(), _axes(-1.0), 1, true).throttle
+	var centered := _hold(p, _axes(), _axes(), 1, true).throttle
+	var springy := _hold(p, _axes(), _axes(0.5), 1, false).throttle
+	d.free()
+	return hover > 0.05 and is_equal_approx(centered, hover) and is_equal_approx(up, 1.0) \
+		and is_equal_approx(down, -1.0) and is_equal_approx(half, hover + 0.5 * (1.0 - hover)) \
+		and is_equal_approx(springy, 0.5)
+
 func test_latch_follows_altitude_hold_in_debug_scene() -> bool:
 	var scene: Node = Sim.add(load("res://scenes/debug_flight.tscn").instantiate())
 	var pilot: PilotInput = scene.get_node("Drone/PilotInput")

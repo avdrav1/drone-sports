@@ -2,7 +2,8 @@ class_name PilotInput
 extends IntentSource
 # Gamepad and keyboard sticks. Actions are defined in project.godot.
 # Keys are digital, so held keys ramp the stick instead of snapping it, and
-# once altitude hold is off the keyboard throttle stays where it was left.
+# once altitude hold is off the keyboard throttle stays where it was left and a
+# centered pad throttle stick hovers.
 # Shaping only: nothing here changes how the drone flies.
 
 const AXES := {
@@ -56,9 +57,9 @@ func shape(keys: Dictionary, pad: Dictionary, delta: float, latch: bool) -> Inte
 		i.throttle = throttle_level
 	elif absf(pad.throttle) > 0.0:
 		_throttle_from_keys = false
-		i.throttle = pad.throttle
+		i.throttle = pad_throttle(pad.throttle)
 	else:
-		i.throttle = throttle_level if _throttle_from_keys else 0.0
+		i.throttle = throttle_level if _throttle_from_keys else pad_throttle(0.0)
 	return i
 
 func reset() -> void:
@@ -68,6 +69,12 @@ func reset() -> void:
 
 func curve(x: float) -> float:
 	return x * (1.0 - expo) + x * x * x * expo
+
+## Story 32.4: with altitude hold off, a pad throttle stick's center is hover,
+## and its ends are still full and zero thrust.
+func pad_throttle(t: float) -> float:
+	var h := _hover_throttle()
+	return h + t * (1.0 - h) if t >= 0.0 else h + t * (1.0 + h)
 
 func throttle_latched() -> bool:
 	return _latched
