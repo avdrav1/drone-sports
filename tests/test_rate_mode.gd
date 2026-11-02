@@ -5,7 +5,8 @@ extends RefCounted
 # 90°.
 
 const Sim = preload("res://tests/sim.gd")
-const ACT3 := "res://data/assists/act3.tres"
+# Act 4: auto-level and horizon mode both off, so the rate loop flies alone.
+const RATE_ONLY := "res://data/assists/act4.tres"
 
 func _deg(r: float) -> float:
 	return rad_to_deg(r)
@@ -15,7 +16,7 @@ func _pitch_rate(d: Drone) -> float:
 	return _deg(-FlightControl.body_rate(d).x)
 
 func test_half_stick_spins_at_the_set_rate() -> bool:
-	var d := Sim.drone(Sim.intent(0.1, 0.5), Vector3(0, 40, 0), load(ACT3))
+	var d := Sim.drone(Sim.intent(0.1, 0.5), Vector3(0, 40, 0), load(RATE_ONLY))
 	await Sim.physics_frames(20)
 	var rate := _pitch_rate(d)
 	var rm: RateMode = d.assists.get_node("RateMode")
@@ -27,7 +28,7 @@ func test_half_stick_spins_at_the_set_rate() -> bool:
 	return curve and absf(rate - want) < 0.15 * want
 
 func test_a_short_push_no_longer_flips() -> bool:
-	var d := Sim.drone(Sim.intent(0.1, 1.0), Vector3(0, 40, 0), load(ACT3))
+	var d := Sim.drone(Sim.intent(0.1, 1.0), Vector3(0, 40, 0), load(RATE_ONLY))
 	await Sim.physics_frames(10)
 	d.intent_source.value = Sim.intent(0.1)
 	await Sim.physics_frames(30)
@@ -39,7 +40,7 @@ func test_a_short_push_no_longer_flips() -> bool:
 	return tilt < 60.0 and rate < 5.0
 
 func test_released_it_holds_the_lean() -> bool:
-	var d := Sim.drone(Sim.intent(0.1, 0.5), Vector3(0, 40, 0), load(ACT3))
+	var d := Sim.drone(Sim.intent(0.1, 0.5), Vector3(0, 40, 0), load(RATE_ONLY))
 	await Sim.physics_frames(20)
 	d.intent_source.value = Sim.intent(0.1)
 	await Sim.physics_frames(15)
@@ -52,7 +53,7 @@ func test_released_it_holds_the_lean() -> bool:
 	return rate < 5.0 and lean > 10.0 and drift < 3.0
 
 func test_yaw_turns_at_a_rate_and_stops() -> bool:
-	var d := Sim.drone(Sim.intent(0.1, 0.0, 0.0, 1.0), Vector3(0, 40, 0), load(ACT3))
+	var d := Sim.drone(Sim.intent(0.1, 0.0, 0.0, 1.0), Vector3(0, 40, 0), load(RATE_ONLY))
 	await Sim.physics_frames(30)
 	var want := _deg((d.assists.get_node("RateMode") as RateMode).max_yaw_rate)
 	var turning := _deg(-FlightControl.body_rate(d).y)

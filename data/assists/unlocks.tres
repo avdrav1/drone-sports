@@ -10,6 +10,7 @@ names = Dictionary[StringName, String]({
 &"battery_wind": "the shelter from battery and wind",
 &"brake": "the brake",
 &"collision_guard": "collision guard",
+&"horizon": "horizon mode",
 &"single_drone_view": "the single-drone view",
 &"speed_governor": "the speed governor"
 })
@@ -19,6 +20,7 @@ unlocks = Dictionary[StringName, String]({
 &"battery_wind": "route planning and timing to gusts",
 &"brake": "drift and momentum through turns",
 &"collision_guard": "tight gaps and interior flying",
+&"horizon": "holding any attitude hands-off",
 &"single_drone_view": "the fleet command layer",
 &"speed_governor": "full throttle and top speed"
 })

@@ -133,7 +133,7 @@ func test_no_part_adds_or_removes_an_assist() -> bool:
 	Garage.apply(plain)
 	var want := _assists(plain)
 	plain.free()
-	var ok := want.size() == 6
+	var ok := want.size() == 7
 	for p in _non_default():
 		Hangar.fitted.clear()
 		Hangar.fit(0, p.id)

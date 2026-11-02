@@ -136,11 +136,11 @@ func test_an_offer_removing_nothing_shows_nothing_extra() -> bool:
 func test_act_presets_are_unchanged() -> bool:
 	# Which assists are on in each act, in AssistStack.IDS order.
 	var want := {
-		1: [true, true, true, true, true, true, true],
-		2: [false, true, true, true, true, true, true],
-		3: [false, false, false, false, true, true, true],
-		4: [false, false, false, false, false, false, true],
-		5: [false, false, false, false, false, false, false],
+		1: [true, true, true, true, true, true, true, true],
+		2: [false, true, true, true, true, true, true, true],
+		3: [false, false, false, false, true, true, true, true],
+		4: [false, false, false, false, false, false, false, true],
+		5: [false, false, false, false, false, false, false, false],
 	}
 	var ok := true
 	for act in want:

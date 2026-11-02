@@ -9,12 +9,14 @@ extends Resource
 @export var brake := true
 @export var altitude_hold := true
 @export var auto_level := true
+## Story 32.2: with auto-level off, released sticks drift back to level.
+@export var horizon := true
 @export var speed_governor := true
 @export var battery_wind := true
 @export var single_drone_view := true
 
 const IDS: Array[StringName] = [&"collision_guard", &"brake", &"altitude_hold", &"auto_level",
-	&"speed_governor", &"battery_wind", &"single_drone_view"]
+	&"horizon", &"speed_governor", &"battery_wind", &"single_drone_view"]
 
 func is_on(id: StringName) -> bool:
 	return id in IDS and get(id)

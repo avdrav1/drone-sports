@@ -170,7 +170,7 @@ func test_every_pilot_flies_the_same_assists() -> bool:
 			lists.append([stack.label, ids])
 	var ok := lists.size() == PlayerProfile.pilots().size() * 2
 	for l in lists:
-		ok = ok and l == (lists[0] if l[0] == ACT1.label else lists[1]) and l[1].size() == 6
+		ok = ok and l == (lists[0] if l[0] == ACT1.label else lists[1]) and l[1].size() == 7
 	return ok
 
 ## Every pilot has an edge (Story 19.2): stat steps and assist settings both.

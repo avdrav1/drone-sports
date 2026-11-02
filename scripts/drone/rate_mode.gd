@@ -35,3 +35,16 @@ func apply(intent: Intent, drone: Drone, pipeline: AssistPipeline) -> void:
 func wanted_rate(s: float) -> float:
 	s = clampf(s, -1.0, 1.0)
 	return s * center_rate + s * s * s * (max_rate - center_rate)
+
+## The stick that asks for `rate`, rad/s: wanted_rate's inverse, clamped to a
+## full stick.
+func stick_for_rate(rate: float) -> float:
+	var lo := -1.0
+	var hi := 1.0
+	for i in 24:
+		var mid := (lo + hi) * 0.5
+		if wanted_rate(mid) < rate:
+			lo = mid
+		else:
+			hi = mid
+	return (lo + hi) * 0.5

@@ -40,7 +40,7 @@ func test_buying_thrust_raises_climb_rate() -> bool:
 		want += s.step if s.stat == &"max_thrust" else 0.0
 	print("        climb after 0.5 s: stock %.2f m/s, upgraded %.2f m/s" % [stock, tuned])
 	return bought and Wallet.balance == 0 and tuned > stock * 1.1 and is_equal_approx(thrust, want) \
-		and assists_same and count == 6
+		and assists_same and count == 7
 
 func test_prices_and_effects_are_data() -> bool:
 	var u: Upgrade = load("res://data/upgrades/thrust.tres")

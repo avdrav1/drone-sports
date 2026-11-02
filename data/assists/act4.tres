@@ -9,6 +9,7 @@ collision_guard = false
 brake = false
 altitude_hold = false
 auto_level = false
+horizon = false
 speed_governor = false
 battery_wind = false
 single_drone_view = true
