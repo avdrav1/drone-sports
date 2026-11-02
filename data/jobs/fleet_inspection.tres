@@ -24,3 +24,4 @@ weights = {
 "Relay3": 1.0
 }
 vows = Array[Resource]([ExtResource("9_guiding")])
+tags = Array[StringName]([&"open"])

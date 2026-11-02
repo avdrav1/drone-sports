@@ -27,3 +27,4 @@ guidance = 2
 crew_in_field = Array[StringName]([&"sushena"])
 vows = Array[Resource]([ExtResource("9_keeping"), ExtResource("10_making")])
 weather = ExtResource("3_weather")
+tags = Array[StringName]([&"open"])

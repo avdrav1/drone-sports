@@ -6,6 +6,7 @@ extends RefCounted
 
 const BOARD := preload("res://data/jobs/board.tres")
 const GRADES := preload("res://data/jobs/grade_scale.tres")
+const Board = preload("res://tests/test_job_board.gd")
 
 func _flyable() -> Array[StringName]:
 	var out: Array[StringName] = []
@@ -70,12 +71,14 @@ func test_every_mission_can_be_reached_from_a_new_career() -> bool:
 	return ok
 
 ## Without the top-three scout, the race alone must not be the only way on.
-## Three, with the relay tower inspection, which is open to every pilot.
-func test_a_new_pilot_has_three_missions_and_the_second_earns_city_reputation() -> bool:
+## With every job's open tag off: the career route still works when a job is gated.
+func test_a_new_pilot_has_two_missions_and_the_second_earns_city_reputation() -> bool:
+	var gated := Board._gate()
 	var open := _flyable()
-	var ok := open.size() == 3 and &"test_race" in open and &"sample_delivery" in open and &"inspection" in open
+	var ok := open.size() == 2 and &"test_race" in open and &"sample_delivery" in open
 	for i in 4:
 		_fly_round()
+	Board._ungate(gated)
 	return ok and Reputation.of(&"city") >= 10 and &"harbor_couriers" in Career.pending
 
 ## Joining the race team first must not close the city's route.

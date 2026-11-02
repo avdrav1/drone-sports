@@ -34,7 +34,7 @@ When the override lands, Ravana powers down section by section, the shell loosen
 ## Stakes
 
 - The job is tagged `lethal`. Strikes kill. The launch dialog says so.
-- The job requires Sanjaya (callouts) and at least two living crew tagged `can_fly` for the fleet. If you do not have them, the job board shows Ravana as unreachable with the reason. There is no alternate route.
+- The job opens once every mission on the board has a best grade of A (`min_grade` in `data/boss/lattice.tres`); every other mission is open from the start. It also requires Sanjaya (callouts) and at least two living crew tagged `can_fly` for the fleet. If you do not have them, the job board shows Ravana as unreachable with the reason. There is no alternate route.
 - No retry from checkpoint. Fail and you restart the job, with any new injuries kept.
 
 ## Disabling the boss (the feature, not the fight)

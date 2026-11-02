@@ -34,7 +34,7 @@ func _cached_boss_scenes() -> Array:
 
 func test_shipped_data_is_the_flag() -> bool:
 	var b: Boss = load(BossGate.DATA)
-	return b.enabled and b.required_characters == [&"sanjaya"] and b.min_fleet == 2 \
+	return b.enabled and b.required_characters == [&"sanjaya"] and b.min_fleet == 2 and b.min_grade == "A" \
 		and b.job.tags.has(&"lethal") and b.chorus.ends_with("lattice.json") and b.hold_time > 0.0
 
 func test_disabled_never_listed_or_loaded() -> bool:
@@ -50,6 +50,13 @@ func test_disabled_never_listed_or_loaded() -> bool:
 	BossGate.boss = null
 	return ok
 
+## Every board mission's id.
+static func _missions() -> Array[StringName]:
+	var out: Array[StringName] = []
+	for job in (load("res://data/jobs/board.tres") as JobList).jobs:
+		out.append(job.id)
+	return out
+
 func test_unmet_requirements_show_why() -> bool:
 	_boss(true)
 	var b := _board()
@@ -57,7 +64,10 @@ func test_unmet_requirements_show_why() -> bool:
 	var row: Node = b.job_rows.get(&"lattice")
 	var first: String = row.get_node("Locked").text if row and row.has_node("Locked") else ""
 	b.free()
-	Career.job_completed(&"fleet_race")
+	# Every mission at A but one, which is only a B.
+	var missions := _missions()
+	for id in missions:
+		Career.job_flown(id, "B" if id == missions[0] else "A")
 	Roster.kill(&"sanjaya")
 	for id in [&"nala", &"sushena"]:
 		Roster.kill(id)
@@ -65,8 +75,9 @@ func test_unmet_requirements_show_why() -> bool:
 	await Sim.process_frames(1)
 	row = b.job_rows.get(&"lattice")
 	var second: String = row.get_node("Locked").text if row and row.has_node("Locked") else ""
-	var ok := first.contains("Team relay first") and second.contains("Sanjaya is gone") \
-		and second.contains("needs 2 crew who fly, 1 left") and not second.contains("relay") \
+	var ok := first.contains("A on every mission first, %d to go" % missions.size()) \
+		and second.contains("A on every mission first, 1 to go") and second.contains("Sanjaya is gone") \
+		and second.contains("needs 2 crew who fly, 1 left") \
 		and b.fly_button(&"lattice") == null and BossGate.loads.is_empty()
 	if not ok:
 		print("        %s / %s" % [first, second])
@@ -74,12 +85,15 @@ func test_unmet_requirements_show_why() -> bool:
 	BossGate.boss = null
 	return ok
 
+## Ravana opens once every board mission has been graded A.
 func test_all_met_is_flyable() -> bool:
 	_boss(true)
-	Career.job_completed(&"fleet_race")
+	var shut := not BossGate.flyable()
+	for id in _missions():
+		Career.job_flown(id, "A")
 	var b := _board()
 	await Sim.process_frames(1)
-	var ok := b.fly_button(&"lattice") != null and BossGate.flyable() and BossGate.reasons().is_empty()
+	var ok := shut and b.fly_button(&"lattice") != null and BossGate.flyable() and BossGate.reasons().is_empty()
 	b.free()
 	BossGate.boss = null
 	return ok

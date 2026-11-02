@@ -31,3 +31,4 @@ weights = {
 "UnderTime": 1.0,
 "BeatRoof": 1.0
 }
+tags = Array[StringName]([&"open"])

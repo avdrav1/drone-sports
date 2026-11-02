@@ -8,8 +8,11 @@ extends Resource
 @export var job: Job
 ## Crew who must be alive to attempt it.
 @export var required_characters: Array[StringName] = [&"sanjaya"]
-## A job that must be completed first: the fleet final, so the Lattice ends Act 5.
-@export var after_job: StringName = &"fleet_race"
+## A job that must be completed first; empty for none.
+@export var after_job: StringName = &""
+## Every board mission's best grade must be this letter or better first; empty
+## for no grade bar.
+@export var min_grade := "A"
 ## Living crew tagged can_fly needed for the fleet phase.
 @export var min_fleet := 2
 ## Reclaimed units side by side that open the trench entrance (phase 1).

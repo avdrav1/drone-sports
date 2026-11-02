@@ -10,6 +10,21 @@ func _board() -> JobBoard:
 	Sim.add(b)
 	return b
 
+## Every board job ships tagged open; the team gating these tests check is still
+## there for a job that is not. Takes open off the shipped jobs (the loaded
+## resources, so the board sees it) and returns them for _ungate.
+static func _gate() -> Array:
+	var out := []
+	for job in (load("res://data/jobs/board.tres") as JobList).jobs:
+		if job.tags.has(&"open"):
+			job.tags.erase(&"open")
+			out.append(job)
+	return out
+
+static func _ungate(jobs: Array) -> void:
+	for job in jobs:
+		job.tags.append(&"open")
+
 func _flyable(b: JobBoard) -> Array:
 	var out := []
 	for id in b.job_rows:
@@ -29,10 +44,11 @@ func test_reached_at_launch_and_jobs_come_back() -> bool:
 	return ok
 
 func test_only_current_team_jobs_fly() -> bool:
+	var gated := _gate()
 	var b := _board()
 	await Sim.process_frames(1)
 	var home := _flyable(b)
-	var race_lock: String = b.lock_label(&"rescue").text
+	var race_lock: String = b.lock_label(&"inspection").text
 	b.free()
 	Career.team_id = &"harbor_couriers"
 	b = _board()
@@ -42,17 +58,13 @@ func test_only_current_team_jobs_fly() -> bool:
 	var details: String = \
 		(b.job_rows[&"sample_delivery"].get_child(0).get_node("Details") as Label).text
 	b.free()
-	# The relay tower inspection is open: it flies on a team that does no inspections.
-	Career.team_id = &"skyline_juniors"
-	b = _board()
-	await Sim.process_frames(1)
-	var juniors := _flyable(b)
-	b.free()
 	Career.team_id = &""
-	return home == [&"inspection", &"sample_delivery", &"test_race"] and race_lock.contains("City Rescue Air") \
+	var result: bool = home == [&"sample_delivery", &"test_race"] and race_lock.contains("Harbor Couriers") \
 		and couriers == [&"inspection", &"sample_delivery", &"test_race"] and race_lock_now.contains("Skyline Juniors") \
 		and race_lock_now.contains("Halcyon Racing") and details.contains("Harbor Couriers") \
-		and details.contains("pay 500") and details.contains("Act 2 assists") and juniors.has(&"inspection")
+		and details.contains("pay 500") and details.contains("Act 2 assists")
+	_ungate(gated)
+	return result
 
 func test_header_shows_wallet_reputation_and_team() -> bool:
 	Wallet.balance = 1234
@@ -82,18 +94,21 @@ func test_crew_shows_status_and_the_dead_greyed_with_memorial() -> bool:
 	return ok
 
 func test_offers_ask_on_the_board() -> bool:
+	var gated := _gate()
 	StoryFlags.set_flag(&"scouted")
 	var b := _board()
 	await Sim.process_frames(1)
 	var asked: bool = b.offer_dialog.visible and b.offer_dialog.team.id == &"skyline_juniors"
 	b.offer_dialog.confirmed.emit()
 	await Sim.process_frames(1)
-	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"inspection", &"sample_delivery", &"spotter_drill", &"test_race"]
+	var ok: bool = asked and b._header.text.contains("Skyline Juniors") and _flyable(b) == [&"sample_delivery", &"spotter_drill", &"test_race"]
 	b.free()
 	await Sim.process_frames(1)
 	Sim.tree().unload_current_scene()  # the recruitment scene (Story 11.2)
 	await Sim.process_frames(1)
-	return ok
+	var result: bool = ok
+	_ungate(gated)
+	return result
 
 func test_fly_opens_the_job_scene() -> bool:
 	Sim.tree().change_scene_to_file(BOARD)
@@ -140,6 +155,7 @@ func test_carousel_flips_and_wraps_with_dots() -> bool:
 	return ok
 
 func test_enter_flies_an_unlocked_card_and_shakes_a_locked_one() -> bool:
+	var gated := _gate()
 	PlayerProfile.choose_pilot(&"arjuna")
 	Sim.tree().change_scene_to_file(BOARD)
 	await Sim.process_frames(3)
@@ -158,7 +174,9 @@ func test_enter_flies_an_unlocked_card_and_shakes_a_locked_one() -> bool:
 	var flew := Sim.tree().current_scene.scene_file_path == "res://scenes/jobs/test_race.tscn"
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
-	return stayed and short and flew
+	var result: bool = stayed and short and flew
+	_ungate(gated)
+	return result
 
 func test_comms_face_is_living_crew_on_that_job() -> bool:
 	Career.team_id = &"harbor_couriers"
@@ -348,4 +366,23 @@ func test_crew_page_shows_everyone_with_big_faces() -> bool:
 	ok = ok and (b.crew_rows[&"bhima"].get_node("Face") as CharacterPortrait).greyed \
 		and (b.crew_rows[&"bhima"].get_node("Info/Status") as Label).text.contains(Bark.memorial(&"bhima"))
 	b.free()
+	return ok
+
+## Every board mission flies from a new save, and on every team.
+func test_every_mission_flies_from_the_start() -> bool:
+	var all := []
+	for job in (load("res://data/jobs/board.tres") as JobList).jobs:
+		all.append(job.id)
+	all.sort_custom(func(a, b): return String(a) < String(b))
+	var b := _board()
+	await Sim.process_frames(1)
+	var ok := _flyable(b) == all
+	b.free()
+	for t in Career.teams.teams:
+		Career.team_id = t.id
+		b = _board()
+		await Sim.process_frames(1)
+		ok = ok and _flyable(b) == all
+		b.free()
+	Career.team_id = &""
 	return ok

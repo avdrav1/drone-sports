@@ -6,6 +6,7 @@ extends RefCounted
 
 const Sim = preload("res://tests/sim.gd")
 const BOARD := "res://scenes/ui/job_board.tscn"
+const Board = preload("res://tests/test_job_board.gd")
 
 func _bark(seed := 1) -> Bark:
 	Bark.moment_times.clear()
@@ -106,11 +107,16 @@ func test_board_cheers_an_upgrade_and_an_unlock() -> bool:
 	# Nothing new: no cheer.
 	board.refresh()
 	ok = ok and not _said(board.bark, &"unlock")
-	# Joining a team opens its jobs.
+	# Joining a team opens its jobs (with the open tags off, as every job ships open).
+	var gated := Board._gate()
+	board.refresh()
+	Bark.moment_times.clear()
+	board.bark.used.clear()
 	Career.pending.append(&"cannery_row")
 	Career.accept(&"cannery_row")
 	board.refresh()
 	ok = ok and _said(board.bark, &"unlock")
+	Board._ungate(gated)
 	await _close()
 	return ok
 

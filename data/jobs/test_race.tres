@@ -17,7 +17,7 @@ time_limit = 180.0
 pay = 800
 countdown = 3.0
 default_view = 0
-tags = Array[StringName]([&"act1"])
+tags = Array[StringName]([&"act1", &"open"])
 weights = {
 "BestSplit": 1.0,
 "CleanLap": 1.0,
