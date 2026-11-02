@@ -9,10 +9,10 @@ extends Node
 # Intent.
 
 ## Pitch and roll: the rate per unit of stick near center, rad/s, and the rate
-## at full stick. Between them the rate grows with the stick cubed, so small
-## pushes lean gently and full stick still flips as fast as the motors allow
-## (Story 1.10's 0.8 s flip).
-@export var center_rate := deg_to_rad(150.0)
+## at full stick. Between them the rate grows with the stick to the fifth, so
+## small and middle pushes lean gently (Story 32.3) and full stick still flips
+## as fast as the motors allow (Story 1.10's 0.8 s flip).
+@export var center_rate := deg_to_rad(80.0)
 @export var max_rate := deg_to_rad(720.0)
 ## Yaw rate at full stick, rad/s (the brake's).
 @export var max_yaw_rate := deg_to_rad(90.0)
@@ -34,7 +34,7 @@ func apply(intent: Intent, drone: Drone, pipeline: AssistPipeline) -> void:
 ## The pitch or roll rate a stick at `s` (-1..1) asks for, rad/s.
 func wanted_rate(s: float) -> float:
 	s = clampf(s, -1.0, 1.0)
-	return s * center_rate + s * s * s * (max_rate - center_rate)
+	return s * center_rate + pow(s, 5) * (max_rate - center_rate)
 
 ## The stick that asks for `rate`, rad/s: wanted_rate's inverse, clamped to a
 ## full stick.

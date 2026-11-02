@@ -1700,3 +1700,10 @@ Done when a pilot who has lost auto-level can fly: the sticks ask for a rotation
   - Acceptance: In Act 3, released after a third of a second of half stick, the drone is within 3° of level a second later. A fifth of a stick holds a lean between 3° and 30°. Full stick still flips in at most 0.8 s. Released at 120° of roll, it is within 5° of level 1.5 s later. Act 4 has it off, and it changes nothing while auto-level is on. 32.1's rate tests now fly Act 4.
   - Out of scope: Horizon strength in OPTIONS, vows that remove it early.
   - Note: Measured: a 37° lean returns to 2.8° in a second; a fifth of a stick settles at 22°; from 120° of roll it rights in 1.5 s.
+
+- [x] **32.3 A gentler middle**
+  - Goal: Small and middle stick moves tilt the drone slowly enough to steer by, without overcorrecting. Owner report, 2026-11-01: "too twitchy".
+  - Context: 32.1's curve asked for 150°/s per unit of stick near center, growing with the stick cubed: 146°/s at half stick and 353°/s at three-quarters. `RateMode` now uses 80°/s per unit near center, growing with the stick to the fifth power, up to the same 720°/s at full, so Story 1.10's flip stands. The pilot's stick expo (0.4 by default) still applies first, so half a pad stick asks for about 20°/s.
+  - Acceptance: Half stick asks for at most 60°/s, three-quarters at most 220°/s, and full stick 720°/s. Story 1.10's flip still takes at most 0.8 s, and 32.1's and 32.2's tests pass.
+  - Out of scope: Rate settings in OPTIONS.
+  - Note: Measured: half stick 55°/s (set 60), three-quarters set 212°/s, flip 0.80 s.

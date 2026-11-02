@@ -76,3 +76,13 @@ func test_leaves_axes_an_assist_controls() -> bool:
 	ok = ok and not d.assists.assists().any(func(a): return a.name == rm.name)
 	d.free()
 	return ok
+
+# Story 32.3: gentler in the middle. Owner, 2026-11-01: "too twitchy".
+func test_middle_of_the_stick_is_gentle() -> bool:
+	var rm := RateMode.new()
+	var half := _deg(rm.wanted_rate(0.5))
+	var three_q := _deg(rm.wanted_rate(0.75))
+	var full := _deg(rm.wanted_rate(1.0))
+	rm.free()
+	print("        asks for: half %.0f, three-quarter %.0f, full %.0f deg/s" % [half, three_q, full])
+	return half <= 60.0 and three_q <= 220.0 and is_equal_approx(full, 720.0)
