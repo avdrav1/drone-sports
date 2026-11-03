@@ -209,3 +209,34 @@ func test_an_overlong_line_stays_inside_the_bar() -> bool:
 				ok = false
 		host.free()
 	return ok
+
+## A line a waiting line replaces before its hold is up stays readable: it
+## moves into the chat's newest row (26.5) with its speaker's name.
+func test_a_replaced_line_stays_readable_in_the_chat() -> bool:
+	var host := Control.new()
+	host.size = Vector2(960, 720)
+	Sim.add(host)
+	var b := Bark.new()
+	b.seed = 1
+	host.add_child(b)
+	var box := BarkBox.new()
+	box.bark = b
+	host.add_child(box)
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var first := "Wide into the turn, tight out of it."
+	b.said.emit(_line(&"briefing", first))
+	b.said.emit(_line(&"chatter", "Copy that.", &"nala"))
+	var t := 0.0
+	while box.current.get("text", "") == first and t < 10.0:
+		box._process(1.0 / 60.0)
+		t += 1.0 / 60.0
+	box._process(1.0 / 60.0)
+	var replaced_early := t < maxf(5.0, 2.0 + 0.07 * first.length())
+	var row: Dictionary = box.rows[0]
+	var ok: bool = replaced_early and box.current.get("text", "") == "Copy that." \
+		and row.text.visible and row.text.text == first and row.name.text != "" \
+		and row.text.get_theme_font_size("font_size") % 16 == 0
+	if not ok:
+		print("        replaced after %.2f s; row '%s' visible %s" % [t, row.text.text, row.text.visible])
+	host.free()
+	return ok
