@@ -1,0 +1,24 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/city_world.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/city.tscn" id="2_city"]
+[ext_resource type="PackedScene" path="res://scenes/world/streets.tscn" id="3_streets"]
+[ext_resource type="PackedScene" path="res://scenes/world/overhead_spans.tscn" id="4_spans"]
+[ext_resource type="PackedScene" path="res://scenes/world/fences.tscn" id="5_fences"]
+[ext_resource type="PackedScene" path="res://scenes/world/traffic.tscn" id="6_traffic"]
+[ext_resource type="PackedScene" path="res://scenes/world/rooftops.tscn" id="7_roofs"]
+
+[node name="CityWorld" type="Node3D"]
+script = ExtResource("1_world")
+
+[node name="City" parent="." instance=ExtResource("2_city")]
+
+[node name="Streets" parent="." instance=ExtResource("3_streets")]
+
+[node name="Spans" parent="Streets" instance=ExtResource("4_spans")]
+
+[node name="Fences" parent="Streets" instance=ExtResource("5_fences")]
+
+[node name="Traffic" parent="Streets" instance=ExtResource("6_traffic")]
+
+[node name="Rooftops" parent="." instance=ExtResource("7_roofs")]
