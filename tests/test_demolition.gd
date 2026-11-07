@@ -46,7 +46,8 @@ func test_completable_with_act3_grade_a() -> bool:
 	await Sim.process_frames(2)
 	var runner: JobRunner = scene.get_node("JobRunner")
 	var d: Drone = scene.get_node("Drone")
-	var act3 := not d.assists.is_enabled(&"collision_guard") and not d.assists.is_enabled(&"altitude_hold")
+	# The mission set (Stories 35.1, 36.1): collision guard off, altitude hold on.
+	var act3 := not d.assists.is_enabled(&"collision_guard") and d.assists.is_enabled(&"altitude_hold")
 	await _live(scene)
 	var blocked := await _fly(d, PATH, 8.0)
 	await Sim.physics_frames(2)

@@ -84,8 +84,9 @@ func test_the_jobs_offer_the_two_vows() -> bool:
 	return ok
 
 ## Story 35.1: from the mission set, the first act preset that takes anything
-## away is Act 3's, which has brake and heading hold off.
-func test_shiva_turns_brake_off_for_the_job_only() -> bool:
+## away is Act 3's, which has brake and heading hold off, and (Story 36.1)
+## altitude hold.
+func test_shiva_turns_brake_and_altitude_hold_off_for_the_job_only() -> bool:
 	var s := _scene(DELIVERY)
 	await Sim.process_frames(2)
 	var runner: JobRunner = s.get_node("JobRunner")
@@ -97,10 +98,11 @@ func test_shiva_turns_brake_off_for_the_job_only() -> bool:
 		and _letting_go() in runner.offered_vows()
 	ok = ok and await _launch_with(runner, _letting_go())
 	var during := _assists(d)
-	# Brake off; every other assist, the assist count and the flight model as they were.
-	ok = ok and not during[&"brake"] and d.assists.assists().size() == count and _stats(d) == stats
+	# Brake and altitude hold off; every other assist, the assist count and the flight model as they were.
+	ok = ok and before.get(&"altitude_hold", false) and not during[&"brake"] and not during[&"altitude_hold"] \
+		and d.assists.assists().size() == count and _stats(d) == stats
 	for id in before:
-		if id != &"brake":
+		if id not in [&"brake", &"altitude_hold"]:
 			ok = ok and during[id] == before[id]
 	runner.complete()
 	ok = ok and runner.result.vow == _letting_go() and runner.result.vow_kept

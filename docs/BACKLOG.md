@@ -1796,11 +1796,12 @@ Done when every mission flies with the same assists, whatever act the career is 
 
 Done when a new pilot on a pad can take off, fly a mission and put the drone down where they meant to, softly, without fighting the throttle. Owner report, 2026-11-07: "its still pretty hard to fly and land the drone", and in free flight "landing on a shrine doesn't work. the drone lands UNDER the shrine or misses it altogether". Assists rewrite `Intent` only (rule 2); the flight model is unchanged (rule 1); the HUD and guides are flying aids, never graded (rule 8). Order: the throttle first (36.1, probably most of the fix), then the shrines, then seeing the touchdown spot, the cushion, and the throttle's feel.
 
-- [ ] **36.1 Altitude hold on every mission**
+- [x] **36.1 Altitude hold on every mission**
   - Goal: The mission set (35.1) adds altitude hold, so a centred throttle holds height and the stick asks for a climb or sink rate. Landing is holding the stick gently down.
   - Context: `data/assists/mission.tres` and `mission_fleet.tres` set `altitude_hold = true`. 35.1 took Act 3's set, which has it off, so the pilot had to find hover throttle by hand (32.4 centred a pad's throttle on hover, but any tilt or gust still sinks or lifts the drone). `AltitudeHold` already compensates for tilt; its `climb_rate` is 4 m/s at full stick. With it on, `PilotInput`'s springy throttle is the one used (32.4's latch is for altitude hold off). Horizon mode, brake and heading hold, and the governor are unchanged. Collision guard stays off: it pushes the drone off walls and fights the city missions' gaps.
   - Acceptance: Every mission flies with altitude hold on (35.1's test, updated). In a mission, a centred throttle held for 10 s after a climb keeps height within 0.3 m, also while leaning at 30°. Full down from 10 m reaches the ground in under 4 s and touches down under 4 m/s. The vow of letting go and the expert setting still turn it off.
   - Out of scope: The climb rate in OPTIONS, the landing cushion (36.4).
+  - Note (2026-11-07): pilot edges raise `climb_rate` (Arjuna 5, Hanuman 7 m/s), which also set the sink, so full down touched down at 4.7 m/s and more. The owner chose a separate `sink_rate` (4 m/s) on `AltitudeHold`: edges climb faster and land no harder. The full-down test runs for every pilot. The vow of letting go now takes altitude hold off with brake (Act 3's preset has both off).
 
 - [ ] **36.2 Shrines you can land on**
   - Goal: The four shrines are solid, so a drone lands on their steps and dais instead of falling through to the roof underneath.

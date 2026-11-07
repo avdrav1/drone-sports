@@ -3,6 +3,9 @@ extends RefCounted
 # Lattice fly the mission set (fleet jobs with the single-drone view off),
 # whatever act the career is in; a drone dropped into in command view flies
 # the mission's assists; the expert setting still turns every assist off.
+# Story 36.1: the set has altitude hold on. In a mission a centred stick holds
+# height, upright and leaning, and full down lands quickly but not hard; the
+# vow of letting go still turns it off.
 
 const Sim = preload("res://tests/sim.gd")
 const MISSION := preload("res://data/assists/mission.tres")
@@ -18,8 +21,8 @@ func _jobs() -> Array[Job]:
 	out.append((load(BossGate.DATA) as Boss).job)
 	return out
 
-func test_the_mission_set_is_act_3_with_brake_on() -> bool:
-	var on := {&"collision_guard": false, &"brake": true, &"altitude_hold": false, &"auto_level": false,
+func test_the_mission_set_is_act_3_with_brake_and_altitude_hold_on() -> bool:
+	var on := {&"collision_guard": false, &"brake": true, &"altitude_hold": true, &"auto_level": false,
 		&"horizon": true, &"speed_governor": true, &"battery_wind": true}
 	var ok := MISSION.single_drone_view and not FLEET.single_drone_view
 	for id in on:
@@ -80,5 +83,111 @@ func test_the_expert_setting_still_turns_every_assist_off() -> bool:
 		var s := GameSettings.effective_stack(JobRunner.assists_for(job))
 		for id in AssistStack.IDS:
 			ok = ok and not s.get(id)
+	GameSettings.expert_all_assists_off = false
+	return ok
+
+const DELIVERY := "res://scenes/jobs/sample_delivery.tscn"
+
+## The sample delivery job, live, its drone flown by a FixedSource at 10 m
+## over the ground. Returns [scene, drone, ground height].
+func _mission() -> Array:
+	var s: Node = load(DELIVERY).instantiate()
+	var runner: JobRunner = s.get_node("JobRunner")
+	runner.pays_out = false
+	runner.results_scene = null
+	runner.back_scene = ""
+	Sim.add(s)
+	await Sim.process_frames(2)
+	var d := runner.drone
+	var src := Sim.FixedSource.new()
+	d.add_child(src)
+	d.intent_source = src
+	runner.launch()
+	runner.state_time = runner.job.countdown
+	await Sim.physics_frames(2)
+	var ground := _ground(d, Vector3(0, 0, 0))
+	d.reset(Transform3D(Basis(), Vector3(0, ground + 10.0, 0)))
+	await Sim.physics_frames(30)
+	return [s, d, ground]
+
+func _ground(d: Drone, at: Vector3) -> float:
+	var q := PhysicsRayQueryParameters3D.create(Vector3(at.x, 200, at.z), Vector3(at.x, -50, at.z))
+	q.exclude = [d.get_rid()]
+	return d.get_world_3d().direct_space_state.intersect_ray(q).get("position", Vector3.ZERO).y
+
+## Climb for 1 s, centre the throttle with `lean` on the sticks, let it settle
+## for 1 s, then the widest height change over the next 10 s, and the lean.
+func _hold(lean: Intent) -> Array:
+	var m := await _mission()
+	var d: Drone = m[1]
+	var ok := d.assists.is_enabled(&"altitude_hold")
+	d.intent_source.value = Sim.intent(0.6)
+	await Sim.physics_frames(60)
+	d.intent_source.value = lean
+	await Sim.physics_frames(60)
+	var h0 := d.global_position.y
+	var spread := 0.0
+	var tilt := 0.0
+	for i in 600:
+		await Sim.physics_frames(1)
+		spread = maxf(spread, absf(d.global_position.y - h0))
+		tilt += rad_to_deg(FlightControl.tilt(d)) / 600.0
+	m[0].free()
+	print("        height spread %.3f m over 10 s, mean lean %.1f deg" % [spread, tilt])
+	return [ok, spread, tilt]
+
+func test_a_centred_throttle_holds_height_in_a_mission() -> bool:
+	var r := await _hold(Sim.intent())
+	return r[0] and r[1] < 0.3
+
+func test_a_centred_throttle_holds_height_leaning_30_degrees() -> bool:
+	# Roll and yaw together: a steady 30 degree lean that circles in place.
+	var r := await _hold(Sim.intent(0.0, 0.0, 0.7, 0.5))
+	return r[0] and r[1] < 0.3 and absf(r[2] - 30.0) < 3.0
+
+## Full down from 10 m: [landed after s, touchdown m/s, rest height over ground].
+func _full_down() -> Array:
+	var m := await _mission()
+	var d: Drone = m[1]
+	var ground: float = m[2]
+	d.intent_source.value = Sim.intent(-1.0)
+	var heights: Array[float] = []
+	var speeds: Array[float] = []
+	for i in 360:
+		await Sim.physics_frames(1)
+		heights.append(d.global_position.y)
+		speeds.append(-d.linear_velocity.y)
+	m[0].free()
+	# At rest: the last height. Landed: the first tick within 2 cm of it.
+	var rest: float = heights[-1]
+	var landed := -1
+	for i in heights.size():
+		if heights[i] < rest + 0.02:
+			landed = i
+			break
+	# Touchdown speed: the fastest sink over the last 15 cm before rest.
+	var hit := 0.0
+	for i in heights.size():
+		if heights[i] < rest + 0.15 and (landed < 0 or i <= landed):
+			hit = maxf(hit, speeds[i])
+	return [landed / 60.0 if landed > 0 else INF, hit, rest - ground]
+
+func test_full_down_from_10_m_lands_in_4_s_softly_for_every_pilot() -> bool:
+	# A pilot's edge may climb faster (Hanuman 7 m/s); sinking stays at 4 m/s.
+	var profile = SaveGame.read_section("profile", {})
+	var ok := true
+	for pilot in PlayerProfile.pilots():
+		PlayerProfile.choose_pilot(pilot.id)
+		var r := await _full_down()
+		print("        %s: landed after %.2f s at %.2f m/s, rest %.2f m over ground" % [pilot.id, r[0], r[1], r[2]])
+		ok = ok and r[0] < 4.0 and r[1] < 4.0 and r[2] < 0.5
+	SaveGame.write_section("profile", profile)
+	return ok
+
+func test_letting_go_and_the_expert_setting_turn_altitude_hold_off() -> bool:
+	var shiva: Vow = load("res://data/vows/letting_go.tres")
+	var ok := MISSION.altitude_hold and shiva.offered_with(MISSION) and not shiva.stack_for(MISSION).altitude_hold
+	GameSettings.expert_all_assists_off = true
+	ok = ok and not GameSettings.effective_stack(MISSION).altitude_hold
 	GameSettings.expert_all_assists_off = false
 	return ok

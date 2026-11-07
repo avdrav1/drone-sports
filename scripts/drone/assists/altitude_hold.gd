@@ -5,6 +5,9 @@ extends Assist
 
 ## Climb rate at full throttle stick, m/s.
 @export var climb_rate := 4.0
+## Sink rate at full down stick, m/s. Apart from the climb rate so a pilot's
+## edge climbs faster without landing harder (Story 36.1).
+@export var sink_rate := 4.0
 ## Throttle within this of center counts as centered.
 @export var deadzone := 0.05
 ## Below this climb rate a centered stick locks the height, m/s.
@@ -33,14 +36,14 @@ func apply(intent: Intent, drone: Drone, _delta: float) -> void:
 	var wanted_rate: float
 	if absf(intent.throttle) > deadzone:
 		_holding = false
-		wanted_rate = intent.throttle * climb_rate
+		wanted_rate = intent.throttle * (climb_rate if intent.throttle > 0.0 else sink_rate)
 	elif not _holding and absf(drone.linear_velocity.y) > lock_rate:
 		wanted_rate = 0.0
 	else:
 		if not _holding:
 			_holding = true
 			target_height = y
-		wanted_rate = clampf(height_gain * (target_height - y), -climb_rate, climb_rate)
+		wanted_rate = clampf(height_gain * (target_height - y), -sink_rate, climb_rate)
 	var accel := rate_gain * (wanted_rate - drone.linear_velocity.y)
 	var lift := drone.mass * (drone.gravity() + accel) / maxf(cos(FlightControl.tilt(drone)), 0.5)
 	intent.throttle = clampf(Mixer.hover_throttle(lift / Drone.MOTOR_COUNT, drone.max_thrust), -1.0, 1.0)
