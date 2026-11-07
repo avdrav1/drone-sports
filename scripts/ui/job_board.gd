@@ -227,9 +227,9 @@ func money_text() -> String:
 		reps.append("%s %d" % [String(f).capitalize(), Reputation.of(f)])
 	return "Wallet  %d        Reputation  %s" % [Wallet.balance, "   ".join(reps)]
 
-## The act whose assists the job flies with: the job's or the career's, whichever has fewer.
+## The act the job is flown in: the job's or the career's, whichever is later.
 static func preset_label(job: Job) -> String:
-	var job_act := int(job.required_assists.label.trim_prefix("Act ")) if job.required_assists else 1
+	var job_act := job.act
 	return "Act %d" % maxi(job_act, Career.act())
 
 ## A job's row: [title, details, Fly button or lock text].

@@ -135,8 +135,10 @@ func begin() -> void:
 	_set_state(State.BRIEFING)
 
 ## The job's assists, with any the pilot's career has taken away also off.
+## The job's assists as they are: every mission flies one set, whatever the
+## career's act (Story 35.1).
 static func assists_for(j: Job) -> AssistStack:
-	return j.required_assists.intersect(Career.preset())
+	return j.required_assists
 
 ## The assists this flight flies with: the job's, after the career and the
 ## expert setting, then the vow's (letting go turns the next act's off).

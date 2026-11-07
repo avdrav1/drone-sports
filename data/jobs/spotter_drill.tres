@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
-[ext_resource type="Resource" path="res://data/assists/act2.tres" id="2_act2"]
+[ext_resource type="Resource" path="res://data/assists/mission.tres" id="2_assists"]
 
 [resource]
 script = ExtResource("1_job")
@@ -12,7 +12,8 @@ scene = "res://scenes/jobs/spotter_drill.tscn"
 client = "Skyline League"
 job_type = &"race"
 faction = &"league"
-required_assists = ExtResource("2_act2")
+required_assists = ExtResource("2_assists")
+act = 2
 time_limit = 180.0
 pay = 1000
 countdown = 3.0

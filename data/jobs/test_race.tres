@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
-[ext_resource type="Resource" path="res://data/assists/act1.tres" id="2_act1"]
+[ext_resource type="Resource" path="res://data/assists/mission.tres" id="2_assists"]
 
 [resource]
 script = ExtResource("1_job")
@@ -12,7 +12,7 @@ scene = "res://scenes/jobs/test_race.tscn"
 client = "Skyline League"
 job_type = &"race"
 faction = &"league"
-required_assists = ExtResource("2_act1")
+required_assists = ExtResource("2_assists")
 time_limit = 180.0
 pay = 800
 countdown = 3.0

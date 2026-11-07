@@ -93,7 +93,7 @@ func score_for(act: int) -> Score:
 ## The act `job` is flown in: its assists' act or the career's, whichever is
 ## later (as the board shows it).
 static func act_for(job: Job) -> int:
-	var job_act := int(job.required_assists.label.trim_prefix("Act ")) if job and job.required_assists else 1
+	var job_act := job.act if job else 1
 	return maxi(job_act, Career.act())
 
 ## Plays the career's act score in mix `m`.

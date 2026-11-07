@@ -66,7 +66,8 @@ func test_act_5_plays_act_5() -> bool:
 	_stop()
 	var ok: bool = MusicDirector.score_for(5).resource_path == ACT_5
 	var job := Job.new()
-	job.required_assists = load("res://data/assists/act5.tres")
+	job.required_assists = load("res://data/assists/mission_fleet.tres")
+	job.act = 5
 	job.countdown = 0.2
 	ok = ok and MusicDirector.act_for(job) == 5
 	var root := Sim.job_setup(job)
@@ -76,7 +77,7 @@ func test_act_5_plays_act_5() -> bool:
 	ok = ok and Music.score != null and Music.score.id == &"act_5" and MusicDirector.mix == &"briefing" \
 		and Music.log.any(func(e): return e.event == "play" and e.score == &"act_5")
 	root.free()
-	# The fleet jobs fly with Act 5's assists.
+	# The fleet jobs are Act 5's.
 	for path in ["res://data/jobs/fleet_race.tres", "res://data/jobs/fleet_inspection.tres"]:
 		ok = ok and MusicDirector.act_for(load(path)) == 5
 	_stop()

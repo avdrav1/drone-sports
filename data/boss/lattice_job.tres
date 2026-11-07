@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Job" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
-[ext_resource type="Resource" path="res://data/assists/act5.tres" id="2_act5"]
+[ext_resource type="Resource" path="res://data/assists/mission_fleet.tres" id="2_assists"]
 
 [resource]
 script = ExtResource("1_job")
@@ -12,7 +12,8 @@ The king thought humans beneath notice and left them off the list. Every assist 
 scene = "res://scenes/boss/lattice_job.tscn"
 client = "Everyone under it"
 job_type = &"boss"
-required_assists = ExtResource("2_act5")
+required_assists = ExtResource("2_assists")
+act = 5
 time_limit = 600.0
 pay = 5000
 countdown = 3.0

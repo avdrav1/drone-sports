@@ -63,9 +63,9 @@ func test_only_the_final_job_has_it() -> bool:
 	return true
 
 func test_the_fight_is_unchanged() -> bool:
-	# Still flown with every assist off: the Act 5 preset.
+	# Flown with the fleet missions' assists (Story 35.1), in Act 5.
 	var job: Job = (load(BossGate.DATA) as Boss).job
-	return job.required_assists == load("res://data/assists/act5.tres") and job.tags.has(&"lethal")
+	return job.required_assists == load("res://data/assists/mission_fleet.tres") and job.act == 5 and job.tags.has(&"lethal")
 
 func test_disabled_shows_none_of_it() -> bool:
 	_boss(false)

@@ -157,7 +157,7 @@ func drop_in() -> void:
 	pilot.reparent(flown)
 	pilot.reset()
 	flown.intent_source = pilot
-	flown.assists.apply_stack(GameSettings.effective_stack(Career.preset()))
+	flown.assists.apply_stack(runner.flight_stack() if runner and runner.job else GameSettings.effective_stack(Career.preset()))
 	if camera_rig:
 		camera_rig.target = flown
 		camera_rig.set_view(CameraRig.View.FPV)

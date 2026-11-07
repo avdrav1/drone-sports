@@ -83,7 +83,9 @@ func test_the_jobs_offer_the_two_vows() -> bool:
 				ok = ok and j.required_assists.single_drone_view and shiva.offered_with(j.required_assists)
 	return ok
 
-func test_shiva_turns_collision_guard_off_for_the_act1_job_only() -> bool:
+## Story 35.1: from the mission set, the first act preset that takes anything
+## away is Act 3's, which has brake and heading hold off.
+func test_shiva_turns_brake_off_for_the_job_only() -> bool:
 	var s := _scene(DELIVERY)
 	await Sim.process_frames(2)
 	var runner: JobRunner = s.get_node("JobRunner")
@@ -91,14 +93,14 @@ func test_shiva_turns_collision_guard_off_for_the_act1_job_only() -> bool:
 	var before := _assists(d)
 	var stats := _stats(d)
 	var count := d.assists.assists().size()
-	var ok: bool = Career.act() == 1 and before.get(&"collision_guard", false) and runner.state == JobRunner.State.BRIEFING \
+	var ok: bool = Career.act() == 1 and before.get(&"brake", false) and runner.state == JobRunner.State.BRIEFING \
 		and _letting_go() in runner.offered_vows()
 	ok = ok and await _launch_with(runner, _letting_go())
 	var during := _assists(d)
-	# Collision guard off; every other assist, the assist count and the flight model as they were.
-	ok = ok and not during[&"collision_guard"] and d.assists.assists().size() == count and _stats(d) == stats
+	# Brake off; every other assist, the assist count and the flight model as they were.
+	ok = ok and not during[&"brake"] and d.assists.assists().size() == count and _stats(d) == stats
 	for id in before:
-		if id != &"collision_guard":
+		if id != &"brake":
 			ok = ok and during[id] == before[id]
 	runner.complete()
 	ok = ok and runner.result.vow == _letting_go() and runner.result.vow_kept

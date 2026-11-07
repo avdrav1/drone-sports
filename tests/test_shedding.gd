@@ -1,8 +1,8 @@
 extends RefCounted
-# Story 30.4: the shedding. A promotion offer that removes assists names each
-# one and what removing it unlocks, from data (data/assists/unlocks.tres, read
-# through data/story/shedding.tres), under Shiva's symbol with his motif alone.
-# An offer that removes none shows nothing extra. The act presets are unchanged.
+# Story 30.4: the shedding: the names of assists let go and what each unlocks,
+# from data (data/assists/unlocks.tres, read through data/story/shedding.tres).
+# Since Story 35.1 no offer removes assists, so no offer shows it. The act
+# presets are unchanged.
 
 const Sim = preload("res://tests/sim.gd")
 const SHEDDING := "res://data/story/shedding.tres"
@@ -56,30 +56,6 @@ func test_the_unlocks_follow_the_assist_table() -> bool:
 			ok = ok and u.unlocks[id].contains(words)
 	return ok
 
-func test_every_removing_offer_names_each_assist_and_its_unlock() -> bool:
-	var u: AssistUnlocks = load(UNLOCKS)
-	var d := _dialog()
-	var ok := true
-	var checked := 0
-	# Every team, offered from every act's career (Career.preset() is the team's).
-	for from_team in [""] + TEAMS:
-		Career.team_id = StringName(from_team)
-		for id in TEAMS:
-			var t := _team(id)
-			var removed := Career.preset().removed_by(t.preset)
-			if removed.is_empty():
-				continue
-			d.show_offer(t)
-			var shown := _shown(d)
-			ok = ok and d.shed_lines.size() == removed.size() and not d.get_label().visible
-			for a in removed:
-				ok = ok and shown.contains(u.names[a]) and shown.contains(u.unlocks[a])
-			checked += 1
-			d.hide()
-	Career.team_id = &""
-	d.free()
-	return ok and checked > 6
-
 func test_the_lines_come_from_data() -> bool:
 	var shed: Shedding = (load(SHEDDING) as Shedding).duplicate()
 	shed.unlocks = (shed.unlocks as AssistUnlocks).duplicate()
@@ -88,50 +64,6 @@ func test_the_lines_come_from_data() -> bool:
 	var removed: Array[StringName] = [&"collision_guard"]
 	return shed.lines(removed).size() == 1 and shed.lines(removed)[0].contains("a test word") \
 		and shed.lines([] as Array[StringName]).is_empty()
-
-func test_skyline_offer_shows_shiva_and_his_motif_then_puts_the_music_back() -> bool:
-	var theme: Score = load(MusicDirector.THEME_PATH)
-	MusicDirector.play_score(theme, &"title")
-	var d := _dialog()
-	d.show_offer(_team("skyline_juniors"))
-	var shiva: Deity = (load(SHEDDING) as Shedding).deity
-	var symbols := d.content.find_children("*", "DeitySymbol", true, false) if d.content else []
-	var symbol_ok: bool = symbols.size() == 1 and (symbols[0] as DeitySymbol).deity == shiva and shiva.id == &"shiva"
-	var shown := _shown(d)
-	var lines_ok: bool = d.shed_lines.size() == 1 and shown.contains("collision guard") \
-		and shown.contains("tight gaps and interior flying") and d.dialog_text.contains("GUARD")
-	var motif_ok: bool = Music.score != null and Music.score.resource_path == Deity.MOTIF_SCORE
-	if motif_ok:
-		for s in Music.score.stems:
-			var want: float = s.level_db if s.id == shiva.motif else Music.SILENT_DB
-			motif_ok = motif_ok and is_equal_approx(Music.levels.get(s.id, Music.SILENT_DB), want)
-	# Nothing in it is a face, a portrait or a crew member's word.
-	var plain: bool = d.content.find_children("*", "TextureRect", true, false).is_empty()
-	d.canceled.emit()
-	await Sim.process_frames(2)
-	var back: bool = Music.score == theme and MusicDirector.mix == &"title"
-	Career.offered.clear()
-	d.free()
-	return symbol_ok and lines_ok and motif_ok and plain and back
-
-func test_an_offer_removing_nothing_shows_nothing_extra() -> bool:
-	Career.team_id = &"skyline_juniors"
-	var before := Music.score
-	var d := _dialog()
-	d.show_offer(_team("harbor_couriers"))  # Act 2 to Act 2
-	var ok: bool = d.content == null and d.shed_lines.is_empty() and d.get_label().visible \
-		and d.dialog_text.contains("Act 2") and Music.score == before
-	# After one that did, the next that does not clears it.
-	Career.team_id = &""
-	d.show_offer(_team("skyline_juniors"))
-	var had := d.content != null
-	Career.team_id = &"skyline_juniors"
-	d.show_offer(_team("harbor_couriers"))
-	ok = ok and had and d.content == null and d.get_label().visible
-	d._hush()
-	Career.team_id = &""
-	d.free()
-	return ok
 
 func test_act_presets_are_unchanged() -> bool:
 	# Which assists are on in each act, in AssistStack.IDS order.
@@ -147,4 +79,26 @@ func test_act_presets_are_unchanged() -> bool:
 		var s: AssistStack = load(ACTS % act)
 		for i in AssistStack.IDS.size():
 			ok = ok and s.is_on(AssistStack.IDS[i]) == want[act][i]
+	return ok
+
+## Story 35.1: joining a team changes the act, never the assists, so no offer,
+## from any career, sheds anything: no lines, no symbol, no motif, the plain
+## offer text naming the act.
+func test_no_offer_sheds_anything() -> bool:
+	var before := Music.score
+	var d := _dialog()
+	var ok := true
+	for from_team in [""] + TEAMS:
+		Career.team_id = StringName(from_team)
+		for id in TEAMS:
+			var t := _team(id)
+			d.show_offer(t)
+			ok = ok and d.content == null and d.shed_lines.is_empty() and d.get_label().visible \
+				and d.dialog_text.contains(t.preset.label) and Music.score == before
+			for a in AssistStack.IDS:
+				ok = ok and not d.dialog_text.contains(FlightHud.ASSIST_NAMES[a])
+			d.hide()
+	Career.team_id = &""
+	Career.offered.clear()
+	d.free()
 	return ok

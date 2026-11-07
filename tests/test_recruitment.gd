@@ -25,7 +25,7 @@ func test_top_three_race_brings_the_first_offer() -> bool:
 	var dialog: OfferDialog = screen.offer_dialog
 	var ok: bool = none_before and not outside and still_none and dialog.visible \
 		and dialog.team.id == &"skyline_juniors" and dialog.dialog_text.contains("Act 2") \
-		and dialog.dialog_text.contains("GUARD")
+		and not dialog.dialog_text.contains("GUARD")
 	screen.free()
 	return ok
 
@@ -43,11 +43,11 @@ func test_accepting_moves_to_act_2_and_hud_shows_it() -> bool:
 	var scene_played: bool = Sim.tree().current_scene is CutscenePlayer
 	Sim.tree().unload_current_scene()
 	await Sim.process_frames(1)
-	# A job asking for Act 1 assists now flies with the Act 2 set.
+	# Joining changes the act, not the assists: the race flies the mission set (Story 35.1).
 	var race: Job = load("res://data/jobs/test_race.tres")
 	var flown := JobRunner.assists_for(race)
 	var ok: bool = scene_played and before.contains("ACT 1") and after.contains("ACT 2") and after.contains("SKYLINE JUNIORS") \
-		and Career.team_id == &"skyline_juniors" and not flown.collision_guard and flown.altitude_hold \
+		and Career.team_id == &"skyline_juniors" and flown == load("res://data/assists/mission.tres") \
 		and SaveGame.read_section("career", {}).get("team") == "skyline_juniors"
 	screen.free()
 	hud.free()

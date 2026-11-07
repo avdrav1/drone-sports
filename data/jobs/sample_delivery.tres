@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Job" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
-[ext_resource type="Resource" path="res://data/assists/act1.tres" id="2_act1"]
+[ext_resource type="Resource" path="res://data/assists/mission.tres" id="2_assists"]
 [ext_resource type="Resource" path="res://data/vows/letting_go.tres" id="9_letting_go"]
 
 [resource]
@@ -13,7 +13,7 @@ scene = "res://scenes/jobs/sample_delivery.tscn"
 client = "Harbor Couriers"
 job_type = &"delivery"
 faction = &"city"
-required_assists = ExtResource("2_act1")
+required_assists = ExtResource("2_assists")
 time_limit = 60.0
 tags = Array[StringName]([&"act1", &"open"])
 pay = 500

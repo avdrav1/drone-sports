@@ -48,19 +48,18 @@ func show_next() -> bool:
 	show_offer(offers[0])
 	return true
 
-## Pops up `t`'s offer, with the shedding when joining removes assists.
+## Pops up `t`'s offer. Joining changes the act, never the assists (Story 35.1),
+## so no shedding shows.
 func show_offer(t: Team) -> void:
 	team = t
 	title = "Offer: %s" % team.name
 	dialog_text = offer_text(team)
-	_build_shedding(Career.preset().removed_by(team.preset))
+	_build_shedding([] as Array[StringName])
 	popup_centered()
 
-## Blurb, then what changes, e.g. "Joining means flying Act 2: GUARD off."
+## Blurb, then the act joining starts, e.g. "Joining means flying Act 2."
 static func offer_text(t: Team) -> String:
-	var gone := Career.preset().removed_by(t.preset).map(func(id): return FlightHud.ASSIST_NAMES[id])
-	var change := "Joining means flying %s" % t.preset.label
-	change += (": " + ", ".join(gone) + " off." if not gone.is_empty() else ".")
+	var change := "Joining means flying %s." % t.preset.label
 	return "%s\n\n%s\nDeclining is final: they won't ask again." % [t.blurb, change]
 
 ## The shedding below the offer for `removed`, or nothing when it is empty.

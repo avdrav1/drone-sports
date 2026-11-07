@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="Job" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/jobs/job.gd" id="1_job"]
-[ext_resource type="Resource" path="res://data/assists/act3.tres" id="2_act3"]
+[ext_resource type="Resource" path="res://data/assists/mission.tres" id="2_assists"]
 [ext_resource type="Resource" path="res://data/weather/light_rain.tres" id="3_weather"]
 [ext_resource type="Resource" path="res://data/vows/keeping.tres" id="9_keeping"]
 [ext_resource type="Resource" path="res://data/vows/letting_go.tres" id="10_letting_go"]
@@ -15,7 +15,8 @@ scene = "res://scenes/jobs/demolition.tscn"
 client = "Salvage crew"
 job_type = &"demolition"
 faction = &"salvage"
-required_assists = ExtResource("2_act3")
+required_assists = ExtResource("2_assists")
+act = 3
 time_limit = 60.0
 pay = 1200
 countdown = 3.0

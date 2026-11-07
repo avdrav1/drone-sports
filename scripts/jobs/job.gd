@@ -22,6 +22,9 @@ enum Guidance { FULL, NEXT_LEG, NONE }
 @export var faction: StringName
 ## Assists the drone flies with. Expert mode still overrides it.
 @export var required_assists: AssistStack
+## The story act the job belongs to: its music, act gate and the board's act
+## label. Not its assists, which are the same set on every mission (Story 35.1).
+@export_range(1, 5) var act := 1
 ## Seconds of live flying before the job fails. 0 means no limit.
 @export var time_limit := 0.0
 @export var pay := 0

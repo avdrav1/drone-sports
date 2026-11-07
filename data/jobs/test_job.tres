@@ -10,6 +10,7 @@ title = "Test flight"
 client = "Debug Co."
 faction = &"league"
 required_assists = ExtResource("2_act2")
+act = 2
 pay = 100
 countdown = 3.0
 default_view = 1
