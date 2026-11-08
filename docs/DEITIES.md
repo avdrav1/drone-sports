@@ -74,7 +74,7 @@ What a kept vow does:
 
 ## The shrines
 
-Four rooftop shrines stand in the city, one for each, marked by symbol. Each has lamps that light as that thread's vows are kept. They are visible from the air and on the map, and placed on plazas where no course, gate or hazard sits near them. Drones never collide with or damage them, and nothing in the game can.
+Four rooftop shrines stand in the city, one for each, marked by symbol. Each has lamps that light as that thread's vows are kept. They are visible from the air and on the map, and placed on plazas where no course, gate or hazard sits near them. They are solid stone a drone can land on, like the roof they stand on (owner, 2026-11-07), but nothing in the game can damage or move them.
 
 ## How they appear
 
@@ -99,7 +99,7 @@ These are gods worshipped by more than a billion people today, not only figures 
 2. No god is a playable pilot, a crew member, a perk, a shop item, an unlock or a currency. No god is bought, earned or upgraded.
 3. No god is played for laughs: no jokes, emotes, gags or cartoon expressions, in any line or scene.
 4. No invented scripture. Lines are original and in the spirit of the texts, or a paraphrase spoken by Sanjaya. Nothing is presented as a quotation unless it is one, from a translation the project may use.
-5. Shrines are never collided with, damaged, used as gates, or placed in a job's path.
+5. Shrines are never damaged, used as gates, or placed in a job's path. A drone may land on one in free flight.
 6. Before release, someone who practises the tradition reviews every line, symbol and scene. The epic's last story waits for that review.
 7. Brahma, Vishnu, Shiva and Krishna frame the story and the vows. They are data in `data/deities/`, have no status in the save beyond vows kept, and are never at risk, playable, sold, earned, mocked or shown in the crew's cartoon style. This rule stands beside CLAUDE.md's design rules, as their rule 10; CLAUDE.md is the owner's to edit, so it is kept here.
 
@@ -111,5 +111,6 @@ When `data/boss/lattice.tres` has `enabled = false`, nothing about Ravana loads:
 
 - [ ] Who reviews the lines and symbols, and when?
 - [ ] Do the four have voices of their own anywhere, or only symbols, music and Sanjaya's relay? (This proposal: only the relay.)
-- [x] Should the shrines be visitable in free flight (a slow, respectful pass), or seen only? Seen only (owner, 2026-11-01).
+- [x] Should the shrines be visitable in free flight (a slow, respectful pass), or seen only? Seen only (owner, 2026-11-01); reversed, they are solid and can be landed on (owner, 2026-11-07, Story 36.2).
+- [ ] For the review: a drone landing on a shrine's dais sits on the god's symbol. Is that acceptable, or should the dais stay non-solid with only the steps landable, or should a ledge be added to land on instead?
 - [x] Does the act-1 opening name Brahma, or show only his symbol until the player first sees the shrine? It names him (owner, 2026-11-01).

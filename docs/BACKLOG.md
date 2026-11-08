@@ -1669,7 +1669,7 @@ Owner decisions (2026-11-01):
 
 - [ ] **30.11 Docs, rule and review**
   - Goal: The docs carry the Four, and the lines, symbols and scenes have been reviewed by someone who practises the tradition.
-  - Context: Link `docs/DEITIES.md` from VISION.md, CHARACTERS.md and BOSS.md; answer its open questions with the owner's decisions. Propose CLAUDE.md rule 10 (text in DEITIES.md) to the owner, who edits CLAUDE.md. Collect every deity line into one review sheet. Waits on the owner arranging the review.
+  - Context: Link `docs/DEITIES.md` from VISION.md, CHARACTERS.md and BOSS.md; answer its open questions with the owner's decisions. Propose CLAUDE.md rule 10 (text in DEITIES.md) to the owner, who edits CLAUDE.md. Collect every deity line into one review sheet. Add to the sheet DEITIES.md's open question from 36.2: a drone landing on a shrine's dais sits on the god's symbol. Waits on the owner arranging the review.
   - Acceptance: The docs link and agree (a test greps them for the four names and the link). The review's changes are applied and noted in this story's Note with the reviewer's role (no name unless they agree). Every test passes.
   - Out of scope: Story or mechanic changes beyond the review's.
 
@@ -1803,11 +1803,12 @@ Done when a new pilot on a pad can take off, fly a mission and put the drone dow
   - Out of scope: The climb rate in OPTIONS, the landing cushion (36.4).
   - Note (2026-11-07): pilot edges raise `climb_rate` (Arjuna 5, Hanuman 7 m/s), which also set the sink, so full down touched down at 4.7 m/s and more. The owner chose a separate `sink_rate` (4 m/s) on `AltitudeHold`: edges climb faster and land no harder. The full-down test runs for every pilot. The vow of letting go now takes altitude hold off with brake (Act 3's preset has both off).
 
-- [ ] **36.2 Shrines you can land on**
+- [x] **36.2 Shrines you can land on**
   - Goal: The four shrines are solid, so a drone lands on their steps and dais instead of falling through to the roof underneath.
   - Context: 30.8 built shrines as meshes only, with no collision, by the owner's decision of 2026-11-01 ("seen only … nothing that invites flying to them"); the owner reverses it, 2026-11-07. `Shrine` gets one `StaticBody3D` box per step and a cylinder for the dais, on the world layer the roofs use, matching the meshes. A drone that touches one records contact like any roof (`AvoidContact`), so landing on a shrine in a job (none is near a job's course, 30.8) costs nothing it would not cost on a roof. Still nothing on a shrine is destructible, no job objective references one, and they keep `shrine_clearance` from pads. Cultural note for 30.11's review sheet: a drone landing on the dais sits on the god's symbol; the reviewer may prefer the dais left non-solid with only the steps landable, or a ledge to land on. Add the question to the sheet.
   - Acceptance: A drone dropped from 3 m above each shrine's dais (seed 7, and a rolled free-flight seed) comes to rest on top of the shrine, within 0.15 m of its top surface, not on the roof below. Each shrine's collision matches its meshes' bounds within 0.05 m. 30.8's checks hold except the old "no collision with the drone's layer" item, which this replaces. Obstacle fingerprints for seed 7 jobs change only by the shrines' shapes (the fingerprints are updated and the change noted).
   - Out of scope: Landing pads on shrines, lamps reacting to a landing.
+  - Note (2026-11-07): the job fingerprints did not change: they leave out the shared world (City, Streets, Rooftops), which holds the shrines, so they stay as they were. DEITIES.md's shrine text and respect rule 5 now say shrines can be landed on, and its open questions carry the dais question for 30.11's review.
 
 - [ ] **36.3 See where you will touch down**
   - Goal: In every view but FPV, a thin drop line runs from the drone straight down to the first surface below it, ending in a ring on that surface, and the HUD shows height above that surface as well as altitude.

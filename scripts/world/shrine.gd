@@ -5,8 +5,10 @@ extends Node3D
 # a round dais to be seen from the air, and a ring of lamps that light one by
 # one as that thread's vows are kept, up to `lamps`. On the radar and map as the
 # symbol, only when near: nothing points the way to it, and no job uses it.
-# Meshes only: no body, no collision shape, nothing that can be struck or
-# damaged, so a drone flies through it and it never moves anything.
+# Solid (Story 36.2, reversing 30.8's seen-only): the steps and the dais are
+# static shapes on the roof's layer, so a drone lands on them instead of falling
+# through to the roof. Nothing on it can be damaged or moved; the lamps and the
+# symbol are not solid.
 
 const MARKER_KIND := &"shrine"
 
@@ -32,17 +34,31 @@ var mark: Texture2D
 
 func _ready() -> void:
 	lit = mini(Vows.kept(deity.id), lamps) if deity else 0
+	var body := StaticBody3D.new()
+	body.name = "Body"
+	var parent := get_parent() as CollisionObject3D
+	if parent:
+		body.collision_layer = parent.collision_layer
+		body.collision_mask = parent.collision_mask
+	add_child(body)
 	var y := 0.0
 	for s in steps:
 		var box := BoxMesh.new()
 		box.size = Vector3(s.x, s.y, s.x)
 		_mesh("Step", box, Vector3(0, y + s.y * 0.5, 0), _stone(1.0))
+		var solid := BoxShape3D.new()
+		solid.size = box.size
+		_shape(body, "Step", solid, Vector3(0, y + s.y * 0.5, 0))
 		y += s.y
 	var disc := CylinderMesh.new()
 	disc.top_radius = dais.x
 	disc.bottom_radius = dais.x
 	disc.height = dais.y
 	_mesh("Dais", disc, Vector3(0, y + dais.y * 0.5, 0), _stone(0.92))
+	var drum := CylinderShape3D.new()
+	drum.radius = dais.x
+	drum.height = dais.y
+	_shape(body, "Dais", drum, Vector3(0, y + dais.y * 0.5, 0))
 	var face := QuadMesh.new()
 	face.size = Vector2.ONE * symbol_side
 	face.orientation = PlaneMesh.FACE_Y
@@ -118,6 +134,20 @@ func _mesh(id: String, mesh: Mesh, at: Vector3, mat: Material) -> MeshInstance3D
 	m.position = at
 	add_child(m)
 	return m
+
+func _shape(body: StaticBody3D, id: String, shape: Shape3D, at: Vector3) -> void:
+	var c := CollisionShape3D.new()
+	c.name = id
+	c.shape = shape
+	c.position = at
+	body.add_child(c)
+
+## Height of the shrine's top (the dais), in its own space.
+func top() -> float:
+	var y := dais.y
+	for s in steps:
+		y += s.y
+	return y
 
 func _stone(shade: float) -> StandardMaterial3D:
 	var m := _plain(stone * Color(shade, shade, shade))

@@ -2,7 +2,8 @@ extends RefCounted
 # Story 30.8: four rooftop shrines in the city, one per god, placed by the plan
 # clear of every course, gate, hazard and the spawn, in job cities (seed 7) and
 # free-flight cities alike. Their lamps light with the vows kept, capped. They
-# are seen only: no collision, nothing a job aims at, never on the radar's rim.
+# are nothing a job aims at, never on the radar's rim. Story 36.2: they are
+# solid, so a drone lands on the dais or steps, not the roof under them.
 
 const Sim = preload("res://tests/sim.gd")
 const Obstacles = preload("res://tests/test_obstacle_structures.gd")
@@ -151,27 +152,74 @@ static func _in_drone(n: Node) -> bool:
 		n = n.get_parent()
 	return false
 
-## A shrine has no body, area or shape of its own, so nothing on a drone's
-## layer, and no collider (roof clutter, plant room, parapet) stands in it.
-func test_no_shrine_collides() -> bool:
+## Story 36.2 (replacing 30.8's "no collision"): each step and the dais has a
+## shape matching its mesh within 0.05 m, on the roof's layer, and no other
+## collider (roof clutter, plant room, parapet) stands in the shrine.
+func test_shrine_collision_matches_its_meshes() -> bool:
 	var ok := true
 	for path in _city_scenes():
 		var scene: Node = Sim.add(load(path).instantiate())
 		await Sim.process_frames(2)
 		var boxes := _solid_boxes(scene)
 		for s in _shrines(scene):
-			ok = ok and s.find_children("*", "CollisionObject3D", true, false).is_empty() \
-				and s.find_children("*", "CollisionShape3D", true, false).is_empty() \
-				and s.find_children("*", "CollisionPolygon3D", true, false).is_empty()
-			# Its extent, lifted just off the roof it stands on.
+			var body: StaticBody3D = s.get_node("Body")
+			var roofs := s.get_parent() as CollisionObject3D
+			ok = ok and roofs != null and body.collision_layer == roofs.collision_layer
+			var meshes: Array[AABB] = []
+			# The steps and the dais are its first meshes, in build order.
+			var built := s.find_children("*", "MeshInstance3D", false, false)
+			for m in built.slice(0, s.steps.size() + 1):
+				meshes.append(m.global_transform * (m as MeshInstance3D).get_aabb())
+			var shapes: Array[AABB] = []
+			for c in body.get_children():
+				shapes.append(c.global_transform * (c as CollisionShape3D).shape.get_debug_mesh().get_aabb())
+			ok = ok and meshes.size() == s.steps.size() + 1 and shapes.size() == meshes.size()
+			for i in mini(meshes.size(), shapes.size()):
+				if not _close(meshes[i], shapes[i], 0.05):
+					print("        %s %s: mesh %s shape %s" % [path, s.deity.id, meshes[i], shapes[i]])
+					ok = false
+			if meshes.size() != s.steps.size() + 1 or shapes.size() != meshes.size():
+				print("        %s %s: %d meshes %d shapes" % [path, s.deity.id, meshes.size(), shapes.size()])
+			ok = ok and s.find_children("*", "CollisionObject3D", true, false).size() == 1
+			# Its extent, lifted just off the roof it stands on; its own shapes aside.
 			var room := s.global_transform * s.extent()
 			room.position.y += 0.05
 			room.size.y -= 0.05
 			for b in boxes:
-				if b.intersects(room):
+				if b.intersects(room) and not shapes.any(func(x): return _close(x, b, 0.01)):
 					print("        %s: a collider stands in %s's shrine" % [path, s.deity.id])
 					ok = false
 		scene.free()
+	return ok
+
+static func _close(a: AABB, b: AABB, tol: float) -> bool:
+	return (a.position - b.position).abs().length() <= tol and (a.end - b.end).abs().length() <= tol
+
+## A drone dropped from 3 m over each dais comes to rest on the shrine, its
+## underside within 0.15 m of the top, on seed 7 and on a rolled free-flight city.
+func test_a_drone_dropped_on_a_shrine_rests_on_top() -> bool:
+	var variety: CityVariety = load(VARIETY)
+	var base: CityLayout = load(LAYOUT)
+	var ok := true
+	for layout in [base, variety.roll(base, 4242)]:
+		var world: CityWorld = load("res://scenes/world/city_world.tscn").instantiate()
+		world.layout = layout
+		Sim.add(world)
+		await Sim.process_frames(2)
+		var shrines := _shrines(world)
+		ok = ok and shrines.size() == 4
+		for s in shrines:
+			var top := s.global_position.y + s.top()
+			var d := Sim.drone(Sim.intent(-1.0), s.global_position + Vector3.UP * (s.top() + 3.0))
+			await Sim.physics_frames(180)
+			var shape: CollisionShape3D = d.get_node("Shape")
+			var under := d.global_position.y - (shape.shape as BoxShape3D).size.y * 0.5 + shape.position.y
+			var still := d.linear_velocity.length() < 0.1
+			if absf(under - top) > 0.15 or not still:
+				print("        seed %d %s: underside %.2f m, top %.2f m, roof %.2f m" % [layout.seed, s.deity.id, under, top, s.global_position.y])
+				ok = false
+			d.free()
+		world.free()
 	return ok
 
 ## True when `v` is, or holds, a shrine or a node inside one.
