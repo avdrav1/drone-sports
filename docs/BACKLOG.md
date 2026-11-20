@@ -1660,4 +1660,10 @@ Done when every mission on the board can be reached by playing from a new save.
   - Goal: A new pilot can earn their way to every mission. Before this, only league reputation could be earned, so Harbor Couriers, City Rescue Air, Cannery Row and Deadweight never made an offer and five missions stayed locked.
   - Context: Reputation comes only from flying a faction's jobs, and those jobs needed that faction's team. "Parcel to the pad" joins the home game (`act1`), so it earns city reputation from the start. Home jobs stay flyable on any team, replacing Story 5.3's "only the current team's jobs". A team's `noticed_after` makes it ask after that many completed missions of any kind, whatever its reputation: Cannery Row at 5, Deadweight at 12.
   - Acceptance: `tests/test_career_reach.gd` plays from a new save, earning reputation at a C grade, tries every accept and decline, and fails if any board mission is never flyable. Joining Skyline Juniors first still reaches the city's missions. Salvage asks after enough missions with no salvage reputation.
-  - Out of scope: Offers stay one-shot and acts only go up, so some choices still close missions on that save (joining Halcyon Racing closes the city's and salvage's teams).
+  - Out of scope: Offers stay one-shot and acts only go up, so some choices still close missions on that save (joining Halcyon Racing closes City Rescue Air, the only team that flies rescue).
+
+- [x] **31.2 Sideways offers and honest cards**
+  - Goal: A pilot's first team does not close the other factions, and a locked card says what to do next and how far along the pilot is.
+  - Context: On Skyline Juniors, Harbor Couriers could never ask, since teams only recruited from a later act, while the card still named them. A team now also asks at the same act from another faction, keeping the assists. `Career.may_unlock` lists only teams that can still ask; `Career.offer_progress` reports reputation, missions, or a flag (`Team.flag_hint`).
+  - Acceptance: On Juniors, four C-grade parcel runs bring the Harbor Couriers offer, and joining changes no assists. Accepting one offer keeps another faction's offer waiting. A locked card reads like "Harbor Couriers: City reputation 4 of 10" and never names a team that cannot ask, on any career `tests/test_career_reach.gd` explores.
+  - Out of scope: Offers stay one-shot.

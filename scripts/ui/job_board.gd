@@ -414,15 +414,46 @@ static func lock_reason(job: Job) -> Array[String]:
 	var missing := Consequences.missing_crew(job)
 	if not missing.is_empty():
 		return ["Needs " + " and ".join(missing), "Closed: needs %s alive to fly it." % ", ".join(missing)]
-	var teams := Career.unlocked_by(job)
+	var teams := Career.may_unlock(job)
 	if teams.is_empty():
-		return ["No team flies this", "Locked: no team takes this kind of job yet."]
-	var short := "Join " + teams[0]
-	if teams.size() == 2:
-		short += " or " + teams[1]
-	elif teams.size() > 2:
-		short += " or %d more teams" % (teams.size() - 1)
-	return [short, "Locked: flown by %s. Join one to fly it." % ", ".join(teams)]
+		return ["No team will ask now", "Locked: no team that flies this can still take you on."]
+	# The team nearest to asking, with an offer waiting first of all.
+	var next: Team = teams[0]
+	for t: Team in teams:
+		if t.id in Career.pending and not next.id in Career.pending:
+			next = t
+		elif not next.id in Career.pending and Career.progress_fraction(Career.offer_progress(t)) \
+				> Career.progress_fraction(Career.offer_progress(next)):
+			next = t
+	var names: Array[String] = []
+	for t: Team in teams:
+		names.append(t.name)
+	return [next_step(next), "Locked: flown by %s. Join one to fly it. %s" % [", ".join(names), how_to_join(next)]]
+
+## One line on the card: the team and how far along the pilot is (Story 31.2).
+static func next_step(t: Team) -> String:
+	if t.id in Career.pending:
+		return "%s: offer waiting" % t.name
+	var p := Career.offer_progress(t)
+	match p.unit:
+		&"reputation":
+			return "%s: %s reputation %d of %d" % [t.name, String(t.faction).capitalize(), p.have, p.need]
+		&"missions":
+			return "%s: %d of %d missions" % [t.name, p.have, p.need]
+	return "%s: %s" % [t.name, t.flag_hint] if t.flag_hint else "Join " + t.name
+
+## The card's tooltip: what makes the team ask.
+static func how_to_join(t: Team) -> String:
+	if t.id in Career.pending:
+		return "%s has an offer waiting for you." % t.name
+	var p := Career.offer_progress(t)
+	match p.unit:
+		&"reputation":
+			var faction := String(t.faction).capitalize()
+			return "%s asks at %d %s reputation, earned on %s jobs. You have %d." % [t.name, p.need, faction, faction, p.have]
+		&"missions":
+			return "%s asks after %d completed missions of any kind. You have %d." % [t.name, p.need, p.have]
+	return "%s asks when you %s." % [t.name, t.flag_hint] if t.flag_hint else ""
 
 ## Before anything is done, the first flyable job is where to start.
 func start_here() -> StringName:

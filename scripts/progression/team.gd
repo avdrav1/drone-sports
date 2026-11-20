@@ -20,6 +20,8 @@ const FACTIONS: Array[StringName] = [&"league", &"city", &"salvage"]
 ## A story flag that makes the team ask, e.g. scouted. When set, it replaces
 ## the reputation check.
 @export var needs_flag: StringName
+## What to do to raise `needs_flag`, for a locked job's card.
+@export var flag_hint := ""
 ## The assists the pilot flies with on this team.
 @export var preset: AssistStack
 ## Cutscene played once on joining, e.g. the recruitment scene. Empty for none.

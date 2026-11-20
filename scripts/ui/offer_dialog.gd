@@ -34,6 +34,10 @@ static func offer_text(t: Team) -> String:
 	var gone := Career.preset().removed_by(t.preset).map(func(id): return FlightHud.ASSIST_NAMES[id])
 	var change := "Joining means flying %s" % t.preset.label
 	change += (": " + ", ".join(gone) + " off." if not gone.is_empty() else ".")
+	# A sideways move (Story 31.2) changes the missions, not the assists.
+	var mine := Career.team()
+	if mine and t.preset.label == Career.preset().label:
+		change = "You'd keep flying %s, and leave %s for their missions." % [t.preset.label, mine.name]
 	return "%s\n\n%s\nDeclining is final: they won't ask again." % [t.blurb, change]
 
 func _answer(accepted: bool) -> void:

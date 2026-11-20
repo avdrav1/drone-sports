@@ -38,7 +38,7 @@ func test_only_current_team_jobs_fly() -> bool:
 	b = _board()
 	await Sim.process_frames(1)
 	var couriers := _flyable(b)
-	var race_lock_now: String = b.lock_label(&"spotter_drill").text
+	var race_lock_now: String = b.lock_label(&"spotter_drill").tooltip_text
 	var details: String = \
 		(b.job_rows[&"sample_delivery"].get_child(0).get_node("Details") as Label).text
 	b.free()

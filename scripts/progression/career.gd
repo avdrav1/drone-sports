@@ -45,14 +45,23 @@ func label() -> String:
 func act() -> int:
 	return int(preset().label.trim_prefix("Act "))
 
-## Would `t` make an offer now? It must never have offered, want a pilot this
-## good (a later act than now), and see the faction reputation it needs or
-## enough missions completed, or for a team with `needs_flag`, that story flag.
+## Would `t` take a pilot at this act? A later act always. The same act only
+## from another faction, a sideways move that changes no assists (Story 31.2):
+## it keeps a pilot's first team from closing the other factions' routes.
+func recruits_at_this_act(t: Team) -> bool:
+	var theirs := int(t.preset.label.trim_prefix("Act "))
+	if theirs != act():
+		return theirs > act()
+	var mine := team()
+	return mine != null and t.faction != mine.faction
+
+## Would `t` make an offer now? It must never have offered, recruit at this act,
+## and see the faction reputation it needs or enough missions completed, or for
+## a team with `needs_flag`, that story flag.
 func wants(t: Team) -> bool:
 	if t.id in offered or t.id == team_id or Consequences.faction_locked(t.faction):
 		return false
-	# A pilot whose own faction is locked will take a team of the same act.
-	if int(t.preset.label.trim_prefix("Act ")) < act() + (0 if team_locked() else 1):
+	if not recruits_at_this_act(t):
 		return false
 	# A scout's team asks on the flag alone: they already saw the run.
 	if t.needs_flag != &"":
@@ -113,16 +122,33 @@ func team_locked() -> bool:
 	var t := team()
 	return t != null and Consequences.faction_locked(t.faction)
 
-## Names of the teams that fly this kind of job, for a locked job's row.
-func unlocked_by(job: Job) -> Array[String]:
-	var out: Array[String] = []
-	for t in teams.teams:
-		if job.job_type in t.job_types and not Consequences.faction_locked(t.faction):
-			out.append(t.name)
+## The teams that fly this kind of job and can still take the pilot on: an offer
+## waiting, or one still to come. For a locked job's card (Story 31.2).
+func may_unlock(job: Job) -> Array[Team]:
+	var out: Array[Team] = []
+	for t: Team in teams.teams:
+		if not job.job_type in t.job_types or t.id == team_id or Consequences.faction_locked(t.faction):
+			continue
+		if t.id in pending or (not t.id in offered and recruits_at_this_act(t)):
+			out.append(t)
 	return out
 
+## How near `t` is to asking: {have, need, unit}, with unit &"reputation",
+## &"missions", or &"flag". Of a team's two ways in, the one further along.
+func offer_progress(t: Team) -> Dictionary:
+	if t.needs_flag != &"":
+		return {"have": 1 if StoryFlags.is_set(t.needs_flag) else 0, "need": 1, "unit": &"flag"}
+	var rep := {"have": Reputation.of(t.faction), "need": t.reputation_needed, "unit": &"reputation"}
+	if t.noticed_after <= 0:
+		return rep
+	var done := {"have": missions_completed(), "need": t.noticed_after, "unit": &"missions"}
+	return done if progress_fraction(done) >= progress_fraction(rep) else rep
+
+static func progress_fraction(p: Dictionary) -> float:
+	return float(p.have) / float(p.need) if p.need > 0 else 1.0
+
 func wants_still(t: Team) -> bool:
-	return int(t.preset.label.trim_prefix("Act ")) > act()
+	return recruits_at_this_act(t)
 
 ## A job finished as complete; saved at once.
 func job_completed(job_id: StringName) -> void:
