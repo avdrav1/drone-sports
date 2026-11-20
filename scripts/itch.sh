@@ -37,4 +37,4 @@ mkdir -p "$OUT"
 VERSION="$(git describe --always --dirty 2>/dev/null || echo "uncommitted")"
 echo "Built from $VERSION"
 butler push "$OUT" "$TARGET:$CHANNEL" --userversion "$VERSION"
-butler status "$TARGET:$CHANNEL"
+# No `butler status` here: itch is still processing the build when push returns.
