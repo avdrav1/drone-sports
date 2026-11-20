@@ -6,7 +6,7 @@ A near-future drone-piloting game. You start as a gamer, get scouted by a team, 
 
 - Engine: Godot 4.3+, GDScript, Forward+ on desktop, GL Compatibility on web
 - Tests: `scripts/test.sh` (headless; `tests/run.gd` runs `tests/test_*.gd`, split across `JOBS` processes, default 12; `ONLY=test_foo,test_song_* scripts/test.sh` runs just those)
-- Deploy: `scripts/ship.sh` exports the Web preset and pushes it to the `gh-pages` branch (GitHub Pages)
+- Deploy: `scripts/ship.sh` exports the Web preset and pushes it to the `gh-pages` branch (GitHub Pages); `scripts/itch.sh` pushes the same build to itch.io with butler (target in `web/ITCH_TARGET`)
 - No addons unless a story asks for one
 
 ## Layout
@@ -48,7 +48,7 @@ build/      export output, gitignored
 
 - Stories live in `docs/BACKLOG.md` as checkboxes. Work them in order unless told otherwise.
 - `/next-story` picks the first unchecked story, implements it, runs tests, ticks the box, commits.
-- `/ship-it` runs tests, exports the web build, deploys to GitHub Pages.
+- `/ship-it` runs tests, exports the web build, deploys to GitHub Pages and itch.io.
 - One story per commit. Commit message: `Story X.Y: <title>`.
 - Every story adds or extends a test in `tests/`. A story is not done until `scripts/test.sh` passes.
 - Keep diffs small. Do not refactor outside the story's scope.
